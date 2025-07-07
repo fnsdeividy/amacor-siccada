@@ -72,10 +72,10 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
 
         # Inserir dados do responsável
         cur.execute("""
-            INSERT INTO responsavel (proposta_id, nome, cpf, data_nascimento, cep, celular, email, estado_civil)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO responsavel (proposta_id, nome, cpf, data_nascimento, cep, celular, email, estado_civil, complemento_cep)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (proposta_id, responsavel['nome'], responsavel['cpf'], responsavel['data_nascimento'],
-              responsavel['endereco'], responsavel['celular'], responsavel['email'], responsavel['estado_civil']))
+              responsavel['cep'], responsavel['celular'], responsavel['email'], responsavel['estado_civil'], responsavel['endereco']))
 
         # Inserir dados do titular
         cur.execute("""

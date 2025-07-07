@@ -24,7 +24,9 @@ def consultar_cep(cep):
     Consulta um CEP usando a API ViaCEP.
     Retorna um dicionário com os dados do endereço ou None se não encontrar.
     """
+    
     cep = ''.join(filter(str.isdigit, str(cep)))
+    print (cep)
     if len(cep) != 8:
         return None
 
@@ -39,7 +41,3 @@ def consultar_cep(cep):
         print(f"Erro ao consultar CEP: {e}")
         return None
 
-# Exemplo de uso:
-if __name__ == "__main__":
-    resultado = consultar_cep('23098006')
-    print(resultado)

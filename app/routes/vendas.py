@@ -154,11 +154,13 @@ def venda_form():
             "nome": request.form.get('nome_responsavel'),
             "cpf": request.form.get('cpf_responsavel'),
             "data_nascimento": request.form.get('dt_nascimento_responsavel'),
+            "cep": request.form.get('cep_responsavel'),
             "endereco": request.form.get('endereco_responsavel'),
             "celular": request.form.get('celular_responsavel'),
             "email": request.form.get('email_responsavel'),
             "estado_civil": request.form.get('estado_cv_responsavel')
         }
+        print(responsavel['cep'], responsavel['endereco'])
         
         
 
@@ -234,3 +236,15 @@ def venda_form():
     except Exception as e:
         return f"Erro ao processar os dados: {e}"
 
+# app/routes/vendas.py
+from flask import Blueprint, request, jsonify
+from app.api_conex.conections import consultar_cep
+
+@vendas_bp.route('/buscar_endereco_cep', methods=['POST'])
+def buscar_endereco_cep():
+    cep = request.json.get('cep')
+    print(cep)
+    endereco = consultar_cep(cep)
+    if endereco:
+        return jsonify(endereco)
+    return jsonify({'erro': 'Endereço não encontrado'}), 404
