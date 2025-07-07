@@ -189,6 +189,13 @@ function removeDependente(button) {
                         <label for="dt_nascimento_responsavel">Data de Nascimento:</label>
                         <input type="date" id="dt_nascimento_responsavel" name="dt_nascimento_responsavel" required>
                     </div>
+                    <div class="form-field" style="display: flex; align-items: center; gap: 8px;">
+                        <label for ="cep_responsavel" style="flex: 0 0 120px;">Numero do CEP:</label>
+                        <input type="text" id="cep_responsavel" name="cep_responsavel" required style="flex: 1;">
+                        <button type="button" id="btn-buscar-cep" title="Buscar endereço pelo CEP" style="background: none; border: none; cursor: pointer; padding: 0 6px;">
+                            <span style="font-size: 1.2em;">🔍</span>
+                        </button>
+                    </div>
                     <div class="form-field">
                         <label for="endereco_responsavel">Endereço:</label>
                         <input type="text" id="endereco_responsavel" name="endereco_responsavel" required>
@@ -311,5 +318,52 @@ function removeDependente(button) {
         section.classList.add('active');
     });
 }
+
+function calcularIdade(dataNascimento) {
+    if (!dataNascimento) return '';
+    const hoje = new Date();
+    const partes = dataNascimento.split('-');
+    if (partes.length !== 3) return '';
+    const nascimento = new Date(partes[0], partes[1] - 1, partes[2]);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+        idade--;
+    }
+    return idade;
+}
+
+// Atualiza o campo idade do titular ao mudar a data de nascimento
+document.getElementById('dt_nascimento_beneficiario').addEventListener('change', function() {
+    const idade = calcularIdade(this.value);
+    document.getElementById('idade_beneficiario').value = idade;
+});
+
+// Atualiza o campo idade do titular ao mudar a data de nascimento
+document.getElementById('dt_nascimento_beneficiario').addEventListener('change', function() {
+    const idade = calcularIdade(this.value);
+    document.getElementById('idade_beneficiario').value = idade;
+});
+
+function buscarCepResponsavel() {
+    const cepInput = document.getElementById('cep_responsavel');
+    const cep = cepInput.value.replace(/\D/g, '');
+    if (cep.length === 8) {
+        fetch('{{ url_for('vendas.buscar_endereco_cep') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cep: cep })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.erro) {
+                document.getElementById('endereco_responsavel').value =
+                    `${data.logradouro || ''}, ${data.bairro || ''}, ${data.localidade || ''} - ${data.uf || ''}`.replace(/^, |, ,/g, '').trim();
+            }
+        });
+    }
+}
+document.getElementById('cep_responsavel').addEventListener('blur', buscarCepResponsavel);
+document.getElementById('btn-buscar-cep').addEventListener('click', buscarCepResponsavel);
 </script>
 {% endblock %}
