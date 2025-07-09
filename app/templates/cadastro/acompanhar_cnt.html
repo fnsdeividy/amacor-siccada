@@ -1,13 +1,18 @@
 {% extends "base.html" %}
 {% block title %}acompanhamento de contratos{% endblock %}
 {% block content %}
-
+<br>
+<div class="search-bar-container" style="display: flex; justify-content: right; align-items: center; margin-top: 30px; margin-bottom: 10px;">
+    <form method="get" action="{{url_for('cad.acompanhar_cnt')}}" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px  ;">
+        <input type="text" name="buscar" placeholder="Buscar por proposta" value="{{ request.args.get('buscar', '') }}" style="padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; min-width: 220px; font-size: 15px; background: #fff; color: #222;">
+        <button class="btn" type="submit">Buscar</button>
+    </form>
+</div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cards de Vendas</title>
     <style>
         /* Seus estilos permanecem os mesmos */
         p {

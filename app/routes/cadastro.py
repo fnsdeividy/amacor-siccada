@@ -28,6 +28,7 @@ def doc_home():
 @hierarquia('supervisor','agente','vendedor')
 
 def acompanhar_cnt():
+    buscar = request.args.get('buscar')
     
     
     conn= sqlite3.connect(current_app.config['DATABASE'])
@@ -62,9 +63,19 @@ def acompanhar_cnt():
         cur.execute("SELECT * FROM venda WHERE data_venda BETWEEN ? AND ?", (venda_inicial, venda_final))
         result = cur.fetchall()
         print(f"result: {result}")
-        return render_template('cadastro/contratos_finalizados.html', result=result, resp=resp)
+        return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
            
-               
+    elif buscar: 
+        try:
+            buscar = int(buscar)
+        except ValueError:
+            buscar = buscar  # permite buscar strings também
+        print(f"buscando por: {buscar}")
+        query = "SELECT * FROM venda WHERE numero_proposta = ?" 
+        result = query_db(query, (buscar,))
+        # Converte cada Row em dict para evitar erro de serialização
+        if result:
+            return render_template('cadastro/acompanhar_cnt.html', result=result)           
 
     elif resp is None:
         if tipo_usuario == 'vendas':
@@ -89,7 +100,8 @@ def acompanhar_cnt():
             query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro'"
             result = query_db(query)
 
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
+            return render_template('cadastro/acompanhar_cnt.html', result=result)
+    return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
         
 @cad_bp.route('/detalhes_cnt', methods=['POST', 'GET'])
 @acesso('vendas', 'cadastro', 'administrativo','financeiro')
