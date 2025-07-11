@@ -71,8 +71,8 @@ def acompanhar_cnt():
         except ValueError:
             buscar = buscar  # permite buscar strings também
         print(f"buscando por: {buscar}")
-        query = "SELECT * FROM venda WHERE numero_proposta = ?" 
-        result = query_db(query, (buscar,))
+        query = "SELECT * FROM venda WHERE numero_proposta = ? OR numero_contrato = ?" 
+        result = query_db(query, (buscar,buscar))
         # Converte cada Row em dict para evitar erro de serialização
         if result:
             return render_template('cadastro/acompanhar_cnt.html', result=result)           
