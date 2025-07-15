@@ -31,7 +31,7 @@
                 </div>
     
             <div class="form-field">
-                <form method="POST" action="{{ url_for('cad.gravar_alteracao', id=id) }}">
+                <form method="POST" action="{{ url_for('cad.gravar_alteracao', proposta=proposta) }}">
                     <label for="status"></label>
                     <select id="status" name="status" required>
                         <option value="" disabled selected>selecione</option>
@@ -44,7 +44,7 @@
                            
                         {% elif area == 'financeiro' %}
                         <option value="boleto emitido">boleto emitido</option>
-                        <option value="analise de declaracao">enviado para confexão de kit</option>
+                        <option value="analise de declaração">enviado para confexão de kit</option>
                         {% elif area == 'administrativo' %}
                         <option value="entrevista agendada">entrevista Agendada</option>
                         <option value="geração de kit">gerar kit</option>
