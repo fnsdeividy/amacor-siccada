@@ -27,7 +27,7 @@
         </div>
     
        
-        <form method="POST" action="{{ url_for('cad.gravar_alteracao',id=id) }}">
+        <form method="POST" action="{{ url_for('cad.gravar_alteracao',proposta=proposta) }}">
             <label for="status">atribuir contrato:</label>
             <input type="text" id="status" name="status" placeholder="digite o número do contrato" required>
             <input type="hidden" name="info" value="numero_contrato">    

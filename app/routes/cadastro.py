@@ -326,8 +326,9 @@ def gravar_alteracao():
         if email:
             print(f"Enviando e-mail para {email} com assunto '{assunto}'")
             email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem)
+            """
         return redirect(url_for('cad.acompanhar_cnt'))
-        """
+        
 
 @cad_bp.route('/alterar_infos_prpopsta', methods=['GET'])
 @acesso('vendas', 'cadastro', 'administrativo')
