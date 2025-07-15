@@ -5,10 +5,11 @@ from werkzeug.utils import secure_filename
 from PyPDF2 import PdfMerger
 #from pdf2image import convert_from_path
 from app.utils import acesso, hierarquia
-from ..models.database import query_db, update_db
+from ..models.database import query_db, update_db, get_email, get_nome
 import sqlite3
 import re
 import glob
+from ..api_conex.conections import email_gmail
 
 cad_bp = Blueprint('cad', __name__)
 
@@ -175,7 +176,7 @@ def atualizar_cnt():
     print(id, proposta,tipo_usuario)
     
     if  not contrato:
-        return redirect(url_for('cad.adicionar_cnt', id=id,proposta=proposta,contrato=contrato,tipo_usuario=tipo_usuario,area=last_resp))
+        return redirect(url_for('cad.adicionar_cnt',proposta=proposta,contrato=contrato,tipo_usuario=tipo_usuario,area=last_resp))
 
     print(f"Contrato: {contrato}, Proposta: {proposta}, ID: {id}")
   
@@ -189,24 +190,22 @@ def atualizar_cnt():
 @acesso('cadastro','administrativo')
 @hierarquia('supervisor','agente')
 def adicionar_cnt():
-    id =request.args.get('id')
-    id = int(id)
     proposta = request.args.get('proposta')
-    print(id, proposta)
-
-
+    print(proposta)
     
     if request.method == 'POST':
         contrato=request.form.get('contrato')
+        email=get_email(proposta)
+        print (email)
 
         conn = sqlite3.connect(current_app.config['DATABASE'])
         cur = conn.cursor()
-        cur.execute("UPDATE venda SET status = ? WHERE id = ?", (contrato, id))
-        cur.execute("UPDATE venda SET status = 'enviado para Declaração de Saúde WHERE id = ?" ,(id))
+        cur.execute("UPDATE venda SET status = ? WHERE numero_proposta = ?", (contrato, proposta))
+        cur.execute("UPDATE venda SET status = 'enviado para Declaração de Saúde WHERE numero_proposta = ?" ,(proposta))
         conn.commit()
         cur.close()
         conn.close()
-        return url_for('cad.alterar_registro')
+        
 
     return render_template('cadastro/adicionar_cnt.html',id=id, proposta=proposta)
 
@@ -272,39 +271,63 @@ def adicionar_doc():
 
 def gravar_alteracao():
 
-    id= request.args.get('id')
-    print(f"ID recebido: {id}")
     info = request.form.get('info') #nome da coluna a ser atualizada
     tipo_usuario = session.get('tipo_usuario')
-    print(f"Tipo de usuário: {tipo_usuario}")
+    proposta = request.args.get('proposta') or request.form.get('numero_proposta')
+    complemento = request.form.get('complemento')
+    print('proposta:', proposta)
+    print(f'compemento:', {complemento})
+
+    email= get_email(proposta)
+    print ('email recebido:', email)
     
     status= request.form.get('status') #valor a ser atualizado
     
-
-    if id is None:
-        return "ID não fornecido", 400
-
-    try:
-        id = int(id)
-    except ValueError:
-        return "ID inválido", 400
-
     if request.method == 'POST':
-        situacao = request.form.get('situacao')
-        id=int(id)
-        print(f"Situação recebida: {situacao}")
+        
+        print(f"Situação recebida: {status}")
 
         conn = sqlite3.connect(current_app.config['DATABASE'])
         cur = conn.cursor()
-        cur.execute(f"UPDATE venda SET {info} = ? WHERE id = ?", (status, id))
-        cur.execute("UPDATE venda SET last_resp = ? WHERE id = ?", (tipo_usuario, id))
+        cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
+        cur.execute("UPDATE venda SET last_resp = ? WHERE numero_proposta = ?", (tipo_usuario, proposta))
+        cur.execute("UPDATE venda SET complemento_fase = ? WHERE numero_proposta = ?", (complemento, proposta))
 
         conn.commit()
         cur.close()
         conn.close()
         flash('Alteração realizada com sucesso!', 'success')
-
+        """
+        def msg_email(status,proposta):
+            nome = get_nome(proposta)
+            if status == 'entrevista online enviada':
+                assunto = f'{nome} sua entrevista Online foi Enviada'
+                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n {complemento}'
+                return assunto, mensagem
+            elif status == 'analise de declaração':
+                assunto= 'Enviado para análise'
+                mensagem = f'Sua entrevista online foi enviada para análise administrativa. Talvez seja necessário uma entrevista presencial. Proposta: {proposta}'
+                return assunto, mensagem
+            elif status == 'entrevista agendada':
+                assunto = 'Entrevista Agendada'
+                mensagem = f'Sua entrevista presencial foi agendada com sucesso. Proposta: {proposta}'
+                return assunto, mensagem
+            elif status == 'geração de kit':
+                assunto = 'Geração de kit'
+                mensagem = f"Seu contrato está finalizado e o kit contratual será gerado e enviado em breve. Proposta: {proposta}"
+                return assunto, mensagem
+            elif status == 'contrato finalizado':
+                assunto = 'Contrato Finalizado'
+                mensagem = f"Seu contrato foi finalizado com sucesso. \n Bem vindo à Amacor Planos de Sáude. Proposta: {proposta}"
+                return assunto, mensagem
+        print (status, proposta)
+        assunto, mensagem = msg_email(status, proposta)
+        
+        if email:
+            print(f"Enviando e-mail para {email} com assunto '{assunto}'")
+            email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem)
         return redirect(url_for('cad.acompanhar_cnt'))
+        """
 
 @cad_bp.route('/alterar_infos_prpopsta', methods=['GET'])
 @acesso('vendas', 'cadastro', 'administrativo')
