@@ -47,20 +47,6 @@ def consultar_cep(cep):
         print(f"Erro ao consultar CEP: {e}")
         return None
 
-def siccada_kommo():
-    access_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImI1MTAzOTM5MWJmOThlZmQxMGEzMzY1MWEzZDA4YWUyYjRlMDI3YjVkNTNjODlkMDVmOWY3ZDhjMjllZjdiZDRkNzA3MjQ1N2I1ZmIyZDExIn0.eyJhdWQiOiI1ODE5NTI0OS02ZjBkLTRhYjQtYmRmZi02ZmUyMzdjMTFiY2QiLCJqdGkiOiJiNTEwMzkzOTFiZjk4ZWZkMTBhMzM2NTFhM2QwOGFlMmI0ZTAyN2I1ZDUzYzg5ZDA1ZjlmN2Q4YzI5ZWY3YmQ0ZDcwNzI0NTdiNWZiMmQxMSIsImlhdCI6MTc1MTk5Mzc3MiwibmJmIjoxNzUxOTkzNzcyLCJleHAiOjE3NTIwMTkyMDAsInN1YiI6IjEzMDE2OTE1IiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjM0NDM1MzUxLCJiYXNlX2RvbWFpbiI6ImtvbW1vLmNvbSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiZjU2ZGQyNTUtYzdlMC00YWY1LThlZmEtYjNjYzA4ZTFjMDgyIiwiYXBpX2RvbWFpbiI6ImFwaS1jLmtvbW1vLmNvbSJ9.XOEise6PYMsKBC9oZ7V5ymtFTTqovy27fYyDBuCCSdI_3I80HYYxSOnGEosU8ENX9p97sUWYy0aO3opsCmkBlzfF_obxDGMdgREanqhsfXKVUP8DQUH2tnpN80CPovSU0Pkbt_JSkVmEzoONu06lViNyouatR4wfXiTrJnAuFgR8g8zu8uSBB6L70h7C3xlGeGnOdMDflfJekFEBsPmJ5LTs6MOv8HjWKuPkKU_sQvkF2l_lmHBXW3Bmm2WpQUeWXoRywQlzJodmJbXS2I9wIPXA1G7pUs42BwGqts7Zw6TpxAA44u8MaEhtLl7YzxWa71HZpl566iBCs2pFbCOvAw'
-    subdomain = 'marcosheberlima'
-    headers= {
-    'Authorization': f'Bearer {access_token}',
-    'Content-Type': 'application/json'
-    }
-
-    url = f'https://{subdomain}.kommo.com/api/v4/leads'
-    response = requests.get(url, headers=headers)
-    print(response.status_code)
-    print(response.json())
-
-    return response.json()
     
 def siccada_kommo_excel():
     import pandas as pd
@@ -102,8 +88,66 @@ def enviar_email(destinatario, assunto, corpo):
         print('E-mail enviado com sucesso!')
 
 
-if __name__ == "__main__":
-   enviar_email(
-       'ccunha@amacor.com.br',
-       'teste siccada envio',
-       'mensagem de teste siccada envio')
+def autorizar():
+    import webbrowser
+
+    # Substitua pelas suas credenciais
+    CLIENT_ID = '58195249-6f0d-4ab4-bdff-6fe237c11bcd'
+    REDIRECT_URI = 'http://192.168.0.150:8001/api/callback'  # O redirect URI
+    SUBDOMAIN = 'marcosheberlima'  # Seu subdomínio Kommo
+
+    # URL de autorização (onde o usuário vai autorizar o acesso)
+    auth_url = f'https://{SUBDOMAIN}.kommo.com/oauth?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code'
+
+    # Abra a URL no navegador
+    print(f'Abra a seguinte URL no navegador e autorize o acesso: {auth_url}')
+    webbrowser.open(auth_url)  # Isso vai abrir a URL no seu navegador
+
+
+def siccada_kommo():
+    access_token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImY4OWEyYTgzZmJiYWY5YmEwZTE4NmIxNGM0NDQxMzEyNzJiOTZlNDI3OTM4ZTA1Mjc1YmNiNDNjODE0MzlmMzZlMTVkNmRmODczZWI4YTg0In0.eyJhdWQiOiI1ODE5NTI0OS02ZjBkLTRhYjQtYmRmZi02ZmUyMzdjMTFiY2QiLCJqdGkiOiJmODlhMmE4M2ZiYmFmOWJhMGUxODZiMTRjNDQ0MTMxMjcyYjk2ZTQyNzkzOGUwNTI3NWJjYjQzYzgxNDM5ZjM2ZTE1ZDZkZjg3M2ViOGE4NCIsImlhdCI6MTc1MjA4MTIxNCwibmJmIjoxNzUyMDgxMjE0LCJleHAiOjE3NTIxMDU2MDAsInN1YiI6IjEzMDE2OTE1IiwiZ3JhbnRfdHlwZSI6IiIsImFjY291bnRfaWQiOjM0NDM1MzUxLCJiYXNlX2RvbWFpbiI6ImtvbW1vLmNvbSIsInZlcnNpb24iOjIsInNjb3BlcyI6WyJjcm0iLCJmaWxlcyIsImZpbGVzX2RlbGV0ZSIsIm5vdGlmaWNhdGlvbnMiLCJwdXNoX25vdGlmaWNhdGlvbnMiXSwiaGFzaF91dWlkIjoiMzBhM2I4OWMtM2NkMC00NmM2LWI0YTgtZDQ5NjY2MWU1OGVlIiwiYXBpX2RvbWFpbiI6ImFwaS1jLmtvbW1vLmNvbSJ9.k02isA6rLFMy9ZC_YiRdHtjGRSplluqK2b4j1gRztj5d0U0l4QL7-bdZacQ6RH1Z23fPjzxhRYV5zePzumW2pTo3r_nhMxFRw6bi6VAA9oV4GDDjA5RAeDNursNEmZx4wiN3vLu_IpMRrVlT7HqTQ1peyQUSc85fRkVJnCTpUq-eNYEmi-w8pmLSUCkgHkdpbgii8FeoV9a--CKsR8_XJRF57FOKexRFmaPZi5l6qwd8RzQJV3ziYGoIedlW4hyDyswpkYS4Qu1S8JZNnn_2y4I7VO8nxpWUKhitKcspUSzCa-gJ9m9sGfJ_DD3hozbvnq8RiTfQmfQFERbEOEhYWA'
+    subdomain = 'marcosheberlima'
+    headers= {
+    'Authorization': f'Bearer {access_token}',
+    'Content-Type': 'application/json'
+    }
+
+    url = f'https://{subdomain}.kommo.com/api/v4/leads'
+    response = requests.get(url, headers=headers)
+    print(response.status_code)
+    print(response.json())
+
+    return response.json()
+
+
+
+def email_gmail(destinatario, assunto, mensagem):
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    # Configurações do remetente
+    remetente = "alertaamacor.siccada@gmail.com"
+    senha_app = "sajg qyhm vmsf cvgr"  # sem espaços!
+
+    # Configurações do destinatário
+   
+
+    # Monta o e-mail
+    msg = MIMEMultipart()
+    msg["From"] = f"Amacor Alertas <{remetente}>"
+    msg["To"] = destinatario
+    msg["Subject"] = assunto
+    msg.attach(MIMEText(mensagem, "plain"))
+
+    # Envia via servidor SMTP do Gmail
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(remetente, senha_app)
+            server.send_message(msg)
+            print("✅ E-mail enviado com sucesso!")
+    except Exception as e:
+        print("❌ Erro ao enviar e-mail:", str(e))
+
+
+

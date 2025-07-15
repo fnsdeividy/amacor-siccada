@@ -97,7 +97,34 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
         conn.commit()
         conn.close()
 
+
+
     except Exception as e:
         conn.rollback()
         conn.close()
         raise e
+    
+def get_email(proposta_id, database_path=None):
+    print(f"Proposta ID para email recebido: {proposta_id}")
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+
+    cur.execute("SELECT email FROM responsavel WHERE proposta_id = ?", (proposta_id,))
+    email= cur.fetchone()
+    conn.close()
+    print('email enviado', email)
+    return email['email'] if email else None
+
+def get_nome(proposta_id, database_path=None):
+    print(f"proposta recebida: {proposta_id}") 
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+
+    cur.execute("SELECT nome FROM responsavel WHERE proposta_id = ?", (proposta_id,))
+    nome= cur.fetchone()
+    conn.close()
+    print('nome enviado: ', nome)
+    return nome['nome'] if nome else None
+
+if __name__ == "__main__":
+    get_email('2')
