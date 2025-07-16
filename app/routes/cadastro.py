@@ -43,9 +43,11 @@ def acompanhar_cnt():
     lista= request.args.get('lista')
     filtro = request.args.get('filtro')
     print(filtro)
+    classe_usuario = session.get('classe_usuario')
     venda_inicial = request.args.get('venda_inicial')
     venda_final = request.args.get('venda_final')
-    print(f"venda_inicial: {venda_inicial}, venda_final: {venda_final}")
+
+    print(classe_usuario)
     
 
 
@@ -60,7 +62,7 @@ def acompanhar_cnt():
         cur.execute("SELECT * FROM venda WHERE status = ?", (filtrar,))
         result = cur.fetchall()
         print(f"result: {result}")
-        return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
+        return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario, classe_usuario=classe_usuario)
 
     elif lista == 'todos':
             print(f'exibiindo para: {lista}')
@@ -85,7 +87,9 @@ def acompanhar_cnt():
         result = query_db(query, (buscar,buscar))
         # Converte cada Row em dict para evitar erro de serialização
         if result:
-            return render_template('cadastro/acompanhar_cnt.html', result=result, area= tipo_usuario)           
+            return render_template('cadastro/acompanhar_cnt.html', result=result, area= tipo_usuario, classe_usuario=classe_usuario)           
+
+    
 
     elif resp is None:
         if tipo_usuario == 'vendas':
@@ -93,27 +97,32 @@ def acompanhar_cnt():
             query = "SELECT * FROM venda WHERE status <>'contrato finalizado'"
             result = query_db(query)
             print(area, tipo_usuario)
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'cadastro':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status = 'Enviado ao cadastro' OR status = 'entrevista online enviada'" 
             result = query_db(query)
             if result is None:
-               return render_template('cadastro/sem_registro.html ', result=result, resp=resp, area=tipo_usuario)
+               return render_template('cadastro/sem_registro.html ', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
             print(f"area: {area}, tipo_usuario{tipo_usuario}")
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'financeiro':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'boleto emitido'"
             result = query_db(query)
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro'"
             result = query_db(query)
 
-            return render_template('cadastro/acompanhar_cnt.html', result=result, area=tipo_usuario)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, area=tipo_usuario,classe_usuario=classe_usuario)
+        
+
+
     return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
+
+    
         
 @cad_bp.route('/detalhes_cnt', methods=['POST', 'GET'])
 @acesso('vendas', 'cadastro', 'administrativo','financeiro')
