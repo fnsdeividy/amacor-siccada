@@ -30,12 +30,16 @@ def doc_home():
 
 def acompanhar_cnt():
     buscar = request.args.get('buscar')
+
     
     
     conn= sqlite3.connect(current_app.config['DATABASE'])
     cur= conn.cursor()
     resp = request.args.get('resp')
     tipo_usuario = session.get('tipo_usuario')
+    area= tipo_usuario
+    filtrar= request.args.get('filtrar')
+    print (area)
     lista= request.args.get('lista')
     filtro = request.args.get('filtro')
     print(filtro)
@@ -52,7 +56,12 @@ def acompanhar_cnt():
         print(f"result: {result}")
         return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
         
-    
+    elif filtrar:
+        cur.execute("SELECT * FROM venda WHERE status = ?", (filtrar,))
+        result = cur.fetchall()
+        print(f"result: {result}")
+        return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
+
     elif lista == 'todos':
             print(f'exibiindo para: {lista}')
             if filtro =='sim':
@@ -76,21 +85,23 @@ def acompanhar_cnt():
         result = query_db(query, (buscar,buscar))
         # Converte cada Row em dict para evitar erro de serialização
         if result:
-            return render_template('cadastro/acompanhar_cnt.html', result=result)           
+            return render_template('cadastro/acompanhar_cnt.html', result=result, area= tipo_usuario)           
 
     elif resp is None:
         if tipo_usuario == 'vendas':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status <>'contrato finalizado'"
             result = query_db(query)
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
+            print(area, tipo_usuario)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
         elif tipo_usuario == 'cadastro':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status = 'Enviado ao cadastro' OR status = 'entrevista online enviada'" 
             result = query_db(query)
             if result is None:
-               return render_template('cadastro/sem_registro.html ', result=result, resp=resp)
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
+               return render_template('cadastro/sem_registro.html ', result=result, resp=resp, area=tipo_usuario)
+            print(f"area: {area}, tipo_usuario{tipo_usuario}")
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
         elif tipo_usuario == 'financeiro':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'boleto emitido'"
@@ -272,6 +283,7 @@ def adicionar_doc():
 def gravar_alteracao():
 
     info = request.form.get('info') #nome da coluna a ser atualizada
+    print(info)
     tipo_usuario = session.get('tipo_usuario')
     proposta = request.args.get('proposta') or request.form.get('numero_proposta')
     complemento = request.form.get('complemento')

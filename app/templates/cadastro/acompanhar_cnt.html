@@ -2,8 +2,32 @@
 {% block title %}acompanhamento de contratos{% endblock %}
 {% block content %}
 <br>
-<div class="search-bar-container" style="display: flex; justify-content: right; align-items: center; margin-top: 30px; margin-bottom: 10px;">
-    <form method="get" action="{{url_for('cad.acompanhar_cnt')}}" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px  ;">
+<div class="search-bar-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0;">
+    <!-- Filtro à esquerda -->
+    <form method="get" action="{{ url_for('cad.acompanhar_cnt') }}" id="autoSubmitForm" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
+        <select id="filtrar" name="filtrar" required onchange="document.getElementById('autoSubmitForm').submit();" style="height: 40px; padding: 0 12px; border-radius: 6px;">
+            <option value="" disabled selected>Filtrar fase:</option>
+            {% if area == 'cadastro' %}
+                <option value="entrevista online enviada">entrevista online enviada</option>
+                <option value="enviado para financeiro">Enviar para financeiro</option>
+                <option value="analise de declaração">Enviar para analise</option>
+            {% elif area == 'financeiro' %}
+                <option value="boleto emitido">boleto emitido</option>
+                <option value="analise de declaração">enviado para confecção de kit</option>
+            {% elif area == 'administrativo' %}
+                <option value="entrevista agendada">entrevista Agendada</option>
+                <option value="geração de kit">gerar kit</option>
+                {% if last_resp == 'administrativo' %}
+                    <option value="contrato finalizado">contrato finalizado</option>
+                {% endif %}
+            {% else %}
+                <option value="status indefinido">Status indefinido</option>
+            {% endif %}
+        </select>
+    </form>
+
+    <!-- Busca à direita -->
+    <form method="get" action="{{ url_for('cad.acompanhar_cnt') }}" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
         <input type="text" name="buscar" placeholder="Buscar por proposta" value="{{ request.args.get('buscar', '') }}" style="padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; min-width: 220px; font-size: 15px; background: #fff; color: #222;">
         <button class="btn" type="submit">Buscar</button>
     </form>
