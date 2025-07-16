@@ -106,13 +106,13 @@ def acompanhar_cnt():
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'boleto emitido'"
             result = query_db(query)
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario)
         elif tipo_usuario == 'administrativo':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro'"
             result = query_db(query)
 
-            return render_template('cadastro/acompanhar_cnt.html', result=result)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, area=tipo_usuario)
     return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
         
 @cad_bp.route('/detalhes_cnt', methods=['POST', 'GET'])
