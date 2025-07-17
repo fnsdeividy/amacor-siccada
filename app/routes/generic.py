@@ -12,7 +12,7 @@ def home():
 def profile():
     if 'user_id' not in session:
         return redirect(url_for('auth.login'))
-    return render_template('profile.html', usuario_nome=session.get('user_nome'),usuario_tipo=session.get('tipo_usuario'))
+    return render_template('profile.html', usuario_nome=session.get('user_nome'),usuario_tipo=session.get('tipo_usuario'), classe_usuario = session.get('classe_usuario'))
 
 @generic_bp.route('/settings')
 def settings():

@@ -7,10 +7,17 @@
     <form method="get" action="{{ url_for('cad.acompanhar_cnt') }}" id="autoSubmitForm" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
         <select id="filtrar" name="filtrar" required onchange="document.getElementById('autoSubmitForm').submit();" style="height: 40px; padding: 0 12px; border-radius: 6px;">
             <option value="" disabled selected>Filtrar fase:</option>
-            {% if area == 'cadastro'  %}
-                <option value="Enviado ao cadastro">Enviado ao cadastro</option>
+            
+            {% if classe_usuario == 'supervisor'  %}
+                <option value="enviado ao cadastro">enviado ao cadastro</option>
                 <option value="entrevista online enviada">entrevista online enviada</option>
                 <option value="enviado para financeiro">Enviar para financeiro</option>
+                <option value="boleto emitido">boleto emitido</option>
+               <option value="analise de declaração">Enviar para analise</option>
+                <option value="entrevista agendada">entrevista Agendada</option>
+                <option value="geração de kit">gerar kit</option>
+                <option value="contrato finalizado">contrato finalizado</option>
+                
                 
             {% elif area == 'financeiro' %}
                 <option value="boleto emitido">boleto emitido</option>
@@ -22,15 +29,10 @@
                 {% if last_resp == 'administrativo' %}
                     <option value="contrato finalizado">contrato finalizado</option>
                 {% endif %}
-            {% elif classe_usuario == 'supervisor' %}
-                <option value="enviado ao cadastro">enviado ao cadastro</option>
+            {% elif area  == 'cadastro' %}
+                <option value="Enviado ao cadastro">Enviado ao cadastro</option>
                 <option value="entrevista online enviada">entrevista online enviada</option>
                 <option value="enviado para financeiro">Enviar para financeiro</option>
-                <option value="boleto emitido">boleto emitido</option>
-               <option value="analise de declaração">Enviar para analise</option>
-                <option value="entrevista agendada">entrevista Agendada</option>
-                <option value="geração de kit">gerar kit</option>
-                <option value="contrato finalizado">contrato finalizado</option>
             {% else %}
                 <option value="status indefinido">Status indefinido</option>
             {% endif %}

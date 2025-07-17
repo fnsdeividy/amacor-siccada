@@ -92,6 +92,8 @@ def acompanhar_cnt():
     
 
     elif resp is None:
+
+        
         if tipo_usuario == 'vendas':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status <>'contrato finalizado'"
