@@ -5,6 +5,7 @@ import google.auth
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import smtplib
+from ..models.database import get_nome
 
 def consultar_api():
     #url da api
@@ -121,10 +122,15 @@ def siccada_kommo():
 
 
 
-def email_gmail(destinatario, assunto, mensagem):
+def email_gmail(destinatario, assunto, mensagem,complemento):
     import smtplib
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
+    from email.mime.image import MIMEImage
+    import os
+    from flask import current_app
+    caminho_imagem = os.path.join(current_app.root_path, 'static', 'image', 'logo_amacor.png')
+
 
     # Configurações do remetente
     remetente = "alertaamacor.siccada@gmail.com"
@@ -138,7 +144,80 @@ def email_gmail(destinatario, assunto, mensagem):
     msg["From"] = f"Amacor Alertas <{remetente}>"
     msg["To"] = destinatario
     msg["Subject"] = assunto
-    msg.attach(MIMEText(mensagem, "plain"))
+    
+
+    html = f"""
+        <html>
+        <body style="margin:0; padding:0; font-family:Arial, sans-serif;">
+            <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto;">
+            <tr>
+                <td align="center">
+                <img src="cid:logo_amacor" width="600" style="display:block;" alt="Amacor Planos de Saúde">
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 20px; font-size: 16px; color: #333;">
+                <p>{mensagem.replace('\n', '<br>')}</p>
+                <p style="margin-top: 20px;">
+                    <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
+                    Acessar entrevista
+                    </a>
+                </p>
+                <p style="margin-top: 10px;">
+                    <a href="https://wa.me/2134059466" style="display:inline-block; background-color:#25D366; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
+                    Enviar mensagem no WhatsApp
+                    </a>
+                </p>
+                </td>
+            </tr>
+            </table>
+        </body>
+        </html>
+        """
+
+    
+    html1 = f"""
+            <html>
+            <body style="margin:0; padding:0; font-family:Arial, sans-serif;">
+                <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto;">
+                <tr>
+                    <td align="center">
+                    <img src="cid:logo_amacor" width="600" style="display:block;" alt="Amacor Planos de Saúde">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px; font-size: 16px; color: #333;">
+                    <p>{mensagem.replace('\n', '<br>')}</p>
+                    <p style="margin-top: 20px;">
+                        <a href="https://wa.me/2134059466" style="display:inline-block; background-color:#25D366; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
+                        Enviar mensagem no WhatsApp
+                        </a>
+                    </p>
+                    </td>
+                </tr>
+                </table>
+            </body>
+            </html>
+            """
+
+    with open(caminho_imagem, 'rb') as img:
+        mime_img = MIMEImage(img.read())
+        mime_img.add_header('Content-ID', '<logo_amacor>')
+        mime_img.add_header('Content-Disposition', 'inline', filename="logo_amacor.png")
+        msg.attach(mime_img)
+
+    if complemento == None:   
+        msg.attach(MIMEText(html1, 'html'))
+
+    else:
+        # Anexar o HTML
+        if len(complemento)>20:
+            msg.attach(MIMEText(html, 'html'))
+        else:
+            msg.attach(MIMEText(html1, 'html'))
+
+        
+
 
     # Envia via servidor SMTP do Gmail
     try:
@@ -149,5 +228,26 @@ def email_gmail(destinatario, assunto, mensagem):
     except Exception as e:
         print("❌ Erro ao enviar e-mail:", str(e))
 
-
-
+def msg_email(status,proposta, complemento):
+            print(complemento)
+            nome = get_nome(proposta)
+            if status == 'entrevista online enviada':
+                assunto = f'{nome} sua entrevista Online foi Enviada'
+                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'
+                return assunto, mensagem, complemento
+            elif status == 'analise de declaração':
+                assunto= f'{nome} sua enviado para análise'
+                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada para uma analise interna. \nDurante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida. '
+                return assunto, mensagem, complemento
+            elif status == 'entrevista agendada':
+                assunto = f'{nome} sua entrevista está agendada'
+                mensagem = f'Olá {nome}, \nSua entrevista presencial foi agendada para {complemento}. \n Recomendamos que chegue 5 minutos antes do horario marcado para evitar atrasos.\n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'
+                return assunto, mensagem, complemento
+            elif status == 'geração de kit':
+                assunto = f'{nome} seu contrato está pronto para ser entregue!'
+                mensagem = f"Olá {nome},\n Seu contrato está finalizado e o kit contratual será gerado e enviado em breve. \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'"
+                return assunto, mensagem, complemento
+            elif status == 'contrato finalizado':
+                assunto = f'{nome} o processo de contratação está Finalizado'
+                mensagem = f"Olá{nome},\n Seu contrato foi finalizado com sucesso, e sua carteirinha está pronta para ser enviada. Entre em contato pro Whatsapp e peça agora. \n Bem vindo à Amacor Planos de Sáude."
+                return assunto, mensagem, complemento

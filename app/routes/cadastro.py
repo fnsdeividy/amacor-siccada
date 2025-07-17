@@ -9,7 +9,7 @@ from ..models.database import query_db, update_db, get_email, get_nome
 import sqlite3
 import re
 import glob
-from ..api_conex.conections import email_gmail
+from ..api_conex.conections import email_gmail, msg_email
 
 cad_bp = Blueprint('cad', __name__)
 
@@ -190,6 +190,7 @@ def atualizar_cnt():
     tipo_usuario = session.get('tipo_usuario')
     last_resp= request.args.get('last_resp')
     status = request.args.get('status')
+    classe_usuario=session.get('classe_usuario')
 
     if status == 'contrato finalizado':
         flash('Contrato já finalizado. Não é possível alterar.', 'error')
@@ -204,7 +205,7 @@ def atualizar_cnt():
   
     print(tipo_usuario)
     
-    return render_template('cadastro/alterar_cnt.html',id=id,contrato=contrato, proposta=proposta, area=tipo_usuario,last_resp=last_resp)
+    return render_template('cadastro/alterar_cnt.html',id=id,contrato=contrato, proposta=proposta, area=tipo_usuario,last_resp=last_resp, classe_usuario=classe_usuario)
     
 
 
@@ -320,36 +321,15 @@ def gravar_alteracao():
         cur.close()
         conn.close()
         flash('Alteração realizada com sucesso!', 'success')
-        """
-        def msg_email(status,proposta):
-            nome = get_nome(proposta)
-            if status == 'entrevista online enviada':
-                assunto = f'{nome} sua entrevista Online foi Enviada'
-                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n {complemento}'
-                return assunto, mensagem
-            elif status == 'analise de declaração':
-                assunto= 'Enviado para análise'
-                mensagem = f'Sua entrevista online foi enviada para análise administrativa. Talvez seja necessário uma entrevista presencial. Proposta: {proposta}'
-                return assunto, mensagem
-            elif status == 'entrevista agendada':
-                assunto = 'Entrevista Agendada'
-                mensagem = f'Sua entrevista presencial foi agendada com sucesso. Proposta: {proposta}'
-                return assunto, mensagem
-            elif status == 'geração de kit':
-                assunto = 'Geração de kit'
-                mensagem = f"Seu contrato está finalizado e o kit contratual será gerado e enviado em breve. Proposta: {proposta}"
-                return assunto, mensagem
-            elif status == 'contrato finalizado':
-                assunto = 'Contrato Finalizado'
-                mensagem = f"Seu contrato foi finalizado com sucesso. \n Bem vindo à Amacor Planos de Sáude. Proposta: {proposta}"
-                return assunto, mensagem
+        
+        
         print (status, proposta)
-        assunto, mensagem = msg_email(status, proposta)
+        assunto,mensagem,complemento = msg_email(status, proposta,complemento=complemento)
         
         if email:
             print(f"Enviando e-mail para {email} com assunto '{assunto}'")
-            email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem)
-            """
+            email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
+            
         return redirect(url_for('cad.acompanhar_cnt'))
         
 
