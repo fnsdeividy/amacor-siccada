@@ -324,16 +324,22 @@ def gravar_alteracao():
         
         
         print (status, proposta)
-        if status == 'enviado para financeiro' or 'boleto emitido':
+        """
+        if status == 'enviado para financeiro' or status == 'boleto emitido':
+            print('agora em redirecionamento direto sem email')
             return redirect(url_for('cad.acompanhar_cnt'))
         else:
-            assunto,mensagem,complemento = msg_email(status, proposta,complemento=complemento)
-        
-        if email:
-            print(f"Enviando e-mail para {email} com assunto '{assunto}'")
-            email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
+            if email:
+                print('agora em envio de email')
+                assunto,mensagem,complemento = msg_email(status, proposta,complemento=complemento)
+                print(f"Enviando e-mail para {email} com assunto '{assunto}'")
+                email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
             
+                return redirect(url_for('cad.acompanhar_cnt'))
+        """
+
         return redirect(url_for('cad.acompanhar_cnt'))
+        
         
 
 @cad_bp.route('/alterar_infos_prpopsta', methods=['GET'])
