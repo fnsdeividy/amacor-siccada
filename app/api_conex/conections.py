@@ -148,7 +148,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
 
     html = f"""
         <html>
-        <body style="margin:0; padding:0; font-family:Arial, sans-serif;">
+        <body style="margin:0; padding:0; font-family:Arial, sans-serif, background-color: #c9e3ff ;">
             <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto;">
             <tr>
                 <td align="center">
@@ -178,7 +178,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
     
     html1 = f"""
             <html>
-            <body style="margin:0; padding:0; font-family:Arial, sans-serif;">
+            <body style="margin:0; padding:0; font-family:Arial, sans-serif;  background-color: #c9e3ff;">
                 <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto;">
                 <tr>
                     <td align="center">
@@ -189,9 +189,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
                     <td style="padding: 20px; font-size: 16px; color: #333;">
                     <p>{mensagem.replace('\n', '<br>')}</p>
                     <p style="margin-top: 20px;">
-                        <a href="https://wa.me/2134059466" style="display:inline-block; background-color:#25D366; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
-                        Enviar mensagem no WhatsApp
-                        </a>
+                        <a href="https://wa.me/5521978914749?text=Olá,%20gostaria%20de%20informações%20sobre%20aquisição%20de%20planos" style="display:inline-block; background-color:#25D366; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Enviar mensagem no WhatsApp</a>
                     </p>
                     </td>
                 </tr>
@@ -212,7 +210,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
     else:
         # Anexar o HTML
         if len(complemento)>20:
-            msg.attach(MIMEText(html, 'html'))
+            msg.attach(MIMEText(html1, 'html'))
         else:
             msg.attach(MIMEText(html1, 'html'))
 
@@ -233,11 +231,11 @@ def msg_email(status,proposta, complemento):
             nome = get_nome(proposta)
             if status == 'entrevista online enviada':
                 assunto = f'{nome} sua entrevista Online foi Enviada'
-                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'
+                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n\n <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Acessae entrevista</a>  \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'
                 return assunto, mensagem, complemento
             elif status == 'analise de declaração':
-                assunto= f'{nome} sua enviado para análise'
-                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada para uma analise interna. \nDurante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida. '
+                assunto= f'{nome} sua entrevista Online foi enviada para análise'
+                mensagem = f'Olá {nome}, \n\nSua entrevista online foi enviada para uma analise interna. \nDurante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida. '
                 return assunto, mensagem, complemento
             elif status == 'entrevista agendada':
                 assunto = f'{nome} sua entrevista está agendada'
@@ -251,3 +249,6 @@ def msg_email(status,proposta, complemento):
                 assunto = f'{nome} o processo de contratação está Finalizado'
                 mensagem = f"Olá{nome},\n Seu contrato foi finalizado com sucesso, e sua carteirinha está pronta para ser enviada. Entre em contato pro Whatsapp e peça agora. \n Bem vindo à Amacor Planos de Sáude."
                 return assunto, mensagem, complemento
+            
+            else:
+                return complemento

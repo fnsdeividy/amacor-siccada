@@ -324,7 +324,10 @@ def gravar_alteracao():
         
         
         print (status, proposta)
-        assunto,mensagem,complemento = msg_email(status, proposta,complemento=complemento)
+        if status == 'enviado para financeiro' or 'boleto emitido':
+            return redirect(url_for('cad.acompanhar_cnt'))
+        else:
+            assunto,mensagem,complemento = msg_email(status, proposta,complemento=complemento)
         
         if email:
             print(f"Enviando e-mail para {email} com assunto '{assunto}'")
