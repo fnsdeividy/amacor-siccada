@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from PyPDF2 import PdfMerger
 #from pdf2image import convert_from_path
 from app.utils import acesso, hierarquia
-from ..models.database import query_db, update_db, get_email, get_nome
+from ..models.database import query_db, update_db, get_email, get_nome, get_status
 import sqlite3
 import re
 import glob
@@ -228,6 +228,10 @@ def adicionar_cnt():
         conn.commit()
         cur.close()
         conn.close()
+
+        
+        
+        
         
 
     return render_template('cadastro/adicionar_cnt.html',id=id, proposta=proposta)
@@ -323,20 +327,28 @@ def gravar_alteracao():
         flash('Alteração realizada com sucesso!', 'success')
         
         
+        
         print (status, proposta)
-        """
+        
         if status == 'enviado para financeiro' or status == 'boleto emitido':
             print('agora em redirecionamento direto sem email')
             return redirect(url_for('cad.acompanhar_cnt'))
         else:
+            print(status)
             if email:
+                if len(status)<10:
+                    status=get_status(proposta)
+                    print (status)
+                    
+                
                 print('agora em envio de email')
-                assunto,mensagem,complemento = msg_email(status, proposta,complemento=complemento)
+                assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
                 print(f"Enviando e-mail para {email} com assunto '{assunto}'")
+                
                 email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
             
                 return redirect(url_for('cad.acompanhar_cnt'))
-        """
+        
 
         return redirect(url_for('cad.acompanhar_cnt'))
         
