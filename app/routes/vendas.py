@@ -235,7 +235,7 @@ def venda_form():
         salvar_venda(venda, responsavel, titular, dependentes)
 
 
-        return redirect(url_for('vendas.concluido', numero_proposta = numero_proposta))
+        return redirect(url_for('vendas.concluido'))
     except KeyError as e:
         return f"Erro: chave não encontrada {e}"
 
