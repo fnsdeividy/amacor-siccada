@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, current_app, flash, url_for, session
 import sqlite3
 from app.models.database import query_db
-from app.utils import login_required
+from app.utils import login_required, hierarquia
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -45,7 +45,9 @@ def login():
 
 
 @auth_bp.route('/cadastrar', methods=['GET','POST'])
+@hierarquia('supervisor')
 def cadastrar():
+    
     if request.method=='POST':
         nome = request.form['nome']
         nome_format = nome.strip()  # Remove espaços em branco extras

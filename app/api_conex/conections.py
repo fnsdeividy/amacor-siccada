@@ -146,57 +146,56 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
     msg["Subject"] = assunto
     
 
-    html = f"""
-        <html>
-        <body style="margin:0; padding:0; font-family:Arial, sans-serif, background-color: #c9e3ff ;">
-            <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto;">
-            <tr>
-                <td align="center">
-                <img src="cid:logo_amacor" width="600" style="display:block;" alt="Amacor Planos de Saúde">
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 20px; font-size: 16px; color: #333;">
-                <p>{mensagem.replace('\n', '<br>')}</p>
-                <p style="margin-top: 20px;">
-                    <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
-                    Acessar entrevista
-                    </a>
-                </p>
-                <p style="margin-top: 10px;">
-                    <a href="https://wa.me/2134059466" style="display:inline-block; background-color:#25D366; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">
-                    Enviar mensagem no WhatsApp
-                    </a>
-                </p>
-                </td>
-            </tr>
-            </table>
-        </body>
-        </html>
-        """
-
     
     html1 = f"""
-            <html>
-            <body style="margin:0; padding:0; font-family:Arial, sans-serif;  background-color: #c9e3ff;">
-                <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto;">
-                <tr>
-                    <td align="center">
-                    <img src="cid:logo_amacor" width="600" style="display:block;" alt="Amacor Planos de Saúde">
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding: 20px; font-size: 16px; color: #333;">
-                    <p>{mensagem.replace('\n', '<br>')}</p>
-                    <p style="margin-top: 20px;">
-                        <a href="https://wa.me/5521978914749?text=Olá,%20gostaria%20de%20informações%20sobre%20aquisição%20de%20planos" style="display:inline-block; background-color:#25D366; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Enviar mensagem no WhatsApp</a>
-                    </p>
-                    </td>
-                </tr>
-                </table>
-            </body>
-            </html>
-            """
+<html>
+  <body style="margin:0; padding:0; font-family:Arial, sans-serif;">
+    <table width="100%" align="center" cellpadding="0" cellspacing="0" style="max-width:600px; margin:auto;">
+      <tr>
+        <td align="center">
+          <img src="cid:logo_amacor" width="600" style="display:block;" alt="Amacor Planos de Saúde">
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 20px; font-size: 16px; color: #333;">
+          <p>{mensagem.replace('\n', '<br>')}</p>
+          
+        </td>
+      </tr>
+    </table>
+
+    <!-- Rodapé estilo Nubank -->
+    <div style="background-color: #1a1a1a; color: white; padding: 30px 20px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; max-width:600px; margin:auto;">
+      <p style="margin-bottom: 20px;"><strong>Abraços,<br>Equipe Amacor</strong></p>
+
+      <p style="color: #cccccc;">
+        Faça parte da nossa comunidade e fique por dentro das novidades do universo Amacor.
+      </p>
+
+      <p style="color: #cccccc;">
+        Por favor, pedimos que você não responda este e-mail, pois se trata de uma mensagem automática.
+      </p>
+
+      <div style="margin: 20px 0; display: flex; gap: 20px;">
+        <a href="https://wa.me/5521978914749?text=Olá,%20gostaria%20de%20informações%20sobre%20planos" target="_blank"><img src="https://img.icons8.com/ios-filled/24/ffffff/whatsapp.png" alt="WhatsApp" /></a>
+        <a href="https://www.instagram.com/amacorplanosdesaude/"><img src="https://img.icons8.com/ios-filled/24/ffffff/instagram-new.png" alt="Instagram" /></a>
+        <a href="https://www.facebook.com/amacorsaude?locale=pt_BR"><img src="https://img.icons8.com/ios-filled/24/ffffff/facebook-new.png" alt="Facebook" /></a>
+        <a href="https://www.youtube.com/@AmacorPlanos"><img src="https://img.icons8.com/ios-filled/24/ffffff/youtube-play.png" alt="YouTube" /></a>
+      </div>
+
+      <p style="color: #cccccc;">
+        Tem alguma dúvida? Fale com a gente pelo WhatsApp ou nossos canais oficiais.
+      </p>
+
+      <p style="margin-top: 20px;">
+        <strong>Amacor Planos de Saúde</strong><br>
+        <strong>R. Augusto de Vasconcelos, 544  - Rio de Janeiro, RJ - 23050-340</strong>
+      </p>
+    </div>
+  </body>
+</html>
+"""
+
 
     with open(caminho_imagem, 'rb') as img:
         mime_img = MIMEImage(img.read())
@@ -231,24 +230,30 @@ def msg_email(status,proposta, complemento):
             nome = get_nome(proposta)
             if status == 'entrevista online enviada':
                 assunto = f'{nome} sua entrevista Online foi Enviada'
-                mensagem = f'Olá {nome}, \nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n\n <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Acessae entrevista</a>  \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'
+                mensagem = f'Olá {nome}, \n\nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n\n <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Acessar entrevista</a>  '
                 return assunto, mensagem, complemento
             elif status == 'analise de declaração':
                 assunto= f'{nome} sua entrevista Online foi enviada para análise'
-                mensagem = f'Olá {nome}, \n\nSua entrevista online foi enviada para uma analise interna. \nDurante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida. '
+                mensagem = f'Olá {nome}, \n\nSua entrevista online foi enviada para uma analise interna. \nDurante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. '
                 return assunto, mensagem, complemento
             elif status == 'entrevista agendada':
                 assunto = f'{nome} sua entrevista está agendada'
-                mensagem = f'Olá {nome}, \nSua entrevista presencial foi agendada para {complemento}. \n Recomendamos que chegue 5 minutos antes do horario marcado para evitar atrasos.\n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'
+                mensagem = f'Olá {nome}, \n\nSua entrevista presencial foi agendada para {complemento}. \n Recomendamos que chegue 5 minutos antes do horario marcado para evitar atrasos.'
                 return assunto, mensagem, complemento
             elif status == 'geração de kit':
                 assunto = f'{nome} seu contrato está pronto para ser entregue!'
-                mensagem = f"Olá {nome},\n Seu contrato está finalizado e o kit contratual será gerado e enviado em breve. \n\nCaso tenha alguma dúvida, entre em contato com a nossa central de atendimento em: 2134059466. \n Att.: Equipe MH Vida.'"
+                mensagem = f"Olá {nome},\n\n Seu contrato está finalizado e o kit contratual será gerado e enviado em breve. "
                 return assunto, mensagem, complemento
             elif status == 'contrato finalizado':
                 assunto = f'{nome} o processo de contratação está Finalizado'
-                mensagem = f"Olá{nome},\n Seu contrato foi finalizado com sucesso, e sua carteirinha está pronta para ser enviada. Entre em contato pro Whatsapp e peça agora. \n Bem vindo à Amacor Planos de Sáude."
+                mensagem = f'Olá {nome},\n\n Seu contrato foi finalizado com sucesso, e sua carteirinha está pronta para ser enviada. Entre em contato pelo Whatsapp e peça agora. \n\n <a href="https://wa.me/5521978914749?text=Olá,%20gostaria%20de%20solicitar%20a%20carteirinha" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Enviar carteirinha</a>'
                 return assunto, mensagem, complemento
-            
+            elif status == 'Enviado ao cadastro':
+                print("na situ de enviado ao cadastro")
+                assunto= f'{nome} seu processo de contratação foi iniciado'
+                mensagem = f"Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde. \n\n Dentro dos próximos dias entraremos em contato para prosseguir com o processo de adesão ao plano."
+                return assunto, mensagem, complemento
+              
             else:
+                print(status)
                 return complemento

@@ -63,10 +63,11 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
 
         # Inserir dados da venda
         cur.execute("""
-            INSERT INTO venda (numero_proposta, data_venda, tipo_contrato, tipo_produto, corretor_resp, status, digitador, valor_venda, dt_cadastro, taxa_inscricao, iss, valor_tabela, vidas, nome_responsavel)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO venda (numero_proposta, data_venda, tipo_contrato, tipo_produto, corretor_resp, status, digitador, valor_venda, dt_cadastro, taxa_inscricao, iss, valor_tabela, vidas, nome_responsavel,tipo_pagamento)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (venda['numero_proposta'], venda['data_venda'], venda['tipo_contrato'], venda['tipo_produto'],
-              venda['corretor_resp'], venda['status'], venda['digitador'], venda['valor_venda'], venda['dt_cadastro'], venda['taxa_inscricao'], venda['iss'], venda['valor_tabela'], venda['vida'], venda['nome_responsavel']))
+              venda['corretor_resp'], venda['status'], venda['digitador'], venda['valor_venda'], venda['dt_cadastro'], 
+              venda['taxa_inscricao'], venda['iss'], venda['valor_tabela'], venda['vida'], venda['nome_responsavel'],venda['tipo_pagamento']))
 
         proposta_id = venda['numero_proposta']  # Usar o número da proposta como referência
 
@@ -126,5 +127,39 @@ def get_nome(proposta_id, database_path=None):
     print('nome enviado: ', nome)
     return nome['nome'] if nome else None
 
+def get_status(proposta_id, database_path=None):
+    print(f"proposta recebida: {proposta_id}") 
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+
+    cur.execute("SELECT status FROM venda WHERE numero_proposta = ?", (proposta_id,))
+    status= cur.fetchone()
+    conn.close()
+    print('status: ', status)
+    return status['status'] if status else None
+
+
+
+def get_pagamento(data_pagamento, valor, numero_contrato,database_path=None):
+    print(f"dados recebidos: {data_pagamento, valor}") 
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+
+    cur.execute("""
+    SELECT id FROM pagamentos 
+    WHERE valor = ? AND data_pagamento = ? AND ncontrato = ?
+    ORDER BY id DESC 
+    LIMIT 1
+    """, (valor, data_pagamento,numero_contrato))
+    id= cur.fetchone()
+    conn.close()
+    print(f'id retornado: ,{ id}')
+    return id['id'] if id else None
+
+    
+
+
 if __name__ == "__main__":
     get_email('2')
+
+
