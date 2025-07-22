@@ -165,14 +165,25 @@ function removeDependente(button) {
                         <option value="administrativo">Administrativo</option>
                     </select>
                 </div>
+
+              
                 <div class="form-field">
+                    <br><br>
                     <label for="valor_venda">Valor da venda:</label>
                     <input type="value" id="valor_venda" name="valor_venda" required>
                 </div>
+
                 <div class="form-field">
                     <label for="forma_pagamento">Forma de pagamento da venda:</label>
-                    <input type="value" id="forma_pagamento" name="forma_pagamento" required>
+                    <select id="forma_pagamento" name="forma_pagamento" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="PIX">PIX</option>
+                        <option value="especie">Espécie</option>
+                        <option value="credito">Crédito</option>
+                        <option value="debito">Débito</option>
+                    </select> <!-- AGORA está fechado corretamente -->
                 </div>
+                
 
                 <div class="nav-buttons">
                     <button type="button" onclick="showTab(1)">Próxima Aba</button>
