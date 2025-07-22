@@ -1,11 +1,13 @@
 from flask import Blueprint, render_template, request, session,redirect,url_for, jsonify, current_app, flash
-from ..models.database import query_db
+from ..models.database import query_db, get_pagamento
 from datetime import datetime
 import re
 import sqlite3
 import csv
 import io
 from flask import Response, request
+import os
+
 
 from app.utils import login_required, acesso
 
@@ -109,9 +111,12 @@ def pix():
         conn.close()
 
         flash('dados cadastrados.')
-        return redirect(url_for('finan.return_'))
-
+        return redirect(url_for('finan.render_form',numero_contrato=ncontrato, valor=valor, data_pagamento=data_pagamento ))
+    
     return render_template('financeiro/pix.html')
+    
+
+   
 
 
 @finan_bp.route('/tab_pix', methods=['GET', 'POST'])
@@ -183,6 +188,96 @@ def tab():
         finally:
             cur.close()
             conn.close()
+    return render_template('financeiro/tab_pix.html', pagamentos=pagamentos)
+
+
+@finan_bp.route('/render_comprovante/')
+def render_form():
+
+    data_pagamento = request.args.get('data_pagamento')
+    valor= request.args.get('valor')
+    numero_contrato= request.args.get('numero_contrato')
+    pagamento_id = get_pagamento(data_pagamento,valor,numero_contrato) 
+    
+    print('id recebido:',pagamento_id)
+    if not pagamento_id:
+        flash("Identificação não encontrada.", "error")
+        return redirect(url_for('finan.tab'))
+    
+    return render_template('financeiro/comprovante/comprovante.html', pagamento_id=pagamento_id)
+    
+
+@finan_bp.route('/comprovante_upload', methods=['POST'])
+@acesso('financeiro', 'cobranca', 'cadastro')
+def receber_comprovante():
+    pagamento_id = request.args.get('pagamento_id')
+    print(f"id pagamento: {pagamento_id}")
+
+    # Verifica se pagamento_id foi passado e é inteiro
+    if not pagamento_id or not pagamento_id.isdigit():
+        flash("Pagamento não encontrado ou ID inválido.", "error")
+        return redirect(request.url)
+
+    pagamento_id = int(pagamento_id)  # Converte para inteiro
+
+    # Extensões permitidas
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'pdf'}
+
+    # Caminho da pasta onde os arquivos serão salvos
+    pasta_raiz = os.path.join(os.getcwd(), 'static', 'comprovantes')
+    os.makedirs(pasta_raiz, exist_ok=True)
+
+    # Função para checar a extensão do arquivo
+    def allowed_file(filename):
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    # Verifica se arquivos foram enviados
+    if 'comprovante' not in request.files:
+        flash('Nenhum arquivo enviado.', "error")
+        return redirect(url_for('finan.tab'))
+
+    comprovantes = request.files.getlist('comprovante')
+    if not comprovantes:
+        flash('Nenhum arquivo enviado.', "error")
+        return redirect(url_for('finan.tab'))
+
+    for arquivo in comprovantes:
+        if arquivo.filename == '':
+            flash('Arquivo com nome vazio.', "error")
+            return redirect(url_for('finan.tab'))
+
+        if arquivo and allowed_file(arquivo.filename):
+            ext = arquivo.filename.rsplit('.', 1)[1].lower()
+            filename = f"comprovante_{pagamento_id}.{ext}"
+            caminho_arquivo = os.path.join(pasta_raiz, filename)
+
+            try:
+                arquivo.save(caminho_arquivo)
+                print(f"Arquivo salvo em: {caminho_arquivo}")
+            except Exception as e:
+                print(f"Erro ao salvar o arquivo: {e}")
+                flash('Erro ao salvar o comprovante.', "error")
+                return redirect(url_for('finan.tab'))
+
+            # Atualiza o status do comprovante no banco
+            try:
+                conn = sqlite3.connect(current_app.config['DATABASE'])
+                cur = conn.cursor()
+                cur.execute("UPDATE pagamentos SET status_comprovante = 1 WHERE id = ?", (pagamento_id,))
+                conn.commit()
+                conn.close()
+            except Exception as e:
+                print(f"Erro ao atualizar o banco de dados: {e}")
+                flash('Erro ao atualizar status do pagamento.', "error")
+                return redirect(url_for('finan.tab'))
+
+            flash('Comprovante anexado com sucesso.', "success")
+            return redirect(url_for('finan.tab'))
+
+        else:
+            flash('Arquivo com extensão não permitida.', "error")
+            return redirect(url_for('finan.tab'))
+
 
 
 
@@ -339,3 +434,31 @@ pass
 @finan_bp.route('/download_csv')
 def download_csv():
     pass
+
+@finan_bp.route('/documentos_contrato/<pagamento_id>')
+def comprovante(pagamento_id):
+    import glob
+    import os
+    from flask import send_from_directory, abort
+    # Caminho da pasta onde estão os comprovantes
+    comprovante_folder = os.path.join(os.getcwd(), 'static', 'comprovantes')
+    comprovante_folder = os.path.abspath(comprovante_folder)
+
+    # Verifica se a pasta existe
+    if not os.path.exists(comprovante_folder):
+        return abort(404, description='Pasta dos comprovantes não encontrada.')
+
+    # Procura por qualquer extensão compatível
+    padrao_arquivo = os.path.join(comprovante_folder, f"comprovante_{pagamento_id}.*")
+    arquivos = glob.glob(padrao_arquivo)
+
+    if not arquivos:
+        return abort(404, description='Nenhum comprovante encontrado para este pagamento.')
+
+    # Pega o primeiro arquivo encontrado (deve ser único)
+    caminho_arquivo = arquivos[0]
+    filename = os.path.basename(caminho_arquivo)
+
+    print(f"Pagamento recebido: {pagamento_id}, Nome do arquivo: {filename}")
+    
+    return send_from_directory(comprovante_folder, filename, as_attachment=True)
