@@ -164,7 +164,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
       </tr>
     </table>
 
-    <!-- Rodapé estilo Nubank -->
+    
     <div style="background-color: #1a1a1a; color: white; padding: 30px 20px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; max-width:600px; margin:auto;">
       <p style="margin-bottom: 20px;"><strong>Abraços,<br>Equipe Amacor</strong></p>
 
@@ -251,7 +251,7 @@ def msg_email(status,proposta, complemento):
             elif status == 'Enviado ao cadastro':
                 print("na situ de enviado ao cadastro")
                 assunto= f'{nome} seu processo de contratação foi iniciado'
-                mensagem = f"Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde. \n\n Dentro dos próximos dias entraremos em contato para prosseguir com o processo de adesão ao plano."
+                mensagem = f"Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde. \n\n Dentro dos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano."
                 return assunto, mensagem, complemento
               
             else:
