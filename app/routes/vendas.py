@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, session,redirect,url_for
-from ..models.database import query_db, salvar_venda
+from ..models.database import query_db, salvar_venda, get_email, get_nome, get_status
 import re
 from app.utils import login_required, acesso, hierarquia
 from datetime import datetime
 import sqlite3
+from ..api_conex.conections import email_gmail, msg_email
 from flask import current_app
 
 
@@ -130,7 +131,9 @@ def venda_form():
             "digitador": nome_usuario,
             "valor_venda": float(request.form.get('valor_venda', '0').replace(',', '.')),
             "dt_cadastro": datetime.now().strftime("%d-%m-%Y"),
+            "tipo_pagamento": request.form.get('tipo_pagamento'),
         }
+        print(venda['tipo_pagamento'])
 
         # Calcular valores adicionais
         venda["taxa_inscricao"] = 15.00 if venda["tipo_contrato"] == "individual" else 30.00
@@ -225,11 +228,14 @@ def venda_form():
         print(venda['nome_responsavel'])
         print(venda["vida"])
 
+        numero_proposta= venda['numero_proposta']
+
+        print("passando para fechamento no sistema")
         # Salvar os dados no banco
         salvar_venda(venda, responsavel, titular, dependentes)
 
 
-        return render_template('vendas/concluido.html', venda=venda, responsavel=responsavel, titular=titular, dependentes=dependentes)
+        return redirect(url_for('vendas_bp.concluido', numero_proposta = numero_proposta))
     except KeyError as e:
         return f"Erro: chave não encontrada {e}"
 
@@ -248,3 +254,20 @@ def buscar_endereco_cep():
     if endereco:
         return jsonify(endereco)
     return jsonify({'erro': 'Endereço não encontrado'}), 404
+
+@vendas_bp.route('/concluido')
+def concluido():
+    numero_proposta= request.args.get(numero_proposta)
+    print('proposta recebida:', numero_proposta)
+    status = get_status(numero_proposta)
+    email = get_email(numero_proposta)
+
+    if email:
+        assunto, mensagem, complemento = msg_email(status,numero_proposta,complemento=complemento)
+        print(f"enviando email para: {email} com assunto {assunto}")
+        email_gmail(destinatario=email,assunto=assunto,mensagem=mensagem,complemento=complemento)
+        return redirect(url_for('cad.acompanhar_cnt'))
+
+
+
+    return render_template('venda/concluido.html')
