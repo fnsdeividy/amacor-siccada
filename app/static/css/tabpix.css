@@ -21,6 +21,42 @@
     color: #f9f9f9; /* Cor do texto para contraste */
 }
 
+.status-pendente{
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f3c784;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+
+}
+.status-pendente:hover {
+    background-color: #f39d4d;
+    color: rgb(0, 0, 0);
+    scale: 1.05; /* Aumenta o tamanho do botão ao passar o mouse */
+}
+
+.status-enviado{
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #7adf71;
+    color: rgb(0, 0, 0)       ;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+
+}
+.status-enviado:hover {
+    background-color: #51bd48;
+    color: rgb(0, 0, 0);
+    scale: 1.05; /* Aumenta o tamanho do botão ao passar o mouse */
+
+}
+
+
 
 /* Filtro de status */
 .filter-tab-pix {
