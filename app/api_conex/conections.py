@@ -251,7 +251,7 @@ def msg_email(status,proposta, complemento):
             elif status == 'Enviado ao cadastro':
                 print("na situ de enviado ao cadastro")
                 assunto= f'{nome} seu processo de contratação foi iniciado'
-                mensagem = f"Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde. \n\n Dentro dos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano."
+                mensagem = f"Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde. \n\n Dentro dos próximos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano."
                 return assunto, mensagem, complemento
               
             else:
