@@ -257,7 +257,7 @@ def adicionar_doc():
     import os
     from werkzeug.utils import secure_filename
     from flask import request, redirect, url_for, flash, render_template
-    ALLOWED_EXTENSIONS = {'rar', 'zip'}
+    ALLOWED_EXTENSIONS = {'rar', 'zip','.pdf'}
     proposta = request.args.get('proposta')
     print(f"Proposta recebida: {proposta}")
 
