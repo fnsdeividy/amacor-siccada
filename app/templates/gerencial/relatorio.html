@@ -1,0 +1,84 @@
+{% extends 'base1.html' %}
+
+{% block title %}Tabela de Pagamentos{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tabpix.css') }}">
+
+<div class="container-tab-pix">
+    
+    <div class="filter-tab-pix2">
+        <a class="close-btn" href="{{ url_for('auth.fechar') }}" class="close-btn">✖</a>
+    </div>
+    
+     
+    
+    
+
+    <!-- Título da tabela -->
+    <h1 class="table-title-tab-pix">Tabela de Pagamentos</h1>
+
+    <form class="filter-tab-pix" method="POST">
+        <a class="btn-tab-pix" href="{{ url_for('finan.definir') }}">Filtrar tabela</a>
+    </form>
+
+    <!-- Tabela de pagamentos -->
+    <div class="table-container-tab-pix">
+        <table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Proposta</th>
+            <th>numero de contrato</th>
+            <th>Responsável</th>
+            <th>Valor da venda</th>
+            <th>taxa de inscrição</th>
+            <th>ISS</th>
+            <th>Vidas cadastradas</th>
+            <th>Valor de mensalidade</th>
+            <th>Data da venda</th>
+            <th>tipo de plano</th>
+            <th>Status</th>
+            <th>corretor</th>
+            <th>Tipo de Lançamento</th>
+            <th>Corretor</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in dados %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.numero_proposta }}</td>
+            <td>{{ item.numero_contrato }}</td>
+            <td>{{ item.nome_responsavel }}</td>
+            <td>{{ item.valor_venda }}</td>
+            <td>{{ item.taxa_inscricao }}</td>
+            <td>{{ item.iss }}</td>
+            <td>{{ item.vidas }}</td>
+            <td>{{ item.valor_tabela }}</td>            
+            <td>{{ item.dt_cadastro }}</td>
+            <td>{{ item.tipo_contrato }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.corretor_resp }}</td>            
+            <td>{{ item.tipo_pagamento or 'Não especificado' }}</td>
+            <td>{{ item.digitador }}</td>
+             <td>
+                        <a class="btn-tab-pix" href="{{ url_for('cad.detalhes_cnt', proposta=item.numero_proposta, contrato=item.numero_contrato, id=item.id) }}">Detalhes</a>
+                    </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+        </div>
+    </div>
+
+    <!-- Botões de ação -->
+    <div class="action-buttons-tab-pix">
+        <a href="{{ url_for('gerencial.download_relatorio') }}" class="btn-tab-pix">Exportar CSV</a>
+            
+</div>
+
+{% endblock %}

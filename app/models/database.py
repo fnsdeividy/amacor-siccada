@@ -156,10 +156,74 @@ def get_pagamento(data_pagamento, valor, numero_contrato,database_path=None):
     print(f'id retornado: ,{ id}')
     return id['id'] if id else None
 
+
+
+def get_contrato(cpf, database_path=None):
+    print(f"dados recebidos: {cpf}") 
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT sNumeroCNT FROM beneficiarios 
+        WHERE sCpfCgcResp = ? 
+    """, (cpf,))  
+
+    resultado = cur.fetchone()
+    conn.close()
+
+    print(f'id retornado: {resultado}')
+    return resultado['sNumeroCNT'] if resultado else None
+
+def get_nome_contrato(cpf,database_path=None):
+    print(f"dados recebidos: {cpf}") 
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT sNomeResp FROM beneficiarios 
+        WHERE sCpfCgcResp = ? 
+    """, (cpf,))  
+
+    resultado = cur.fetchone()
+    conn.close()
+
+    print(f'responsavel retornado: {resultado}')
+    return resultado['sNomeResp'] if resultado else None
+
+def get_carteirinha(cpf, database_path=None):
+    print(f"dados recebidos: {cpf}") 
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT sCodigoUSR FROM beneficiarios 
+        WHERE sCpfUSR = ? 
+    """, (cpf,))  
+
+    resultado = cur.fetchone()
+    conn.close()
+
+    print(f'responsavel retornado: {resultado}')
+    return resultado['sNomeResp'] if resultado else None
+
+def get_data_relatorio(data_inicial, data_final, database_path=None):
+    print(f"dados recebidos: data inicial:{data_inicial} data final: {data_final}")
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM venda 
+        WHERE data_venda BETWEEN ? AND ? 
+    """, (data_inicial, data_final))
+
+    # Obtendo todos os resultados como lista de dicionários
+    col_names = [desc[0] for desc in cur.description]  # Pegando os nomes das colunas
+    resultado = [dict(zip(col_names, row)) for row in cur.fetchall()]
     
+    conn.close()
 
+    print(f"Quantidade de resultados: {len(resultado)}")
+    print(f"Primeiros 5 resultados: {resultado[:5]}")  # Mostrar os 5 primeiros resultados
 
-if __name__ == "__main__":
-    get_email('2')
-
-
+    return resultado if resultado else None
