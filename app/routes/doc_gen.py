@@ -302,7 +302,11 @@ def download_documento_final():
     # Enviar o arquivo para download
     return send_file(caminho_pdf_final, as_attachment=True)
 
+
+#####################################################################################################################################
 ###################################separação entre rotas para arquivos docx - pdf & xlsx - csv#######################################
+#####################################################################################################################################
+
 
 def converter_xls_para_csv(caminho_arquivo_excel, pasta_destino):
     """
@@ -512,3 +516,55 @@ def processar_csv_form():
 @login_required
 def confirmar_envio():
     return render_template('geradores/confirmar_envio.html')
+
+
+import os
+import csv
+import pandas as pd
+
+def gerar_csv(dados):
+    relatorio_dir = os.path.join(os.getcwd(), 'static', 'uploads_geren_docgen', 'relatorios', 'vendas')
+    os.makedirs(relatorio_dir, exist_ok=True)
+    arquivo_csv = os.path.join(relatorio_dir, 'relatorio_vendas.csv')
+    
+    if dados:
+        print("Dados recebidos")
+        limpar_pasta_saida(relatorio_dir)  # Certifique-se que isso está funcionando corretamente
+
+    try:
+        # Usando 'arquivo_csv' ao invés de 'relatorio_dir'
+        with open(arquivo_csv, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            
+            # Escrever cabeçalhos
+            writer.writerow([
+                'ID', 'Proposta', 'Número de Contrato', 'Responsável', 'Valor da Venda', 
+                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade', 
+                'Data da Venda', 'Tipo de Plano', 'Status', 'Corretor', 'Tipo de Lançamento', 'Corretor Resp'
+            ])
+            
+            # Escrever os dados das vendas
+            for item in dados:
+                writer.writerow([
+                    item['id'], 
+                    item['numero_proposta'], 
+                    item['numero_contrato'], 
+                    item['nome_responsavel'], 
+                    item['valor_venda'], 
+                    item['taxa_inscricao'], 
+                    item['iss'], 
+                    item['vidas'], 
+                    item['valor_tabela'], 
+                    item['dt_cadastro'], 
+                    item['tipo_contrato'], 
+                    item['status'], 
+                    item['corretor_resp'], 
+                    item['tipo_pagamento'] or 'Não especificado', 
+                    item['corretor_resp']
+                ])
+            
+        print("Arquivo CSV gerado com sucesso!")
+    except PermissionError as e:
+        print(f"Erro ao criar arquivo CSV: {e}")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
