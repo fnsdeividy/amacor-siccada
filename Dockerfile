@@ -7,11 +7,12 @@ WORKDIR /app
 COPY . /app
 
 RUN pip install --upgrade pip
-RUN pip insrtall -r requirements.txt
+RUN pip install -r requirements.txt
+
 RUN apt-get update && \
     apt-get install -y libreoffice && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 EXPOSE 5001
 
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]

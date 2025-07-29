@@ -136,20 +136,30 @@ def venda_form():
         print(venda['tipo_pagamento'])
 
         # Calcular valores adicionais
-        venda["taxa_inscricao"] = 15.00 if venda["tipo_contrato"] == "individual" else 30.00
-        venda["iss"] = 0.05 if venda["tipo_contrato"] == "empresarial" else 0
+        # Calcular valores adicionais
+        tipo = venda["tipo_contrato"]
+        venda["taxa_inscricao"] = 15.00 if tipo == "individual" else 30.00
         valor_base = venda["valor_venda"] - venda["taxa_inscricao"]
-        if venda['iss']>0:
-            valor_iss= valor_base * venda['iss']
-            valor_base -= valor_iss           
-        else:
-            valor_iss= 0
-            venda["valor_tabela"] = round(valor_base,2)
-            
 
-        venda['valor_tabela'] = valor_base
-        venda['iss'] = valor_iss
-        print(f"Valor base após ISS: {valor_base}")
+        if tipo == "empresarial":
+            taxa = venda["taxa_inscricao"]
+            valor_sem_taxa = venda['valor_venda'] - taxa
+            mensalidade = round(valor_sem_taxa / 1.05, 2)
+            iss = round(valor_sem_taxa - mensalidade, 2)
+
+            venda["valor_tabela"] = mensalidade
+            venda["iss"] = iss
+
+        elif tipo == "individual":
+            venda["valor_tabela"] = round(valor_base, 2)
+            venda["iss"] = 0
+
+        else:
+            venda["valor_tabela"] = "CANCELADO"
+            venda["iss"] = 0
+
+        print(f"Valor tabela: {venda['valor_tabela']}, ISS: {venda['iss']}")
+
 
 
         # Dados do responsável
@@ -257,17 +267,6 @@ def buscar_endereco_cep():
 
 @vendas_bp.route('/concluido')
 def concluido():
-    numero_proposta= request.args.get(numero_proposta)
-    print('proposta recebida:', numero_proposta)
-    status = get_status(numero_proposta)
-    email = get_email(numero_proposta)
+    
 
-    if email:
-        assunto, mensagem, complemento = msg_email(status,numero_proposta,complemento=complemento)
-        print(f"enviando email para: {email} com assunto {assunto}")
-        email_gmail(destinatario=email,assunto=assunto,mensagem=mensagem,complemento=complemento)
-        return redirect(url_for('cad.acompanhar_cnt'))
-
-
-
-    return render_template('venda/concluido.html')
+    return render_template('vendas/concluido.html')
