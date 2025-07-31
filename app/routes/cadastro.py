@@ -110,7 +110,7 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'financeiro':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'boleto emitido'"
+            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'Enviado ao cadastro' OR status = 'boleto emitido'"
             result = query_db(query)
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
