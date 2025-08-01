@@ -529,40 +529,38 @@ def gerar_csv(dados):
     
     if dados:
         print("Dados recebidos")
-        limpar_pasta_saida(relatorio_dir)  # Certifique-se que isso está funcionando corretamente
+        limpar_pasta_saida(relatorio_dir)
 
     try:
-        # Usando 'arquivo_csv' ao invés de 'relatorio_dir'
+        total_contratos = len(dados)
+        total_vidas = sum(int(item.get('vidas', 0)) for item in dados)
+
         with open(arquivo_csv, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            
-            # Escrever cabeçalhos
+            # Primeira linha: Contratos e Vidas
+            writer.writerow(['Contratos', 'Vidas'])
+            # Segunda linha: totais
+            writer.writerow([total_contratos, total_vidas])
+            # Linha em branco
+            writer.writerow([])
+            # Cabeçalho dos dados
             writer.writerow([
-                'ID', 'Proposta', 'Número de Contrato', 'Responsável', 'Valor da Venda', 
-                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade', 
-                'Data da Venda', 'Tipo de Plano', 'Status', 'Corretor', 'Tipo de Lançamento', 'Corretor Resp'
+                'ID', 'Proposta', 'Número de Contrato', 'Responsável', 'Valor da Venda',
+                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade'
             ])
-            
-            # Escrever os dados das vendas
+            # Dados das vendas
             for item in dados:
                 writer.writerow([
-                    item['id'], 
-                    item['numero_proposta'], 
-                    item['numero_contrato'], 
-                    item['nome_responsavel'], 
-                    item['valor_venda'], 
-                    item['taxa_inscricao'], 
-                    item['iss'], 
-                    item['vidas'], 
-                    item['valor_tabela'], 
-                    item['dt_cadastro'], 
-                    item['tipo_contrato'], 
-                    item['status'], 
-                    item['corretor_resp'], 
-                    item['tipo_pagamento'] or 'Não especificado', 
-                    item['corretor_resp']
+                    item.get('id', ''),
+                    item.get('numero_proposta', ''),
+                    item.get('numero_contrato', ''),
+                    item.get('nome_responsavel', ''),
+                    item.get('valor_venda', ''),
+                    item.get('taxa_inscricao', ''),
+                    item.get('iss', ''),
+                    item.get('vidas', ''),
+                    item.get('valor_tabela', ''),
                 ])
-            
         print("Arquivo CSV gerado com sucesso!")
     except PermissionError as e:
         print(f"Erro ao criar arquivo CSV: {e}")
