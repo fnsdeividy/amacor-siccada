@@ -397,7 +397,47 @@ def alterar_infos_proposta():
         except sqlite3.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
+    
+    if tp_alt =='excluir':
+        return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta)
         
+@cad_bp.route('/excluir_proposta', methods=['GET','POST'])
+@acesso('vendas')
+@hierarquia('supervisor')
+def excluir_proposta():
+    from ..models.database import get_senha, excluir_proposta
+    proposta = request.args.get('proposta')
+    
+    
+    if request.method == 'POST':
+        
+        print(f"Proposta recebida para exclusão: {proposta}")
+        proposta= request.form.get('proposta')
+        if not proposta:
+            flash('Proposta não informada.','error')
+            return redirect(url_for('cad.acompanhar_cnt'))
+        
+        print(f"Proposta recebida: {proposta}")
+        senha = request.form.get('senha')
+        print(f"senha recebida: ", senha)
+
+        senha_cancelamento = get_senha()
+
+        if senha.strip() in [s.strip() for s in senha_cancelamento]:
+    
+            print(f"senha correta: {senha_cancelamento}")
+            excluir_proposta(proposta)
+            flash('Proposta excluída com sucesso!', 'success')
+            return redirect(url_for('cad.acompanhar_cnt'))
+        else:
+            print(f"Senha incorreta: {senha}")
+            flash('Senha incorreta. A proposta não foi excluída.', 'error')
+            return redirect(url_for('cad.acompanhar_cnt'))
+
+
+            
+       
+    return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta)
 
 @cad_bp.route('/alterar_infos', methods=['POST'])
 @acesso('vendas', 'cadastro', 'administrativo')
