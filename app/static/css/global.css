@@ -10,11 +10,15 @@ body {
     margin: 5px;
     padding: 5px;
     box-sizing: border-box;
-    background-image: url('/static/image/fundo3.jpg'); /* Cor de fundo para combinar com a navbar */
-    background-color: #2a6b5c;
+    background-image: url('/static/image/fundo-siccada-all.png') ; /* Cor de fundo para combinar com a navbar */
+    background-repeat: no-repeat;
+    
+    background-color: #010a51;
     color: white; /* Cor do texto */
     transition: background 0.3s ease-in-out; /* Transição suave */
 }
+
+
 
 /* Garantir que a navbar ocupe toda a largura */
 .navbar {
@@ -79,9 +83,25 @@ td {
     border-radius: 5px; /* Bordas arredondadas */
     cursor: pointer; /* Cursor de ponteiro ao passar o mouse */
     transition: 0.3s ease; /* Transição suave para a cor de fundo */
+    color: white;
+}
+.bnt-delt{
+    background-color: #369273; /* Cor de fundo do botão */
+    color: white; /* Cor do texto do botão */
+    padding: 10px 20px; /* Espaçamento interno do botão */
+    border: none; /* Sem borda */
+    border-radius: 5px; /* Bordas arredondadas */
+    cursor: pointer; /* Cursor de ponteiro ao passar o mouse */
+    transition: 0.3s ease; /* Transição suave para a cor de fundo */
 }
 
 .btn:hover {
+    background-color: #2a6b5c; /* Cor de fundo ao passar o mouse */
+    transform: scale(1.05); /* Aumenta o tamanho do botão ao passar o mouse */
+    color: white;
+}
+
+.bnt-delt:hover {
     background-color: #2a6b5c; /* Cor de fundo ao passar o mouse */
     transform: scale(1.05); /* Aumenta o tamanho do botão ao passar o mouse */
 }

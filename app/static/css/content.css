@@ -16,6 +16,7 @@
     border: 1px solid #444; /* Adiciona uma borda sutil (opcional) */
 }
 
+
 .divisoria2 h1 {
     font-size: 24px;
     color: #333;
@@ -132,7 +133,7 @@ a.btn:hover {
 }
 
 .payment-form .btn {
-    background-color: #3498db;
+    background-color: #369273;
     color: white;
     padding: 10px;
     border: none;
@@ -141,7 +142,7 @@ a.btn:hover {
 }
 
 .payment-form .btn:hover {
-    background-color: #2980b9;
+    background-color: #2a7059;
 }
 
 .close-btn-container {

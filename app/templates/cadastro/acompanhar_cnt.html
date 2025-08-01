@@ -1,7 +1,11 @@
-{% extends "base.html" %}
+{% extends "base1.html" %}
 {% block title %}acompanhamento de contratos{% endblock %}
 {% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icone.ico') }}">
+
 <br>
+
 <div class="search-bar-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0;">
     <!-- Filtro à esquerda -->
     <form method="get" action="{{ url_for('cad.acompanhar_cnt') }}" id="autoSubmitForm" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
@@ -50,7 +54,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <style>
+        
         /* Seus estilos permanecem os mesmos */
         p {
             position: center;
@@ -182,6 +188,7 @@
                     <p><strong>Produto:</strong> {{ row[4] }}</p>
                     <p><strong>Valor Tabela:</strong> R$ {{ row[12] }}</p>
                     <p><strong>Taxa de Inscrição:</strong> R$ {{ row[10] }}</p>
+                    <p><strong>ISS:</strong> R$ {{ row.iss }}</p>
                     <p><strong>Valor Total:</strong> R$ {{ row[8] }}</p>
                     <br><br>
                     <a class="btn" href="{{ url_for('cad.detalhes_cnt', proposta=row[1], contrato=row[13]) }}">detalhes da venda</a>
