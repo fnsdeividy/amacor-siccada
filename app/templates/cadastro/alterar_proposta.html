@@ -17,6 +17,8 @@
         <a href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='titular') }} ">alterar titular</a>
         <br>
         <a href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='depenn') }} ">alterar dependentes</a>
+        <br><br>
+        <a href="{{ url_for('cad.excluir_proposta', proposta=proposta) }}">Excluir venda</a>
 </div>
 
 <script>
