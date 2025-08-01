@@ -170,19 +170,27 @@ def juntar_pdf(lista_caminhos, caminho_saida):
 @acesso('cadastro','administrativo')
 def gerar_documentos():
     if request.method == 'POST':
-        # Capturar os dados enviados pelo formulário
         plano_nome = request.form.get('plano_nome', '').strip()
         nome_responsavel = request.form.get('nome_responsavel', '').strip()
         data_hoje = datetime.now().strftime('%Y-%m-%d')
         data_contrato = request.form.get('data_contrato', '').strip()
         numero_contrato = request.form.get('numero_contrato', '').strip()
 
+        print('request.form:', request.form)
+        print('data_contrato:', data_contrato)
+
         session['nome_responsavel_temp'] = nome_responsavel
 
-        dataformatada= datetime.strptime(data_hoje, '%Y-%m-%d').strftime('%d/%m/%Y')
+        print (request.form)
+        # Verificar se todos os campos obrigatórios foram preenchidos
+        if not all([plano_nome, nome_responsavel, data_contrato, numero_contrato]):
+            return "Erro: Todos os campos são obrigatórios.", 400
+
+        # Só converta as datas depois de validar
+        dataformatada = datetime.strptime(data_hoje, '%Y-%m-%d').strftime('%d/%m/%Y')
         data_hoje = dataformatada
 
-        datacnt_formatada= datetime.strptime(data_contrato, '%Y-%m-%d').strftime('%d/%m/%Y')
+        datacnt_formatada = datetime.strptime(data_contrato, '%Y-%m-%d').strftime('%d/%m/%Y')
         data_contrato = datacnt_formatada
         
 

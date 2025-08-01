@@ -1,0 +1,20 @@
+{% extends 'base1.html' %}
+
+{% block title %}Bem-vindo{% endblock %}
+
+{% block content %}
+<br><br><br>
+
+<body>
+    <div class="container">
+        <div class="divisoria2">
+            <div class="close-btn-container">
+                    <a class="close-btn" href="{{ url_for('finan.tab') }}" class="close-btn"><</a>
+                </div>
+    <h1>Nenhum comprovante registrato</h1>
+    <h3>Sem registro de comprovante, deseja <a  href=" {{ url_for('finan.render_form_post',pagamento_id= pagamento_id) }} "><strong>adicionar?</strong></a></h3>
+
+</body>
+
+
+{% endblock %}

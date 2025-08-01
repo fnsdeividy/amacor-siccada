@@ -29,13 +29,17 @@ h2 {
 /* Centralizar o conteúdo da página */
 .login-body {
     display: flex;
-    justify-content: justify;
-    align-items: justify;
+    justify-content: left;   /* Centraliza horizontalmente */
+    align-items: left;       /* Centraliza verticalmente */
     height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
-    background-image: radial-gradient(rgb(11, 112, 26), #00070e);
+    background-image: url('/static/image/siccada-fundo.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover; /* Garante que cubra toda a tela */
 }
+
 
 /* Estilo da caixa de login */
 .divisoria {
@@ -165,7 +169,7 @@ select{
     font-size: 16px;
     font-weight: bold;
     color: #fff;
-    background-color: rgb(5, 79, 15);
+    background-color: rgb(5, 32, 79);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -180,7 +184,7 @@ select{
     margin-top: 10px;
     bottom: 7px;
     color: #fff;
-    background-color: rgb(5, 79, 15);
+    background-color: #05204f;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -188,7 +192,7 @@ select{
 }
 
 .envia:hover {
-    background-color: #19611c;
+    background-color: #04193c;
 }
 
 

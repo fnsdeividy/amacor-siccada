@@ -206,6 +206,9 @@ def render_form():
     
     return render_template('financeiro/comprovante/comprovante.html', pagamento_id=pagamento_id)
     
+@finan_bp.route('/render_comprovante_post/<int:pagamento_id>')
+def render_form_post(pagamento_id):
+    return render_template('financeiro/comprovante/comprovante.html', pagamento_id=pagamento_id)
 
 @finan_bp.route('/comprovante_upload', methods=['POST'])
 @acesso('financeiro', 'cobranca', 'cadastro')
@@ -446,15 +449,18 @@ def comprovante(pagamento_id):
 
     # Verifica se a pasta existe
     if not os.path.exists(comprovante_folder):
-        return abort(404, description='Pasta dos comprovantes não encontrada.')
+        pagamento_id=pagamento_id
+        print (pagamento_id)
+        return render_template('financeiro/comprovante/erro.html', pagamento_id=pagamento_id)
 
     # Procura por qualquer extensão compatível
     padrao_arquivo = os.path.join(comprovante_folder, f"comprovante_{pagamento_id}.*")
     arquivos = glob.glob(padrao_arquivo)
 
     if not arquivos:
-        return abort(404, description='Nenhum comprovante encontrado para este pagamento.')
-
+        pagamento_id=pagamento_id
+        print (pagamento_id)
+        return render_template('financeiro/comprovante/erro.html', pagamento_id=pagamento_id)
     # Pega o primeiro arquivo encontrado (deve ser único)
     caminho_arquivo = arquivos[0]
     filename = os.path.basename(caminho_arquivo)
