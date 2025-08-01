@@ -227,3 +227,58 @@ def get_data_relatorio(data_inicial, data_final, database_path=None):
     print(f"Primeiros 5 resultados: {resultado[:5]}")  # Mostrar os 5 primeiros resultados
 
     return resultado if resultado else None
+
+
+def get_boleto(contrato, database_path= None):
+    print(f"dados recebidos: {contrato}")
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT cod_barras FROM beneficiarios 
+        WHERE sNumeroCNT = ?
+    """, (contrato,))
+
+    # Obtendo todos os resultados como lista de dicionários
+    resultado = cur.fetchone()
+
+    conn.close()
+
+    cod_barras = resultado['cod_barras']  # Acessa o campo 'cod_barras' diretamente
+
+    print(f"Valor do código de barras: {cod_barras}")
+
+    return cod_barras
+    
+def get_senha(database_path=None):
+    
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT senha FROM usuarios WHERE tipo_usuario = 'vendas' AND classe_usuario = 'supervisor'
+    """, )
+    resultado = cur.fetchall()
+    conn.close()
+
+    if resultado:
+        return [row['senha'] for row in resultado]
+    
+def excluir_proposta(proposta, database_path=None):
+    """
+    Exclui uma proposta e todos os seus dados associados do banco de dados.
+    """
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        # Excluir venda
+        cur.execute("DELETE FROM venda WHERE numero_proposta = ?", (proposta,))
+
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        raise e
+
