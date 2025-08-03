@@ -31,20 +31,56 @@ def limpar_pasta_saida(pasta_saida):
 
 @gerencial_bp.route('/dashboard')
 def dashboard():
-    # Supondo que a coluna 2 é data_venda (ajuste se necessário)
-    dados_tipo_plano = query_db("SELECT tipo_produto, COUNT(*) FROM venda GROUP BY tipo_produto")
+    periodo = request.args.get('periodo', '')
+    data_inicial = request.args.get('data_inicial')
+    data_final = datetime.now().strftime('%Y-%m-%d')
+
+    # Lógica para definir data_inicial baseada no período ou data personalizada
+    if periodo:
+        try:
+            dias = int(periodo)
+            data_inicial = (datetime.now() - pd.Timedelta(days=dias)).strftime('%Y-%m-%d')
+        except Exception:
+            data_inicial = (datetime.now() - pd.Timedelta(days=30)).strftime('%Y-%m-%d')
+    elif data_inicial:
+        try:
+            datetime.strptime(data_inicial, '%Y-%m-%d')
+        except ValueError:
+            flash('Data inválida. Use o formato AAAA-MM-DD.', 'error')
+            return redirect(url_for('gerencial.dashboard'))
+    else:
+        data_inicial = (datetime.now() - pd.Timedelta(days=30)).strftime('%Y-%m-%d')
+
+    # Filtros aplicados nas queries para considerar o período
+    dados_tipo_plano = query_db("""
+        SELECT tipo_produto, COUNT(*) FROM venda
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY tipo_produto
+    """, [data_inicial, data_final])
     labels_tipo_plano = [row[0] for row in dados_tipo_plano]
     valores_tipo_plano = [row[1] for row in dados_tipo_plano]
 
-    dados_corretor = query_db("SELECT corretor_resp, COUNT(*) FROM venda GROUP BY corretor_resp")
+    dados_corretor = query_db("""
+        SELECT corretor_resp, COUNT(*) FROM venda
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY corretor_resp
+    """, [data_inicial, data_final])
     labels_corretor = [row[0] for row in dados_corretor]
     valores_corretor = [row[1] for row in dados_corretor]
 
-    dados_evolucao = query_db("SELECT strftime('%Y-%m', data_venda), SUM(valor_venda) FROM venda GROUP BY 1 ORDER BY 1")
+    dados_evolucao = query_db("""
+        SELECT strftime('%Y-%m', data_venda), SUM(valor_venda) FROM venda
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY 1 ORDER BY 1
+    """, [data_inicial, data_final])
     labels_evolucao = [row[0] for row in dados_evolucao]
     valores_evolucao = [row[1] for row in dados_evolucao]
 
-    ultimas_vendas = query_db("SELECT * FROM venda ORDER BY data_venda DESC LIMIT 10")
+    ultimas_vendas = query_db("""
+        SELECT * FROM venda
+        WHERE data_venda BETWEEN ? AND ?
+        ORDER BY data_venda DESC LIMIT 10
+    """, [data_inicial, data_final])
 
     return render_template(
         'generic/gerenciais/vendas/dashboard.html',
@@ -54,7 +90,10 @@ def dashboard():
         valores_corretor=valores_corretor,
         labels_evolucao=labels_evolucao,
         valores_evolucao=valores_evolucao,
-        ultimas_vendas=ultimas_vendas
+        ultimas_vendas=ultimas_vendas,
+        data_inicial=data_inicial,
+        data_final=data_final,
+        periodo=periodo
     )
 
 
