@@ -47,7 +47,7 @@ def dashboard():
     ultimas_vendas = query_db("SELECT * FROM venda ORDER BY data_venda DESC LIMIT 10")
 
     return render_template(
-        'gerencial/dashboard.html',
+        'generic/gerenciais/vendas/dashboard.html',
         labels_tipo_plano=labels_tipo_plano,
         valores_tipo_plano=valores_tipo_plano,
         labels_corretor=labels_corretor,

@@ -31,7 +31,7 @@
                 </div>
     
             <div class="form-field">
-                <form method="POST" action="{{ url_for('cad.gravar_alteracao', proposta=proposta) }}">
+                <form id="form-alterar-cnt" method="POST" action="{{ url_for('cad.gravar_alteracao', proposta=proposta) }}">
                     <label for="status"></label>
                     <select id="status" name="status" required>
                         <option value="" disabled selected>selecione</option>
@@ -80,7 +80,7 @@
                     </select>
                     <input type="hidden" name="info" value="status">
                     <br><br>
-                    <button class="btn" type="submit">alterar</button>
+                    <button onclick="carregamento()" class="btn" id="botao" type="submit">alterar</button>
         
             </div>
              
@@ -93,6 +93,11 @@
     
 </body>
 <script>
+    function carregamento(){
+        document.getElementById('form-alterar-cnt').addEventListener('submit', function() {
+        document.getElementById('loader').style.display = 'flex';
+    });
+    }
     function goBack() {
         if (document.referrer) {
             // Voltar para a página anterior

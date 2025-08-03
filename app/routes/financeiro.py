@@ -60,7 +60,7 @@ def dashboard():
     ultimos_pagamentos = query_db("SELECT * FROM pagamentos ORDER BY data_pagamento DESC LIMIT 5")
 
     return render_template(
-        'financeiro/dashboard.html',
+        'generic/gerenciais/financeiro/dashboard.html',
         labels_status=labels_status,
         valores_status=valores_status,
         labels_mes=labels_mes,
