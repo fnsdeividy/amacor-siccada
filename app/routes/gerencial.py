@@ -40,11 +40,13 @@ def dashboard():
         try:
             dias = int(periodo)
             data_inicial = (datetime.now() - pd.Timedelta(days=dias)).strftime('%Y-%m-%d')
+            print(data_inicial)
         except Exception:
             data_inicial = (datetime.now() - pd.Timedelta(days=30)).strftime('%Y-%m-%d')
     elif data_inicial:
         try:
             datetime.strptime(data_inicial, '%Y-%m-%d')
+            print(data_inicial)
         except ValueError:
             flash('Data inválida. Use o formato AAAA-MM-DD.', 'error')
             return redirect(url_for('gerencial.dashboard'))
@@ -84,9 +86,10 @@ def dashboard():
 
     # Busca o total de vidas vendidas no período
     vidas_count_row = query_db("""
-        SELECT COUNT(*) FROM venda WHERE data_venda BETWEEN ? AND ?
+        SELECT SUM(vidas) FROM venda WHERE data_venda BETWEEN ? AND ?
     """, [data_inicial, data_final])
     vidas_count = vidas_count_row[0][0] if vidas_count_row and vidas_count_row[0] else 0
+    print(f"Total de vidas vendidas: {vidas_count}")
 
     return render_template(
         'generic/gerenciais/vendas/dashboard.html',

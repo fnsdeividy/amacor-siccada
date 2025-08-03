@@ -542,32 +542,46 @@ def gerar_csv(dados):
     try:
         total_contratos = len(dados)
         total_vidas = sum(int(item.get('vidas', 0)) for item in dados)
+        total_faturado= sum(float(item.get('valor_venda', 0)) for item in dados)
 
         with open(arquivo_csv, mode='w', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file)
+            writer = csv.writer(file, delimiter=';')
             # Primeira linha: Contratos e Vidas
-            writer.writerow(['Contratos', 'Vidas'])
+            writer.writerow(['Contratos', 'Vidas', 'Total Faturado'])
             # Segunda linha: totais
-            writer.writerow([total_contratos, total_vidas])
+            writer.writerow([
+                total_contratos,
+                total_vidas,
+                f"R$ {total_faturado:,.2f}".replace('.', ',')
+            ])
             # Linha em branco
             writer.writerow([])
             # Cabeçalho dos dados
             writer.writerow([
-                'ID', 'Proposta', 'Número de Contrato', 'Responsável', 'Valor da Venda',
+                'ID', 'Proposta', 'Número de Contrato', 'Responsável', 'Data da venda','Valor da Venda',
                 'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade'
             ])
             # Dados das vendas
             for item in dados:
+                valor_venda = item.get('valor_venda', '')
+                valor_venda_fmt = f"R$ {float(valor_venda):,.2f}".replace('.', ',') if valor_venda not in ('', None) else ''
+                taxa_inscricao = item.get('taxa_inscricao', '')
+                taxa_inscricao_fmt = f"R$ {float(taxa_inscricao):,.2f}".replace('.', ',') if taxa_inscricao not in ('', None) else ''
+                iss = item.get('iss', '')
+                iss_fmt = f"R$ {float(iss):,.2f}".replace('.', ',') if iss not in ('', None) else ''
+                valor_tabela = item.get('valor_tabela', '')
+                valor_tabela_fmt = f"R$ {float(valor_tabela):,.2f}".replace('.', ',') if valor_tabela not in ('', None) else ''
                 writer.writerow([
                     item.get('id', ''),
                     item.get('numero_proposta', ''),
                     item.get('numero_contrato', ''),
                     item.get('nome_responsavel', ''),
-                    item.get('valor_venda', ''),
-                    item.get('taxa_inscricao', ''),
-                    item.get('iss', ''),
+                    item.get('data_venda',''),
+                    valor_venda_fmt,
+                    taxa_inscricao_fmt,
+                    iss_fmt,
                     item.get('vidas', ''),
-                    item.get('valor_tabela', ''),
+                    valor_tabela_fmt,
                 ])
         print("Arquivo CSV gerado com sucesso!")
     except PermissionError as e:
