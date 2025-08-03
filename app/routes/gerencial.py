@@ -82,6 +82,12 @@ def dashboard():
         ORDER BY data_venda DESC LIMIT 10
     """, [data_inicial, data_final])
 
+    # Busca o total de vidas vendidas no período
+    vidas_count_row = query_db("""
+        SELECT COUNT(*) FROM venda WHERE data_venda BETWEEN ? AND ?
+    """, [data_inicial, data_final])
+    vidas_count = vidas_count_row[0][0] if vidas_count_row and vidas_count_row[0] else 0
+
     return render_template(
         'generic/gerenciais/vendas/dashboard.html',
         labels_tipo_plano=labels_tipo_plano,
@@ -93,7 +99,8 @@ def dashboard():
         ultimas_vendas=ultimas_vendas,
         data_inicial=data_inicial,
         data_final=data_final,
-        periodo=periodo
+        periodo=periodo,
+        vidas_count=vidas_count
     )
 
 
