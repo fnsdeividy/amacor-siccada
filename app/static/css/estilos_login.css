@@ -213,7 +213,7 @@ a{
 }
 
 a:hover{
-    color:#378039;
+    color:#031b46;
 }
 
 .voltar{
@@ -281,4 +281,50 @@ a:hover{
 }
 .green-text:hover {
     text-decoration: underline; /* (opcional) Sublinhar ao passar o mouse */
+}
+
+
+form{
+  display: block;
+  width: 100%;
+}
+
+button {
+  position: relative;
+}
+
+button.sending {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+button.sending::before {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  margin-top: -12px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #fff;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 1;
+  transition: opacity 0.5s;
+  animation: rotate 0.8s linear infinite;
+}
+
+button::before {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
