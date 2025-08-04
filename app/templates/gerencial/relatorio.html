@@ -28,7 +28,7 @@
         <table>
     <thead>
         <tr>
-            <th>ID</th>
+            <th>Ações</th>
             <th>Proposta</th>
             <th>numero de contrato</th>
             <th>Responsável</th>
@@ -43,13 +43,15 @@
             <th>corretor</th>
             <th>Tipo de Lançamento</th>
             <th>Corretor</th>
-            <th>Ações</th>
+            
         </tr>
     </thead>
     <tbody>
         {% for item in dados %}
         <tr>
-            <td>{{ item.id }}</td>
+            <td>
+                        <a class="btn-tab-pix" href="{{ url_for('cad.detalhes_cnt', proposta=item.numero_proposta, contrato=item.numero_contrato, id=item.id) }}">Detalhes</a>
+                    </td>
             <td>{{ item.numero_proposta }}</td>
             <td>{{ item.numero_contrato }}</td>
             <td>{{ item.nome_responsavel }}</td>
@@ -64,9 +66,7 @@
             <td>{{ item.corretor_resp }}</td>            
             <td>{{ item.tipo_pagamento or 'Não especificado' }}</td>
             <td>{{ item.digitador }}</td>
-             <td>
-                        <a class="btn-tab-pix" href="{{ url_for('cad.detalhes_cnt', proposta=item.numero_proposta, contrato=item.numero_contrato, id=item.id) }}">Detalhes</a>
-                    </td>
+             
         </tr>
         {% endfor %}
     </tbody>
