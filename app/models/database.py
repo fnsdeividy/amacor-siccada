@@ -68,6 +68,7 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
         """, (venda['numero_proposta'], venda['data_venda'], venda['tipo_contrato'], venda['tipo_produto'],
               venda['corretor_resp'], venda['status'], venda['digitador'], venda['valor_venda'], venda['dt_cadastro'], 
               venda['taxa_inscricao'], venda['iss'], venda['valor_tabela'], venda['vida'], venda['nome_responsavel'],venda['tipo_pagamento']))
+        print(venda['tipo_pagamento'])
 
         proposta_id = venda['numero_proposta']  # Usar o número da proposta como referência
 
@@ -88,7 +89,7 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
 
         # Inserir dados dos dependentes
         for dependente in dependentes:
-            print(dependente)
+            
             cur.execute("""
                 INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae)
                 VALUES (?, ?, ?, ?, ?, ?,?)

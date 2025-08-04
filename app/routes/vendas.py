@@ -131,7 +131,7 @@ def venda_form():
             "digitador": nome_usuario,
             "valor_venda": float(request.form.get('valor_venda', '0').replace(',', '.')),
             "dt_cadastro": datetime.now().strftime("%d-%m-%Y"),
-            "tipo_pagamento": request.form.get('tipo_pagamento'),
+            "tipo_pagamento": request.form.get('forma_pagamento'),
         }
         print(venda['tipo_pagamento'])
 
@@ -173,7 +173,7 @@ def venda_form():
             "email": request.form.get('email_responsavel'),
             "estado_civil": request.form.get('estado_cv_responsavel')
         }
-        print(responsavel['cep'], responsavel['endereco'])
+       
         
         
 
@@ -203,11 +203,7 @@ def venda_form():
         graus_parentesco_dependentes = request.form.getlist('grau_parentesco_dependente[]')
         mae_dependente = request.form.getlist('mae_dependente[]')
 
-        print("Nomes dependentes:", nomes_dependentes)
-        print("CPFs dependentes:", cpfs_dependentes)
-        print("Datas nascimento dependentes:", datas_nascimento_dependentes)
-        print("Graus parentesco dependentes:", graus_parentesco_dependentes)
-        print("Mães dependente:", mae_dependente)
+        
 
         # Usa o menor tamanho entre as listas para evitar erro de index
         num_dependentes = min(
@@ -226,12 +222,12 @@ def venda_form():
                 "grau_parentesco": graus_parentesco_dependentes[i],
                 "mae_dependente": mae_dependente[i]
             }
-            print(f"Dependente {i}: {dependente}")
+           
             dependente["cpf_titular"] = titular["cpf"]
             dependente["data_nascimento"] = datetime.strptime(dependente["data_nascimento"], "%Y-%m-%d").strftime("%d/%m/%Y")
             dependentes.append(dependente)
             quantidade_dependentes += 1
-        print(f"Quantidade de dependentes: {quantidade_dependentes}")
+        
 
         venda["vida"] = titular["quantidade_titular"] + quantidade_dependentes
         venda['nome_responsavel'] = responsavel['nome']
@@ -240,7 +236,7 @@ def venda_form():
 
         numero_proposta= venda['numero_proposta']
 
-        print("passando para fechamento no sistema")
+        
         # Salvar os dados no banco
         salvar_venda(venda, responsavel, titular, dependentes)
 
