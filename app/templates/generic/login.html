@@ -41,6 +41,8 @@
             <input type="password" id="senha" name="senha" required><br><br>
             <button type="submit" class="envia" id="login-btn">Entrar</button>
         </form>
+        <br><br>
+        <a href="{{ url_for('auth.esqueci_senha') }}">Esqueci minha senha</a>
     </div>
     <script>
         // Capturar mensagens flash do Flask

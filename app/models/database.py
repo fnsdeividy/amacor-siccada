@@ -139,7 +139,31 @@ def get_status(proposta_id, database_path=None):
     print('status: ', status)
     return status['status'] if status else None
 
+def senha_aleatoria(tamanho,email):
+    import random
+    import string
+    from ..cripto import hash_senha
+    # Define os caracteres permitidos na senha
+    caracteres = string.ascii_letters + string.digits
 
+    # Gera uma senha aleatória de 12 caracteres
+    senha = ''.join(random.choice(caracteres) for _ in range(tamanho))
+    #alterar senha no usuario
+    
+    print(f"Senha gerada: {senha}")
+
+    senhahash= hash_senha(senha)
+    print(f"Senha hasheada: {senhahash}")
+
+    database_path = None
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE usuarios SET senha = ? WHERE email = ?""", (senhahash, email))
+    conn.commit()
+    conn.close()
+
+    return senha
 
 def get_pagamento(data_pagamento, valor, numero_contrato,database_path=None):
     print(f"dados recebidos: {data_pagamento, valor}") 
@@ -283,3 +307,64 @@ def excluir_proposta(proposta, database_path=None):
         conn.close()
         raise e
 
+def get_dados_proposta(proposta_id, database_path=None):
+    """
+    Obtém os dados de uma proposta específica.
+    """
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM venda WHERE numero_proposta = ?
+    """, (proposta_id,))
+    
+    venda = cur.fetchone()
+    
+    if not venda:
+        conn.close()
+        return None
+
+    cur.execute("""
+        SELECT * FROM responsavel WHERE proposta_id = ?
+    """, (proposta_id,))
+    
+    responsavel = cur.fetchone()
+
+    cur.execute("""
+        SELECT * FROM titulares WHERE proposta_id = ?
+    """, (proposta_id,))
+    
+    titular = cur.fetchone()
+
+    cur.execute("""
+        SELECT * FROM dependentes WHERE proposta_id = ?
+    """, (proposta_id,))
+    
+    dependentes = cur.fetchall()
+
+    conn.close()
+
+    return {
+        'venda': dict(venda),
+        'responsavel': dict(responsavel) if responsavel else None,
+        'titular': dict(titular) if titular else None,
+        'dependentes': [dict(dep) for dep in dependentes]
+    } if venda else None
+
+
+def get_email_user(email, database_path=None):
+    """
+    Obtém o email de um usuário específico.
+    """
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT email FROM usuarios WHERE email = ?
+    """, (email,))
+    
+    resultado = cur.fetchone()
+    
+    conn.close()
+
+    return resultado['email'] if resultado else None
