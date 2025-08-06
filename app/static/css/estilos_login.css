@@ -34,7 +34,7 @@ h2 {
     height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
-    background-image: url('/static/image/siccada-fundo.png');
+    background-image: url('/static/image/fundo-siccada-all.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover; /* Garante que cubra toda a tela */
