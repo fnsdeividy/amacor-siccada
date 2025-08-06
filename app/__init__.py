@@ -8,7 +8,7 @@ from .routes.financeiro import finan_bp
 from .routes.cadastro import cad_bp
 from .routes.doc_gen import docgen_bp
 from .routes.gerencial import gerencial_bp
-from .routes.integracao_api import api_bp
+#from .routes.integracao_api import api_bp
 
 from datetime import timedelta
 import os
