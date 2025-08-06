@@ -35,7 +35,7 @@ def create_app():
     app.register_blueprint(cad_bp,url_prefix='/cad')
     app.register_blueprint(docgen_bp, url_prefix='/docgen')
     app.register_blueprint(gerencial_bp, url_prefix='/gerencial')
-    app.register_blueprint(api_bp, url_prefix='/api')
+    #app.register_blueprint(api_bp, url_prefix='/api')
 
     # Verifique se a pasta de upload existe
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
