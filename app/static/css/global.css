@@ -13,7 +13,7 @@ body {
     background-image: url('/static/image/fundo-siccada-all.png') ; /* Cor de fundo para combinar com a navbar */
     background-repeat: no-repeat;
     
-    background-color: #010a51;
+    background-color: #021124;
     color: white; /* Cor do texto */
     transition: background 0.3s ease-in-out; /* Transição suave */
 }

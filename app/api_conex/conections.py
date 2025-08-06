@@ -147,6 +147,8 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
     
 
     
+    mensagem_html = mensagem.replace('\n', '<br>')
+
     html1 = f"""
 <html>
   <body style="margin:0; padding:0; font-family:Arial, sans-serif;">
@@ -158,22 +160,21 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
       </tr>
       <tr>
         <td style="padding: 20px; font-size: 16px; color: #333;">
-          <p>{mensagem.replace('\n', '<br>')}</p>
-          
+          <p>{mensagem_html}</p>
         </td>
       </tr>
     </table>
 
-    
     <div style="background-color: #1a1a1a; color: white; padding: 30px 20px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; max-width:600px; margin:auto;">
       <p style="margin-bottom: 20px;"><strong>Abraços,<br>Equipe Amacor</strong></p>
 
       <p style="color: #cccccc;">
-        Faça parte da nossa comunidade e fique por dentro das novidades do universo Amacor.
+        A Amacor é uma empresa especializada em planos de saúde, oferecendo soluções personalizadas para atender às suas necessidades. Nossa missão é proporcionar saúde e bem-estar a todos os nossos clientes.Por favor, pedimos que você não responda este e-mail, pois se trata de uma mensagem automática.
+        
       </p>
-
+        Faça parte da nossa comunidade e fique por dentro das novidades da Amacor.
       <p style="color: #cccccc;">
-        Por favor, pedimos que você não responda este e-mail, pois se trata de uma mensagem automática.
+        
       </p>
 
       <div style="margin: 20px 0; display: flex; gap: 20px;">
@@ -184,7 +185,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
       </div>
 
       <p style="color: #cccccc;">
-        Tem alguma dúvida? Fale com a gente pelo WhatsApp ou nossos canais oficiais.
+        Tem alguma dúvida sobre seu plano? Fale com a gente pelo WhatsApp ou nossos canais oficiais.
       </p>
 
       <p style="margin-top: 20px;">
@@ -195,7 +196,6 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
   </body>
 </html>
 """
-
 
     with open(caminho_imagem, 'rb') as img:
         mime_img = MIMEImage(img.read())
@@ -226,11 +226,16 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
         print("❌ Erro ao enviar e-mail:", str(e))
 
 def msg_email(status,proposta, complemento):
+  
             print(complemento)
             nome = get_nome(proposta)
             if status == 'entrevista online enviada':
                 assunto = f'{nome} sua entrevista Online foi Enviada'
-                mensagem = f'Olá {nome}, \n\nSua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n\n <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Acessar entrevista</a>  '
+                mensagem = f"""
+                Olá {nome}, \n
+                Sua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n
+                  <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Acessar entrevista</a>  
+                """
                 return assunto, mensagem, complemento
             elif status == 'analise de declaração':
                 assunto= f'{nome} sua entrevista Online foi enviada para análise'
@@ -251,9 +256,30 @@ def msg_email(status,proposta, complemento):
             elif status == 'Enviado ao cadastro':
                 print("na situ de enviado ao cadastro")
                 assunto= f'{nome} seu processo de contratação foi iniciado'
-                mensagem = f"Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde. \n\n Dentro dos próximos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano."
+                mensagem = f"""
+                Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde e o processo de contratação foi iniciado. \n\n
+                 Dentro dos próximos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano. As proximas etapas do seu plano são:\n\n
+                 1. Entrevista Online: Você receberá um link para preencher sua declaração de saúde online.
+                 2. Análise de Declaração: Sua declaração de saúde será analisada pela nossa equipe e após a analise decidiremos se há necessidade de entrevista com o médico.
+                 3. Entrevista Presencial: Se necessário, agendaremos uma entrevista presencial com o médico que complementará a entrevista online.
+                 4. Geração de Kit: Após a entrevista, teremos todos os documentos necessários para realizar o kit contratual, que é um conjunto de documentos a serem emitidos junto ao contrato.
+                 5. Finalização do Contrato: Nesta fase enviaremos seu kit contratual para ser assinado digitalmente junto com um link para fazer o pedido da sua carteirinha.\n\n
+                 Todo esse processo deverá ser realizado em até 30 dias corridos a partir da data de pagamento da adesão. Caso não cumpra o prazo o plano será suspenso e após 10 dias cancelado.\n\n"""
                 return assunto, mensagem, complemento
               
             else:
                 print(status)
                 return complemento
+
+
+def redefinir_senha(email,senha):
+    from ..models.database import senha_aleatoria
+    # Gerar uma senha aleatória de 8 caracteres
+    
+    destinatario = email
+    assunto = "Redefinição de Senha"
+    mensagem = f"""
+    Olá,\n\nSua senha foi redefinida com sucesso. Sua nova senha é: {senha}\n\nPor favor, faça login com essa senha e altere-a imediatamente para garantir a segurança da sua conta.
+    """
+    complemento = None
+    return assunto, mensagem, complemento

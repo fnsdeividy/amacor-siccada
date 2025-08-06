@@ -8,6 +8,7 @@ from .routes.financeiro import finan_bp
 from .routes.cadastro import cad_bp
 from .routes.doc_gen import docgen_bp
 from .routes.gerencial import gerencial_bp
+from .routes.integracao_api import api_bp
 
 from datetime import timedelta
 import os
@@ -34,6 +35,7 @@ def create_app():
     app.register_blueprint(cad_bp,url_prefix='/cad')
     app.register_blueprint(docgen_bp, url_prefix='/docgen')
     app.register_blueprint(gerencial_bp, url_prefix='/gerencial')
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     # Verifique se a pasta de upload existe
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -42,7 +44,7 @@ def create_app():
     @app.before_request
     def before_request():
         # Define a duração da sessão como permanente
-        rotas_publicas = ['auth.login', 'auth.cadastrar', 'static']  # Adicione outras rotas públicas aqui
+        rotas_publicas = ['auth.login', 'auth.cadastrar', 'static', 'api.teste_suri','api.get_boleto', 'auth.esqueci_senha']  # Adicione outras rotas públicas aqui
         if 'user_id' not in session and request.endpoint not in rotas_publicas:
             flash('Sua sessão expirou. Faça login novamente.')
             return redirect(url_for('auth.login'))

@@ -7,9 +7,13 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    from ..cripto import hash_senha
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
+
+        senha = hash_senha(senha)  
+        print("senha hasehada: ",senha)
 
         # Verifica se os campos foram preenchidos
         if not email or not senha:
@@ -95,13 +99,39 @@ def redirecionar_usuario():
 
     return render_template('generic/errata.html')
 
+@auth_bp.route('/esqueci_senha', methods=['GET', 'POST'])
+def esqueci_senha():
+    from ..models.database import get_email_user
+    from ..api_conex.conections import redefinir_senha
+    if request.method == 'POST':
+        email = request.form['email']
+        confirmar_email= get_email_user(email)
+        if email == confirmar_email:
+            # Gera um token de redefinição de senha
+            from ..api_conex.conections import email_gmail, redefinir_senha
+            from ..models.database import senha_aleatoria
+            senha= senha_aleatoria(8,email)
+            assunto, mensagem, complemento =redefinir_senha(email,senha)
+            email_gmail(destinatario = email , assunto=assunto, mensagem=mensagem, complemento=complemento)
 
+            flash('Instruções de redefinição de senha enviadas para o seu e-mail.')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('E-mail não encontrado. Por favor, verifique o e-mail digitado.')
+            return redirect(url_for('auth.esqueci_senha'))
+    return render_template('generic/esqueci_senha.html')
 
+           
 @auth_bp.route('/mudar_senha', methods=['GET', 'POST'])
 def mudar_senha():
+    from ..cripto import hash_senha
     if request.method == 'POST':
         email = request.form['email']
         novasenha = request.form['novasenha']
+        novasenha = hash_senha(novasenha)
+        print("senha hasehada: ",novasenha)
+
+        
         
         usuario = query_db(
             "SELECT * FROM usuarios WHERE email = ?", 
@@ -121,6 +151,7 @@ def mudar_senha():
         conn.close()
         
         flash('senha alterada!')
+        return redirect(url_for('auth.login_redir'))
         
      
     return render_template('generic/mudar_senha.html')
