@@ -1,0 +1,19 @@
+{% extends 'base1.html' %}
+
+{% block title %}Gerar Kit{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="divisoria2">
+    <div class="close-btn-container">
+      <a href="{{ url_for('auth.redir_atent') }}" class="close-btn">✖</a>
+    </div>
+
+    <h1>Proposta gerada</h1>
+    <h3>Sua proposta foi processada e gerada corretamente, clique abaixo para baixar o documento</h3>
+    <br>
+    <a id= 'btn'class="btn" href=" {{ url_for('doc_gen.download_proposta', filename=filename) }} "><strong>Baixar documento</strong></a>
+
+</div>
+    </div>
+
+{% endblock %}

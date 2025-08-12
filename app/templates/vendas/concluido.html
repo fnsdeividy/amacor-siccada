@@ -1,16 +1,50 @@
 {% extends 'base1.html' %}
 
-{% block title %}Bem-vindo{% endblock %}
-
+{% block title %}Gerar Proposta{% endblock %}
 {% block content %}
-<br><br><br>
-<body class="body">
-    <h1>Venda registrada</h1>
-    <h3>Venda registrada no banco de dados.</h3>
+<div class="container">
+  <div class="divisoria2">
+    <div class="close-btn-container">
+      <a href="{{ url_for('auth.redir_atent') }}" class="close-btn">✖</a>
+    </div>
 
-    <a href=" {{ url_for('finan.pix', desc= 'adesao') }} "><strong>Lançar pagamento</strong></a>
+    <h1>Geração de documento</h1>
+    <h3>Deseja gerar documento de proposta a partir do Siccada?</h3>
+    <br>
+    <a id="gerar-proposta-btn" class="btn" href="{{ url_for('doc_gen.gerar_proposta', proposta=proposta, tipo_contrato=tipo_contrato) }}">
+      <strong>Gerar proposta</strong>
+    </a>
+  </div>
+</div>
 
-</body>
+<script>
+// Sobrescreve o evento load para não esconder o loader imediatamente
+window.addEventListener('load', function() {
+    // Não faz nada - removemos a linha que escondia o loader
+});
 
-
+document.addEventListener('DOMContentLoaded', function() {
+    const gerarPropostaBtn = document.getElementById('gerar-proposta-btn');
+    
+    if (gerarPropostaBtn) {
+        gerarPropostaBtn.addEventListener('click', function(e) {
+            // Mostra o loader imediatamente
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'flex';
+                
+                // Adiciona um pequeno delay para garantir que o loader seja visto
+                setTimeout(() => {
+                    // Continua com a navegação normal
+                }, 100);
+            }
+            
+            // Se ainda não funcionar, forçar o redirecionamento após mostrar o loader
+            setTimeout(() => {
+                window.location.href = this.href;
+            }, 150);
+        });
+    }
+});
+</script>
 {% endblock %}

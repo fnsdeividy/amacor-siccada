@@ -41,6 +41,7 @@
             <a href="{{ url_for('cad.alterar_proposta', proposta= venda[1]) }}" class="btn">Editar Informações</a>
             <a href="{{ url_for('cad.render_page_doc', proposta=venda[1]) }}" class="btn">Anexar Documentos</a>
             <a href="{{ url_for('cad.documento_contrato', proposta=venda[1]) }}" class="btn">Visualizar/Download Documentos</a>
+            <a href="{{ url_for('vendas.concluido', proposta=venda[1], tipo_contrato=venda[3]) }}" class="btn">Gerar documento de proposta</a>
         <div>
     <br><br>
     <!-- Seção de responsáveis -->

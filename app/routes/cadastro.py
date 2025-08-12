@@ -407,7 +407,7 @@ def alterar_infos_proposta():
 def excluir_proposta():
     from ..models.database import get_senha, excluir_proposta
     proposta = request.args.get('proposta')
-    
+    from ..cripto import hash_senha
     
     if request.method == 'POST':
         
@@ -419,9 +419,11 @@ def excluir_proposta():
         
         print(f"Proposta recebida: {proposta}")
         senha = request.form.get('senha')
-        print(f"senha recebida: ", senha)
+        senha= hash_senha(senha)
+        print(f"Senha digitada: {repr(senha)}")
 
         senha_cancelamento = get_senha()
+        print(f"Senha no banco: {repr(senha_cancelamento)}")
 
         if senha.strip() in [s.strip() for s in senha_cancelamento]:
     
