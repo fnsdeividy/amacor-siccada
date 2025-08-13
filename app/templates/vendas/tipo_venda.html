@@ -1,0 +1,53 @@
+{% extends 'base1.html' %}
+
+{% block title %}Iniciar nova venda{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="divisoria2">
+    <div class="close-btn-container">
+      <a href="{{ url_for('auth.redir_atent') }}" class="close-btn">✖</a>
+    </div>
+
+    <h1>Nova venda</h1>
+    <h3>Qual o tipo de contrato desta venda?</h3>
+    <br>
+    <a id="gerar-proposta-btn" class="btn" href="{{ url_for('vendas.nova_venda', proposta=proposta, tipo_contrato=tipo_contrato) }}">
+      <strong>Pessoa Física</strong>
+    </a>
+    <a id="gerar-proposta-btn" class="btn" href="{{ url_for('vendas.nova_venda_pj', proposta=proposta, tipo_contrato=tipo_contrato) }}">
+      <strong>Pessoa Juridica</strong>
+    </a>
+  </div>
+</div>
+
+<script>
+// Sobrescreve o evento load para não esconder o loader imediatamente
+window.addEventListener('load', function() {
+    // Não faz nada - removemos a linha que escondia o loader
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const gerarPropostaBtn = document.getElementById('gerar-proposta-btn');
+    
+    if (gerarPropostaBtn) {
+        gerarPropostaBtn.addEventListener('click', function(e) {
+            // Mostra o loader imediatamente
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'flex';
+                
+                // Adiciona um pequeno delay para garantir que o loader seja visto
+                setTimeout(() => {
+                    // Continua com a navegação normal
+                }, 100);
+            }
+            
+            // Se ainda não funcionar, forçar o redirecionamento após mostrar o loader
+            setTimeout(() => {
+                window.location.href = this.href;
+            }, 150);
+        });
+    }
+});
+</script>
+{% endblock %}

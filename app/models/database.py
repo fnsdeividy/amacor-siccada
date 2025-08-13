@@ -71,30 +71,32 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
         print(venda['tipo_pagamento'])
 
         proposta_id = venda['numero_proposta']  # Usar o número da proposta como referência
-
+        print("numero_proposta",venda['numero_proposta'])
+        print(proposta_id)
         # Inserir dados do responsável
         cur.execute("""
-            INSERT INTO responsavel (proposta_id, nome, cpf, data_nascimento, cep, celular, email, estado_civil, complemento_cep)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO responsavel (proposta_id, nome, cpf, data_nascimento, cep, celular, email, estado_civil, complemento_cep, rg,socio,cnpj)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)
         """, (proposta_id, responsavel['nome'], responsavel['cpf'], responsavel['data_nascimento'],
-              responsavel['cep'], responsavel['celular'], responsavel['email'], responsavel['estado_civil'], responsavel['endereco']))
+              responsavel['cep'], responsavel['celular'], responsavel['email'], responsavel['estado_civil'], responsavel['endereco'], responsavel['rg'],responsavel['nome_socio'],responsavel['cnpj']))
 
         # Inserir dados do titular
         cur.execute("""
-            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (proposta_id, titular['nome'], titular['cpf'], titular['data_nascimento'], titular['idade'],
+            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade,grau_parentesco, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo, numero_rg)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (proposta_id, titular['nome'], titular['cpf'], titular['data_nascimento'], titular['idade'],titular['grau_parentesco'],
               titular['endereco'], titular['celular'], titular['email'], titular['estado_civil'],
-              titular['nome_mae'], titular['nome_pai'], titular['sexo']))
+              titular['nome_mae'], titular['nome_pai'], titular['sexo'], titular['rg']))
 
         # Inserir dados dos dependentes
         for dependente in dependentes:
+            print("dependentes",dependentes)
             
             cur.execute("""
-                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae)
-                VALUES (?, ?, ?, ?, ?, ?,?)
+                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo)
+                VALUES (?, ?, ?, ?, ?, ?,?,?)
             """, (proposta_id, dependente['nome'], dependente['cpf'], dependente['data_nascimento'],
-                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente']))
+                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo']))
 
         conn.commit()
         conn.close()
@@ -182,6 +184,77 @@ def get_pagamento(data_pagamento, valor, numero_contrato,database_path=None):
     return id['id'] if id else None
 
 
+def get_from_sig(numero_contrato, database_path=None):
+    """Busca informações na tabela beneficiarios"""
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT * FROM beneficiarios 
+            WHERE sNumeroCNT = ? 
+        """, (numero_contrato,))  
+
+        resultado = cur.fetchone()
+        return dict(resultado) if resultado else None
+        
+    except Exception as e:
+        print(f'Erro ao buscar no SIG: {e}')
+        return None
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+def get_from_siccada(numero_contrato, database_path=None):
+    """Busca informações nas tabelas venda + responsavel"""
+    try:
+        conn = get_db_connection(database_path)
+        conn.row_factory = sqlite3.Row  # faz cada linha agir como um dict
+        cur = conn.cursor()
+
+        # Busca proposta
+        cur.execute("""
+            SELECT numero_proposta FROM venda 
+            WHERE numero_contrato = ?
+        """, (numero_contrato,))
+        
+        proposta = cur.fetchone()
+        
+        if not proposta:
+            print(f"Contrato {numero_contrato} não encontrado na tabela venda")
+            return None
+            
+        # Busca responsável
+        cur.execute("""
+            SELECT * FROM responsavel 
+            WHERE proposta_id = ?
+        """, (proposta["numero_proposta"],))  # já acessa como dict
+        
+        resultado = cur.fetchone()
+        return dict(resultado) if resultado else None
+        
+    except Exception as e:
+        print(f'Erro ao buscar no SICCADA: {e}')
+        return None
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+
+def get_info_cnt(numero_contrato, database_path=None):
+    print(f"Buscando informações para contrato: {numero_contrato}")
+    
+    print("buscando de SIG")
+
+    dados=get_from_sig(numero_contrato)
+    if dados==None:
+        print("não encontrados em SIG")
+        print("buscando em SICCADA")
+        dados= get_from_siccada(numero_contrato)
+
+    return dados
+    
+    print("dados encontrados:",dados)
 
 def get_contrato(cpf, database_path=None):
     print(f"dados recebidos: {cpf}") 

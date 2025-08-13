@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template, request, session, redirect, url_for, send_file
+from flask import Flask, Blueprint, render_template, request, session, redirect, url_for, send_file, flash
 import requests
 import os
 from docx import Document
@@ -588,3 +588,269 @@ def gerar_csv(dados):
         print(f"Erro ao criar arquivo CSV: {e}")
     except Exception as e:
         print(f"Erro inesperado: {e}")
+
+import zipfile
+import shutil
+from xml.etree import ElementTree as ET
+
+
+def substituir_placeholders_docx(caminho_template, caminho_saida, placeholders):
+    doc = Document(caminho_template)
+    
+    # Substitui em parágrafos
+    for paragraph in doc.paragraphs:
+        for run in paragraph.runs:
+            for placeholder, valor in placeholders:  # lista de tuplas
+                valor_str = "" if valor is None else str(valor)
+                if placeholder in run.text:
+                    run.text = run.text.replace(placeholder, valor_str)
+    
+    # Substitui em tabelas
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    for run in paragraph.runs:
+                        for placeholder, valor in placeholders:
+                            valor_str = "" if valor is None else str(valor)
+                            if placeholder in run.text:
+                                run.text = run.text.replace(placeholder, valor_str)
+
+    doc.save(caminho_saida)
+    print(f"Documento salvo em: {caminho_saida}")
+
+@docgen_bp.route('/gerar_proposta', methods=['GET', 'POST'])
+def gerar_proposta():
+    from ..models.database import get_dados_proposta
+    pasta_raiz = os.path.join(os.getcwd(), 'static', 'docx_edit', 'dox_template', 'propostas')
+    pasta_template = os.path.join(pasta_raiz, 'templates')
+
+    
+    tipo_contrato = request.args.get('tipo_contrato')
+    print(f"Tipo de contrato: {tipo_contrato}")
+    if tipo_contrato == 'inclusao empresarial' or tipo_contrato == 'inclusao individual':
+        tipo_contrato = 'inclusao'
+    proposta = request.args.get('proposta')
+    print(f"Número da proposta: {proposta}")
+    dados = get_dados_proposta(proposta)
+    vidas= dados.get('venda', {}).get('vidas')
+    print(f"Vidas na proposta: {vidas}")
+
+    if vidas <=3:
+        caminho_template = os.path.join(pasta_template, f'template_proposta_{tipo_contrato}_pequeno.docx')
+        max_vidas= 3
+    if vidas >3 and vidas <=6:
+        caminho_template = os.path.join(pasta_template, f'template_proposta_{tipo_contrato}_medio.docx')
+        max_vidas=5
+    if vidas >6:
+        caminho_template = os.path.join(pasta_template, f'template_proposta_{tipo_contrato}_grande.docx')
+    if vidas>10:
+        max_vidas=10
+        caminho_template = os.path.join(pasta_template, f'template_proposta_{tipo_contrato}_extra.docx')
+        
+    pasta_saida = os.path.join(pasta_raiz, 'saida')
+    caminho_saida = os.path.join(pasta_saida, f'proposta_{tipo_contrato}_{proposta}.docx')  
+
+    
+    limpar_pasta_saida(pasta_saida)
+    
+    if not tipo_contrato or not proposta:
+        flash('Parâmetros inválidos para gerar a proposta.', 'error')    
+        return redirect(url_for('vendas.venda_form'))
+    
+    
+    print(f"Dados da proposta: {dados}")
+    
+    if not dados:
+        flash('Nenhum dado encontrado para a proposta informada.', 'error')
+        return redirect(url_for('vendas.venda_form'))
+    
+    def formatar_data(data):
+        if data:
+            try:
+                return datetime.strptime(data, '%Y-%m-%d').strftime('%d/%m/%Y')
+            except ValueError:
+                return data
+        return ''
+    
+    def formatar_data_flex(data):
+        if not data:
+            return ''
+        for formato in ("%Y-%m-%d", "%d/%m/%Y"):
+            try:
+                return datetime.strptime(data, formato).strftime("%d/%m/%Y")
+            except ValueError:
+                continue
+        return data
+
+    def calcular_idade(data_nascimento):
+        from datetime import date
+        if not data_nascimento:
+            return ''
+        for formato in ("%Y-%m-%d", "%d/%m/%Y"):
+            try:
+                nascimento = datetime.strptime(data_nascimento, formato).date()
+                hoje = date.today()
+                return hoje.year - nascimento.year - ((hoje.month, hoje.day) < (nascimento.month, nascimento.day))
+            except ValueError:
+                continue
+        return ''
+
+    def dia_vencimento(data_venda):
+        if data_venda:
+            try:
+                data = datetime.strptime(data_venda, "%Y-%m-%d")
+                if data.day < 10:
+                    return 10
+                elif data.day <= 20:
+                    return 20
+                else:
+                    return 30
+            except ValueError:
+                return ''
+        return ''
+
+    
+    def extrair_endereco(endereco_completo):
+        if not endereco_completo:
+            return '', '', ''
+        
+        partes = [parte.strip() for parte in endereco_completo.split(',')]
+        bairro = partes[1] if len(partes) > 1 else ''
+        cidade_estado = partes[2].split('-') if len(partes) > 2 else ['', '']
+        cidade = cidade_estado[0].strip() if len(cidade_estado) > 0 else ''
+        estado = cidade_estado[1].strip() if len(cidade_estado) > 1 else ''
+        return bairro, cidade, estado
+
+    endereco_completo_responsavel = dados.get('responsavel', {}).get('complemento_cep', '')
+    bairro_responsavel, cidade_responsavel, estado_responsavel = extrair_endereco(endereco_completo_responsavel)
+    endereco_completo_titular = dados.get('titular', {}).get('cep', '')
+    bairro_titular, cidade_titular, estado_titular = extrair_endereco(endereco_completo_titular)
+
+    
+
+    placeholders = [
+        ('numero_proposta', str(dados.get('venda', {}).get('numero_proposta', ''))),
+        ('data_venda', formatar_data(dados.get('venda', {}).get('data_venda', ''))),
+        ('vencimento', str(dia_vencimento(dados.get('venda', {}).get('data_venda', '')))),
+        ('tipo_contrato', dados.get('venda', {}).get('tipo_contrato', '')),
+        ('tipo_produto', dados.get('venda', {}).get('tipo_produto', '')),
+        ('corretor_resp', dados.get('venda', {}).get('corretor_resp', '')),
+        ('digitador', dados.get('venda', {}).get('digitador', '')),
+        ('dt_cadastro', dados.get('venda', {}).get('dt_cadastro', '')),
+        ('valor_venda', f"R$ {float(dados.get('venda', {}).get('valor_venda', 0)):,.2f}".replace('.', ',')),
+        ('valor_tabela', f"R$ {float(dados.get('venda', {}).get('valor_tabela', 0)):,.2f}".replace('.', ',')),
+        ('taxa_inscricao', f"R$ {float(dados.get('venda', {}).get('taxa_inscricao', 0)):,.2f}".replace('.', ',')),
+        ('iss_value', f"R$ {float(dados.get('venda', {}).get('iss', 0)):,.2f}".replace('.', ',')),
+
+        ('titular_name', dados.get('titular', {}).get('nome', '')),
+        ('titular_dt_nascimento', formatar_data(dados.get('titular', {}).get('data_nascimento', ''))),
+        ('titular_idade', str(dados.get('titular', {}).get('idade', ''))),
+        ('titular_parentesco', dados.get('titular', {}).get('gra_parentesco', '')),
+        ('titular_sexo', dados.get('titular', {}).get('sexo', '')),
+        ('titular_cpf', dados.get('titular', {}).get('cpf', '')),
+        ('titular_nome_mae', dados.get('titular', {}).get('nome_mae', '')),
+        ('titular_nome_pai', dados.get('titular', {}).get('nome_pai', '')),
+        ('@@estado_civil@@', dados.get('titular', {}).get('estado_civil', '')),
+        ('titular_endereco', endereco_completo_titular),
+        ('titular_bairro', bairro_titular),
+        ('titular_cidade', cidade_titular),
+        ('titular_estado', estado_titular),
+        ('titular_celular', dados.get('titular', {}).get('celular', '')),
+        ('titular_email', dados.get('titular', {}).get('email', '')),
+        ('titular_grau_parentesco', dados.get('titular',{}).get('grau_parentesco','')),
+        ('titular_rg', dados.get('titular',{}).get('numero_rg')),
+
+        ('responsavel_name', dados.get('responsavel', {}).get('nome', '')),
+        ('responsavel_cpf', dados.get('responsavel', {}).get('cpf', '')),
+        ('responsavel_estado_civil', dados.get('responsavel', {}).get('estado_civil', '')),
+        ('responsavel_data_nascimento', formatar_data(dados.get('responsavel', {}).get('data_nascimento', ''))),
+        ('responsavel_endereco', endereco_completo_responsavel),
+        ('responsavel_bairro', bairro_responsavel),
+        ('responsavel_cidade', cidade_responsavel),
+        ('responsavel_estado', estado_responsavel),
+        ('responsavel_cep', dados.get('responsavel', {}).get('cep', '')),
+        ('responsavel_celular', dados.get('responsavel', {}).get('celular', '')),
+        ('responsavel_email', dados.get('responsavel', {}).get('email', '')),
+        ('responsavel_cnpj', dados.get('responsavel', {}).get('cnpj')),
+        ('socio_nome', dados.get('responsavel', {}).get('socio')),
+        ('responsavel_rg', dados.get('responsavel', {}).get('rg')),
+
+        ('nome_responsavel', dados.get('venda', {}).get('nome_responsavel', '')),
+        ('forma_pagamento', dados.get('venda', {}).get('tipo_pagamento', '')),
+
+    ]
+    dependentes = dados.get('dependentes', [])
+
+    for idx in range(1, max_vidas + 1):
+        if idx <= len(dependentes):
+            dep = dependentes[idx - 1]
+            placeholders.extend([
+                (f'dependente{idx}_name', dep.get('nome', '')),
+                (f'dependente{idx}_nome_mae', dep.get('nome_mae', '')),
+                (f'dependente{idx}_cpf', dep.get('cpf', '')),
+                (f'dependente{idx}_dt_nascimento', formatar_data(dep.get('data_nascimento', ''))),
+                (f'dependente{idx}_idade', str(calcular_idade(dep.get('data_nascimento', '')))),
+                (f'dependente{idx}_sexo', dep.get('sexo', '')),
+                (f'dependente{idx}_parentesco', dep.get('grau_parentesco', ''))
+            ])
+        else:
+            # Preenche com vazio se não existir
+            placeholders.extend([
+                (f'dependente{idx}_name', ''),
+                (f'dependente{idx}_nome_mae', ''),
+                (f'dependente{idx}_cpf', ''),
+                (f'dependente{idx}_dt_nascimento', ''),
+                (f'dependente{idx}_idade', ''),
+                (f'dependente{idx}_sexo', ''),
+                (f'dependente{idx}_parentesco', '')
+            ])
+
+
+    
+
+    # Substituir os placeholders no modelo e salvar o novo documento
+    try:
+        substituir_placeholders_docx(caminho_template, caminho_saida, placeholders)
+
+        doc = Document(caminho_saida)
+        
+        doc.save(caminho_saida)
+
+        caminho_pdf = caminho_saida.replace('.docx', '.pdf')
+        docx_para_pdf(caminho_saida, caminho_pdf)
+
+        filename = os.path.basename(caminho_pdf)
+        return redirect(url_for('doc_gen.concluido_proposta', filename=filename))
+    except Exception as e:
+        print(f"Erro ao gerar proposta: {str(e)}")
+        flash('Erro ao gerar a proposta. Verifique os dados e tente novamente.', 'error')
+        return redirect(url_for('vendas.venda_form'))
+
+
+@docgen_bp.route('/download_proposta/<filename>', methods=['GET'])
+def download_proposta(filename):
+    pasta_saida = os.path.join(os.getcwd(), 'static', 'docx_edit', 'dox_template', 'propostas', 'saida')
+    caminho_arquivo = os.path.join(pasta_saida, filename)
+    
+    # Verifica se o arquivo existe
+    if not os.path.exists(caminho_arquivo):
+        flash('Arquivo não encontrado.', 'error')
+        return redirect(url_for('vendas.venda_form'))
+
+    try:
+        # Envia o arquivo PDF para download
+        return send_file(
+            caminho_arquivo,
+            as_attachment=True,
+            download_name=f"{filename}"  # Nome personalizado para o usuário
+        )
+    except Exception as e:
+        flash(f'Erro ao enviar arquivo: {str(e)}', 'error')
+        return redirect(url_for('vendas.venda_form'))
+    
+@docgen_bp.route('concluido_proposta')
+def concluido_proposta():
+    filename = request.args.get('filename', '')
+    
+    return render_template('geradores/download_proposta.html', filename=filename)

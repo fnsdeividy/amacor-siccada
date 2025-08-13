@@ -1,0 +1,67 @@
+{% extends "base1.html" %}
+{% block title %}Iniciar inclusão{% endblock %}
+{% block content %}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Botão de fechar -->
+       
+            <div class="divisoria2">
+                 <div class="close-btn-container">
+            <a class="close-btn" href="javascript:void(0);" onclick="goBack()" class="close-btn"><<</a>
+        </div>
+        <h1>Iniciar inclusão</h1>
+       
+
+        <div>
+            <h2>Informe o contrato para incluir</h2>
+        </div>
+    
+       
+        <form id="adicionar_cnt" method="POST" action="{{ url_for('vendas.inclusao_render_form') }}">
+            <label for="status">Adicionar beneficiario ao contrato:</label>
+            <input type="text" id="numero_contrato" name="numero_contrato" placeholder="digite o número do contrato" required>
+            
+            <button class="btn" type="submit">Selecionar</button>
+        </div>
+
+            
+
+        </div>
+        </form>
+
+
+    </div>
+    
+</body>
+<script>
+    
+        document.getElementById('adicionar_cnt').addEventListener('submit', function() {
+        document.getElementById('loader').style.display = 'flex';
+    });
+    
+    function goBack() {
+        if (document.referrer) {
+            // Voltar para a página anterior
+            window.history.back();
+        } else {
+            // Redirecionar para a home se não houver página anterior
+            window.location.href = '/';
+        }
+    }
+</script>
+</html>
+
+{% endblock %}
+
+    
+

@@ -115,7 +115,7 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro'"
+            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro' OR status ='kit enviado'"
             result = query_db(query)
 
             return render_template('cadastro/acompanhar_cnt.html', result=result, area=tipo_usuario,classe_usuario=classe_usuario)
@@ -407,7 +407,7 @@ def alterar_infos_proposta():
 def excluir_proposta():
     from ..models.database import get_senha, excluir_proposta
     proposta = request.args.get('proposta')
-    
+    from ..cripto import hash_senha
     
     if request.method == 'POST':
         
@@ -419,9 +419,11 @@ def excluir_proposta():
         
         print(f"Proposta recebida: {proposta}")
         senha = request.form.get('senha')
-        print(f"senha recebida: ", senha)
+        senha= hash_senha(senha)
+        print(f"Senha digitada: {repr(senha)}")
 
         senha_cancelamento = get_senha()
+        print(f"Senha no banco: {repr(senha_cancelamento)}")
 
         if senha.strip() in [s.strip() for s in senha_cancelamento]:
     

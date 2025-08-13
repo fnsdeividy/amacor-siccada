@@ -147,7 +147,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
     
 
     
-    mensagem_html = mensagem.replace('\n', '<br>')
+    mensagem_html = mensagem
 
     html1 = f"""
 <html>
@@ -169,7 +169,8 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
       <p style="margin-bottom: 20px;"><strong>Abraços,<br>Equipe Amacor</strong></p>
 
       <p style="color: #cccccc;">
-        A Amacor é uma empresa especializada em planos de saúde, oferecendo soluções personalizadas para atender às suas necessidades. Nossa missão é proporcionar saúde e bem-estar a todos os nossos clientes.Por favor, pedimos que você não responda este e-mail, pois se trata de uma mensagem automática.
+        A Amacor é uma empresa especializada em planos de saúde, oferecendo soluções personalizadas para atender às suas necessidades. Nossa missão é proporcionar saúde e bem-estar a todos os nossos clientes.</p>
+        <p style="color: #cccccc;">Por favor, pedimos que você não responda este e-mail, pois se trata de uma mensagem automática.
         
       </p>
         Faça parte da nossa comunidade e fique por dentro das novidades da Amacor.
@@ -230,41 +231,537 @@ def msg_email(status,proposta, complemento):
             print(complemento)
             nome = get_nome(proposta)
             if status == 'entrevista online enviada':
-                assunto = f'{nome} sua entrevista Online foi Enviada'
+                assunto = f'{nome} sua Declaração de saúde Online foi Enviada'
                 mensagem = f"""
-                Olá {nome}, \n
-                Sua entrevista online foi enviada e está disponível para ser realizada no link abaixo.\n
-                  <a href="{complemento}" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Acessar entrevista</a>  
-                """
+<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
+    
+    <p style="font-size: 16px;">Sua Declaração de saúde online foi enviada e está disponível para ser realizada no link abaixo:</p>
+    
+    <div style="text-align: center; margin: 25px 0;">
+        <a href="{complemento}" 
+           style="display: inline-block; background-color: #0a2f68; color: white; 
+                  padding: 12px 25px; text-decoration: none; border-radius: 4px; 
+                  font-weight: bold; font-size: 16px;">
+            Acessar Declaração de saúde Online
+        </a>
+    </div>
+    
+    <p style="font-size: 14px; color: #666; text-align: center; margin-bottom: 30px;">
+        <strong>Prazo para realização:</strong> 48 horas após o recebimento deste e-mail
+    </p>
+    
+    <!-- Linha do tempo de progresso -->
+    <div style="margin: 40px 0; position: relative;">
+        <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
+            <!-- Etapas -->
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">1</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
+            </div>
+            
+            <div style="text-align: center; width: auto;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">2</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Declaração</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #e0e0e0; color: #666; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">3</div>
+                <p style="margin: 0; font-size: 14px; color: #666;">Análise</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #e0e0e0; color: #666; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">4</div>
+                <p style="margin: 0; font-size: 14px; color: #666;">Finalização</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
+            </div>
+        </div>
+        
+        <!-- Barra de progresso -->
+        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+            <div style="width: 50%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        </div>
+    </div>
+    
+    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+        Após concluir a Declaração de saúde, nosso time dará continuidade ao processo de análise.
+        Você receberá atualizações por e-mail.
+    </p>
+</div>
+"""
                 return assunto, mensagem, complemento
             elif status == 'analise de declaração':
-                assunto= f'{nome} sua entrevista Online foi enviada para análise'
-                mensagem = f'Olá {nome}, \n\nSua entrevista online foi enviada para uma analise interna. \nDurante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. '
+                assunto= f'{nome} sua Declaração de saúde Online foi enviada para análise'
+                mensagem = f"""
+<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
+    
+    <p style="font-size: 16px;">Sua Declaração de saúde online foi enviada para análise interna.</p>
+    
+    <p style="font-size: 16px;">Durante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. Caso a necessidade seja confirmada, entraremos em contrato por telefone ou Whatsapp para efetuar agendamento.</p>
+
+    <!-- Linha do tempo de progresso -->
+    <div style="margin: 40px 0; position: relative;">
+        <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
+            <!-- Etapas -->
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">1</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
+            </div>
+            
+            <div style="text-align: center; width: auto;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">2</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Declaração</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">3</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #e0e0e0; color: #666; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">4</div>
+                <p style="margin: 0; font-size: 14px; color: #666;">Finalização</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
+            </div>
+        </div>
+        
+        <!-- Barra de progresso -->
+        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+            <div style="width: 75%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        </div>
+    </div>
+    
+    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+        Você receberá uma atualização por e-mail ou Whatsapp assim que a análise for concluída, 
+        informando os próximos passos do processo.
+    </p>
+    
+    <p style="font-size: 14px; color: #666; margin-top: 20px;">
+        <strong>Prazo estimado:</strong> 2-3 dias úteis
+    </p>
+</div>
+"""
                 return assunto, mensagem, complemento
             elif status == 'entrevista agendada':
                 assunto = f'{nome} sua entrevista está agendada'
-                mensagem = f'Olá {nome}, \n\nSua entrevista presencial foi agendada para {complemento}. \n Recomendamos que chegue 5 minutos antes do horario marcado para evitar atrasos.'
+                mensagem = f"""
+<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
+    
+    <p style="font-size: 16px; margin-bottom: 20px;">Sua entrevista presencial foi agendada para:</p>
+    
+    <div style="background-color: #f5f9ff; border-left: 4px solid #0a2f68; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0;">
+        <p style="font-size: 18px; color: #0a2f68; font-weight: bold; margin: 0; text-align: center;">
+            {complemento}
+        </p>
+    </div>
+    
+    <p style="font-size: 16px; margin-bottom: 30px;">
+        <strong>Recomendações:</strong><br>
+        • Chegue 5 minutos antes do horário marcado<br>
+        • Traga seu documento de identificação com foto<br>
+        • Use máscara (caso necessário)<br>
+        • Local: Clinica Amacor. <!-- Você pode adicionar esta variável -->
+    </p>
+
+    <!-- Linha do tempo de progresso -->
+    <div style="margin: 40px 0; position: relative;">
+        <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
+            <!-- Etapas -->
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">1</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
+            </div>
+            
+            <div style="text-align: center; width: auto;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">2</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Declaração</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">3</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #e0e0e0; color: #666; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">4</div>
+                <p style="margin: 0; font-size: 14px; color: #666;">Finalização</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
+            </div>
+        </div>
+        
+        <!-- Barra de progresso -->
+        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+            <div style="width: 75%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        </div>
+    </div>
+    
+    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+        Caso precise reagendar ou tenha alguma dúvida, entre em contato pelo WhatsApp:
+        <a href="https://wa.me/5521978914749" style="color: #0a2f68; text-decoration: none; font-weight: bold;">
+            (21) 97891-4749
+        </a>
+    </p>
+</div>
+"""
                 return assunto, mensagem, complemento
             elif status == 'geração de kit':
                 assunto = f'{nome} seu contrato está pronto para ser entregue!'
-                mensagem = f"Olá {nome},\n\n Seu contrato está finalizado e o kit contratual será gerado e enviado em breve. "
+                mensagem = f"""
+<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    
+    
+    <div style="background-color: #f0f8ff; border: 1px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
+        <p style="font-size: 18px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
+            🎉  {nome}, seu contrato está pronto para ser entregue!
+        </p>
+        <p style="font-size: 16px; margin: 0;">
+            O kit contratual será gerado e enviado em breve.
+        </p>
+    </div>
+
+    <!-- Linha do tempo de progresso -->
+    <div style="margin: 40px 0; position: relative;">
+        <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
+            <!-- Etapas -->
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">1</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">2</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">3</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">4</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Kit Contratual</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Em produção</p>
+            </div>
+        </div>
+        
+        <!-- Barra de progresso -->
+        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+            <div style="width: 90%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        </div>
+    </div>
+    
+    <p style="font-size: 16px; margin: 25px 0;">
+        <strong>O que acontece agora?</strong><br>
+        • Seu kit contratual está sendo preparado<br>
+        • Você receberá um e-mail com os documentos para assinatura digital<br>
+        • Após a assinatura, sua carteirinha será emitida
+    </p>
+    
+    <p style="font-size: 14px; color: #666; margin-top: 30px;">
+        <strong>Prazo estimado para recebimento:</strong> 2-3 dias úteis
+    </p>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="https://wa.me/5521978914749" 
+           style="display: inline-block; background-color: #0a2f68; color: white; 
+                  padding: 12px 25px; text-decoration: none; border-radius: 4px; 
+                  font-weight: bold; font-size: 16px;">
+            Falar com Atendente
+        </a>
+    </div>
+</div>
+"""
                 return assunto, mensagem, complemento
             elif status == 'contrato finalizado':
                 assunto = f'{nome} o processo de contratação está Finalizado'
-                mensagem = f'Olá {nome},\n\n Seu contrato foi finalizado com sucesso, e sua carteirinha está pronta para ser enviada. Entre em contato pelo Whatsapp e peça agora. \n\n <a href="https://wa.me/5521978914749?text=Olá,%20gostaria%20de%20solicitar%20a%20carteirinha" style="display:inline-block; background-color:#007bff; color:#fff; padding:10px 20px; text-decoration:none; border-radius:4px;">Enviar carteirinha</a>'
+                mensagem = f"""
+    
+    <div style="background-color: #f0f8ff; border: 2px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
+        <p style="font-size: 20px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
+            🎉 Parabéns {nome}! Seu contrato foi finalizado com sucesso!
+        </p>
+        <p style="font-size: 16px; margin: 0;">
+            Sua carteirinha está pronta para ser enviada.
+        </p>
+    </div>
+
+    <!-- Linha do tempo de progresso COMPLETA -->
+    <div style="margin: 40px 0; position: relative;">
+        <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
+            <!-- Etapas -->
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">1</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">2</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">3</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">4</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Kit Contratual</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Assinado</p>
+            </div>
+        </div>
+        
+        <!-- Barra de progresso -->
+        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+            <div style="width: 100%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="https://wa.me/5521978914749?text=Olá,%20gostaria%20de%20solicitar%20a%20carteirinha" 
+           style="display: inline-block; background-color: #0a2f68; color: white; 
+                  padding: 15px 30px; text-decoration: none; border-radius: 4px; 
+                  font-weight: bold; font-size: 18px; box-shadow: 0 4px 8px rgba(10, 47, 104, 0.2);">
+            📲 Solicitar Carteirinha Agora
+        </a>
+    </div>
+    
+    <p style="font-size: 14px; color: #666; text-align: center; margin-bottom: 30px;">
+        <strong>Prazo de entrega:</strong> até 1 hora após a solicitação
+    </p>
+    
+    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 15px; margin: 25px 0;">
+        <p style="font-size: 16px; margin-top: 0; font-weight: bold;">Informações importantes:</p>
+        <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li style="margin-bottom: 8px;">O modelo digital da sua carteirinha será enviado por Whatsapp, no momento apenas o modelo digital de carteirinha está disponível</li>
+            
+        </ul>
+    </div>
+</div>
+"""
+                return assunto, mensagem, complemento
+            elif status == 'kit enviado':
+                assunto = f'{nome} seu kit foi enviado'
+                mensagem = f"""
+<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
+    <p style="font-size: 16px; margin: 0;">
+            Seu kit contratual foi enviado e deve ser assinado <strong>dentro de 24 horas</strong> a partir do recebimento.
+        </p>
+        <p style="font-size: 16px; margin: 0;">
+            Realize a assinatura a partir do link abaixo.
+        </p>
+        <br>
+        <a href="{complemento}" 
+           style="display: inline-block; background-color: #0a2f68; color: white; 
+                  padding: 15px 30px; text-decoration: none; border-radius: 4px; 
+                  font-weight: bold; font-size: 18px; box-shadow: 0 4px 8px rgba(10, 47, 104, 0.2);">
+            📄 Assinar Contrato
+        </a>
+    
+    
+
+    <!-- Linha do tempo de progresso -->
+    <div style="margin: 40px 0; position: relative;">
+        <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
+            <!-- Etapas -->
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">1</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">2</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">3</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+            </div>
+            
+            <div style="text-align: center; width: 24%;">
+                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin: 0 auto 10px; font-weight: bold;">4</div>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Kit Contratual</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Enviado</p>
+            </div>
+        </div>
+        
+        <!-- Barra de progresso -->
+        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+            <div style="width: 90%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        </div>
+    </div>
+    
+    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 15px; margin: 25px 0;">
+        <p style="font-size: 16px; margin-top: 0; font-weight: bold;">Como assinar seu contrato:</p>
+        <ol style="padding-left: 20px; margin-bottom: 0;">
+            <li style="margin-bottom: 8px;">Acesse o link recebido no e-mail</li>
+            <li style="margin-bottom: 8px;">Verifique todos os dados do contrato</li>
+            <li style="margin-bottom: 8px;">Assine digitalmente todos os documentos</li>
+            <li>Confirme o recebimento da confirmação por e-mail</li>
+        </ol>
+    </div>
+    
+    <div style="background-color: #fff5f5; border: 2px solid #d80000; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
+        <p style="font-size: 18px; color: #d80000; font-weight: bold; margin: 0 0 10px 0;">
+            ⏳ ATENÇÃO: Prazo de 24 horas para assinatura!
+        </p>
+    <p style="font-size: 16px; color: #d80000; font-weight: bold; text-align: center;">
+        ⚠️ Após 5 dias a partir do envio, o contrato será cancelado automaticamente se não for assinado.
+    </p>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="https://wa.me/5521978914749" 
+           style="display: inline-block; background-color: #0a2f68; color: white; 
+                  padding: 12px 25px; text-decoration: none; border-radius: 4px; 
+                  font-weight: bold; font-size: 16px;">
+            Precisa de ajuda? Fale conosco
+        </a>
+    </div>
+</div>
+"""
                 return assunto, mensagem, complemento
             elif status == 'Enviado ao cadastro':
                 print("na situ de enviado ao cadastro")
                 assunto= f'{nome} seu processo de contratação foi iniciado'
-                mensagem = f"""
-                Olá {nome},\n\n Recebemos a documentação da sua proposta do plano de saúde e o processo de contratação foi iniciado. \n\n
-                 Dentro dos próximos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano. As proximas etapas do seu plano são:\n\n
-                 1. Entrevista Online: Você receberá um link para preencher sua declaração de saúde online.
-                 2. Análise de Declaração: Sua declaração de saúde será analisada pela nossa equipe e após a analise decidiremos se há necessidade de entrevista com o médico.
-                 3. Entrevista Presencial: Se necessário, agendaremos uma entrevista presencial com o médico que complementará a entrevista online.
-                 4. Geração de Kit: Após a entrevista, teremos todos os documentos necessários para realizar o kit contratual, que é um conjunto de documentos a serem emitidos junto ao contrato.
-                 5. Finalização do Contrato: Nesta fase enviaremos seu kit contratual para ser assinado digitalmente junto com um link para fazer o pedido da sua carteirinha.\n\n
-                 Todo esse processo deverá ser realizado em até 30 dias corridos a partir da data de pagamento da adesão. Caso não cumpra o prazo o plano será suspenso e após 10 dias cancelado.\n\n"""
+                mensagem = f'''
+        <p>Olá {nome},</p>
+        <p>Recebemos a documentação da sua proposta do plano de saúde e o processo de contratação foi iniciado.</p>
+        <p>Dentro dos próximos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano.</p>
+        <h3 style="color: #0a2f68; border-bottom: 2px solid #0a2f68; padding-bottom: 5px; display: inline-block;">
+            Próximas etapas do seu plano:
+        </h3>
+        <div style="margin: 25px 0; position: relative;">
+            <!-- Etapa 1 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">1</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Declaração Online</h4>
+                    <p style="margin: 0; color: #555;">Você receberá um link para preencher sua declaração de saúde online.</p>
+                </div>
+            </div>
+            <!-- Etapa 2 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">2</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Análise de Declaração</h4>
+                    <p style="margin: 0; color: #555;">Sua declaração será analisada para verificar necessidade de entrevista médica.</p>
+                </div>
+            </div>
+            <!-- Etapa 3 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">3</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Entrevista Presencial</h4>
+                    <p style="margin: 0; color: #555;">Se necessário, agendaremos entrevista presencial com nosso médico.</p>
+                </div>
+            </div>
+            <!-- Etapa 4 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">4</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Geração de Kit</h4>
+                    <p style="margin: 0; color: #555;">Emitiremos todos os documentos necessários para seu contrato.</p>
+                </div>
+            </div>
+            <!-- Etapa 5 -->
+            <div style="display: flex; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">5</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Finalização do Contrato</h4>
+                    <p style="margin: 0; color: #555;">Enviaremos seu kit para assinatura digital e pedido da carteirinha.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background-color: #fff8e6; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 0 4px 4px 0;">
+            <p style="margin: 0; color: #856404; font-weight: 500;">
+                ⏱️ <strong>Todo esse processo deverá ser realizado em até 30 dias corridos</strong> a partir da data de pagamento da adesão. 
+                Caso não cumpra o prazo o plano será suspenso e após 10 dias de suspensão seu plano será <strong>cancelado.</strong>
+            </p>
+        </div>
+        '''
                 return assunto, mensagem, complemento
               
             else:

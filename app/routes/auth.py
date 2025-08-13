@@ -221,7 +221,7 @@ def fechar():
         if tipo_usuario == 'vendas':
             return redirect(url_for('gerencial.dashboard'))
         elif tipo_usuario == 'cadastro':
-            return redirect(url_for('gerencial.cad_dash'))
+            return redirect(url_for('generic.home'))
         elif tipo_usuario == 'financeiro':
             return redirect(url_for('gerencial.finan_dash'))
     elif classe_usuario == 'vendedor':
