@@ -759,6 +759,7 @@ def gerar_proposta():
         ('titular_celular', dados.get('titular', {}).get('celular', '')),
         ('titular_email', dados.get('titular', {}).get('email', '')),
         ('titular_grau_parentesco', dados.get('titular',{}).get('grau_parentesco','')),
+        ('titular_rg', dados.get('titular',{}).get('numero_rg')),
 
         ('responsavel_name', dados.get('responsavel', {}).get('nome', '')),
         ('responsavel_cpf', dados.get('responsavel', {}).get('cpf', '')),

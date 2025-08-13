@@ -263,11 +263,11 @@ def msg_email(status,proposta, complemento):
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
             </div>
             
-            <div style="text-align: center; width: 24%;">
+            <div style="text-align: center; width: auto;">
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">2</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Declaração</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
             </div>
             
@@ -295,19 +295,19 @@ def msg_email(status,proposta, complemento):
     </div>
     
     <p style="font-size: 14px; color: #666; margin-top: 30px;">
-        Após concluir a entrevista, nosso time dará continuidade ao processo de análise.
+        Após concluir a Declaração de saúde, nosso time dará continuidade ao processo de análise.
         Você receberá atualizações por e-mail.
     </p>
 </div>
 """
                 return assunto, mensagem, complemento
             elif status == 'analise de declaração':
-                assunto= f'{nome} sua entrevista Online foi enviada para análise'
+                assunto= f'{nome} sua Declaração de saúde Online foi enviada para análise'
                 mensagem = f"""
 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
     <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
     
-    <p style="font-size: 16px;">Sua entrevista online foi enviada para análise interna.</p>
+    <p style="font-size: 16px;">Sua Declaração de saúde online foi enviada para análise interna.</p>
     
     <p style="font-size: 16px;">Durante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. Caso a necessidade seja confirmada, entraremos em contrato por telefone ou Whatsapp para efetuar agendamento.</p>
 
@@ -323,11 +323,11 @@ def msg_email(status,proposta, complemento):
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
             </div>
             
-            <div style="text-align: center; width: 24%;">
+            <div style="text-align: center; width: auto;">
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">2</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Declaração</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
             </div>
             
@@ -443,11 +443,11 @@ def msg_email(status,proposta, complemento):
                 assunto = f'{nome} seu contrato está pronto para ser entregue!'
                 mensagem = f"""
 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
+    
     
     <div style="background-color: #f0f8ff; border: 1px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
         <p style="font-size: 18px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
-            🎉 Seu contrato está pronto para ser entregue!
+            🎉  {nome}, seu contrato está pronto para ser entregue!
         </p>
         <p style="font-size: 16px; margin: 0;">
             O kit contratual será gerado e enviado em breve.
@@ -677,7 +677,7 @@ def msg_email(status,proposta, complemento):
             ⏳ ATENÇÃO: Prazo de 24 horas para assinatura!
         </p>
     <p style="font-size: 16px; color: #d80000; font-weight: bold; text-align: center;">
-        ⚠️ Após 5 dias, o contrato será cancelado automaticamente se não for assinado.
+        ⚠️ Após 5 dias a partir do envio, o contrato será cancelado automaticamente se não for assinado.
     </p>
     </div>
     
@@ -758,7 +758,7 @@ def msg_email(status,proposta, complemento):
         <div style="background-color: #fff8e6; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 0 4px 4px 0;">
             <p style="margin: 0; color: #856404; font-weight: 500;">
                 ⏱️ <strong>Todo esse processo deverá ser realizado em até 30 dias corridos</strong> a partir da data de pagamento da adesão. 
-                Caso não cumpra o prazo o plano será suspenso e após 10 dias cancelado.
+                Caso não cumpra o prazo o plano será suspenso e após 10 dias de suspensão seu plano será <strong>cancelado.</strong>
             </p>
         </div>
         '''

@@ -82,20 +82,21 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
 
         # Inserir dados do titular
         cur.execute("""
-            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade,grau_parentesco, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade,grau_parentesco, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo, numero_rg)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (proposta_id, titular['nome'], titular['cpf'], titular['data_nascimento'], titular['idade'],titular['grau_parentesco'],
               titular['endereco'], titular['celular'], titular['email'], titular['estado_civil'],
-              titular['nome_mae'], titular['nome_pai'], titular['sexo']))
+              titular['nome_mae'], titular['nome_pai'], titular['sexo'], titular['rg']))
 
         # Inserir dados dos dependentes
         for dependente in dependentes:
+            print("dependentes",dependentes)
             
             cur.execute("""
-                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae)
-                VALUES (?, ?, ?, ?, ?, ?,?)
+                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo)
+                VALUES (?, ?, ?, ?, ?, ?,?,?)
             """, (proposta_id, dependente['nome'], dependente['cpf'], dependente['data_nascimento'],
-                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente']))
+                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo']))
 
         conn.commit()
         conn.close()

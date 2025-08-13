@@ -250,6 +250,7 @@ def inclusao_form():
         titular = {
             "nome": request.form.get('nome_beneficiario'),
             "cpf": request.form.get('cpf_beneficiario'),
+            "rg": request.form.get('rg_titular'),
             "data_nascimento": request.form.get('dt_nascimento_beneficiario'),
             "idade": request.form.get('idade_beneficiario'),
             "grau_parentesco":request.form.get('grau_parentesco_titular'),
@@ -272,6 +273,7 @@ def inclusao_form():
         datas_nascimento_dependentes = request.form.getlist('dt_nascimento_dependente[]')
         graus_parentesco_dependentes = request.form.getlist('grau_parentesco_dependente[]')
         mae_dependente = request.form.getlist('mae_dependente[]')
+        dependente_sexo = request.form.getlist('dependente_sexo[]')
 
         
 
@@ -281,7 +283,8 @@ def inclusao_form():
             len(cpfs_dependentes),
             len(datas_nascimento_dependentes),
             len(graus_parentesco_dependentes),
-            len(mae_dependente)
+            len(mae_dependente),
+            len(dependente_sexo)
         )
 
         for i in range(num_dependentes):
@@ -290,7 +293,8 @@ def inclusao_form():
                 "cpf": cpfs_dependentes[i],
                 "data_nascimento": datas_nascimento_dependentes[i],
                 "grau_parentesco": graus_parentesco_dependentes[i],
-                "mae_dependente": mae_dependente[i]
+                "mae_dependente": mae_dependente[i],
+                "dependente_sexo": dependente_sexo[i]
             }
            
             dependente["cpf_titular"] = titular["cpf"]
@@ -393,6 +397,7 @@ def venda_form_pj():
         titular = {
             "nome": request.form.get('nome_beneficiario'),
             "cpf": request.form.get('cpf_beneficiario'),
+            "rg": request.form.get('rg_titular'),
             "data_nascimento": request.form.get('dt_nascimento_beneficiario'),
             "idade": request.form.get('idade_beneficiario'),
             "grau_parentesco":request.form.get('grau_parentesco_titular'),
@@ -405,7 +410,6 @@ def venda_form_pj():
             "sexo": request.form.get('sexo_beneficiario'),
             "quantidade_titular" : 1
         }
-        print(titular)
 
         # Dados dos dependentes
         quantidade_dependentes = int(request.form.get('quantidade_dependentes', 0))
@@ -415,6 +419,7 @@ def venda_form_pj():
         datas_nascimento_dependentes = request.form.getlist('dt_nascimento_dependente[]')
         graus_parentesco_dependentes = request.form.getlist('grau_parentesco_dependente[]')
         mae_dependente = request.form.getlist('mae_dependente[]')
+        dependente_sexo=request.form.getlist('dependente_sexo')
 
         
 
@@ -424,7 +429,8 @@ def venda_form_pj():
             len(cpfs_dependentes),
             len(datas_nascimento_dependentes),
             len(graus_parentesco_dependentes),
-            len(mae_dependente)
+            len(mae_dependente),
+            len(dependente_sexo)
         )
 
         for i in range(num_dependentes):
@@ -433,13 +439,15 @@ def venda_form_pj():
                 "cpf": cpfs_dependentes[i],
                 "data_nascimento": datas_nascimento_dependentes[i],
                 "grau_parentesco": graus_parentesco_dependentes[i],
-                "mae_dependente": mae_dependente[i]
+                "mae_dependente": mae_dependente[i],
+                "dependente_sexo":dependente_sexo[i]
             }
            
             dependente["cpf_titular"] = titular["cpf"]
             dependente["data_nascimento"] = datetime.strptime(dependente["data_nascimento"], "%Y-%m-%d").strftime("%d/%m/%Y")
             dependentes.append(dependente)
             quantidade_dependentes += 1
+            print(dependente)
         
 
         venda["vida"] = titular["quantidade_titular"] + quantidade_dependentes
@@ -518,7 +526,7 @@ def venda_form():
         # Dados do responsável
         responsavel = {
             "nome": request.form.get('nome_responsavel'),
-            "cpf": request.form.get('cpf_socio'),
+            "cpf": request.form.get('cpf_responsavel'),
             "cnpj": request.form.get('cnpj_responsavel'),
             "nome_socio": request.form.get("nome_socio"),
             "cpf_socio": request.form.get('cpf_socio'),
@@ -537,6 +545,7 @@ def venda_form():
         titular = {
             "nome": request.form.get('nome_beneficiario'),
             "cpf": request.form.get('cpf_beneficiario'),
+            "rg": request.form.get('rg_titular'),
             "data_nascimento": request.form.get('dt_nascimento_beneficiario'),
             "idade": request.form.get('idade_beneficiario'),
             "grau_parentesco":request.form.get('grau_parentesco_titular'),
@@ -549,6 +558,7 @@ def venda_form():
             "sexo": request.form.get('sexo_beneficiario'),
             "quantidade_titular" : 1
         }
+        print (titular)
         
 
         # Dados dos dependentes
@@ -559,7 +569,11 @@ def venda_form():
         datas_nascimento_dependentes = request.form.getlist('dt_nascimento_dependente[]')
         graus_parentesco_dependentes = request.form.getlist('grau_parentesco_dependente[]')
         mae_dependente = request.form.getlist('mae_dependente[]')
+        dependente_sexo= request.form.getlist('dependente_sexo[]')
+        print(dependente_sexo)
 
+        print(nomes_dependentes)
+        print(dependente_sexo)
         
 
         # Usa o menor tamanho entre as listas para evitar erro de index
@@ -568,7 +582,8 @@ def venda_form():
             len(cpfs_dependentes),
             len(datas_nascimento_dependentes),
             len(graus_parentesco_dependentes),
-            len(mae_dependente)
+            len(mae_dependente),
+            len(dependente_sexo)
         )
 
         for i in range(num_dependentes):
@@ -577,9 +592,11 @@ def venda_form():
                 "cpf": cpfs_dependentes[i],
                 "data_nascimento": datas_nascimento_dependentes[i],
                 "grau_parentesco": graus_parentesco_dependentes[i],
-                "mae_dependente": mae_dependente[i]
+                "mae_dependente": mae_dependente[i],
+                "dependente_sexo": dependente_sexo[i]
             }
-           
+
+            print("dependentes: ",dependente)
             dependente["cpf_titular"] = titular["cpf"]
             dependente["data_nascimento"] = datetime.strptime(dependente["data_nascimento"], "%Y-%m-%d").strftime("%d/%m/%Y")
             dependentes.append(dependente)
