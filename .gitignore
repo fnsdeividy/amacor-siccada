@@ -42,6 +42,9 @@ app/routes/uploads/*
 !app/routes/uploads/.gitkeep
 static/uploads_gen_arch/*
 static/uploads_gen_arch/**/*
+static/kit_format/resultado_docx/
+static/kit_format/resultado_pdf/
+static/kit_format/upload_kit/
 # ----------------------------------------
 # Arquivos sensíveis e de configuração
 # ----------------------------------------
