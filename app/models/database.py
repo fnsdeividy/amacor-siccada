@@ -369,16 +369,17 @@ def excluir_proposta(proposta, database_path=None):
     """
     try:
         conn = get_db_connection(database_path)
+        conn.execute("PRAGMA foreign_keys = ON;")  # Ativa cascade
         cur = conn.cursor()
-        # Excluir venda
+
         cur.execute("DELETE FROM venda WHERE numero_proposta = ?", (proposta,))
 
         conn.commit()
-        conn.close()
     except Exception as e:
         conn.rollback()
-        conn.close()
         raise e
+    finally:
+        conn.close()
 
 def get_dados_proposta(proposta_id, database_path=None):
     """
