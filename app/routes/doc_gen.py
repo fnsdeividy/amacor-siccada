@@ -296,10 +296,15 @@ def upload_documento():
 
 def converter_doc_para_docx(caminho_doc):
     caminho_docx = caminho_doc + "x"  # só adiciona o x no final
+    
+    soffice_path = r"C:\Program Files\LibreOffice\program\soffice.exe"
+    
     subprocess.run([
-        "soffice", "--headless", "--convert-to", "docx", "--outdir", os.path.dirname(caminho_doc),
+        soffice_path, "--headless", "--convert-to", "docx",
+        "--outdir", os.path.dirname(caminho_doc),
         caminho_doc
-    ])
+    ], check=True)
+    
     return caminho_docx
 
 
