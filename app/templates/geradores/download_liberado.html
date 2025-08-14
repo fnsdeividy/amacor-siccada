@@ -1,0 +1,22 @@
+{% extends 'base1.html' %}
+
+{% block title %}Download de CPT{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="divisoria2">
+    <div class="close-btn-container">
+      <a href="{{ url_for('auth.redir_atent') }}" class="close-btn">✖</a>
+    </div>
+
+    <h1>Selecione o formato do arquivo</h1>
+    <h3>Em qual formato deseja baixar o arquivo?</h3>
+    <br>
+    <a class="btn" href="{{ url_for('doc_gen.download_cpt', tipo_documento = 'docx')  }}" title="Ideal para realizar edições no documento">
+      <strong>Docx</strong>
+    </a>
+    <a class="btn" href="{{ url_for('doc_gen.download_cpt', tipo_documento = 'pdf') }}" title="Documento em pdf para criar kits">
+      <strong>PDF</strong>
+    </a>
+  </div>
+</div>
+{%endblock%}
