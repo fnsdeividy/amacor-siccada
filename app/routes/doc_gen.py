@@ -294,6 +294,15 @@ def upload_documento():
     # Caso o método seja GET, renderizar a página de upload
     return render_template('geradores/upload_documento.html')
 
+def converter_doc_para_docx(caminho_doc):
+    caminho_docx = caminho_doc + "x"  # só adiciona o x no final
+    subprocess.run([
+        "soffice", "--headless", "--convert-to", "docx", "--outdir", os.path.dirname(caminho_doc),
+        caminho_doc
+    ])
+    return caminho_docx
+
+
 @docgen_bp.route('/download_documento_final', methods=['GET'])
 @login_required
 def download_documento_final():
@@ -806,6 +815,7 @@ def gerar_proposta():
                 (f'dependente{idx}_parentesco', '')
             ])
 
+        print(placeholders)
 
     
 
@@ -854,3 +864,190 @@ def concluido_proposta():
     filename = request.args.get('filename', '')
     
     return render_template('geradores/download_proposta.html', filename=filename)
+
+
+
+
+import os
+from docx import Document
+from docx.shared import Pt
+from docx.oxml.ns import qn
+import re
+def limpar_texto(texto):
+    """Limpa texto de caracteres estranhos, múltiplos espaços e linhas com 'Acesso:'"""
+    # Remove linhas que contenham 'Acesso:'
+    texto = re.sub(r'^.*Acesso:.*$', '', texto, flags=re.MULTILINE)
+    texto = re.sub(r'<w:tabs>.*?<w:tab.*?/.*?</w:tabs>', ' ', texto)
+
+    # Remove non-breaking spaces e outros espaços Unicode comuns do Word
+    texto = texto.replace('\xa0', ' ')  # non-breaking space
+    texto = texto.replace('\u2002', ' ')  # en space
+    texto = texto.replace('\u2003', ' ')  # em space
+    texto = texto.replace('\u2009', ' ')  # thin space
+    texto = texto.replace('\u2009', ' ')  # thin space
+    texto = texto.replace(r'\t', ' ')  # thin space
+    texto = texto.replace(r'\x0b', '')  # thin space
+    texto = texto.replace('\f', '')
+    # Substitui tabs múltiplas por uma tab
+    texto = re.sub(r'\t+', '', texto)
+
+    invisiveis = [
+        '\xa0',  # non-breaking space
+        '\u2002', '\u2003', '\u2009', '\u202F',  # variações de espaços
+        '\u200B', '\u200C', '\u200D',  # zero-width
+        '\u00AD',  # soft hyphen
+        '\u2028', '\u2029',  # separadores Unicode
+        '\x0b', '\f',  # vertical tab e form feed
+        '\r', '\n',  # quebra de linha/carriage return
+    ]
+
+    # Substitui invisíveis por espaço
+    for ch in invisiveis:
+        texto = texto.replace(ch, ' ')
+
+    # Substitui múltiplos espaços por um único espaço
+    texto = re.sub(r' +', ' ', texto)
+
+    # Remove quebras de linha extras
+    texto = re.sub(r'\r?\n\s*\n', '\n', texto)
+    texto = re.sub(r'\f', '', texto)
+
+
+    # Remove espaços no começo e no fim
+    return texto.strip()
+
+def extrair_blocos_docx(caminho_docx):
+    """Extrai todos os blocos do arquivo .docx no formato !blocoX! ... !/blocoX!"""
+    doc = Document(caminho_docx)
+    texto_completo = "\n".join([par.text for par in doc.paragraphs])
+    padrao = r"!([^!]+)!(.*?)!/\1!"
+    blocos = dict(re.findall(padrao, texto_completo, re.DOTALL))
+    return {k.strip(): limpar_texto(v) for k, v in blocos.items()}
+
+def limpar_formato_run(run):
+    """Força fonte Times New Roman e remove highlight"""
+    run.font.name = 'Times New Roman'
+    if run._element.rPr is not None:
+        rFonts = run._element.rPr.rFonts
+        if rFonts is not None:
+            rFonts.set(qn('w:ascii'), 'Times New Roman')
+            rFonts.set(qn('w:hAnsi'), 'Times New Roman')
+        highlight = run._element.rPr.highlight
+        if highlight is not None:
+            run._element.rPr.remove(highlight)
+
+def substituir_placeholders_paragraph(par, blocos):
+    """Substitui placeholders @blocoX@ e {{variavel}} mantendo formatação"""
+    i = 0
+    while i < len(par.runs):
+        run = par.runs[i]
+        texto = run.text
+
+        # Substitui blocos
+        for nome, conteudo in blocos.items():
+            placeholder = f"@{nome}@"
+            if placeholder in texto:
+                partes = texto.split(placeholder)
+                run.text = partes[0]
+                limpar_formato_run(run)
+                for linha in conteudo.split('\n'):
+                    new_run = par.add_run(linha)
+                    limpar_formato_run(new_run)
+                    par.add_run('\n')
+                if len(partes) > 1 and partes[1]:
+                    new_run = par.add_run(partes[1])
+                    limpar_formato_run(new_run)
+
+        # Substitui placeholders {{variavel}} se existir no dicionário
+        for key in blocos.keys():
+            ph = f"{{{{{key}}}}}"
+            if ph in run.text:
+                run.text = run.text.replace(ph, blocos[key])
+                limpar_formato_run(run)
+
+        i += 1
+
+def substituir_placeholders_docx2(caminho_template, blocos, caminho_saida):
+    """Substitui todos os placeholders do template pelos blocos"""
+    doc = Document(caminho_template)
+    for par in doc.paragraphs:
+        substituir_placeholders_paragraph(par, blocos)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for par in cell.paragraphs:
+                    substituir_placeholders_paragraph(par, blocos)
+    doc.save(caminho_saida)
+
+# --- Rota Flask ---
+@docgen_bp.route('/aditivo_CPT', methods=['POST', 'GET'])
+def render_cpt():
+    if request.method == 'POST':
+        if 'arquivo' not in request.files:
+            flash('Não encontrado', 'erro')
+            return redirect(url_for('auth.fechar'))
+
+        arquivo_upload = request.files.get('arquivo')  # FileStorage
+        pasta_raiz = os.path.join(os.getcwd(), 'static', 'kit_format')
+        caminho_saida_docx = os.path.join(pasta_raiz, 'resultado_docx')
+        pasta_upload = os.path.join(pasta_raiz, 'upload_kit')
+
+        os.makedirs(caminho_saida_docx, exist_ok=True)
+        os.makedirs(pasta_upload, exist_ok=True)
+
+        caminho_arquivo = os.path.join(pasta_upload, arquivo_upload.filename)
+        if arquivo_upload.filename == '':
+            flash('Sem arquivos', 'error')
+            return redirect(url_for('docgen.render_cpt'))
+
+        arquivo_upload.save(caminho_arquivo)
+
+        # Ajusta caminho caso seja .doc antigo
+        if arquivo_upload.filename.endswith('.doc'):
+            caminho_arquivo = converter_doc_para_docx(caminho_arquivo)
+
+        if caminho_arquivo.endswith('.docx'):
+            # Extrair blocos do arquivo enviado
+            blocos = extrair_blocos_docx(caminho_arquivo)
+            print(blocos)
+
+            # Template que vai receber os blocos
+            caminho_template = os.path.join(pasta_raiz, 'template_papel_timbrado.docx')
+
+            # Substituir blocos no template e salvar novo arquivo
+            caminho_saida = os.path.join(caminho_saida_docx, 'resultado.docx')
+            substituir_placeholders_docx2(caminho_template, blocos, caminho_saida)
+            
+        saida_pdf = os.path.join(
+                os.path.join(pasta_raiz, 'resultado_pdf', arquivo_upload.filename.replace('docx','.pdf'))
+            )
+        docx_para_pdf(caminho_saida, saida_pdf)
+
+        return redirect(url_for('doc_gen.post_download'))
+    return render_template('geradores/render_cpt.html')
+
+
+@docgen_bp.route('download_liberado')
+def post_download():
+    return render_template('geradores/download_liberado.html')
+
+@docgen_bp.route('download_cpt')
+def download_cpt():
+    tipo_documento= request.args.get('tipo_documento')
+    pasta_raiz = os.path.join(os.getcwd(), 'static', 'kit_format')
+    if tipo_documento == 'docx':
+        pasta_download= os.path.join(pasta_raiz, 'resultado_docx')
+    elif tipo_documento == 'pdf':
+        pasta_download= os.path.join(pasta_raiz, 'resultado_pdf')
+    
+    caminho_final= os.path.join(pasta_download,f'resultado.{tipo_documento}')
+   
+   # Caminho do documento final
+    caminho_download = os.path.join(pasta_download)
+
+    # Verificar se o arquivo existe
+    if not os.path.exists(pasta_download):
+        return "Erro: Documento final não encontrado.", 404
+
+    # Enviar o arquivo para download
+    return send_file(caminho_final, as_attachment=True)
