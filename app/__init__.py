@@ -17,13 +17,13 @@ def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = 'uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
-    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+    app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
     app.config['DATABASE'] = 'MHV_DB.db'
     app.secret_key = 'chave super-secreta'
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=50)
     app.config['UPLOAD_FOLDER'] = 'uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
-    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # Limite de 10MB para upload
+    app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024  # Limite de 10MB para upload
 
     # Registro dos Blueprints
     app.register_blueprint(auth_bp,url_prefix='/auth')
