@@ -996,6 +996,7 @@ def render_cpt():
         os.makedirs(pasta_upload, exist_ok=True)
 
         caminho_arquivo = os.path.join(pasta_upload, arquivo_upload.filename)
+        print(caminho_arquivo)
         if arquivo_upload.filename == '':
             flash('Sem arquivos', 'error')
             return redirect(url_for('docgen.render_cpt'))
@@ -1029,6 +1030,7 @@ def render_cpt():
 
 @docgen_bp.route('download_liberado')
 def post_download():
+    
     return render_template('geradores/download_liberado.html')
 
 @docgen_bp.route('download_cpt')
