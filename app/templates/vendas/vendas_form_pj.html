@@ -80,6 +80,7 @@ function addDependente() {
             <label>CPF do Dependente:</label>
             <input type="text" name="cpf_dependente[]" required>
         </div>
+        
         <div class="form-field">
             <label>Data de Nascimento:</label>
             <input type="date" name="dt_nascimento_dependente[]" required>
@@ -97,7 +98,16 @@ function addDependente() {
             <div class="form-field">
             <label>Nome da mãe do Dependente:</label>
             <input type="text" name="mae_dependente[]" required>
-        </div>
+        </div>        
+        <div class="form-field">
+                        <label for="dependente_sexo[]">Sexo:</label>
+                        <select id="dependente_sexo[]" name="dependente_sexo[]" required>
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
 
 
         </div>
