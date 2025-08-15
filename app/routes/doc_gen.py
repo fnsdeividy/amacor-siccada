@@ -308,6 +308,7 @@ def converter_doc_para_docx(caminho_doc):
     return caminho_docx
 
 
+
 @docgen_bp.route('/download_documento_final', methods=['GET'])
 @login_required
 def download_documento_final():
