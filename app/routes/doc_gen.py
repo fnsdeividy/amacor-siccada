@@ -304,8 +304,10 @@ def converter_doc_para_docx(caminho_doc):
         "--outdir", os.path.dirname(caminho_doc),
         caminho_doc
     ], check=True)
-    
+
+    print("caminho arquivo", caminho_doc)    
     return caminho_docx
+
 
 
 @docgen_bp.route('/download_documento_final', methods=['GET'])
