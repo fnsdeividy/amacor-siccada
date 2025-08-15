@@ -45,6 +45,7 @@ static/uploads_gen_arch/**/*
 static/kit_format/resultado_docx/
 static/kit_format/resultado_pdf/
 static/kit_format/upload_kit/
+app/paths.py
 # ----------------------------------------
 # Arquivos sensíveis e de configuração
 # ----------------------------------------
