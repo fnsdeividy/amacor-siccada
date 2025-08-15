@@ -300,18 +300,22 @@ def upload_documento():
     # Caso o método seja GET, renderizar a página de upload
     return render_template('geradores/upload_documento.html')
 
-def converter_doc_para_docx(caminho_doc):
+def converter_doc_para_docx(caminho_doc, pasta_saida):
     from ..paths import path_soffice
     soffice_path = path_soffice()
     
     subprocess.run([
         soffice_path, "--headless", "--convert-to", "docx",
-        "--outdir", os.path.dirname(caminho_doc),
+        "--outdir", pasta_saida,  # destino final
         caminho_doc
     ], check=True)
 
-    print("caminho arquivo", caminho_doc)    
-    return caminho_doc
+    # Monta caminho final do arquivo convertido
+    nome_arquivo = os.path.splitext(os.path.basename(caminho_doc))[0] + ".docx"
+    caminho_final = os.path.join(pasta_saida, nome_arquivo)
+    print("Arquivo convertido para:", caminho_final)    
+    return caminho_final
+
 
 
 
@@ -990,6 +994,7 @@ def substituir_placeholders_docx2(caminho_template, blocos, caminho_saida):
                 for par in cell.paragraphs:
                     substituir_placeholders_paragraph(par, blocos)
     doc.save(caminho_saida)
+    print(caminho_saida)
 
 # --- Rota Flask ---
 @docgen_bp.route('/aditivo_CPT', methods=['POST', 'GET'])
@@ -1018,7 +1023,7 @@ def render_cpt():
         # Ajusta caminho caso seja .doc antigo
         if arquivo_upload.filename.endswith('.doc'):
             print("tentando converter para docx")
-            caminho_arquivo = converter_doc_para_docx(caminho_arquivo)
+            caminho_arquivo = converter_doc_para_docx(caminho_arquivo, caminho_saida_docx)
 
         if caminho_arquivo.endswith('.docx'):
             # Extrair blocos do arquivo enviado
@@ -1035,7 +1040,7 @@ def render_cpt():
         saida_pdf = os.path.join(
                 os.path.join(pasta_raiz, 'resultado_pdf', arquivo_upload.filename.replace('docx','.pdf'))
             )
-        docx_para_pdf(caminho_saida_docx, saida_pdf)
+        docx_para_pdf(caminho_saida, saida_pdf)
 
         return redirect(url_for('doc_gen.post_download'))
     return render_template('geradores/render_cpt.html')
