@@ -141,6 +141,7 @@ def docx_para_pdf(caminho_docx, caminho_pdf):
     from ..paths import path_soffice
     try:
         soffice_path = path_soffice()
+        print ("localização do soffice",soffice_path)
         comando = [
             soffice_path, '--headless', '--convert-to', 'pdf', '--outdir',
             os.path.dirname(caminho_pdf), caminho_docx
@@ -301,9 +302,7 @@ def upload_documento():
 
 def converter_doc_para_docx(caminho_doc):
     from ..paths import path_soffice
-    soffice_path = path_soffice
-    
-    
+    soffice_path = path_soffice()
     
     subprocess.run([
         soffice_path, "--headless", "--convert-to", "docx",
@@ -312,7 +311,7 @@ def converter_doc_para_docx(caminho_doc):
     ], check=True)
 
     print("caminho arquivo", caminho_doc)    
-    return caminho_docx
+    return caminho_doc
 
 
 
@@ -1018,6 +1017,7 @@ def render_cpt():
 
         # Ajusta caminho caso seja .doc antigo
         if arquivo_upload.filename.endswith('.doc'):
+            print("tentando converter para docx")
             caminho_arquivo = converter_doc_para_docx(caminho_arquivo)
 
         if caminho_arquivo.endswith('.docx'):
@@ -1035,7 +1035,7 @@ def render_cpt():
         saida_pdf = os.path.join(
                 os.path.join(pasta_raiz, 'resultado_pdf', arquivo_upload.filename.replace('docx','.pdf'))
             )
-        docx_para_pdf(caminho_saida, saida_pdf)
+        docx_para_pdf(caminho_saida_docx, saida_pdf)
 
         return redirect(url_for('doc_gen.post_download'))
     return render_template('geradores/render_cpt.html')
