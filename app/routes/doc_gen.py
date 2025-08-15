@@ -134,23 +134,27 @@ def processar_documentos(lista_documentos,plano_nome):
     caminho_saida_grupo2 = os.path.join(pasta_saida_pdf, 'grupo2.pdf')
     juntar_pdf(caminhos_grupo2, caminho_saida_grupo2)
 
+import os
+import subprocess
+
 def docx_para_pdf(caminho_docx, caminho_pdf):
     try:
-        # Caminho completo para o executável soffice
         soffice_path = r"C:\Program Files\LibreOffice\program\soffice.exe"
-        
-        # Comando para converter usando o LibreOffice
         comando = [
             soffice_path, '--headless', '--convert-to', 'pdf', '--outdir',
             os.path.dirname(caminho_pdf), caminho_docx
         ]
-        # Executar o comando
         subprocess.run(comando, check=True)
-        print(f"Documento convertido para PDF: {caminho_pdf}")
+
+        # Verifica se o PDF foi realmente criado
+        if os.path.exists(caminho_pdf):
+            print(f"✅ Documento convertido para PDF: {caminho_pdf}")
+        else:
+            print(f"❌ Erro: PDF não foi gerado em {caminho_pdf}")
     except subprocess.CalledProcessError as e:
-        print(f"Erro ao converter para PDF: {e}")
+        print(f"Erro ao converter para PDF (CalledProcessError): {e}")
     except FileNotFoundError:
-        print("Erro: LibreOffice não encontrado. Certifique-se de que está instalado e no PATH.")
+        print("Erro: LibreOffice não encontrado. Verifique o caminho do 'soffice.exe'")
 
 def juntar_pdf(lista_caminhos, caminho_saida):
     merger= PdfMerger()
