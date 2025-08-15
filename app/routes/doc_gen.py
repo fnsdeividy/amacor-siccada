@@ -138,8 +138,9 @@ import os
 import subprocess
 
 def docx_para_pdf(caminho_docx, caminho_pdf):
+    from ..paths import path_soffice
     try:
-        soffice_path = r"C:\Program Files\LibreOffice\program\soffice.exe"
+        soffice_path = path_soffice()
         comando = [
             soffice_path, '--headless', '--convert-to', 'pdf', '--outdir',
             os.path.dirname(caminho_pdf), caminho_docx
@@ -299,9 +300,10 @@ def upload_documento():
     return render_template('geradores/upload_documento.html')
 
 def converter_doc_para_docx(caminho_doc):
-    caminho_docx = caminho_doc + "x"  # só adiciona o x no final
+    from ..paths import path_soffice
+    soffice_path = path_soffice
     
-    soffice_path = r"C:\Program Files\LibreOffice\program\soffice.exe"
+    
     
     subprocess.run([
         soffice_path, "--headless", "--convert-to", "docx",
