@@ -36,7 +36,22 @@
                     <select id="status" name="status" required>
                         <option value="" disabled selected>selecione</option>
                         
-                        {% if classe_usuario == 'supervisor' %}
+
+                        {% if area == 'administrativo' and classe_usuario == 'supervisor' %}
+
+                        <option value="entrevista online enviada">entrevista online enviada</option>
+                        <option value="enviado para financeiro">Enviar para financeiro</option>
+                        <option value="analise de declaração">Enviar para analise</option>
+                        <option value="boleto emitido">boleto emitido</option>  
+                        <option value="analise de declaração">enviado para confexão de kit</option>
+                        <option value="entrevista agendada">entrevista Agendada</option>
+                        <option value="geração de kit">gerar kit</option>
+                        <option value="contrato finalizado">contrato finalizado</option>
+
+                        <label for="complemento">informação adicional</label>
+                        <input type="text" id="complemento" name="complemento" placeholder="complemento de fase (opcional)">
+
+                        {% elif classe_usuario == 'supervisor' %}
                         <option value="entrevista online enviada">entrevista online enviada</option>
                         <option value="enviado para financeiro">Enviar para financeiro</option>
                         <option value="analise de declaração">Enviar para analise</option>
@@ -47,6 +62,8 @@
                         <option value="contrato finalizado">contrato finalizado</option>
 
                         
+
+
                         {% elif area == 'cadastro' %}
                         <option value="entrevista online enviada">entrevista online enviada</option>
                         <option value="enviado para financeiro">Enviar para financeiro</option>
