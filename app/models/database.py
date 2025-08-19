@@ -375,6 +375,28 @@ def get_data_relatorio(data_inicial, data_final, database_path=None):
 
     return resultado if resultado else None
 
+def get_data_relatorio_wstatus(data_inicial, data_final, status, database_path=None):
+    print(f"dados recebidos: data inicial:{data_inicial} data final: {data_final}")
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM venda 
+        WHERE data_venda BETWEEN ? AND ? AND status= ?
+    """, (data_inicial, data_final, status))
+
+    # Obtendo todos os resultados como lista de dicionários
+    col_names = [desc[0] for desc in cur.description]  # Pegando os nomes das colunas
+    resultado = [dict(zip(col_names, row)) for row in cur.fetchall()]
+    
+    conn.close()
+
+    print(f"Quantidade de resultados: {len(resultado)}")
+    print(f"Primeiros 5 resultados: {resultado[:5]}")  # Mostrar os 5 primeiros resultados
+
+    return resultado if resultado else None
+
 
 def get_boleto(contrato, database_path= None):
     print(f"dados recebidos: {contrato}")
