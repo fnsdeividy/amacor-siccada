@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, session,redirect,url_for
+from flask import Blueprint, render_template, request, session,redirect,url_for, flash
 from ..models.database import query_db, salvar_venda, get_email, get_nome, get_status
 import re
 from app.utils import login_required, acesso, hierarquia
@@ -317,13 +317,30 @@ def inclusao_form():
         numero_proposta= venda['numero_proposta']
 
         
-        # Salvar os dados no banco
-        salvar_venda(venda, responsavel, titular, dependentes)
+        try:
+            salvar_venda(venda, responsavel, titular, dependentes)
+        except Exception as e:
+            erro = str(e)
 
+            # Mapeamento de mensagens
+            if "UNIQUE constraint failed: venda.numero_proposta" in erro:
+                motivo = "Proposta já cadastrada. Verifique o número da proposta."
+            elif "NOT NULL constraint failed" in erro:
+                motivo = "Algum campo obrigatório não foi preenchido."
+            elif "FOREIGN KEY constraint failed" in erro:
+                motivo = "Dados relacionados não encontrados. Verifique dependentes/titular."
+            elif "UNIQUE constraint failed: titulares.cpf" in erro:
+                motivo = "Dados de titular já cadastrado, verifique as informações da venda"
+            elif "UNIQUE constraint failed: responsavel.cpf" in erro:
+                motivo = "Dados de responsavel já cadastrado, verifique as informações da venda"
+            else:
+                motivo = "Erro inesperado ao salvar a venda."
 
-        return redirect(url_for('vendas.concluido', proposta=numero_proposta, tipo_contrato=venda['tipo_contrato']))
-    except KeyError as e:
-        return f"Erro: chave não encontrada {e}"
+            flash(f"Erro ao salvar venda: {motivo}", "error")
+            return render_template(
+            "vendas/vendas_form.html", 
+            form_data=request.form
+        )
 
     except Exception as e:
         return f"Erro ao processar os dados: {e}"
@@ -464,10 +481,38 @@ def venda_form_pj():
 
         
         # Salvar os dados no banco
-        salvar_venda(venda, responsavel, titular, dependentes)
+        try:
+            salvar_venda(venda, responsavel, titular, dependentes)
+        except Exception as e:
+            erro = str(e)
+
+            # Mapeamento de mensagens
+            if "UNIQUE constraint failed: venda.numero_proposta" in erro:
+                motivo = "Proposta já cadastrada. Verifique o número da proposta."
+            elif "NOT NULL constraint failed" in erro:
+                motivo = "Algum campo obrigatório não foi preenchido."
+            elif "FOREIGN KEY constraint failed" in erro:
+                motivo = "Dados relacionados não encontrados. Verifique dependentes/titular."
+            elif "UNIQUE constraint failed: titulares.cpf" in erro:
+                motivo = "Dados de titular já cadastrado, verifique as informações da venda"
+            elif "UNIQUE constraint failed: responsavel.cpf" in erro:
+                motivo = "Dados de responsavel já cadastrado, verifique as informações da venda"
+            else:
+                motivo = "Erro inesperado ao salvar a venda."
+
+            flash(f"Erro ao salvar venda: {motivo}", "error")
+            return render_template(
+            "vendas/vendas_form.html", 
+            form_data=request.form
+        )
 
 
+        flash("Venda salva com sucesso!", "success")
         return redirect(url_for('vendas.concluido', proposta=numero_proposta, tipo_contrato=venda['tipo_contrato']))
+
+        
+
+        
     except KeyError as e:
         return f"Erro: chave não encontrada {e}"
 
@@ -617,10 +662,36 @@ def venda_form():
 
         
         # Salvar os dados no banco
-        salvar_venda(venda, responsavel, titular, dependentes)
+        try:
+            salvar_venda(venda, responsavel, titular, dependentes)
+        except Exception as e:
+            erro = str(e)
+
+            # Mapeamento de mensagens
+            if "UNIQUE constraint failed: venda.numero_proposta" in erro:
+                motivo = "Proposta já cadastrada. Verifique o número da proposta."
+            elif "NOT NULL constraint failed" in erro:
+                motivo = "Algum campo obrigatório não foi preenchido."
+            elif "FOREIGN KEY constraint failed" in erro:
+                motivo = "Dados relacionados não encontrados. Verifique dependentes/titular."
+            elif "UNIQUE constraint failed: titulares.cpf" in erro:
+                motivo = "Dados de titular já cadastrado, verifique as informações da venda"
+            elif "UNIQUE constraint failed: responsavel.cpf" in erro:
+                motivo = "Dados de responsavel já cadastrado, verifique as informações da venda"
+            else:
+                motivo = "Erro inesperado ao salvar a venda."
+
+            flash(f"Erro ao salvar venda: {motivo}", "error")
+            return render_template(
+            "vendas/vendas_form.html", 
+            form_data=request.form
+        )
 
 
+        flash("Venda salva com sucesso!", "success")
         return redirect(url_for('vendas.concluido', proposta=numero_proposta, tipo_contrato=venda['tipo_contrato']))
+
+        
     except KeyError as e:
         return f"Erro: chave não encontrada {e}"
 
