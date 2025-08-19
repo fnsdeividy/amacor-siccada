@@ -216,6 +216,9 @@ def relatorio_vendas():
     print(data_inicial, data_final)
 
     dados= get_data_relatorio(data_inicial, data_final)
+    if dados == None:
+        flash('Sem contratos para as datas especificadas', 'error')
+        return redirect(url_for('cad.acompanhar_cnt', lista='todos', filtro='sim'))
         
     dados=list(dados)
     print (dados)
