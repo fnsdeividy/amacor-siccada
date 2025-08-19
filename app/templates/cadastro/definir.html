@@ -14,9 +14,21 @@
             Filtragem de Contratos
         </h1>
 
-        <br><br>
-
+        
         <form method="GET" action="{{ url_for('gerencial.relatorio_vendas') }}">
+            <label for ="status">Status da proposta:</label>
+            <select name="status" id="status">
+                <option value="" disabled selected>Selecione</option>
+                <option value="Enviado ao cadastro">enviado ao cadastro</option>
+                <option value="entrevista online enviada">entrevista online enviada</option>
+                <option value="enviado para financeiro">Enviar para financeiro</option>
+                <option value="boleto emitido">boleto emitido</option>
+               <option value="analise de declaração">Enviar para analise</option>
+                <option value="entrevista agendada">entrevista Agendada</option>
+                <option value="geração de kit">gerar kit</option>
+                <option value="contrato finalizado">contrato finalizado</option>
+            </select>
+            <br><br>
             <label for="data_inicio">Data de Início:</label>
             <input type="date" id="data_inicio" name="venda_inicial">
         

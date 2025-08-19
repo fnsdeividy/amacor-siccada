@@ -208,14 +208,19 @@ def confirmar_processamento():
 
 @gerencial_bp.route('relatorio_vendas')
 def relatorio_vendas():
-    from ..models.database import get_data_relatorio
+    from ..models.database import get_data_relatorio, get_data_relatorio_wstatus
     from ..routes.doc_gen import gerar_csv
     data_inicial= request.args.get('venda_inicial')
     data_final= request.args.get('venda_final')
+    status= request.args.get('status')
 
     print(data_inicial, data_final)
 
-    dados= get_data_relatorio(data_inicial, data_final)
+    if not status:
+        dados= get_data_relatorio(data_inicial, data_final)
+    if status:
+        dados= get_data_relatorio_wstatus(data_inicial, data_final, status)
+    
     if dados == None:
         flash('Sem contratos para as datas especificadas', 'error')
         return redirect(url_for('cad.acompanhar_cnt', lista='todos', filtro='sim'))
