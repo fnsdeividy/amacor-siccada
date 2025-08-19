@@ -459,6 +459,8 @@ def alterar_infos():
         print(valor_total)
         valor_tabela = request.form.get('valor_tabela')
         print(valor_tabela)
+        valor_tabela=valor_tabela.replace(',','.')
+        valor_total= valor_total.replace(',','.')
         
         update_db("""
             UPDATE venda SET 
