@@ -156,11 +156,17 @@ def inclusao_render_form():
     
     
     print("Dados do contrato:", dados)
+    data_str =dados['data_nascimento']
+    data_obj = datetime.strptime(data_str, '%d/%m/%Y').date()
+
+    data_nascimento= data_obj
+
     
     
     return render_template(
         'vendas/inclusao_form.html',
         dados=dados,
+        data_nascimento=data_nascimento,
         tipo_contrato=tipo_contrato,
         numero_contrato=numero_contrato,
         nome_usuario=nome_usuario,
