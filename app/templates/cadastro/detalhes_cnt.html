@@ -24,16 +24,23 @@
                 {{ 'N/A' if venda[13] == 'None' else venda[13] }}
             </a>
         </p>
+        <p><strong>Data:</strong> {{ data_formatada }}</p>
+        <br>
         <p><strong>Valor total:</strong>{{ venda [8] }}</p>
          <p>Tipo de pagamento: {{  'N/A' if venda[21] == 'None' else venda[21] }}</p>
-        <p><strong>Data:</strong> {{ venda[2] }}</p>
+        
         <p><strong>Tipo de Contrato:</strong> {{ venda[3] }}</p>
         <p><strong>Produto:</strong> {{ venda[4] }}</p>
+        <br>
         <p><strong>Corretor Responsável:</strong> {{ venda[5] }}</p>
         <p><strong>Status:</strong> 
             <a href="{{ url_for('cad.atualizar_cnt', contrato=venda[13], proposta=venda[1], id=venda[0], last_resp=venda[14], status=venda[6]) }}">
                 {{ venda[6] }}
             </a>
+
+
+        <p><strong>{{variavel_comp}}</strong> {{complemento}}</p>
+        <p><strong>Digitado por:</strong> {{venda[7]}}
         </p>
     </div>
     <br><br>

@@ -140,11 +140,34 @@ def detalhes_cnt():
     # Buscar os detalhes da venda
     cur.execute("SELECT * FROM venda WHERE numero_proposta = ?", (id,))
     venda = cur.fetchone()
+    
+    complemento = venda[20]
+    variavel_comp= 0
+    data_str= venda[2]
+    try:
+        # Converte a string para um objeto datetime
+        data_obj = datetime.strptime(data_str, "%Y-%m-%d")
 
-    if venda is None:
-        cur.close()
-        conn.close()
-        return "Registro não encontrado", 404
+        # Formata o objeto datetime no formato desejado dd/mm/aa
+        data_formatada = data_obj.strftime("%d/%m/%y")
+        print(f"Data formatada: {data_formatada}")
+    except ValueError:
+        print("Data inválida, formato esperado: yyyy-mm-dd")
+    
+
+    if complemento is not None:
+        if len(complemento) > 8 and len(complemento) < 15:
+            complemento = f'{complemento}'
+            variavel_comp = "agendado para: "  # Atribui o valor corretamente
+        elif len(complemento) > 20:
+            complemento = 'Aguardando assinatura da declaração'
+            variavel_comp = "complemento de fase:"  # Atribui o valor corretamente
+        else:
+            complemento = f''
+            variavel_comp = "Sem complemento para esta fase"  # Nova condição para complementos entre 10 e 20 caracteres
+    else:
+        complemento = 'Sem complemento para esta fase'
+        variavel_comp = ''  # Caso complemento seja None
 
     # Buscar os responsáveis relacionados à venda
     cur.execute("SELECT * FROM responsavel WHERE proposta_id = ?", (id,))
@@ -167,7 +190,10 @@ def detalhes_cnt():
         venda=venda,
         responsaveis=responsaveis,
         titulares=titulares,
-        dependentes=dependentes
+        dependentes=dependentes,
+        complemento= complemento,
+        variavel_comp=variavel_comp,
+        data_formatada=data_formatada
     )
 
 @cad_bp.route('/alterar_proposta', methods=['POST', 'GET'])
