@@ -185,25 +185,66 @@ def get_pagamento(data_pagamento, valor, numero_contrato,database_path=None):
 
 
 def get_from_sig(numero_contrato, database_path=None):
-    """Busca informações na tabela beneficiarios"""
+    """Busca informações na tabela beneficiarios e mapeia os dados do SIG para o formato esperado"""
+    
+    # Mapeamento das colunas do SIG para as colunas da tabela 'beneficiarios'
+    sig_to_beneficiarios_map = {
+        'sCpfCgcResp': 'cpf',
+        'sNomeResp': 'nome',
+        'sNumeroCNT': 'proposta_id',
+        'dNascimentoTIT': 'data_nascimento',
+        'Fone_CNT': 'celular',
+        'sCodigoUSR': 'codigo_usr',
+        'sNomeTIT': 'nome_titular',
+        'dMatricula': 'matricula',
+        'dExclusao': 'data_exclusao',
+        'sMotivoCancelamentoTIT': 'motivo_cancelamento',
+        'sDescricaoCancTit': 'descricao_cancelamento',
+        'sCpfUSR': 'cpf_usr',
+        'sNomeUSR': 'nome_usr',
+        'dNascimento': 'data_nascimento_usr',
+        'sTipoUsuario': 'tipo_usuario',
+        'sNomeProduto': 'nome_produto',
+        'cPrecoPRD': 'preco_produto',
+        'IdadeUSR': 'idade_usr',
+        'IdadeTIT': 'idade_titular',
+        'TempoPermanenciaUSR': 'tempo_permanencia_usr',
+        'TempoPermanenciaTIT': 'tempo_permanencia_titular',
+    }
+    
     try:
+        # Conectando ao banco de dados
         conn = get_db_connection(database_path)
         cur = conn.cursor()
 
+        # Executando a query para pegar os dados do SIG
         cur.execute("""
             SELECT * FROM beneficiarios 
             WHERE sNumeroCNT = ? 
-        """, (numero_contrato,))  
-
-        resultado = cur.fetchone()
-        return dict(resultado) if resultado else None
+        """, (numero_contrato,))
         
+        # Obtendo o resultado
+        resultado = cur.fetchone()
+        
+        if resultado:
+            # Convertendo para dict e aplicando o mapeamento das chaves
+            dados_sig = dict(resultado)
+            
+            # Mapeando os dados para o formato esperado pela tabela 'beneficiarios'
+            dados_mapeados = {sig_to_beneficiarios_map.get(key, key): value for key, value in dados_sig.items()}
+            
+            # Retorna os dados já no formato mapeado
+            return dados_mapeados
+        else:
+            return None
+            
     except Exception as e:
         print(f'Erro ao buscar no SIG: {e}')
         return None
     finally:
         if 'conn' in locals():
             conn.close()
+
 
 def get_from_siccada(numero_contrato, database_path=None):
     """Busca informações nas tabelas venda + responsavel"""
@@ -251,10 +292,18 @@ def get_info_cnt(numero_contrato, database_path=None):
         print("não encontrados em SIG")
         print("buscando em SICCADA")
         dados= get_from_siccada(numero_contrato)
+        print (dados)
+
+    elif dados != None: 
+        print("dados recebidos a partir do SIG")
+        
+        print(dados)
+
+
 
     return dados
     
-    print("dados encontrados:",dados)
+    
 
 def get_contrato(cpf, database_path=None):
     print(f"dados recebidos: {cpf}") 
@@ -442,3 +491,28 @@ def get_email_user(email, database_path=None):
     conn.close()
 
     return resultado['email'] if resultado else None
+
+
+def get_export(database_path=None):
+
+    try:
+        # Estabelece a conexão com o banco de dados
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+
+        # Executa a consulta SQL
+        cur.execute("""
+        SELECT * FROM venda WHERE exportado = 0 AND numero_contrato IS NULL
+        """)
+
+        # Obtém os nomes das colunas
+        columns = [description[0] for description in cur.description]
+
+        # Converte o resultado em uma lista de dicionários
+        vendas = [dict(zip(columns, row)) for row in cur.fetchall()]
+        
+        print("vendas:", vendas)
+        return vendas
+    
+    except Exception as e:
+        return str(e)
