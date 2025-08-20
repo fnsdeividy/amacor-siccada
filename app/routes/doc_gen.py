@@ -336,10 +336,6 @@ def download_documento_final():
     return send_file(caminho_pdf_final, as_attachment=True)
 
 
-#####################################################################################################################################
-###################################separação entre rotas para arquivos docx - pdf & xlsx - csv#######################################
-#####################################################################################################################################
-
 
 def converter_xls_para_csv(caminho_arquivo_excel, pasta_destino):
     """
@@ -584,7 +580,7 @@ def gerar_csv(dados):
             # Cabeçalho dos dados
             writer.writerow([
                 'ID', 'Proposta', 'Número de Contrato', 'Responsável', 'Data da venda','Valor da Venda',
-                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade'
+                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade','Forma de pagamento'
             ])
             # Dados das vendas
             for item in dados:
@@ -607,6 +603,7 @@ def gerar_csv(dados):
                     iss_fmt,
                     item.get('vidas', ''),
                     valor_tabela_fmt,
+                    item.get('tipo_pagamento',''),
                 ])
         print("Arquivo CSV gerado com sucesso!")
     except PermissionError as e:
@@ -1071,3 +1068,43 @@ def download_cpt():
 
     # Enviar o arquivo para download
     return send_file(caminho_final, as_attachment=True)
+
+
+@docgen_bp.route('/exportar_venda', methods= ['GET', 'POST'])
+def exportar_to_sig():
+    import pandas as pd
+    from ..models.database import get_propostas, get_export
+
+    propostas= get_propostas()
+    print (propostas)
+
+    if propostas == None:
+        flash('Sem propostas disponíveis', 'error')
+        return redirect(url_for('auth.fechar'))
+    
+    for proposta in propostas:
+        numero_proposta = proposta.get('numero_proposta')  # proposta é um dicionário
+        print(numero_proposta)
+
+        if str(numero_proposta).isdigit():  # só entra se for número inteiro
+            try:
+                numero_proposta = int(numero_proposta)
+                info_expo = get_export(numero_proposta)
+                print("dados da expo:",info_expo)
+            except Exception as e:
+                return str(e)
+        else:
+            # ignora se não for int
+            print("dados incorretos recebidos:",numero_proposta)
+            continue
+
+       
+
+
+
+
+
+        
+            
+
+    

@@ -515,7 +515,7 @@ def get_email_user(email, database_path=None):
     return resultado['email'] if resultado else None
 
 
-def get_export(database_path=None):
+def get_propostas(database_path=None):
 
     try:
         # Estabelece a conexão com o banco de dados
@@ -524,7 +524,7 @@ def get_export(database_path=None):
 
         # Executa a consulta SQL
         cur.execute("""
-        SELECT * FROM venda WHERE exportado = 0 AND numero_contrato IS NULL
+        SELECT numero_proposta FROM venda WHERE exportado = 0 AND numero_contrato IS NULL
         """)
 
         # Obtém os nomes das colunas
@@ -533,8 +533,55 @@ def get_export(database_path=None):
         # Converte o resultado em uma lista de dicionários
         vendas = [dict(zip(columns, row)) for row in cur.fetchall()]
         
+        conn.close()
         print("vendas:", vendas)
         return vendas
+
     
     except Exception as e:
         return str(e)
+    
+def get_export(numero_proposta, database_path=None):
+    print("iniciando obtenção de dados do siccada para exportaçõa\n proposta recebida para exportação:", numero_proposta)
+
+    try:
+        # Estabelece a conexão com o banco de dados
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+
+        cur.execute("""
+        SELECT * from venda WHERE numero_proposta = ?
+        """,(numero_proposta,))
+        colunas_venda = [desc[0] for desc in cur.description]
+        dados_venda = [dict(zip(colunas_venda, row)) for row in cur.fetchall()]
+        
+        
+        cur.execute("""
+        SELECT * from titulares WHERE proposta_id = ?
+        """,(numero_proposta,))
+        colunas_titular = [desc[0] for desc in cur.description]
+        dados_titular = [dict(zip(colunas_titular, row)) for row in cur.fetchall()]
+        print(dados_titular)
+
+        
+        cur.execute("""
+        SELECT * from dependentes WHERE proposta_id = ?
+        """,(numero_proposta,))
+        colunas_dependentes = [desc[0] for desc in cur.description]
+        dados_dependentes = [dict(zip(colunas_dependentes, row)) for row in cur.fetchall()]
+        
+        conn.close()
+        
+
+        resultado= {
+            "venda": dados_venda,
+            "titulares": dados_titular,
+            "dependentes": dados_dependentes
+        }
+        print("resultado",resultado)
+                
+
+        return resultado
+    except Exception as e:
+        return str(e)
+        
