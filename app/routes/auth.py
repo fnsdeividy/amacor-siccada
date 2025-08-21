@@ -51,6 +51,7 @@ def login():
 @auth_bp.route('/cadastrar', methods=['GET','POST'])
 @hierarquia('supervisor')
 def cadastrar():
+    from ..cripto import hash_senha
     
     if request.method=='POST':
         nome = request.form['nome']
@@ -59,6 +60,8 @@ def cadastrar():
         cpf= request.form['cpf']
         email = request.form['email']
         senha = request.form['senha']
+        senha_hashed = hash_senha(senha)
+        senha=senha_hashed
         tipo_usuario = request.form['tipo_usuario']
         classe_usuario = request.form['classe_usuario']
 
