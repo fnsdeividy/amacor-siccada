@@ -748,7 +748,12 @@ def gerar_proposta():
     bairro_responsavel, cidade_responsavel, estado_responsavel = extrair_endereco(endereco_completo_responsavel)
     endereco_completo_titular = dados.get('titular', {}).get('cep', '')
     bairro_titular, cidade_titular, estado_titular = extrair_endereco(endereco_completo_titular)
+    iss_value = float(dados.get('venda', {}).get('iss', 0))
+    iss_value = float(dados.get('venda', {}).get('iss', 0))
+    valor_tabela = float(dados.get('venda', {}).get('valor_tabela', 0))
 
+    valor_mensalidade = valor_tabela + iss_value
+    valor_mensalidade_formatado = f"{valor_mensalidade:,.2f}"
     
 
     placeholders = [
@@ -764,6 +769,7 @@ def gerar_proposta():
         ('valor_tabela', f"R$ {float(dados.get('venda', {}).get('valor_tabela', 0)):,.2f}".replace('.', ',')),
         ('taxa_inscricao', f"R$ {float(dados.get('venda', {}).get('taxa_inscricao', 0)):,.2f}".replace('.', ',')),
         ('iss_value', f"R$ {float(dados.get('venda', {}).get('iss', 0)):,.2f}".replace('.', ',')),
+        ('valor_mensalidade', f"R$ {valor_mensalidade_formatado}"),
 
         ('titular_name', dados.get('titular', {}).get('nome', '')),
         ('titular_dt_nascimento', formatar_data(dados.get('titular', {}).get('data_nascimento', ''))),
@@ -1070,34 +1076,87 @@ def download_cpt():
     return send_file(caminho_final, as_attachment=True)
 
 
-@docgen_bp.route('/exportar_venda', methods= ['GET', 'POST'])
-def exportar_to_sig():
+@docgen_bp.route('/exportar_dependente', methods= ['GET', 'POST'])
+def exportar_dependente_to_sig():
+    
     import pandas as pd
-    from ..models.database import get_propostas, get_export
+    from ..models.database import get_propostas, get_export, get_db_connection
 
-    propostas= get_propostas()
-    print (propostas)
+    propostas = get_propostas()
+    print("Propostas:", propostas)
 
-    if propostas == None:
+    if not propostas:
         flash('Sem propostas disponíveis', 'error')
         return redirect(url_for('auth.fechar'))
-    
-    for proposta in propostas:
-        numero_proposta = proposta.get('numero_proposta')  # proposta é um dicionário
-        print(numero_proposta)
 
-        if str(numero_proposta).isdigit():  # só entra se for número inteiro
-            try:
-                numero_proposta = int(numero_proposta)
-                info_expo = get_export(numero_proposta)
-                print("dados da expo:",info_expo)
-            except Exception as e:
-                return str(e)
-        else:
-            # ignora se não for int
-            print("dados incorretos recebidos:",numero_proposta)
+    todas_linhas = []
+
+    for proposta in propostas:
+        numero_proposta = proposta.get('numero_proposta')
+        print("Processando:", numero_proposta)
+
+        # se não tem número de proposta válido, pula
+        if not numero_proposta:
             continue
 
+        dados = get_export(numero_proposta)
+        if not dados or isinstance(dados, str):  # erro retornado em string
+            print(f"Erro na proposta {numero_proposta}: {dados}")
+            continue
+
+        venda = dados.get("venda", [{}])
+        titulares = dados.get("titulares", [{}])
+        dependentes = dados.get("dependentes", [])
+
+        venda = venda[0] if venda else {}
+        titular = titulares[0] if titulares else {}
+
+        # se não houver dependentes, gera linha com vazio
+        if not dependentes:
+            continue
+
+        for dep in dependentes:
+            linha = {
+                "MatriculaTitular": dep.get("proposta_id"),
+                "DataMatricula": venda.get("data_venda"),
+                "NomeDependente": dep.get("nome"),
+                "DataNasc": dep.get("data_nascimento"),
+                "Sexo": dep.get("sexo"),
+                "CPF": dep.get("cpf"),
+                "PIS": dep.get("pis"),
+                "CNS": dep.get("cns"),
+                "Identidade": dep.get("identidade"),
+                "NomeMae": dep.get("nome_mae"),
+                "EstadoCivil": titular.get("estado_civil"),
+                "NomeProduto": venda.get("nome_produto"),
+                "Obstetricia": "NÃO",
+                "RegraVenda": "1",
+                "Parentesco": dep.get("grau_parentesco"),
+                "DeclaracaoNascVivo": dep.get("declaracao_nasc_vivo"),
+                "TipoUsuario": "ADICIONAL",
+                "NomeSocial": titular.get("nome_social"),
+                "Esfera": titular.get("esfera"),
+                "Orgao": titular.get("orgao"),
+                "Funcao": titular.get("funcao"),
+                "CensoPrevidenciario": titular.get("censo_previdenciario"),
+                "DataInicialUniversidade": dep.get("data_inicial_universidade"),
+                "DataFinalUniversidade": dep.get("data_final_universidade"),
+                "DataValidacaoUniversidade": dep.get("data_validacao_universidade"),
+            }
+            todas_linhas.append(linha)
+
+    # gera CSV único
+    if todas_linhas:
+        pasta_raiz = os.path.join(os.getcwd(), 'static','exports')
+        os.makedirs(pasta_raiz, exist_ok= True)
+        df = pd.DataFrame(todas_linhas)
+        caminho_csv = os.path.join(pasta_raiz, "export-dependentes.csv")
+        df.to_csv(caminho_csv, index=False, sep=";", encoding="utf-8-sig")
+        flash(f"Exportação concluída com {len(df)} registros. Arquivo: {caminho_csv}", "success")
+    else:
+        flash("Nenhuma linha gerada para exportação.", "warning")
+
+    return redirect(url_for('auth.fechar'))
        
 
 
