@@ -8,6 +8,7 @@ from .routes.financeiro import finan_bp
 from .routes.cadastro import cad_bp
 from .routes.doc_gen import docgen_bp
 from .routes.gerencial import gerencial_bp
+from .routes.everflow_mantis import mantis_bp
 
 
 from datetime import timedelta
@@ -19,7 +20,7 @@ def create_app():
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
     app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
     app.config['DATABASE'] = 'MHV_DB.db'
-    app.secret_key = 'chave super-secreta'
+    app.secret_key = os.urandom(24)
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=50)
     app.config['UPLOAD_FOLDER'] = 'uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
@@ -35,6 +36,7 @@ def create_app():
     app.register_blueprint(cad_bp,url_prefix='/cad')
     app.register_blueprint(docgen_bp, url_prefix='/docgen')
     app.register_blueprint(gerencial_bp, url_prefix='/gerencial')
+    app.register_blueprint(mantis_bp, url_prefix='/mantis')
  
 
     # Verifique se a pasta de upload existe
@@ -44,10 +46,16 @@ def create_app():
     @app.before_request
     def before_request():
         # Define a duração da sessão como permanente
-        rotas_publicas = ['auth.login', 'auth.cadastrar', 'static', 'api.teste_suri','api.get_boleto', 'auth.esqueci_senha']  # Adicione outras rotas públicas aqui
+        rotas_publicas = [
+            'auth.login', 'auth.cadastrar', 'static', 'api.teste_suri', 
+            'api.get_boleto', 'auth.esqueci_senha', 'mantis.EverFlow', 'mantis.get_card'   # Mantendo a rota pública
+        ]
+            
         if 'user_id' not in session and request.endpoint not in rotas_publicas:
             flash('Sua sessão expirou. Faça login novamente.')
             return redirect(url_for('auth.login'))
+
+            
 
 
     return app
