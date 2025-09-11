@@ -353,6 +353,28 @@ def get_carteirinha(cpf, database_path=None):
     print(f'responsavel retornado: {resultado}')
     return resultado['sNomeResp'] if resultado else None
 
+def get_carteirinha_to_app(cpf, database_path=None):
+    print(f"dados recebidos: {cpf}") 
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM beneficiarios 
+        WHERE sCpfUSR = ? 
+        AND sMotivoCancelamentoUSR IS NULL
+    """, (cpf,))  
+
+    resultado = cur.fetchone()
+    conn.close()
+
+    print(f'responsavel retornado: {resultado}')
+    
+    # Converte o resultado em um dicionário
+    if resultado:
+        return dict(resultado)
+    return None
+
+
 def get_data_relatorio(data_inicial, data_final, database_path=None):
     print(f"dados recebidos: data inicial:{data_inicial} data final: {data_final}")
 
