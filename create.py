@@ -3,54 +3,35 @@ import sqlite3
 import shutil
 import os
 
-# Caminho do arquivo CSV
-csv_file = r"C:\Users\d.figueiredo\Desktop\banco\lista_aberto_pagamento.csv"
 db_name = "MHV_DB.db"
 
 # Função para criar a tabela beneficiarios
-def criar_tabela_beneficiarios():
+def criar_tabela_beneficiarios(csv_file):
     df = pd.read_csv(csv_file, delimiter=';', encoding='latin1')
-
+    db_name = "MHV_DB.db"
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS beneficiarios (
-        sCodigoUSRTIT TEXT,
-        sNomeTIT TEXT,
-        iControleTIT INTEGER,
-        dMatricula TEXT,
-        dNascimentoTIT TEXT,
-        dExclusao TEXT,
-        sMotivoCancelamentoTIT TEXT,
-        sDescricaoCancTit TEXT,
-        Fone_TIT TEXT,
-        iDiaVenctoPadraoCNT INTEGER,
-        iDiaVenctoPadraoTIT INTEGER,
-        sCodigoUSR TEXT,
-        sNomeUSR TEXT,
-        dMatriculaUSR TEXT,
-        dExclusaoUSR TEXT,
-        dNascimento TEXT,
-        sCpfUSR TEXT,
-        sMotivoCancelamentoUSR TEXT,
-        sDescricaoCancUsu TEXT,
-        sNomePRD TEXT,
-        dExclusaoPUSR TEXT,
-        sNomeProduto TEXT,
-        cPrecoPRD REAL,
-        IdadeUSR INTEGER,
-        IdadeTIT INTEGER,
-        TempoPermanenciaUSR INTEGER,
-        TempoPermanenciaTIT INTEGER,
-        sTipoUsuario TEXT
-    );
-    """)
+    # Escolha a chave única que identifica o beneficiário
+    chave_unica = "sCodigoUSR"   # 🔑 troque se for outra
 
-    df.to_sql("beneficiarios", conn, if_exists='replace', index=False)
+    # Monta dinamicamente as colunas
+    cols = ",".join(df.columns)
+    placeholders = ",".join(["?"] * len(df.columns))
+
+    # Gera a parte do UPDATE (exceto a chave)
+    update_stmt = ",".join([f"{col}=excluded.{col}" for col in df.columns if col != chave_unica])
+
+    sql = f"""
+    INSERT INTO beneficiarios ({cols})
+    VALUES ({placeholders})
+    ON CONFLICT({chave_unica}) DO UPDATE SET {update_stmt};
+    """
+
+    cursor.executemany(sql, df.values.tolist())
     conn.commit()
     conn.close()
-    print("Tabela 'beneficiarios' criada e populada com sucesso!")
+    print("Tabela 'beneficiarios' atualizada com sucesso!")
 
 # Nova função para criar a tabela usuarios
 def criar_tabela_usuarios():
