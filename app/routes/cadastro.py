@@ -580,3 +580,51 @@ def documento_contrato(proposta):
     filename = arquivos[0]
     print(f"Proposta recebida: {proposta}, Nome do arquivo: {filename}")
     return send_from_directory(proposta_folder, filename, as_attachment=True)
+
+
+@cad_bp.route('/form_atualizar_data')
+@acesso('vendas', 'cadastro', 'administrativo')
+@hierarquia('supervisor','agente')
+def form_atualizar_data():
+    return render_template('cadastro/atualizar_data.html')
+
+
+@cad_bp.route('/atualizar_data', methods=['GET','POST'])
+@acesso('vendas', 'cadastro', 'administrativo')
+@hierarquia('supervisor','agente')
+def atualizar_data():
+    import pandas as pd
+    from create import criar_tabela_beneficiarios
+    if request.method == 'POST':
+        csv_banco= request.files['csv_banco']
+        if not csv_banco:
+            flash('Nenhum arquivo selecionado.')
+            return redirect(request.url)
+        filename = secure_filename(csv_banco.filename)
+        if filename == '':
+            flash('Nenhum arquivo selecionado.')
+            return redirect(request.url)
+        if not filename.lower().endswith('.csv'):
+            flash('Tipo de arquivo não permitido. Por favor, envie um arquivo .csv')
+            return redirect(request.url)
+        
+        base_folder = os.path.join(os.getcwd(), 'static','uploads')
+        base_folder = os.path.abspath(base_folder)
+        data_folder = os.path.join(base_folder, 'data_files')
+        os.makedirs(data_folder, exist_ok=True)
+        file_path = os.path.join(data_folder, filename)
+        csv_banco.save(file_path)
+        print(f"Arquivo salvo em: {file_path}")
+
+        if os.path.exists(file_path):
+            try:
+                criar_tabela_beneficiarios(file_path)
+                flash('Tabela beneficiarios atualizada com sucesso!', 'success')
+                return redirect(url_for('generic.home'))
+            except Exception as e:
+                print(f"Erro ao atualizar a tabela: {e}")
+                flash(f'Erro ao atualizar a tabela: {e}', 'error')
+                return redirect(request.url)
+                                
+
+        
