@@ -157,6 +157,8 @@ def inclusao_render_form():
     
     print("Dados do contrato:", dados)
     data_str =dados['data_nascimento']
+    data_str = datetime.strptime(data_str, '%Y-%m-%d').strftime('%d/%m/%Y')
+    print(data_str)
     data_obj = datetime.strptime(data_str, '%d/%m/%Y').date()
 
     data_nascimento= data_obj
