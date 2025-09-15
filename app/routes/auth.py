@@ -220,6 +220,7 @@ def fechar():
     tipo_usuario = session.get('tipo_usuario')
     classe_usuario = session.get('classe_usuario')
 
+   
     if classe_usuario == 'supervisor':
         if tipo_usuario == 'vendas':
             return redirect(url_for('gerencial.dashboard'))
@@ -227,6 +228,8 @@ def fechar():
             return redirect(url_for('generic.home'))
         elif tipo_usuario == 'financeiro':
             return redirect(url_for('gerencial.finan_dash'))
+        elif tipo_usuario == 'administrativo':
+            return redirect(url_for('generic.home'))
     elif classe_usuario == 'vendedor':
         return redirect(url_for('generic.home'))
     else:

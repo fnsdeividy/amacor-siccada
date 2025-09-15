@@ -1,0 +1,44 @@
+{% extends 'base1.html' %}
+
+{% block title %}Anexar documentos{% endblock %}
+    
+    {% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar banco</title>
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="divisoria2">
+            <div class="close-btn-container">
+                    <a class="close-btn" href="javascript:void(0);" onclick="goBack()" class="close-btn"><</a>
+                </div>
+    <h1>Anexar carga de atualização </h1>
+    <form action="{{ url_for('cad.atualizar_data') }}" method="POST" enctype="multipart/form-data">
+        <label for="arquivos">Adicione a carga de atualização do banco de dados:</label><br>
+        <input type="file" name="csv_banco" id="csv_banco" multiple required>
+        <button type="submit">Enviar</button>
+    </form>
+</body>
+</html>
+</div>
+</div>
+
+<script>
+    function goBack() {
+        if (document.referrer) {
+            // Voltar para a página anterior
+            window.history.back();
+        } else {
+            // Redirecionar para a home se não houver página anterior
+            window.location.href = '/';
+        }
+    }
+</script>
+        {% endblock %}
