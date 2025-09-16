@@ -29,6 +29,39 @@ def limpar_pasta_saida(pasta_saida):
 
 
 
+@gerencial_bp.route('/dashboard_administrativo')
+def dashboard_administrativo():
+    from datetime import datetime, timedelta
+    from ..models.database import data_dashboard_adm
+    periodo = request.args.get('periodo', '')
+    data_inicial = request.args.get('data_inicial')
+    if not periodo and not data_inicial:
+        periodo = '30'  # Padrão para 30 dias
+
+
+    # Definir data de referência
+    if data_inicial:
+        try:
+            data_ref = datetime.strptime(data_inicial, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Data inválida. Use o formato AAAA-MM-DD.', 'error')
+            return redirect(url_for('gerencial.dashboard_administrativo'))
+    else:
+        try:
+            dias = int(periodo)
+            data_ref = (datetime.now() - timedelta(days=dias)).date()
+        except:
+            data_ref = (datetime.now() - timedelta(days=30)).date()
+    
+    # Processar dados
+    dados_dashboard = data_dashboard_adm(
+        data_ref.strftime('%Y-%m-%d')
+    )
+    
+    return render_template(
+        'generic/gerenciais/cadastro/dashboard.html',
+        dados=dados_dashboard
+    )
 @gerencial_bp.route('/dashboard')
 def dashboard():
     periodo = request.args.get('periodo', '')
@@ -246,3 +279,4 @@ def download_relatorio():
         return send_file(arquivo_csv, as_attachment=True, download_name="relatorio_vendas.csv", mimetype='text/csv')
     else:
         return "Arquivo não encontrado", 404
+

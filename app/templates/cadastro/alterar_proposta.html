@@ -10,15 +10,19 @@
     </div>
 
     <h1 class="table-title-tab-pix">Editar Contrato</h1>
-        <a href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='venda') }} ">alterar vendas</a>
+        <a id = 'btn_vendas'class="btn" href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='venda') }} ">alterar vendas</a>
+        <label for="btn_vendas">Para realizar alterações em dados da venda(valores, data, etc)</label>
         <br>
-        <a href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='respp') }} ">alterar responsavel</a>
+        <a id = 'btn_resp'class="btn" href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='respp') }} ">alterar responsavel</a>
+        <label for="btn_resp">Para realizar alterações em dados do responsavel (nome, cpf, cnpj, etc)</label>
         <br>
-        <a href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='titular') }} ">alterar titular</a>
+        <a id ='btn_tilt' class="btn" href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='titular') }} ">alterar titular</a>
+        <label for="btn_tilt">Para realizar alterações em dados do titular (nome, cpf, etc)</label>
         <br>
-        <a href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='depenn') }} ">alterar dependentes</a>
+        <a class="btn" href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='depenn') }} ">alterar dependentes</a>
+        <label for="btn_tilt">Para realizar alterações em dados do dependente (nome, cpf, etc)</label>
         <br><br>
-        <a href="{{ url_for('cad.excluir_proposta', proposta=proposta) }}">Excluir venda</a>
+        <a class="btn" href="{{ url_for('cad.excluir_proposta', proposta=proposta) }}">Excluir venda</a>
 </div>
 
 <script>

@@ -607,3 +607,95 @@ def get_export(numero_proposta, database_path=None):
     except Exception as e:
         return str(e)
         
+def data_dashboard_adm(data_ref,database_path=None):
+    from datetime import datetime, timedelta
+    hoje = datetime.now().date()
+
+    print(f"Data de hoje: {hoje}")
+
+    ## Vendas dos dias no gap
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT * FROM venda
+                WHERE data_venda BETWEEN ? AND ?
+    """, (data_ref, hoje))
+    dados_venda= cur.fetchall()
+
+    ##dados necessarios: #total de vendas, total por status, tempo medio entre entrada e saida, total por corretor:
+    print(dados_venda)
+
+    # Transformar os resultados em lista de dicionários
+    vendas_formatadas = []
+    for row in dados_venda:
+        vendas_formatadas.append(dict(row))
+    
+    # Estatísticas por status
+    cur.execute("""
+        SELECT status, COUNT(*) as quantidade, 
+               SUM(valor_venda) as valor_total, 
+               AVG(valor_venda) as ticket_medio
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY status
+        ORDER BY quantidade DESC
+    """, (data_ref, hoje))
+    
+    stats_status = []
+    for row in cur.fetchall():
+        stats_status.append(dict(row))
+    
+    # Total geral de vendas
+    total_vendas = sum(item['quantidade'] for item in stats_status)
+    
+    # Vendas por corretor
+    cur.execute("""
+        SELECT corretor_resp, COUNT(*) as quantidade, 
+               SUM(valor_venda) as valor_total
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY corretor_resp
+        ORDER BY quantidade DESC
+    """, (data_ref, hoje))
+    
+    stats_corretor = []
+    for row in cur.fetchall():
+        stats_corretor.append(dict(row))
+    
+    # Evolução temporal (vendas por dia/semana/mês)
+    cur.execute("""
+        SELECT DATE(data_venda) as data, 
+               COUNT(*) as quantidade,
+               SUM(valor_venda) as valor_total
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY DATE(data_venda)
+        ORDER BY data
+    """, (data_ref, hoje))
+    
+    evolucao_temporal = []
+    for row in cur.fetchall():
+        evolucao_temporal.append(dict(row))
+    
+    conn.close()
+    
+    # Preparar dados para o dashboard
+    dashboard_data = {
+        'periodo': {
+            'inicio': data_ref,
+            'fim': hoje.strftime('%Y-%m-%d')
+        },
+        'resumo_geral': {
+            'total_vendas': total_vendas,
+            'valor_total': sum(item['valor_total'] or 0 for item in stats_status),
+            'ticket_medio_geral': sum(item['valor_total'] or 0 for item in stats_status) / total_vendas if total_vendas > 0 else 0
+        },
+        'por_status': stats_status,
+        'por_corretor': stats_corretor,
+        'evolucao_temporal': evolucao_temporal,
+        'vendas_detalhadas': vendas_formatadas[:20]  # Limitar para não sobrecarregar
+    }
+    
+    return dashboard_data
+
