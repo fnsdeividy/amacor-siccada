@@ -133,7 +133,7 @@ a.btn:hover {
 }
 
 .payment-form .btn {
-    background-color: #369273;
+    background-color: #004691;
     color: white;
     padding: 10px;
     border: none;
@@ -142,7 +142,7 @@ a.btn:hover {
 }
 
 .payment-form .btn:hover {
-    background-color: #2a7059;
+    background-color: #013368;
 }
 
 .close-btn-container {
