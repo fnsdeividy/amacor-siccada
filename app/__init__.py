@@ -11,6 +11,7 @@ from .routes.gerencial import gerencial_bp
 from .routes.everflow_mantis import mantis_bp
 
 
+
 from datetime import timedelta
 import os
 
@@ -54,6 +55,15 @@ def create_app():
         if 'user_id' not in session and request.endpoint not in rotas_publicas:
             flash('Sua sessão expirou. Faça login novamente.')
             return redirect(url_for('auth.login'))
+    
+    @app.template_filter('format_currency_br')
+    def format_currency_br(value):
+        try:
+            value = float(value or 0)
+            valor_formatado = f"{value:,.2f}"
+            return valor_formatado.replace(",", "X").replace(".", ",").replace("X", ".")
+        except (ValueError, TypeError):
+            return "0,00"
 
             
 

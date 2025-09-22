@@ -76,7 +76,7 @@ td {
     color: white;
 }
 .btn{
-    background-color: #369273; /* Cor de fundo do botão */
+    background-color: #004691; /* Cor de fundo do botão */
     color: white; /* Cor do texto do botão */
     padding: 10px 20px; /* Espaçamento interno do botão */
     border: none; /* Sem borda */
@@ -86,7 +86,7 @@ td {
     color: white;
 }
 .bnt-delt{
-    background-color: #369273; /* Cor de fundo do botão */
+    background-color: #013368; /* Cor de fundo do botão */
     color: white; /* Cor do texto do botão */
     padding: 10px 20px; /* Espaçamento interno do botão */
     border: none; /* Sem borda */
@@ -96,7 +96,7 @@ td {
 }
 
 .btn:hover {
-    background-color: #2a6b5c; /* Cor de fundo ao passar o mouse */
+    background-color: #013368; /* Cor de fundo ao passar o mouse */
     transform: scale(1.05); /* Aumenta o tamanho do botão ao passar o mouse */
     color: white;
 }
