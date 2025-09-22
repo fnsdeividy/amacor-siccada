@@ -222,7 +222,10 @@ def login_redir():
         else:
             return redirect(url_for('gerencial.dashboard_administrativo'))
     elif tipo_usuario == 'financeiro':
-        return redirect(url_for('gerencial.dashboard_financeiro'))
+       if classe_usuario == 'agente':
+            return redirect(url_for('generic.home'))
+       else:
+            return redirect(url_for('gerencial.dashboard_financeiro'))
     
     else:
         flash('Tipo de usuário inválido.')
