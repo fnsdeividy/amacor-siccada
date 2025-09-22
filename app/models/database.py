@@ -361,7 +361,7 @@ def get_carteirinha_to_app(cpf, database_path=None):
     cur.execute("""
         SELECT * FROM beneficiarios 
         WHERE sCpfUSR = ? 
-        AND sMotivoCancelamentoUSR IS NULL
+        
     """, (cpf,))  
 
     resultado = cur.fetchone()
@@ -631,6 +631,8 @@ def data_dashboard_adm(data_ref,database_path=None):
     for row in dados_venda:
         vendas_formatadas.append(dict(row))
     
+    for row in cur.fetchall():
+        dados_venda.append(dict(row))
     # Estatísticas por status
     cur.execute("""
         SELECT status, COUNT(*) as quantidade, 
@@ -679,7 +681,12 @@ def data_dashboard_adm(data_ref,database_path=None):
         evolucao_temporal.append(dict(row))
     
     conn.close()
+    #tempo medio para o processo inteiro
+
+
+    ## dados para pendentes do financeiro
     
+
     # Preparar dados para o dashboard
     dashboard_data = {
         'periodo': {
@@ -699,3 +706,121 @@ def data_dashboard_adm(data_ref,database_path=None):
     
     return dashboard_data
 
+
+def data_dashboard_cobranca(data_ref,database_path=None):
+    from datetime import datetime, timedelta
+    hoje = datetime.now().date()
+
+    print(f"Data de hoje: {hoje}")
+    ##dados necessarios: #total de pagamentos efetuados, total de pagamentos pendentes, total de pagamentos pagos em atraso, total pago antes do vencimento, cancelamento por inadimplencia
+    
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    ##pendentes e atrasadas para baixa
+    cur.execute("""
+    SELECT COUNT(*) FROM pagamentos
+        WHERE status = 'efetuado'
+        AND data_cadastro < ?
+        AND data_pagamento BETWEEN ? AND ?
+
+    """,(hoje, data_ref, hoje))
+    dados_pendente = cur.fetchone()[0]
+    print(dados_pendente)
+
+    #ultimos pgs
+    
+    cur.execute("""
+    SELECT nresponsavel, valor, status, data_pagamento from pagamentos
+    WHERE data_pagamento BETWEEN ? AND ?
+    ORDER BY data_pagamento	DESC
+            
+    """,(data_ref, hoje))
+
+    dados_pagamentos= []
+    for row in cur.fetchall():
+        dados_pagamentos.append(dict(row))
+    
+    ##pagos antes ou depois do vencimento
+    cur.execute("""
+        SELECT 
+    COUNT(*) as quantidade,
+    SUM(valor) as valor_total,
+    'no prazo' as status_pagamento
+FROM pagamentos
+WHERE data_pagamento BETWEEN ? AND ? 
+    AND data_pagamento <= data_vencimento
+""",(data_ref, hoje))
+    dados_em_dia=[]
+    for row in cur.fetchall():
+        dados_em_dia.append(dict(row))
+    print(dados_em_dia)
+    
+    cur.execute("""
+    SELECT 
+        COUNT(*) as quantidade,
+        SUM(valor) as valor_total,
+        'atrasado' as status_pagamento
+    FROM pagamentos
+    WHERE data_pagamento BETWEEN ? AND ?
+        AND data_pagamento > data_vencimento;
+                    """,(data_ref, hoje))
+    
+    dados_atraso=[]
+    for row in cur.fetchall():
+        dados_atraso.append(dict(row))
+    print(dados_atraso)
+
+    ##evolução de vendas mes a mes
+    cur.execute("""
+        SELECT 
+            strftime('%Y-%m', data_pagamento) as mes_ano, 
+            count(*) as quantidade,
+            sum(valor) as valor_total
+        FROM pagamentos
+        WHERE data_pagamento BETWEEN ? AND ?
+        GROUP BY strftime('%Y-%m', data_pagamento)
+        ORDER BY mes_ano;         
+    """, (data_ref, hoje))
+    
+    mes_stats = []
+    for row in cur.fetchall():
+        mes_stats.append(dict(row))
+
+    print (mes_stats)
+
+    
+    ##quantidade de cancelamentos por inadimplencia no periodo
+    cur.execute("""
+        SELECT COUNT(*) as quantidade_cancelamento
+                FROM beneficiarios
+                WHERE dExclusao BETWEEN ? AND ? 
+                AND sMotivoCancelamentoTIT = '4.0'
+
+    """, (data_ref, hoje))
+    cancelamentos = cur.fetchone()
+
+
+    total_faturado= sum(item['valor_total']or 0 for item in mes_stats)
+    total_pagamentos= sum(item['quantidade']or 0 for item in mes_stats)
+    dashboard_data = {
+        'periodo': {
+            'inicio': data_ref,
+            'fim': hoje.strftime('%Y-%m-%d')
+        },
+        'resumo_geral': {
+            'total_pagamentos': total_pagamentos,
+            'valor_total': total_faturado,
+            'ticket_medio_geral': total_faturado / total_pagamentos if total_pagamentos > 0 else 0
+        },
+        'por_status': 'stats_status',
+        'pagamentos': dados_pagamentos[:10],
+        'evolucao_temporal': 'evolucao_temporal',
+        'pgts_atrasados': dados_atraso,
+        'pgts_em_dia': dados_em_dia, # Limitar para não sobrecarregar
+        'inadimplencia': cancelamentos['quantidade_cancelamento'],
+        'pendentes': dados_pendente
+    }
+    
+    return dashboard_data
+    

@@ -209,13 +209,20 @@ def login_redir():
             return redirect(url_for('generic.home'))
         else:
             return redirect(url_for('gerencial.dashboard_administrativo'))
+    elif tipo_usuario == 'cobranca':
+        if classe_usuario == 'agente':
+            return redirect(url_for('generic.home'))
+        elif classe_usuario == 'supervisor':
+            return redirect(url_for('gerencial.dashboard_cobranca'))
+        else:
+            return redirect(url_for('gerencial.dashboard_administrativo'))    
     elif tipo_usuario == 'administrativo':
         if classe_usuario == 'agente':
             return redirect(url_for('generic.home'))
         else:
             return redirect(url_for('gerencial.dashboard_administrativo'))
     elif tipo_usuario == 'financeiro':
-        return redirect(url_for('finan.dashboard'))
+        return redirect(url_for('gerencial.dashboard_financeiro'))
     
     else:
         flash('Tipo de usuário inválido.')

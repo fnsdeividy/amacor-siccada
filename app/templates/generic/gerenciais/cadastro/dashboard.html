@@ -325,9 +325,9 @@
             
             <!-- Card de Valor Total -->
             <div class="card stat-card">
-                <div class="stat-value">R$ {{ "%.2f"|format(dados.resumo_geral.valor_total) }}</div>
+                <div class="stat-value">R$ {{dados.resumo_geral.valor_total|format_currency_br }}</div>
                 <div class="stat-label">Valor Total</div>
-                <div class="stat-label">Ticket Médio: R$ {{ "%.2f"|format(dados.resumo_geral.ticket_medio_geral) }}</div>
+                <div class="stat-label">Ticket Médio: R$ {{ dados.resumo_geral.ticket_medio_geral|format_currency_br }}</div>
             </div>
             
             <!-- Listagem de Status -->

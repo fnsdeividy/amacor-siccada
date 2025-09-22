@@ -319,8 +319,10 @@ def adicionar_doc():
 
 def gravar_alteracao():
     from ..verifix import verificar_cnt
-    info = request.form.get('info') #nome da coluna a ser atualizada
+    from datetime import datetime
+    info = request.form.get('info') #nome da coluna a ser atualizada       
     print(info)
+    hoje= datetime.now().date()
     tipo_usuario = session.get('tipo_usuario')
     proposta = request.args.get('proposta') or request.form.get('numero_proposta')
     complemento = request.form.get('complemento')
@@ -384,7 +386,10 @@ def gravar_alteracao():
             cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
             cur.execute("UPDATE venda SET last_resp = ? WHERE numero_proposta = ?", (tipo_usuario, proposta))
             cur.execute("UPDATE venda SET complemento_fase = ? WHERE numero_proposta = ?", (complemento, proposta))
-
+            cur.execute("UPDATE venda SET data_att_fase = ? WHERE numero_proposta= ?",(hoje, proposta))
+            if status == 'contrato finalizado':
+                print("atualizando info de encerramento do contrato para: ", hoje)
+                cur.execute('UPDATE venda SET finalizado_em = ? WHERE numero_proposta= ?',(hoje, proposta))
             conn.commit()
             cur.close()
             conn.close()
@@ -663,7 +668,7 @@ def atualizar_data():
             except Exception as e:
                 print(f"Erro ao atualizar a tabela: {e}")
                 flash(f'Erro ao atualizar a tabela: {e}', 'error')
-                return redirect(request.url)
+                return redirect(url_for('cad.form_atualizar_data'))
                                 
 
         
