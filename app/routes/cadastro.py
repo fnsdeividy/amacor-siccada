@@ -400,7 +400,7 @@ def gravar_alteracao():
                 
             print (status, proposta)
                 
-            if status == 'enviado para financeiro' or status == 'boleto emitido' or status == 'em pendencia' or status == 'entrevista agendada':
+            if status == 'enviado para financeiro' or status == 'boleto emitido' or status == 'em pendencia':
                 print('agora em redirecionamento direto sem email')
                 return redirect(url_for('cad.acompanhar_cnt'))
             else:
