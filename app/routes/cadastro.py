@@ -115,7 +115,7 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro' OR status ='kit enviado'"
+            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro' OR status ='kit enviado' OR status = 'em pendencia'"
             result = query_db(query)
 
             return render_template('cadastro/acompanhar_cnt.html', result=result, area=tipo_usuario,classe_usuario=classe_usuario)
@@ -144,6 +144,7 @@ def detalhes_cnt():
     complemento = venda[20]
     variavel_comp= 0
     data_str= venda[2]
+    print(complemento)
     try:
         # Converte a string para um objeto datetime
         data_obj = datetime.strptime(data_str, "%Y-%m-%d")
@@ -158,16 +159,16 @@ def detalhes_cnt():
     if complemento is not None:
         if len(complemento) > 8 and len(complemento) < 15:
             complemento = f'{complemento}'
-            variavel_comp = "agendado para: "  # Atribui o valor corretamente
-        elif len(complemento) > 20:
+            variavel_comp = "agendado para: "  
+        elif len(complemento) > 40:
             complemento = 'Aguardando assinatura da declaração'
-            variavel_comp = "complemento de fase:"  # Atribui o valor corretamente
-        else:
-            complemento = f''
-            variavel_comp = "Sem complemento para esta fase"  # Nova condição para complementos entre 10 e 20 caracteres
+            variavel_comp = "complemento de fase:"  
+        elif len(complemento) > 20 and len(complemento)<40:
+            complemento = f'{complemento}'
+            variavel_comp = "complemento de fase: "  
     else:
         complemento = 'Sem complemento para esta fase'
-        variavel_comp = ''  # Caso complemento seja None
+        variavel_comp = ''  
 
     # Buscar os responsáveis relacionados à venda
     cur.execute("SELECT * FROM responsavel WHERE proposta_id = ?", (id,))
@@ -399,7 +400,7 @@ def gravar_alteracao():
                 
             print (status, proposta)
                 
-            if status == 'enviado para financeiro' or status == 'boleto emitido':
+            if status == 'enviado para financeiro' or status == 'boleto emitido' or status == 'em pendencia':
                 print('agora em redirecionamento direto sem email')
                 return redirect(url_for('cad.acompanhar_cnt'))
             else:
