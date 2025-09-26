@@ -579,8 +579,8 @@ def gerar_csv(dados):
             writer.writerow([])
             # Cabeçalho dos dados
             writer.writerow([
-                'ID', 'Proposta', 'Número de Contrato', 'Responsável', 'Data da venda','Valor da Venda',
-                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade','Forma de pagamento'
+                'ID', 'Proposta', 'Número de Contrato', 'Responsável','Corretor', 'Data da venda','Valor da Venda',
+                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade','Forma de pagamento', 'Status'
             ])
             # Dados das vendas
             for item in dados:
@@ -597,6 +597,7 @@ def gerar_csv(dados):
                     item.get('numero_proposta', ''),
                     item.get('numero_contrato', ''),
                     item.get('nome_responsavel', ''),
+                    item.get('corretor_resp',''),
                     item.get('data_venda',''),
                     valor_venda_fmt,
                     taxa_inscricao_fmt,
@@ -604,6 +605,7 @@ def gerar_csv(dados):
                     item.get('vidas', ''),
                     valor_tabela_fmt,
                     item.get('tipo_pagamento',''),
+                    item.get('status')
                 ])
         print("Arquivo CSV gerado com sucesso!")
     except PermissionError as e:
