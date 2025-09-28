@@ -205,11 +205,27 @@ def login_redir():
         elif classe_usuario == 'supervisor':
             return redirect(url_for('gerencial.dashboard'))
     elif tipo_usuario == 'cadastro':
-        return redirect(url_for('generic.home'))
+        if classe_usuario == 'agente':
+            return redirect(url_for('generic.home'))
+        else:
+            return redirect(url_for('gerencial.dashboard_administrativo'))
+    elif tipo_usuario == 'cobranca':
+        if classe_usuario == 'agente':
+            return redirect(url_for('generic.home'))
+        elif classe_usuario == 'supervisor':
+            return redirect(url_for('gerencial.dashboard_cobranca'))
+        else:
+            return redirect(url_for('gerencial.dashboard_administrativo'))    
     elif tipo_usuario == 'administrativo':
-        return redirect(url_for('generic.home'))
+        if classe_usuario == 'agente':
+            return redirect(url_for('generic.home'))
+        else:
+            return redirect(url_for('gerencial.dashboard_administrativo'))
     elif tipo_usuario == 'financeiro':
-        return redirect(url_for('finan.dashboard'))
+       if classe_usuario == 'agente':
+            return redirect(url_for('generic.home'))
+       else:
+            return redirect(url_for('gerencial.dashboard_financeiro'))
     
     else:
         flash('Tipo de usuário inválido.')
@@ -217,18 +233,5 @@ def login_redir():
     
 @auth_bp.route('/fechar')
 def fechar():
-    tipo_usuario = session.get('tipo_usuario')
-    classe_usuario = session.get('classe_usuario')
-
-    if classe_usuario == 'supervisor':
-        if tipo_usuario == 'vendas':
-            return redirect(url_for('gerencial.dashboard'))
-        elif tipo_usuario == 'cadastro':
-            return redirect(url_for('generic.home'))
-        elif tipo_usuario == 'financeiro':
-            return redirect(url_for('gerencial.finan_dash'))
-    elif classe_usuario == 'vendedor':
-        return redirect(url_for('generic.home'))
-    else:
-        return redirect(url_for('generic.home'))
+    return redirect(url_for('auth.login_redir'))
     

@@ -145,7 +145,10 @@ def inclusao_render_form():
     
     # Obter dados do contrato
     dados = get_info_cnt(numero_contrato)
-    print(dados['cpf'])
+    if not dados:
+        flash("Contrato não encontrado. Verifique o número do contrato.", "error")
+        return redirect (url_for('generic.home'))
+    print(dados)
     if len(dados['cpf'])>14:
         tipo_contrato= 'empresarial'
     elif len(dados['cpf'])==14:
@@ -157,9 +160,16 @@ def inclusao_render_form():
     
     print("Dados do contrato:", dados)
     data_str =dados['data_nascimento']
-    data_obj = datetime.strptime(data_str, '%d/%m/%Y').date()
-
-    data_nascimento= data_obj
+    try:
+        data_str = datetime.strptime(data_str, '%Y-%m-%d').strftime('%d/%m/%Y')
+        print(data_str)
+        data_obj = datetime.strptime(data_str, '%d/%m/%Y').date()
+        data_nascimento= data_obj
+    except:
+        data_str= datetime.strptime(data_str, '%d/%m/%Y').strftime('%d/%m/%Y')
+        data_obj = datetime.strptime(data_str, '%d/%m/%Y').date()
+        data_nascimento= data_obj
+        
 
     
     

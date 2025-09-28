@@ -115,7 +115,7 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro' OR status ='kit enviado'"
+            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro' OR status ='kit enviado' OR status = 'em pendencia'"
             result = query_db(query)
 
             return render_template('cadastro/acompanhar_cnt.html', result=result, area=tipo_usuario,classe_usuario=classe_usuario)
@@ -144,6 +144,7 @@ def detalhes_cnt():
     complemento = venda[20]
     variavel_comp= 0
     data_str= venda[2]
+    print(complemento)
     try:
         # Converte a string para um objeto datetime
         data_obj = datetime.strptime(data_str, "%Y-%m-%d")
@@ -158,16 +159,16 @@ def detalhes_cnt():
     if complemento is not None:
         if len(complemento) > 8 and len(complemento) < 15:
             complemento = f'{complemento}'
-            variavel_comp = "agendado para: "  # Atribui o valor corretamente
-        elif len(complemento) > 20:
+            variavel_comp = "agendado para: "  
+        elif len(complemento) > 40:
             complemento = 'Aguardando assinatura da declaração'
-            variavel_comp = "complemento de fase:"  # Atribui o valor corretamente
-        else:
-            complemento = f''
-            variavel_comp = "Sem complemento para esta fase"  # Nova condição para complementos entre 10 e 20 caracteres
+            variavel_comp = "complemento de fase:"  
+        elif len(complemento) > 20 and len(complemento)<40:
+            complemento = f'{complemento}'
+            variavel_comp = "complemento de fase: "  
     else:
         complemento = 'Sem complemento para esta fase'
-        variavel_comp = ''  # Caso complemento seja None
+        variavel_comp = ''  
 
     # Buscar os responsáveis relacionados à venda
     cur.execute("SELECT * FROM responsavel WHERE proposta_id = ?", (id,))
@@ -255,11 +256,6 @@ def adicionar_cnt():
         cur.close()
         conn.close()
 
-        
-        
-        
-        
-
     return render_template('cadastro/adicionar_cnt.html',id=id, proposta=proposta)
 
 
@@ -323,9 +319,11 @@ def adicionar_doc():
 @hierarquia('supervisor','agente','vendedor')
 
 def gravar_alteracao():
-
-    info = request.form.get('info') #nome da coluna a ser atualizada
+    from ..verifix import verificar_cnt
+    from datetime import datetime
+    info = request.form.get('info') #nome da coluna a ser atualizada       
     print(info)
+    hoje= datetime.now().date()
     tipo_usuario = session.get('tipo_usuario')
     proposta = request.args.get('proposta') or request.form.get('numero_proposta')
     complemento = request.form.get('complemento')
@@ -339,45 +337,91 @@ def gravar_alteracao():
     
     if request.method == 'POST':
         
-        print(f"Situação recebida: {status}")
+        if info == 'numero_contrato':
+            verifica_cnt= verificar_cnt(status)
+            print(verifica_cnt)
+            if verifica_cnt == status:
+                print(f"Situação recebida: {status}")
 
-        conn = sqlite3.connect(current_app.config['DATABASE'])
-        cur = conn.cursor()
-        cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
-        cur.execute("UPDATE venda SET last_resp = ? WHERE numero_proposta = ?", (tipo_usuario, proposta))
-        cur.execute("UPDATE venda SET complemento_fase = ? WHERE numero_proposta = ?", (complemento, proposta))
+                conn = sqlite3.connect(current_app.config['DATABASE'])
+                cur = conn.cursor()
+                cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
+                cur.execute("UPDATE venda SET last_resp = ? WHERE numero_proposta = ?", (tipo_usuario, proposta))
+                cur.execute("UPDATE venda SET complemento_fase = ? WHERE numero_proposta = ?", (complemento, proposta))
 
-        conn.commit()
-        cur.close()
-        conn.close()
-        flash('Alteração realizada com sucesso!', 'success')
-        
-        
-        
-        print (status, proposta)
-        
-        if status == 'enviado para financeiro' or status == 'boleto emitido':
-            print('agora em redirecionamento direto sem email')
-            return redirect(url_for('cad.acompanhar_cnt'))
-        else:
-            print(status)
-            if email:
-                if len(status)<10:
-                    status=get_status(proposta)
-                    print (status)
+                conn.commit()
+                cur.close()
+                conn.close()
+                flash('Alteração realizada com sucesso!', 'success')
+                
+                
+                
+                print (status, proposta)
+                
+                if status == 'enviado para financeiro' or status == 'boleto emitido':
+                    print('agora em redirecionamento direto sem email')
+                    return redirect(url_for('cad.acompanhar_cnt'))
+                else:
+                    print(status)
+                    if email:
+                        if len(status)<10:
+                            status=get_status(proposta)
+                            print (status)
+                            
+                        
+                        print('agora em envio de email')
+                        assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
+                        print(f"Enviando e-mail para {email} com assunto '{assunto}'")
+                        
+                        email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
                     
-                
-                print('agora em envio de email')
-                assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
-                print(f"Enviando e-mail para {email} com assunto '{assunto}'")
-                
-                email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
-            
+                        return redirect(url_for('cad.acompanhar_cnt'))
+            else:
+                flash('Alteração não realizada, verifique o numero do contrato', 'error')
                 return redirect(url_for('cad.acompanhar_cnt'))
-        
+        else:
+            print(f"Situação recebida: {status}")
 
-        return redirect(url_for('cad.acompanhar_cnt'))
-        
+            conn = sqlite3.connect(current_app.config['DATABASE'])
+            cur = conn.cursor()
+            cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
+            cur.execute("UPDATE venda SET last_resp = ? WHERE numero_proposta = ?", (tipo_usuario, proposta))
+            cur.execute("UPDATE venda SET complemento_fase = ? WHERE numero_proposta = ?", (complemento, proposta))
+            cur.execute("UPDATE venda SET data_att_fase = ? WHERE numero_proposta= ?",(hoje, proposta))
+            if status == 'contrato finalizado':
+                print("atualizando info de encerramento do contrato para: ", hoje)
+                cur.execute('UPDATE venda SET finalizado_em = ? WHERE numero_proposta= ?',(hoje, proposta))
+            conn.commit()
+            cur.close()
+            conn.close()
+            flash('Alteração realizada com sucesso!', 'success')
+                
+                
+                
+            print (status, proposta)
+                
+            if status == 'enviado para financeiro' or status == 'boleto emitido' or status == 'em pendencia':
+                print('agora em redirecionamento direto sem email')
+                return redirect(url_for('cad.acompanhar_cnt'))
+            else:
+                print(status)
+                if email:
+                    if len(status)<10:
+                        status=get_status(proposta)
+                        print (status)
+                            
+                        
+                    print('agora em envio de email')
+                    assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
+                    print(f"Enviando e-mail para {email} com assunto '{assunto}'")
+                        
+                    email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
+                    
+                    return redirect(url_for('cad.acompanhar_cnt'))
+
+
+    return redirect(url_for('cad.acompanhar_cnt'))
+                
         
 
 @cad_bp.route('/alterar_infos_prpopsta', methods=['GET'])
@@ -478,6 +522,7 @@ def alterar_infos():
     if tipo == 'venda':
         nome_responsavel = request.form.get('nome_responsavel')
         data_venda = request.form.get('data_venda')
+        numero_contrato= request.form.get('numero_contrato')
         tipo_contrato = request.form.get('tipo_contrato')
         print(f"Tipo de contrato: {tipo_contrato}")
         tipo_produto = request.form.get('tipo_produto')
@@ -491,9 +536,9 @@ def alterar_infos():
         update_db("""
             UPDATE venda SET 
                 nome_responsavel = ?,data_venda = ?, tipo_contrato = ?, tipo_produto = ?, 
-                valor_venda = ?, valor_tabela = ?
+                valor_venda = ?, valor_tabela = ?, numero_contrato=?
             WHERE numero_proposta = ?
-        """, (nome_responsavel, data_venda, tipo_contrato, tipo_produto, valor_total, valor_tabela, proposta))
+        """, (nome_responsavel, data_venda, tipo_contrato, tipo_produto, valor_total, valor_tabela,numero_contrato, proposta))
         flash('Informações da venda atualizadas com sucesso!', 'success')
         return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
     
@@ -580,3 +625,51 @@ def documento_contrato(proposta):
     filename = arquivos[0]
     print(f"Proposta recebida: {proposta}, Nome do arquivo: {filename}")
     return send_from_directory(proposta_folder, filename, as_attachment=True)
+
+
+@cad_bp.route('/form_atualizar_data')
+@acesso('vendas', 'cadastro', 'administrativo')
+@hierarquia('supervisor','agente')
+def form_atualizar_data():
+    return render_template('cadastro/atualizar_data.html')
+
+
+@cad_bp.route('/atualizar_data', methods=['GET','POST'])
+@acesso('vendas', 'cadastro', 'administrativo')
+@hierarquia('supervisor','agente')
+def atualizar_data():
+    import pandas as pd
+    from create import criar_tabela_beneficiarios
+    if request.method == 'POST':
+        csv_banco= request.files['csv_banco']
+        if not csv_banco:
+            flash('Nenhum arquivo selecionado.')
+            return redirect(request.url)
+        filename = secure_filename(csv_banco.filename)
+        if filename == '':
+            flash('Nenhum arquivo selecionado.')
+            return redirect(request.url)
+        if not filename.lower().endswith('.csv'):
+            flash('Tipo de arquivo não permitido. Por favor, envie um arquivo .csv')
+            return redirect(request.url)
+        
+        base_folder = os.path.join(os.getcwd(), 'static','uploads')
+        base_folder = os.path.abspath(base_folder)
+        data_folder = os.path.join(base_folder, 'data_files')
+        os.makedirs(data_folder, exist_ok=True)
+        file_path = os.path.join(data_folder, filename)
+        csv_banco.save(file_path)
+        print(f"Arquivo salvo em: {file_path}")
+
+        if os.path.exists(file_path):
+            try:
+                criar_tabela_beneficiarios(file_path)
+                flash('Tabela beneficiarios atualizada com sucesso!', 'success')
+                return redirect(url_for('generic.home'))
+            except Exception as e:
+                print(f"Erro ao atualizar a tabela: {e}")
+                flash(f'Erro ao atualizar a tabela: {e}', 'error')
+                return redirect(url_for('cad.form_atualizar_data'))
+                                
+
+        

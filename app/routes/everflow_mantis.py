@@ -11,7 +11,7 @@ import redis
 
 mantis_bp = Blueprint('mantis', __name__)
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
 REDIS_EXPIRE_TIME = 3600  # 1 hora
 
 def generate_shared_key(session_id):
@@ -74,7 +74,7 @@ def mantis():
     crypto_key = generate_shared_key(session_id)
     
     # Armazenar no Redis
-    redis_client.setex(f"session:{session_id}", REDIS_EXPIRE_TIME, crypto_key)
+    
     
     # Retorna a resposta similar ao inigate
     return jsonify({
@@ -95,12 +95,12 @@ def card_to_app():
         return jsonify({'error': 'No session_id provided'}), 400
 
     # Buscar a chave no Redis
-    crypto_key = redis_client.get(f"session:{session_id}")
+    crypto_key = generate_shared_key(session_id)
     if not crypto_key:
         return jsonify({'error': 'Invalid or expired session'}), 400
     print("crypto_key", crypto_key)
 
-    key = bytes.fromhex(crypto_key.decode())
+    key = bytes.fromhex(crypto_key)
     cpf = decrypt_data(key, hashed_cpf)
 
     dados_carteirinha = get_carteirinha_to_app(cpf)
