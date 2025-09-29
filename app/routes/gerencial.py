@@ -104,6 +104,9 @@ def dashboard_administrativo():
     from datetime import datetime, timedelta
     from ..models.database import data_dashboard_adm, data_dashboard_cobranca
     periodo = request.args.get('periodo', '')
+    nome_user= session.get('user_nome')
+    if nome_user == "Juliana Mendes":
+        nome_user = "Sandrão"
     data_inicial = request.args.get('data_inicial')
     if not periodo and not data_inicial:
         periodo = '30'  # Padrão para 30 dias
@@ -132,7 +135,8 @@ def dashboard_administrativo():
     
     return render_template(
         'generic/gerenciais/cadastro/dashboard.html',
-        dados=dados_dashboard
+        dados=dados_dashboard,
+        nome_user=nome_user
     )
 @gerencial_bp.route('/dashboard_vendas')
 def dashboard():

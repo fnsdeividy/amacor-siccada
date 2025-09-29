@@ -201,7 +201,7 @@ def login_redir():
     classe_usuario= session.get("classe_usuario")
     if tipo_usuario == 'vendas':
         if classe_usuario == 'vendedor':
-            return redirect(url_for('generic.home'))
+            return redirect(url_for('generic.home_corretor'))
         elif classe_usuario == 'supervisor':
             return redirect(url_for('gerencial.dashboard'))
     elif tipo_usuario == 'cadastro':

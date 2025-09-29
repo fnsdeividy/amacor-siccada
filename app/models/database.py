@@ -824,3 +824,130 @@ WHERE data_pagamento BETWEEN ? AND ?
     
     return dashboard_data
     
+def data_dashboard_corretor(data_ref, corretor_resp, database_path= None):
+    from datetime import datetime, timedelta
+    hoje = datetime.now().date()
+
+    print(f"Data de hoje: {hoje}")
+
+    ## Vendas dos dias no gap
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT * FROM venda
+                WHERE data_venda BETWEEN ? AND ?
+                AND corretor_resp = ?
+    """, (data_ref, hoje, corretor_resp))
+    dados_venda= cur.fetchall()
+
+    ##dados necessarios: #total de vendas, total por status, tempo medio entre entrada e saida, total por corretor:
+    print(dados_venda)
+
+    # Transformar os resultados em lista de dicionários
+    vendas_formatadas = []
+    for row in dados_venda:
+        vendas_formatadas.append(dict(row))
+    
+    for row in cur.fetchall():
+        dados_venda.append(dict(row))
+    # Estatísticas por status
+    cur.execute("""
+        SELECT status, COUNT(*) as quantidade, 
+               SUM(valor_venda) as valor_total, 
+               AVG(valor_venda) as ticket_medio
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        AND corretor_resp = ?
+        GROUP BY status
+        ORDER BY quantidade DESC
+    """, (data_ref, hoje, corretor_resp))
+    
+    stats_status = []
+    for row in cur.fetchall():
+        stats_status.append(dict(row))
+    
+    # Total geral de vendas
+    total_vendas = sum(item['quantidade'] for item in stats_status)
+    
+    # Vendas por corretor
+    cur.execute("""
+        SELECT corretor_resp, COUNT(*) as quantidade, 
+               SUM(valor_venda) as valor_total
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY corretor_resp
+        ORDER BY quantidade DESC
+    """, (data_ref, hoje))
+    
+    stats_corretor = []
+    for row in cur.fetchall():
+        stats_corretor.append(dict(row))
+    
+    # Evolução temporal (vendas por dia/semana/mês)
+    cur.execute("""
+        SELECT DATE(data_venda) as data, 
+               COUNT(*) as quantidade,
+               SUM(valor_venda) as valor_total
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        AND corretor_resp = ?
+        GROUP BY DATE(data_venda)
+        ORDER BY data
+    """, (data_ref, hoje, corretor_resp))
+    
+    evolucao_temporal = []
+    for row in cur.fetchall():
+        evolucao_temporal.append(dict(row))
+    
+    conn.close()
+    #tempo medio para o processo inteiro
+
+
+    ## dados para pendentes do financeiro
+    
+
+    # Preparar dados para o dashboard
+    dashboard_data = {
+        'periodo': {
+            'inicio': data_ref,
+            'fim': hoje.strftime('%Y-%m-%d')
+        },
+        'resumo_geral': {
+            'total_vendas': total_vendas,
+            'valor_total': sum(item['valor_total'] or 0 for item in stats_status),
+            'ticket_medio_geral': sum(item['valor_total'] or 0 for item in stats_status) / total_vendas if total_vendas > 0 else 0
+        },
+        'por_status': stats_status,
+        'por_corretor': stats_corretor,
+        'evolucao_temporal': evolucao_temporal,
+        'vendas_detalhadas': vendas_formatadas[:20]  # Limitar para não sobrecarregar
+    }
+    
+    return dashboard_data
+
+def get_payment_to_app(data, database_path=None):
+    ncontrato= data
+    print(f"dados recebidos: {ncontrato}") 
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+       SELECT SUM(cPrecoPRD) as preco_mensalidade
+FROM (
+    SELECT DISTINCT sCpfUSR, cPrecoPRD
+    FROM beneficiarios 
+    WHERE sNumeroCNT = ?
+      AND sCpfUSR IS NOT NULL
+) AS distinct_cpfs;
+        
+    """, (ncontrato,))  
+    resultado = cur.fetchone()
+    conn.close()
+
+    print(f'responsavel retornado: {resultado}')
+    
+    # Converte o resultado em um dicionário
+    if resultado:
+        return dict(resultado)
+    return None
