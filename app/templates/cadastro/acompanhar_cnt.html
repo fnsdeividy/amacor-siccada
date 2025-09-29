@@ -5,7 +5,10 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icone.ico') }}">
 
 <br>
-
+<br>
+<div style="display: flex; justify-content: flex-start; margin: 10px 20px;">
+    <a href="{{ url_for('auth.fechar') }}" class="btn-home">🏠 </a>
+</div>
 <div class="search-bar-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0;">
     <!-- Filtro à esquerda -->
     <form method="get" action="{{ url_for('cad.acompanhar_cnt') }}" id="autoSubmitForm" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
@@ -57,7 +60,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <style>
-        
+        .btn-home {
+    position: center;
+    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(145deg, #1a2a6c, #36a2eb)
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
         /* Seus estilos permanecem os mesmos */
         p {
             position: center;

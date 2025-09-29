@@ -142,7 +142,7 @@ def detalhes_cnt():
     venda = cur.fetchone()
     
     complemento = venda[20]
-    variavel_comp= 0
+    variavel_comp= None
     data_str= venda[2]
     print(complemento)
     try:
