@@ -1,13 +1,7 @@
-{% extends 'base1.html' %}
-
+{% extends "window.html" %}
 {% block title %}Gerador de carteirinhas{% endblock %}
+{% block window_content %}
 
-{% block content %}
-<div class= container>
-<div class="divisoria2">
-    <div class="close-btn-container">
-        <a class="close-btn" href="{{ url_for('generic.home') }}"class="close-btn"><</a>
-    </div>
     <h1>Gerador de carteirinhas</h1>
     <h3>Selecione o arquivo PDF da parte frontal da carteirinha:</h3>
 

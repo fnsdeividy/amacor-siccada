@@ -38,9 +38,13 @@
                 {{ venda[6] }}
             </a>
 
-
+        {% if variavel_comp != None %}
         <p><strong>{{variavel_comp}}</strong> {{complemento}}</p>
         <p><strong>Digitado por:</strong> {{venda[7]}}
+        {% else %}
+        <p><strong>Sem complemento para esta fase</strong></p>
+        <p><strong>Digitado por:</strong> {{venda[7]}}
+        {% endif %}
         </p>
     </div>
     <br><br>

@@ -1,12 +1,7 @@
-{% extends 'base1.html' %}
-
+{% extends "window.html" %}
 {% block title %}Gerar Proposta{% endblock %}
-{% block content %}
-<div class="container">
-  <div class="divisoria2">
-    <div class="close-btn-container">
-      <a href="{{ url_for('auth.redir_atent') }}" class="close-btn">✖</a>
-    </div>
+{% block window_content %}
+
 
     <h1>Geração de documento</h1>
     <h3>Deseja gerar documento de proposta a partir do Siccada?</h3>

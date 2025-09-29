@@ -1,23 +1,13 @@
-{% extends 'base1.html' %}
+{% extends "window.html" %}
 
 {% block title %}Gerador de documentos{% endblock %}
 
-{% block content %}
+{% block window_content %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Processar Arquivo CSV</title>
 </head>
 <body>
-    <div class="container">
-        <div class="divisoria2">
-                <div class="close-btn-container">
-                    <a class="close-btn" href="{{ url_for('generic.home') }}">X</a>
-                </div>
+    
             <h1>Processar Arquivo CSV</h1>
             <h2>Upload de Arquivo</h2>
            
