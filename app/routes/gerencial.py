@@ -9,7 +9,7 @@ from flask import Response, request
 import pandas as pd
 import os
 
-from app.utils import login_required, acesso
+from app.utils import login_required, acesso, hierarquia
 
 gerencial_bp = Blueprint('gerencial', __name__)
 
@@ -28,9 +28,13 @@ def limpar_pasta_saida(pasta_saida):
             print(f"Erro ao remover {caminho_arquivo}: {e}")
 
 @gerencial_bp.route('dashboard_financad')
+@login_required
+@acesso('financeiro')
+@hierarquia('supervisor')
 def dashboard_financeiro_cnt():
     from datetime import datetime, timedelta
     from ..models.database import data_dashboard_adm, data_dashboard_cobranca
+    nome_user= session.get('user_nome')
     periodo = request.args.get('periodo', '')
     data_inicial = request.args.get('data_inicial')
     if not periodo and not data_inicial:
@@ -60,11 +64,17 @@ def dashboard_financeiro_cnt():
     
     return render_template(
         'generic/gerenciais/financeiro/dashboard_financad.html',
-        dados=dados_dashboard
+        dados=dados_dashboard,
+        nome_user=nome_user
     )
 
 @gerencial_bp.route('dashboard_financeiro')
+@login_required
+@acesso('financeiro')
+@hierarquia('supervisor')
 def dashboard_financeiro():
+    
+    nome_user = session.get('user_nome')
     from datetime import datetime, timedelta
     from ..models.database import data_dashboard_adm, data_dashboard_cobranca
     periodo = request.args.get('periodo', '')
@@ -96,10 +106,14 @@ def dashboard_financeiro():
     
     return render_template(
         'generic/gerenciais/financeiro/dashboard.html',
-        dados=dados_dashboard
+        dados=dados_dashboard,
+        nome_user=nome_user
     )
 
 @gerencial_bp.route('/dashboard_administrativo')
+@login_required
+@acesso('cadastro', 'administrativo')
+@hierarquia('supervisor')
 def dashboard_administrativo():
     from datetime import datetime, timedelta
     from ..models.database import data_dashboard_adm, data_dashboard_cobranca
@@ -139,6 +153,9 @@ def dashboard_administrativo():
         nome_user=nome_user
     )
 @gerencial_bp.route('/dashboard_vendas')
+@login_required
+@acesso('vendas')
+@hierarquia('supervisor')
 def dashboard():
     periodo = request.args.get('periodo', '')
     data_inicial = request.args.get('data_inicial')
@@ -220,6 +237,7 @@ def dashboard_cobranca():
     from datetime import datetime, timedelta
     from ..models.database import data_dashboard_adm, data_dashboard_cobranca
     periodo = request.args.get('periodo', '')
+    nome_user = session.get('user_nome')
     data_inicial = request.args.get('data_inicial')
     if not periodo and not data_inicial:
         periodo = '30'  # Padrão para 30 dias
@@ -248,7 +266,8 @@ def dashboard_cobranca():
     
     return render_template(
         'generic/gerenciais/cobranca/dashboard.html',
-        dados=dados_dashboard
+        dados=dados_dashboard,
+        nome_user= nome_user
     )
 
 @gerencial_bp.route('/upload_csv', methods=['GET', 'POST'])

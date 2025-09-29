@@ -49,7 +49,7 @@ pdf_bp = Blueprint('pdfgen', __name__)
 @acesso('cadastro', 'cobranca','administrativo')
 
 def create_card():
-        return render_template("cadastro/create_card.html")
+        return render_template("geradores/create_card.html")
 
 @pdf_bp.route('/upload', methods=['POST'])
 def upload_files():
