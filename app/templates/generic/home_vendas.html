@@ -1,0 +1,503 @@
+{% extends "base1.html" %}
+{% block title %}Dashboard Corretor{% endblock %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: cover;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            color: white;
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            flex-wrap: wrap
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            min-width: 280px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sales-table {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 16px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background: rgba(54, 162, 235, 0.3);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .table td {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover td {
+            background: rgba(54, 162, 235, 0.15);
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #ddd;
+        }
+        
+        .status-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+        
+        .status-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .status-name {
+            font-weight: 500;
+            color: white;
+        }
+        
+        .status-count {
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .status-percentage {
+            font-size: 0.9rem;
+            color: #ddd;
+            margin-left: 10px;
+        }
+        
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .status-total {
+            font-size: 1.1rem;
+            color: #36a2eb;
+            font-weight: 600;
+        }
+        
+         .filter-section {
+        background: rgba(0, 0, 0, 0.18);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 18px 28px;
+        margin-bottom: 24px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .filter-section label {
+        color: white;
+        font-weight: 500;
+    }
+    
+    .filter-section input {
+        background: rgba(255, 255, 255, 0.12);
+        color: white;
+        border: 1px solid #36a2eb;
+        border-radius: 8px;
+        padding: 8px 12px;
+    }
+    
+    .filter-section select {
+        background: rgba(11, 40, 83, 0.7);
+        color: white;
+        border: 1px solid #43ace9;
+        border-radius: 8px;
+        padding: 8px 12px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2343e97b'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+        padding-right: 35px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-section select:hover {
+        background-color: rgba(25, 65, 141, 0.6);
+    }
+    
+    .filter-section select:focus {
+        border-color: #36a2eb;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(54, 162, 235, 0.3);
+        background-color: rgba(25, 65, 141, 0.8);
+    }
+    
+    .welcome-card {
+    background: linear-gradient(135deg, #1a2a6c, #36a2eb);
+    padding: 20px 30px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    color: white;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.welcome-card h2 {
+    font-size: 2rem;
+    margin: 0 0 10px 0;
+    font-weight: 600;
+}
+.quick-actions {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+.quick-actions h3 {
+    margin-bottom: 20px;
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px;
+}
+
+.quick-action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+    padding: 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.quick-action-card span {
+    font-size: 1.4rem; /* antes 2rem */
+    margin-bottom: 6px;
+}
+
+.quick-action-card p {
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+}
+.welcome-card h2 span {
+    color: #fdbb2d; /* cor de destaque para o nome */
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.4);
+}
+
+.welcome-card p {
+    font-size: 1.1rem;
+    color: #ddd;
+    margin: 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+    .filter-section select option {
+        background: rgba(11, 40, 83, 0.95);
+        color: white;
+        padding: 8px 12px;
+    }
+    
+    .filter-section select option:checked {
+        background: linear-gradient(45deg, #19418d, #0b2853);
+        color: white;
+        font-weight: bold;
+    }
+        
+.filter-section button {
+    background: linear-gradient(30deg, #0b2853 60%, #19418d 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.filter-section button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(30deg, #19418d 60%, #0b2853 100%);
+    opacity: 0;
+    transition: opacity 0.7s ease;
+    z-index: -1;
+}
+
+.filter-section button:hover::before {
+    opacity: 1;
+}
+
+.filter-section button:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+        
+        .filter-section span {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quick-actions">
+    <h3>Ações Rápidas</h3>
+    <div class="quick-actions-grid">
+        <a href="{{ url_for('vendas.render_tipo_venda') }}" class="quick-action-card">
+            <span>➕</span>
+            <p>Nova Venda</p>
+        </a>
+        <a href="" class="quick-action-card">
+            <span>👨‍👩‍👦</span>
+            <p>Incluir beneficiario</p>
+        </a>
+        <a href="{{ (url_for('vendas.cpf')) }}" class="quick-action-card">
+            <span>👥</span>
+            <p>Verificar Elegibilidade</p>
+        </a>
+        <a href="{{ url_for('cad.acompanhar_cnt') }}" class="quick-action-card">
+            <span>🧾</span>
+            <p>Acompanhar contratos</p>
+        </a>
+        
+    </div>
+</div>
+
+    <div class="welcome-card">
+            <h2>👋 Olá <span>{{ corretor_resp }}</span></h2>
+            <p>Essa é a sua métrica no período: <strong>{{ dados.periodo.inicio }}</strong> até <strong>{{ dados.periodo.fim }}</strong></p>
+        </div>
+    <div class="dashboard-container">
+             
+        <!-- Filtros -->
+        <div class="filter-section">
+            <form method="GET" action="{{ url_for('generic.home_corretor') }}">
+                <label>Período:</label>
+                <select name="periodo">
+                    <option value="7" {% if request.args.get('periodo') == '7' %}selected{% endif %}>7 dias</option>
+                    <option value="30" {% if not request.args.get('periodo') or request.args.get('periodo') == '30' %}selected{% endif %}>30 dias</option>
+                    <option value="90" {% if request.args.get('periodo') == '90' %}selected{% endif %}>90 dias</option>
+                    <option value="180" {% if request.args.get('periodo') == '180' %}selected{% endif %}>6 meses</option>
+                    <option value="365" {% if request.args.get('periodo') == '365' %}selected{% endif %}>1 ano</option>
+                </select>
+                
+                <span>ou</span>
+                
+                <label>Data inicial:</label>
+                <input type="date" name="data_inicial" value="{{ request.args.get('data_inicial') }}">
+                
+                <button type="submit">Filtrar</button>
+            </form>
+        </div>
+        
+        
+        <div class="card-container">
+            <!-- Card de Resumo Geral -->
+           
+            <div class="card stat-card">
+                <div class="stat-value">{{ dados.resumo_geral.total_vendas }}</div>
+                <div class="stat-label">Total de Vendas</div>
+                <div class="stat-label">Período: {{ dados.periodo.inicio }} até {{ dados.periodo.fim }}</div>
+            </div>
+            
+            <!-- Card de Valor Total -->
+            <div class="card stat-card">
+                <div class="stat-value">R$ {{dados.resumo_geral.valor_total|format_currency_br }}</div>
+                <div class="stat-label">Valor Total</div>
+                <div class="stat-label">Ticket Médio: R$ {{ dados.resumo_geral.ticket_medio_geral|format_currency_br }}</div>
+            </div>
+            
+            <!-- Listagem de Status -->
+            <div class="card">
+                <div class="status-header">
+                    <h3>Status das Vendas</h3>
+                    <span class="status-total">Total: {{ dados.resumo_geral.total_vendas }}</span>
+                </div>
+                <ul class="status-list">
+                    {% for status in dados.por_status %}
+                    <li class="status-item">
+                        <span class="status-name">{{ status.status }}</span>
+                        <div>
+                            <span class="status-count">{{ status.quantidade }}</span>
+                            <span class="status-percentage">
+                                {{ (status.quantidade / dados.resumo_geral.total_vendas * 100)|round(2) }}%
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tabela de Detalhamento por Status -->
+        <div class="sales-table">
+            <h3>Detalhamento por Status</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Quantidade</th>
+                        <th>Percentual</th>
+                        <th>Valor Total</th>
+                        <th>Ticket Médio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status in dados.por_status %}
+                    <tr>
+                        <td>{{ status.status }}</td>
+                        <td>{{ status.quantidade }}</td>
+                        <td>{{ (status.quantidade / dados.resumo_geral.total_vendas * 100)|round(2) }}%</td>
+                        <td>R$ {{ "%.2f"|format(status.valor_total or 0) }}</td>
+                        <td>R$ {{ "%.2f"|format(status.ticket_medio or 0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Tabela de Vendas por Corretor -->
+        
+    </div>
+</body>
+</html>
+
+{% endblock %}
