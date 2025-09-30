@@ -157,79 +157,56 @@ def dashboard_administrativo():
 @acesso('vendas')
 @hierarquia('supervisor')
 def dashboard():
+    from ..models.database import data_dashboard_vendas
+    from datetime import datetime, timedelta
     periodo = request.args.get('periodo', '')
     data_inicial = request.args.get('data_inicial')
     data_final = datetime.now().strftime('%Y-%m-%d')
+    nome_user = session.get('user_nome')
 
     # Lógica para definir data_inicial baseada no período ou data personalizada
-    if periodo:
+    if not periodo and not data_inicial:
+        periodo = '30'  # Padrão para 30 dias
+
+
+    # Definir data de referência
+    if data_inicial:
         try:
-            dias = int(periodo)
-            data_inicial = (datetime.now() - pd.Timedelta(days=dias)).strftime('%Y-%m-%d')
-            print(data_inicial)
-        except Exception:
-            data_inicial = (datetime.now() - pd.Timedelta(days=30)).strftime('%Y-%m-%d')
-    elif data_inicial:
-        try:
-            datetime.strptime(data_inicial, '%Y-%m-%d')
-            print(data_inicial)
+            data_ref = datetime.strptime(data_inicial, '%Y-%m-%d').date()
         except ValueError:
             flash('Data inválida. Use o formato AAAA-MM-DD.', 'error')
-            return redirect(url_for('gerencial.dashboard'))
+            return redirect(url_for('gerencial.dashboard_administrativo'))
     else:
-        data_inicial = (datetime.now() - pd.Timedelta(days=30)).strftime('%Y-%m-%d')
-
+        try:
+            dias = int(periodo)
+            data_ref = (datetime.now() - timedelta(days=dias)).date()
+        except:
+            data_ref = (datetime.now() - timedelta(days=30)).date()
     # Filtros aplicados nas queries para considerar o período
-    dados_tipo_plano = query_db("""
-        SELECT tipo_produto, COUNT(*) FROM venda
-        WHERE data_venda BETWEEN ? AND ?
-        GROUP BY tipo_produto
-    """, [data_inicial, data_final])
-    labels_tipo_plano = [row[0] for row in dados_tipo_plano]
-    valores_tipo_plano = [row[1] for row in dados_tipo_plano]
+    dashboard_data = data_dashboard_vendas(data_ref.strftime('%Y-%m-%d'))
 
-    dados_corretor = query_db("""
-        SELECT corretor_resp, COUNT(*) FROM venda
-        WHERE data_venda BETWEEN ? AND ?
-        GROUP BY corretor_resp
-    """, [data_inicial, data_final])
-    labels_corretor = [row[0] for row in dados_corretor]
-    valores_corretor = [row[1] for row in dados_corretor]
-
-    dados_evolucao = query_db("""
-        SELECT strftime('%Y-%m', data_venda), SUM(valor_venda) FROM venda
-        WHERE data_venda BETWEEN ? AND ?
-        GROUP BY 1 ORDER BY 1
-    """, [data_inicial, data_final])
-    labels_evolucao = [row[0] for row in dados_evolucao]
-    valores_evolucao = [row[1] for row in dados_evolucao]
-
-    ultimas_vendas = query_db("""
-        SELECT * FROM venda
-        WHERE data_venda BETWEEN ? AND ?
-        ORDER BY data_venda DESC LIMIT 10
-    """, [data_inicial, data_final])
-
-    # Busca o total de vidas vendidas no período
-    vidas_count_row = query_db("""
-        SELECT SUM(vidas) FROM venda WHERE data_venda BETWEEN ? AND ?
-    """, [data_inicial, data_final])
-    vidas_count = vidas_count_row[0][0] if vidas_count_row and vidas_count_row[0] else 0
-    print(f"Total de vidas vendidas: {vidas_count}")
+    # Extrair dados para os elementos gráficos
+    ultimas_vendas = dashboard_data.get('vendas_detalhadas', [])
+    vidas_count = sum(v.get('vidas', 0) for v in ultimas_vendas)
+    labels_tipo_plano = [item['tipo_produto'] for item in dashboard_data.get('por_status', [])]
+    valores_tipo_plano = [item['quantidade'] for item in dashboard_data.get('por_status', [])]
+    labels_corretor = [item['corretor_resp'] for item in dashboard_data.get('por_corretor', [])]
+    valores_corretor = [item['quantidade'] for item in dashboard_data.get('por_corretor', [])]
+    labels_evolucao = [item.get("data", "") for item in dashboard_data.get('evolucao_temporal', [])]
+    valores_evolucao = [item.get('quantidade', 0) for item in dashboard_data.get('evolucao_temporal', [])]
 
     return render_template(
         'generic/gerenciais/vendas/dashboard.html',
+        dados=dashboard_data,
+        ultimas_vendas=ultimas_vendas,
+        vidas_count=vidas_count,
         labels_tipo_plano=labels_tipo_plano,
         valores_tipo_plano=valores_tipo_plano,
         labels_corretor=labels_corretor,
         valores_corretor=valores_corretor,
         labels_evolucao=labels_evolucao,
         valores_evolucao=valores_evolucao,
-        ultimas_vendas=ultimas_vendas,
-        data_inicial=data_inicial,
-        data_final=data_final,
-        periodo=periodo,
-        vidas_count=vidas_count
+        nome_user=nome_user
     )
 
 @gerencial_bp.route('/dashboard_cobranca')
