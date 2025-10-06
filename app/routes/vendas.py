@@ -511,8 +511,7 @@ def venda_form_pj():
                 motivo = "Erro inesperado ao salvar a venda."
 
             flash(f"Erro ao salvar venda: {motivo}", "error")
-            return render_template(
-            "vendas/vendas_form.html", 
+            return redirect(request.url, 
             form_data=request.form
         )
 
@@ -692,8 +691,7 @@ def venda_form():
                 motivo = "Erro inesperado ao salvar a venda."
 
             flash(f"Erro ao salvar venda: {motivo}", "error")
-            return render_template(
-            "vendas/vendas_form.html", 
+            return redirect(request.url, 
             form_data=request.form
         )
 
