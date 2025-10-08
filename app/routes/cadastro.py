@@ -29,9 +29,10 @@ def doc_home():
 @hierarquia('supervisor','agente','vendedor')
 
 def acompanhar_cnt():
+    from ..models.database import atualiza_atrasos
     buscar = request.args.get('buscar')
 
-    
+    atualiza_atrasos()
     
     conn= sqlite3.connect(current_app.config['DATABASE'])
     cur= conn.cursor()
@@ -83,7 +84,7 @@ def acompanhar_cnt():
         except ValueError:
             buscar = buscar  # permite buscar strings também
         print(f"buscando por: {buscar}")
-        query = "SELECT * FROM venda WHERE numero_proposta = ? OR numero_contrato = ?" 
+        query = f"SELECT * FROM venda WHERE numero_proposta = ? OR numero_contrato = ? OR nome_responsavel LIKE '%{buscar}%'" 
         result = query_db(query, (buscar,buscar))
         # Converte cada Row em dict para evitar erro de serialização
         if result:

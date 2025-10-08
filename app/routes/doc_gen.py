@@ -580,7 +580,7 @@ def gerar_csv(dados):
             # Cabeçalho dos dados
             writer.writerow([
                 'ID', 'Proposta', 'Número de Contrato', 'Responsável','Corretor', 'Data da venda','Valor da Venda',
-                'Taxa de Inscrição', 'ISS', 'Vidas Cadastradas', 'Valor de Mensalidade','Forma de pagamento', 'Status'
+                'Taxa de Inscrição', 'ISS','Produto', 'Vidas Cadastradas', 'Valor de Mensalidade','Forma de pagamento', 'Status'
             ])
             # Dados das vendas
             for item in dados:
@@ -602,6 +602,7 @@ def gerar_csv(dados):
                     valor_venda_fmt,
                     taxa_inscricao_fmt,
                     iss_fmt,
+                    item.get('tipo_produto',''),
                     item.get('vidas', ''),
                     valor_tabela_fmt,
                     item.get('tipo_pagamento',''),
