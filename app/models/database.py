@@ -1056,3 +1056,75 @@ FROM (
     if resultado:
         return dict(resultado)
     return None
+
+def atualiza_atrasos(database_path=None):
+    from datetime import datetime
+    from flask import current_app
+    import sqlite3
+
+    if database_path is None:
+        database_path = current_app.config.get('DATABASE', 'MHV_DB.db')
+
+    conn = sqlite3.connect(database_path)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    hoje = datetime.now().date()
+    print(f"Data de hoje: {hoje}")
+
+    limites = {
+        'enviado ao cadastro': 1,
+        'entrevista enviada': 2,
+        'entrevista agendada': 4,
+        'enviado para o financeiro': 3,
+        'analise de entrevista': 2,
+        'gerar kit': 1,
+    }
+
+    cur.execute("""
+        SELECT id, status, data_att_fase FROM venda 
+        WHERE status NOT IN ('venda cancelada', 'contrato finalizado')
+    """)
+
+    rows = cur.fetchall()
+    total_atrasadas = 0
+    total_atualizadas = 0
+
+    for row in rows:
+        venda_proposta = row['id']
+        status = (row['status'] or '').lower()
+        data_atualizacao = row['data_att_fase']
+
+        if not data_atualizacao:
+            continue
+
+        try:
+            # Detecta formato de data
+            if ' ' in data_atualizacao:
+                data_atualizacao = datetime.fromisoformat(data_atualizacao).date()
+            else:
+                data_atualizacao = datetime.strptime(data_atualizacao, '%Y-%m-%d').date()
+
+            dias = (hoje - data_atualizacao).days
+            limite = limites.get(status)
+
+            if limite is None:
+                print(f"ℹ️ Status '{status}' sem limite definido, ignorando...")
+                continue
+
+            print(f"Venda {venda_proposta}: {dias} dias desde atualização (limite={limite})")
+
+            if dias > limite:
+                cur.execute("UPDATE venda SET em_atraso = ? WHERE id = ?", (1, venda_proposta))
+                total_atrasadas += 1
+            else:
+                cur.execute("UPDATE venda SET em_atraso = ? WHERE id = ?", (0, venda_proposta))
+                total_atualizadas += 1
+
+        except Exception as e:
+            print(f"❌ Erro ao processar venda {venda_proposta}: {e}")
+
+    conn.commit()
+    conn.close()
+
+    print(f"✅ Atualização concluída: {total_atrasadas} atrasadas, {total_atualizadas} dentro do prazo.")
