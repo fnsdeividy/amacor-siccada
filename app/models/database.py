@@ -468,8 +468,8 @@ def excluir_proposta(proposta, database_path=None):
         conn.execute("PRAGMA foreign_keys = ON;")  # Ativa cascade
         cur = conn.cursor()
 
-        cur.execute("DELETE FROM venda WHERE numero_proposta = ?", (proposta,))
-
+        cur.execute("UPDATE venda SET status = 'venda cancelada' WHERE numero_proposta = ?", (proposta,))
+        
         conn.commit()
     except Exception as e:
         conn.rollback()
