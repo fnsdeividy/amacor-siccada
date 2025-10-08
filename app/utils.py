@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import session, redirect, url_for, flash
 from functools import wraps
-
+from datetime import datetime
 def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -38,3 +38,14 @@ def hierarquia(*classes_requeridas):
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
+def atualiza_db_atrasos():
+    from models.database import atualiza_atrasos
+    print(f'iniciando atualização de atrasos em {datetime.now()}')
+
+    atualiza_atrasos()
+    print(f'finalizando atualização de atrasos em {datetime.now()}')
+
+if __name__ == "__main__":
+    atualiza_db_atrasos()
+
