@@ -74,7 +74,7 @@
 
 .btn-home:hover {
     transform: translateY(-2px);
-    background: linear-gradient(145deg, #1a2a6c, #36a2eb)
+    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
     box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
         /* Seus estilos permanecem os mesmos */
@@ -99,6 +99,17 @@
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         background-color: #fff;
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .card-atrasado {
+        width: 280px;
+        border: 1px solid #000000;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #ff5c5c;
         overflow: hidden;
         margin-bottom: 20px;
         transition: transform 0.3s ease;
@@ -156,6 +167,8 @@
         .status-azulescuro      { background-color: #b0c4ff; color: #1a237e; }  /* Azul escuro pastel */
         .status-vermelho        { background-color: #ffadad; color: #b71c1c; }  /* Vermelho claro pastel */
         .status-rosa            { background-color: #ffe0f0; color: #ad1457; }  /* Rosa pastel */
+        .status-vermelho-escuro { background-color: #9b7b66ef; color:rgb(61, 50, 50)} 
+        .status-pendente { background-color: #eea77e; color: #993e2e; }
     </style>
 </head>
 <body>
@@ -185,10 +198,15 @@
                 {% set status_class = 'status-vermelho' %}
             {% elif 'boleto emitido' in status %}
                 {% set status_class = 'status-rosa' %}
+            {% elif 'venda cancelada' in status %}
+                {% set status_class = 'status-vermelho-escuro' %}
+            {% elif 'em pendencia' in status %}
+                {% set status_class = 'status-pendente' %}
             {% elif status_doc == '0' %}
                 {% set status_class = 'status-laranja' %}
             {% elif status_doc == '1' %}
                 {% set status_class = 'status-amarelo' %}
+            
             {% else %}
                 {% set status_class = '' %}
             {% endif %}
