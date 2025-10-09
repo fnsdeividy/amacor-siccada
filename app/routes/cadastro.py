@@ -349,6 +349,7 @@ def gravar_alteracao():
                 cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
                 cur.execute("UPDATE venda SET last_resp = ? WHERE numero_proposta = ?", (tipo_usuario, proposta))
                 cur.execute("UPDATE venda SET complemento_fase = ? WHERE numero_proposta = ?", (complemento, proposta))
+                cur.execute("UPDATE venda SET em_atraso = 0")
 
                 conn.commit()
                 cur.close()
