@@ -1074,11 +1074,11 @@ def atualiza_atrasos(database_path=None):
 
     limites = {
         'enviado ao cadastro': 1,
-        'entrevista enviada': 2,
+        'entrevista online enviada': 2,
         'entrevista agendada': 4,
         'enviado para financeiro': 3,
-        'analise de entrevista': 2,
-        'gerar kit': 1,
+        'analise de declaração': 2,
+        'geração de kit': 1,
     }
 
     cur.execute("""
