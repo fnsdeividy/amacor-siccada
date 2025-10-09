@@ -201,8 +201,7 @@
             {# Define a classe de status (cor do cabeçalho) #}
             {% if 'enviado ao cadastro' in status and status_doc == '0' %}
                 {% set status_class = 'status-laranja' %}
-            {% elif 'enviado ao cadastro' in status %}
-                {% set status_class = 'status-verde' %}
+            
             {% elif 'aguardando entrevista online' in status %}
                 {% set status_class = 'status-verde' %}
             {% elif 'entrevista online enviada' in status %}
