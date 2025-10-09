@@ -1076,7 +1076,7 @@ def atualiza_atrasos(database_path=None):
         'enviado ao cadastro': 1,
         'entrevista enviada': 2,
         'entrevista agendada': 4,
-        'enviado para o financeiro': 3,
+        'enviado para financeiro': 3,
         'analise de entrevista': 2,
         'gerar kit': 1,
     }
