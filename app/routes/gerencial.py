@@ -119,8 +119,6 @@ def dashboard_administrativo():
     from ..models.database import data_dashboard_adm, data_dashboard_cobranca
     periodo = request.args.get('periodo', '')
     nome_user= session.get('user_nome')
-    if nome_user == "Juliana Mendes":
-        nome_user = "Sandrão"
     data_inicial = request.args.get('data_inicial')
     if not periodo and not data_inicial:
         periodo = '30'  # Padrão para 30 dias
@@ -183,30 +181,13 @@ def dashboard():
         except:
             data_ref = (datetime.now() - timedelta(days=30)).date()
     # Filtros aplicados nas queries para considerar o período
-    dashboard_data = data_dashboard_vendas(data_ref.strftime('%Y-%m-%d'))
-
-    # Extrair dados para os elementos gráficos
-    ultimas_vendas = dashboard_data.get('vendas_detalhadas', [])
-    vidas_count = sum(v.get('vidas', 0) for v in ultimas_vendas)
-    labels_tipo_plano = [item['tipo_produto'] for item in dashboard_data.get('por_status', [])]
-    valores_tipo_plano = [item['quantidade'] for item in dashboard_data.get('por_status', [])]
-    labels_corretor = [item['corretor_resp'] for item in dashboard_data.get('por_corretor', [])]
-    valores_corretor = [item['quantidade'] for item in dashboard_data.get('por_corretor', [])]
-    labels_evolucao = [item.get("data", "") for item in dashboard_data.get('evolucao_temporal', [])]
-    valores_evolucao = [item.get('quantidade', 0) for item in dashboard_data.get('evolucao_temporal', [])]
+    dados_dashboard = data_dashboard_vendas(
+        data_ref.strftime('%Y-%m-%d')
+    )
 
     return render_template(
         'generic/gerenciais/vendas/dashboard.html',
-        dados=dashboard_data,
-        ultimas_vendas=ultimas_vendas,
-        vidas_count=vidas_count,
-        labels_tipo_plano=labels_tipo_plano,
-        valores_tipo_plano=valores_tipo_plano,
-        labels_corretor=labels_corretor,
-        valores_corretor=valores_corretor,
-        labels_evolucao=labels_evolucao,
-        valores_evolucao=valores_evolucao,
-        nome_user=nome_user
+        dados=dados_dashboard
     )
 
 @gerencial_bp.route('/dashboard_cobranca')
