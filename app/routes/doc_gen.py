@@ -725,7 +725,7 @@ def gerar_proposta():
         if data_venda:
             try:
                 data = datetime.strptime(data_venda, "%Y-%m-%d")
-                if data.day < 10:
+                if data.day <= 10:
                     return 10
                 elif data.day <= 20:
                     return 20
