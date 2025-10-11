@@ -1,5 +1,6 @@
 import sqlite3
 from flask import current_app
+import os
 
 def get_db_connection(database_path=None):
     """
@@ -7,6 +8,8 @@ def get_db_connection(database_path=None):
     Se `database_path` for fornecido, usa esse caminho; caso contrário, usa o banco configurado no Flask.
     """
     db_path = database_path or current_app.config['DATABASE']
+    print(f"Conectando ao banco: {db_path}")  # Adicione este print
+    print("Banco usado:", os.path.abspath(current_app.config['DATABASE']))
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
@@ -465,8 +468,8 @@ def excluir_proposta(proposta, database_path=None):
         conn.execute("PRAGMA foreign_keys = ON;")  # Ativa cascade
         cur = conn.cursor()
 
-        cur.execute("DELETE FROM venda WHERE numero_proposta = ?", (proposta,))
-
+        cur.execute("UPDATE venda SET status = 'venda cancelada' WHERE numero_proposta = ?", (proposta,))
+        
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -617,6 +620,7 @@ def data_dashboard_adm(data_ref,database_path=None):
 
     conn = get_db_connection(database_path)
     cur = conn.cursor()
+    
     cur.execute("""
         SELECT * FROM venda
                 WHERE data_venda BETWEEN ? AND ?
@@ -824,7 +828,7 @@ WHERE data_pagamento BETWEEN ? AND ?
     
     return dashboard_data
     
-def data_dashboard_corretor(data_ref, corretor_resp, database_path= None):
+def data_dashboard_corretor(data_ref, corretor_resp, database_path=None):
     from datetime import datetime, timedelta
     hoje = datetime.now().date()
 
@@ -926,6 +930,107 @@ def data_dashboard_corretor(data_ref, corretor_resp, database_path= None):
     
     return dashboard_data
 
+def data_dashboard_vendas(data_ref, database_path=None):
+    from datetime import datetime, timedelta
+    hoje = datetime.now().date()
+
+    print(f"Data de hoje: {hoje}")
+
+    ## Vendas dos dias no gap
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+
+    ## selecionar o tipo de produto
+    cur.execute(""" 
+        SELECT tipo_produto, COUNT(*) as quantidade FROM venda
+                WHERE data_venda BETWEEN ? AND ?
+                GROUP BY tipo_produto
+""",(data_ref, hoje))
+    tipo_produto = []
+    for row in cur.fetchall():
+        tipo_produto.append(dict(row))
+        print(tipo_produto)
+    
+    ##dados de vendas por corretor
+    cur.execute("""
+        SELECT corretor_resp, COUNT(*) as quantidade, 
+               SUM(valor_venda) as valor_total
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY corretor_resp
+        ORDER BY quantidade DESC
+    """, (data_ref, hoje))
+    
+    stats_corretor = []
+    for row in cur.fetchall():
+        stats_corretor.append(dict(row))
+
+    ##VALORES
+    cur.execute("""
+        SELECT status, COUNT(*) as quantidade, 
+               SUM(valor_venda) as valor_total, 
+               AVG(valor_venda) as ticket_medio
+        FROM venda 
+        WHERE data_venda BETWEEN ? AND ?
+        GROUP BY status
+        ORDER BY quantidade DESC
+    """, (data_ref, hoje))
+    
+    stats_status = []
+    for row in cur.fetchall():
+        stats_status.append(dict(row))
+    
+    # Total geral de vendas
+    total_vendas = sum(item['quantidade'] for item in stats_status)
+
+    ## dados de evolução temporal
+    cur.execute("""
+        SELECT strftime('%Y-%m', data_venda), SUM(valor_venda) FROM venda
+                WHERE data_venda BETWEEN ? AND ?
+                GROUP BY strftime('%Y-%m', data_venda)
+                ORDER BY strftime('%Y-%m', data_venda)
+            """,(data_ref, hoje))
+    evolucao_temporal = []
+    for row in cur.fetchall():
+        evolucao_temporal.append(dict(row))
+    
+    ##ultimas vendas
+    cur.execute("""
+        SELECT * FROM venda                
+                WHERE data_venda BETWEEN ? AND ?
+                ORDER BY data_venda DESC LIMIT 10
+        """,(data_ref, hoje))
+    ultimas_vendas = []
+    for row in cur.fetchall():
+        ultimas_vendas.append(dict(row))
+    
+    ##total de vidas no periodo
+    cur.execute("""
+        SELECT SUM(vidas) as total_vidas FROM venda
+                WHERE data_venda BETWEEN ? AND ?
+        """,(data_ref, hoje))
+    total_vidas= cur.fetchone()
+    cur.close()
+
+    dashboard_data = {
+        'periodo': {
+            'inicio': data_ref,
+            'fim': hoje.strftime('%Y-%m-%d')
+        },
+        'resumo_geral': {
+            'total_vendas': total_vendas,
+            'valor_total': sum(item['valor_total'] or 0 for item in stats_status),
+            'ticket_medio_geral': sum(item['valor_total'] or 0 for item in stats_status) / total_vendas if total_vendas > 0 else 0
+        },
+        'por_corretor': stats_corretor,
+        'evolucao_temporal': evolucao_temporal,
+        'vendas_detalhadas': ultimas_vendas[:20]  # Limitar para não sobrecarregar
+    }
+    print(dashboard_data)
+    return dashboard_data
+
 def get_payment_to_app(data, database_path=None):
     ncontrato= data
     print(f"dados recebidos: {ncontrato}") 
@@ -951,3 +1056,75 @@ FROM (
     if resultado:
         return dict(resultado)
     return None
+
+def atualiza_atrasos(database_path=None):
+    from datetime import datetime
+    from flask import current_app
+    import sqlite3
+
+    if database_path is None:
+        database_path = current_app.config.get('DATABASE', 'MHV_DB.db')
+
+    conn = sqlite3.connect(database_path)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    hoje = datetime.now().date()
+    print(f"Data de hoje: {hoje}")
+
+    limites = {
+        'enviado ao cadastro': 1,
+        'entrevista online enviada': 2,
+        'entrevista agendada': 4,
+        'enviado para financeiro': 3,
+        'analise de declaração': 2,
+        'geração de kit': 1,
+    }
+
+    cur.execute("""
+        SELECT id, status, data_att_fase FROM venda 
+        WHERE status NOT IN ('venda cancelada', 'contrato finalizado')
+    """)
+
+    rows = cur.fetchall()
+    total_atrasadas = 0
+    total_atualizadas = 0
+
+    for row in rows:
+        venda_proposta = row['id']
+        status = (row['status'] or '').lower()
+        data_atualizacao = row['data_att_fase']
+
+        if not data_atualizacao:
+            continue
+
+        try:
+            # Detecta formato de data
+            if ' ' in data_atualizacao:
+                data_atualizacao = datetime.fromisoformat(data_atualizacao).date()
+            else:
+                data_atualizacao = datetime.strptime(data_atualizacao, '%Y-%m-%d').date()
+
+            dias = (hoje - data_atualizacao).days
+            limite = limites.get(status)
+
+            if limite is None:
+                print(f"ℹ️ Status '{status}' sem limite definido, ignorando...")
+                continue
+
+            print(f"Venda {venda_proposta}: {dias} dias desde atualização (limite={limite})")
+
+            if dias > limite:
+                cur.execute("UPDATE venda SET em_atraso = ? WHERE id = ?", (1, venda_proposta))
+                total_atrasadas += 1
+            else:
+                cur.execute("UPDATE venda SET em_atraso = ? WHERE id = ?", (0, venda_proposta))
+                total_atualizadas += 1
+
+        except Exception as e:
+            print(f"❌ Erro ao processar venda {venda_proposta}: {e}")
+
+    conn.commit()
+    conn.close()
+
+    print(f"✅ Atualização concluída: {total_atrasadas} atrasadas, {total_atualizadas} dentro do prazo.")

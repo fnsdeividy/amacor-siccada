@@ -74,7 +74,7 @@
 
 .btn-home:hover {
     transform: translateY(-2px);
-    background: linear-gradient(145deg, #1a2a6c, #36a2eb)
+    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
     box-shadow: 0 6px 12px rgba(0,0,0,0.3);
 }
         /* Seus estilos permanecem os mesmos */
@@ -102,6 +102,21 @@
         overflow: hidden;
         margin-bottom: 20px;
         transition: transform 0.3s ease;
+    }
+
+    .card-atrasado {
+        width: 280px;
+        border: 1px solid #000000;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #e65757;
+        overflow: hidden;
+
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    .card-atrasado:hover {
+        transform: scale(1.02);
     }
 
     .card:hover {
@@ -135,6 +150,12 @@
         background-color: #f9f9f9;
     }
 
+    .card-details-atrasado {
+        display: none;
+        padding: 12px;
+        border-top: 1px solid #ddd;
+        background-color: #f9f9f9;
+    }
     .card-details p {
         margin: 6px 0;
         font-size: 13px;
@@ -156,6 +177,9 @@
         .status-azulescuro      { background-color: #b0c4ff; color: #1a237e; }  /* Azul escuro pastel */
         .status-vermelho        { background-color: #ffadad; color: #b71c1c; }  /* Vermelho claro pastel */
         .status-rosa            { background-color: #ffe0f0; color: #ad1457; }  /* Rosa pastel */
+        .status-marrom { background-color: #9b7b66ef; color:rgb(61, 50, 50)} 
+        .status-pendente { background-color: #eea77e; color: #993e2e; }
+        
     </style>
 </head>
 <body>
@@ -164,11 +188,20 @@
             {% for row in result %}
             {% set status_doc = row[19]|string %}
             {% set status = row[6]|lower %}
+            {% set atraso = row[23]|string %}
             
-            {% if 'Enviado ao cadastro' in status and '0' in status_doc %}
+            {# Define a classe do card (fundo vermelho se em atraso) #}
+            {% if atraso == '1' %}
+                {% set card_class = 'card-atrasado' %}
+                
+            {% else %}
+                {% set card_class = 'card' %}
+            {% endif %}
+
+            {# Define a classe de status (cor do cabeçalho) #}
+            {% if 'enviado ao cadastro' in status and status_doc == '0' %}
                 {% set status_class = 'status-laranja' %}
-            {% elif 'Enviado ao cadastro' in status %}
-                {% set status_class = 'status-verde' %}
+            
             {% elif 'aguardando entrevista online' in status %}
                 {% set status_class = 'status-verde' %}
             {% elif 'entrevista online enviada' in status %}
@@ -185,14 +218,16 @@
                 {% set status_class = 'status-vermelho' %}
             {% elif 'boleto emitido' in status %}
                 {% set status_class = 'status-rosa' %}
-            {% elif status_doc == '0' %}
-                {% set status_class = 'status-laranja' %}
+            {% elif 'venda cancelada' in status %}
+                {% set status_class = 'status-marrom' %}
+            {% elif 'em pendencia' in status %}
+                {% set status_class = 'status-pendente' %}
             {% elif status_doc == '1' %}
                 {% set status_class = 'status-amarelo' %}
             {% else %}
                 {% set status_class = '' %}
             {% endif %}
-            <div class="card">
+            <div class="{{ card_class }}">
                 <div class="card-header {{ status_class }}" onclick="toggleDetails(this)">
                     Proposta #{{ row[1] }}
                 </div>
@@ -223,9 +258,9 @@
     <script>
         function toggleDetails(element) {
             // Encontra o card pai
-            const card = element.closest('.card');
+            const card = element.closest(['.card','.card-atrasado']);
             // Encontra os detalhes deste card específico
-            const details = card.querySelector('.card-details');
+            const details = card.querySelector(['.card-details','.card-details-atrasado']);
             
             // Fecha todos os outros cards primeiro
             document.querySelectorAll('.card-details').forEach(d => {
