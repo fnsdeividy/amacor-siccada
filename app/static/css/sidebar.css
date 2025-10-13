@@ -1,9 +1,9 @@
 .sidebar {
     width: 275px;
-    background-color: #333;
-    color: white;
-    backdrop-filter: blur(10px); /* Efeito de desfoque */
-    -webkit-backdrop-filter: blur(10px); /* Suporte para navegadores WebKit */
+   background: rgba(13, 14, 58, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+   
     height: 100%; /* Garante que a barra lateral ocupe toda a altura da tela */
     position: fixed; /* Fixa a barra lateral na tela */
     top: 0; /* Começa no topo da tela */
@@ -33,15 +33,20 @@
     color: white;
     text-decoration: none;
     padding: 10px 15px;
-    margin: 5px 0;
+    margin: 5px;
     display: block;
     font-size: 24px;
     border-radius: 5px;
     transition: background-color 0.3s;
+    transition: transform 0.3s ease;
 }
 
 .sidebar a:hover {
-    background-color: #575757;
+    background: rgba(144, 145, 182, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    transform: scale(1.08)
 }
 
 .sidebar .submenu {
@@ -62,19 +67,24 @@
 }
 
 .sidebar .logout-btn {
-    position: absolute; /* Fixa o botão na parte inferior da barra lateral */
+    position: fixed; /* Fixa o botão na parte inferior da barra lateral */
     bottom: 20px; /* Espaçamento da parte inferior */
     left: 20px; /* Espaçamento da lateral esquerda */
     width: calc(100% - 40px); /* Ajusta o tamanho do botão */
-    background-color: #ff4d4d;
+    background-color: #ff4d4dd3;
+    border-radius: 12px;
+    padding: 18px 28px;
+    border: 1px solid rgba(182, 31, 31, 0.384);
     color: white;
+    
     text-align: center;
     padding: 10px;
-    border: none;
+    
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 .sidebar .logout-btn:hover {
     background-color: #ff1a1a;
+    
 }
