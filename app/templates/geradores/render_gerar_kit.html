@@ -1,0 +1,64 @@
+{% extends "window.html" %}
+{% block title %}Gerar KIT{% endblock %}
+{% block window_content %}
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+        <h1>Iniciar KIT</h1>
+       
+
+        <div>
+            <h2>Informe o numero do contrato</h2>
+            <p>Digite o numero do contrato para o qual deseja criar documento de KIT.</p>
+        </div>
+    
+       
+        <form id="adicionar_cnt" method="POST" action="{{ url_for('doc_gen.render_gerar_kit') }}">
+            <label for="status">Numero de Contrato:</label>
+            <input type="text" id="numero_contrato" name="numero_contrato" placeholder="digite o número do contrato" required>
+            
+            <button class="btn" type="submit">Selecionar</button>
+        </div>
+
+            
+
+        </div>
+        </form>
+
+
+    </div>
+    
+</body>
+<script>
+    
+        document.getElementById('adicionar_cnt').addEventListener('submit', function() {
+        document.getElementById('loader').style.display = 'flex';
+    });
+    
+    function goBack() {
+        if (document.referrer) {
+            // Voltar para a página anterior
+            window.history.back();
+        } else {
+            // Redirecionar para a home se não houver página anterior
+            window.location.href = '/';
+        }
+    }
+</script>
+</html>
+
+{% endblock %}
+
+    
+

@@ -193,13 +193,13 @@ def get_from_sig(numero_contrato, database_path=None):
     # Mapeamento das colunas do SIG para as colunas da tabela 'beneficiarios'
     sig_to_beneficiarios_map = {
         'sCpfCgcResp': 'cpf',
-        'sNomeResp': 'nome',
-        'sNumeroCNT': 'proposta_id',
+        'sNomeResp': 'nome_responsavel',
+        'sNumeroCNT': 'numero_contrato',
         'dNascimentoTIT': 'data_nascimento',
         'Fone_CNT': 'celular',
         'sCodigoUSR': 'codigo_usr',
         'sNomeTIT': 'nome_titular',
-        'dMatricula': 'matricula',
+        'dMatricula': 'data_venda',
         'dExclusao': 'data_exclusao',
         'sMotivoCancelamentoTIT': 'motivo_cancelamento',
         'sDescricaoCancTit': 'descricao_cancelamento',
@@ -207,7 +207,7 @@ def get_from_sig(numero_contrato, database_path=None):
         'sNomeUSR': 'nome_usr',
         'dNascimento': 'data_nascimento_usr',
         'sTipoUsuario': 'tipo_usuario',
-        'sNomeProduto': 'nome_produto',
+        'sNomePRD': 'tipo_produto',
         'cPrecoPRD': 'preco_produto',
         'IdadeUSR': 'idade_usr',
         'IdadeTIT': 'idade_titular',
@@ -232,6 +232,7 @@ def get_from_sig(numero_contrato, database_path=None):
         if resultado:
             # Convertendo para dict e aplicando o mapeamento das chaves
             dados_sig = dict(resultado)
+            
             
             # Mapeando os dados para o formato esperado pela tabela 'beneficiarios'
             dados_mapeados = {sig_to_beneficiarios_map.get(key, key): value for key, value in dados_sig.items()}
