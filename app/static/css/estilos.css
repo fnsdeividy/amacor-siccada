@@ -5,14 +5,14 @@
 @import url('estilos_login.css');
 
 @font-face {
-  font-family: 'Montserrat Light';
+  font-family: 'Poppins', sans-serif;
   src: url('../fontes/Montserrat-Light.ttf') format('truetype');
   font-weight: 300;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Montserrat Medium';
+  font-family: 'Poppins', sans-serif;
   src: url('../fontes/Montserrat-Medium.ttf') format('truetype');
   font-weight: 500;
   font-style: normal;
