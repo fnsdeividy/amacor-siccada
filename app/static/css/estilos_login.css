@@ -15,7 +15,8 @@
 }
 
 h1 {
-    color: #333;
+    color: white;
+    text-align: left;
     font-size: 2.5em;
     margin: 10px 0;
 }
@@ -33,7 +34,7 @@ h2 {
     align-items: left;       /* Centraliza verticalmente */
     height: 100vh;
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-image: url('/static/image/fundo-siccada-all.png');
     background-repeat: no-repeat;
     background-position: center;
@@ -198,7 +199,7 @@ select{
 
 
 .corpo_padrao{
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #d0e9ff;
     margin: 0;
     padding: 0;
