@@ -642,6 +642,7 @@ def form_atualizar_data():
 def atualizar_data():
     import pandas as pd
     from create import criar_tabela_beneficiarios
+    from ..utils import log_atualiza_banco
     if request.method == 'POST':
         csv_banco= request.files['csv_banco']
         if not csv_banco:
@@ -666,8 +667,9 @@ def atualizar_data():
         if os.path.exists(file_path):
             try:
                 criar_tabela_beneficiarios(file_path)
+                log_atualiza_banco('Tabela beneficiarios atualizada com sucesso!')
                 flash('Tabela beneficiarios atualizada com sucesso!', 'success')
-                return redirect(url_for('generic.home'))
+                return redirect(url_for('auth.fechar'))
             except Exception as e:
                 print(f"Erro ao atualizar a tabela: {e}")
                 flash(f'Erro ao atualizar a tabela: {e}', 'error')

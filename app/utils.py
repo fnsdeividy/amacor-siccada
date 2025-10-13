@@ -46,6 +46,36 @@ def atualiza_db_atrasos():
     atualiza_atrasos()
     print(f'finalizando atualização de atrasos em {datetime.now()}')
 
-if __name__ == "__main__":
-    atualiza_db_atrasos()
 
+def log_atualiza_banco(mensagem):
+    print('logando atualização do banco')
+    nome_usuario= session.get('user_nome')
+    agora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    print('atualizado em:'+agora)
+    linha= f"[{agora}]{mensagem}-{nome_usuario}\n"
+    with open('log_atualizacoa_banco.txt','a')as f:
+        f.write(linha)
+
+def verifica_log_att(arquivo_log='log_atualizacoa_banco.txt', limite_dias= 7):
+    try:
+       with open(arquivo_log,'r')as f:
+           linhas=f.readlines()
+           if not linhas:
+               return False
+           ultima_linha= linhas[-1].strip()
+           data_str= ultima_linha.split(']')[0].replace('[','').strip()
+           data_log= datetime.strptime(data_str, '%Y-%m-%d').date()
+
+           hoje= datetime.now().date()
+           difereca= hoje-data_log
+           if difereca.days<=limite_dias:
+               return True
+           else:
+               return False
+    except FileNotFoundError:
+        print("⚠️ Arquivo de log não encontrado.")
+        return False
+    except Exception as e:
+        print(f"⚠️ Erro ao verificar log: {e}")
+        return False
