@@ -1,23 +1,24 @@
 /* Ajuste para evitar que o conteúdo fique atrás da navbar */
 .container-tab-pix {
-    max-width: auto;
-    margin: auto;
-    padding: 120px 20px 20px; /* Adiciona espaçamento superior para compensar a navbar */
-    background-color: #2d2d2d; /* Fundo escuro */
-    backdrop-filter: blur(10px); /* Efeito de desfoque */
-    -webkit-backdrop-filter: blur(10px); /* Suporte para navegadores WebKit */
+    width: 95vw; /* ocupa 95% da largura da tela */
+    margin: 0 auto;
+    padding: 120px 20px 20px;
+    background: rgba(29, 29, 43, 0.493);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
-    color: #f9f9f9; /* Cor do texto para contraste */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #f9f9f9;
 }
 
 .container-tab-pix2{
     display: flex;
     justify-content: center;
     max-width: auto;
+    max-height: auto;
     margin: 0 auto;
-    padding: 120px 20px 20px; /* Adiciona espaçamento superior para compensar a navbar */
-    background-color: #2d2d2d; /* Fundo escuro */
+    padding: 120px 2px 20px; /* Adiciona espaçamento superior para compensar a navbar */
+    background-color:  rgba(29, 29, 43, 0.493); /* Fundo escuro */
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
     color: #f9f9f9; /* Cor do texto para contraste */
@@ -101,7 +102,7 @@
 .table-title-tab-pix {
     text-align: center;
     margin-bottom: 20px;
-    
+    max-width: auto;
     font-size: 24px;
     color: #ffffff; /* Cor do texto */
 }
@@ -110,6 +111,7 @@
 .table-container-tab-pix {
     overflow-x: auto; /* Permite rolagem horizontal em telas menores */
     background-color: #2d2d2d; /* Fundo escuro do contêiner */
+    
     padding: 10px; /* Espaçamento interno */
     border-radius: 8px; /* Bordas arredondadas */
 }
@@ -204,6 +206,5 @@
 }
 
 .close-btn:hover {
-    background-color: #c82333; /* Cor de fundo ao passar o mouse */
-    color: white;
+    color:  #c82333;
 }

@@ -79,12 +79,12 @@
     <div class="sidebar" id="sidebar">
         <button class="close-btn" onclick="toggleSidebar()">✖</button>
         
-        <h2></h2>
+        <h1>Setores</h1>
         
     <!-- vendas -->
 
 
-        <a href="#" onclick="toggleSubmenu('vendas-submenu')">Vendas</a>
+        <a href="#" onclick="toggleSubmenu('vendas-submenu')">Comercial 📋 </a>
         <div class="submenu" id="vendas-submenu">
             <a href="{{ url_for('vendas.render_tipo_venda') }}">Nova venda</a>
             <a href="{{ url_for('vendas.informar_cnt') }}">Inclusão de beneficiario</a>
@@ -95,16 +95,16 @@
         </div>
         
         <!-- cadastro -->
-        <a href="#" onclick="toggleSubmenu('cadastro-submenu')">Cadastro/Adm</a>
+        <a href="#" onclick="toggleSubmenu('cadastro-submenu')">Cadastro 📄</a>
         <div class="submenu" id="cadastro-submenu">
-            <a href="{{ url_for('doc_gen.gerar_documentos') }}">gerar kit</a>
+            <a href="{{ url_for('doc_gen.render_gerar_kit') }}">gerar kit</a>
             <a href="{{ url_for('cad.acompanhar_cnt', lista='todos', filtro='sim') }}">filtrar contratos</a>
             <a href="{{ url_for('pdfgen.create_card') }}">criar carteirinha</a>
             <a href="{{ url_for('doc_gen.render_cpt') }}">Formatar aditivo de CPT</a>
 
         </div>
 
-        <a href="#" onclick="toggleSubmenu('gerencial-submenu')">Gerencial</a>
+        <a href="#" onclick="toggleSubmenu('gerencial-submenu')">Gerencial 👨‍💼</a>
         <div class="submenu" id="gerencial-submenu">
             <a href="{{(url_for('gerencial.processar_csv_form')) }}">gerar relatorio</a>
             <a href="{{ url_for('cad.form_atualizar_data') }}">atualizar banco </a>
@@ -113,7 +113,7 @@
 
         <!-- cobranca e financeiro -->
 
-        <a href="#" onclick="toggleSubmenu('financeiro-submenu')">Cobrança/Financeiro</a>
+        <a href="#" onclick="toggleSubmenu('financeiro-submenu')">Financeiro 💰</a>
         <div class="submenu" id="financeiro-submenu">
             <a href="{{ url_for('finan.pix') }}">Lançar Pagamento</a>
             <a href="{{ url_for('finan.tab') }}">Conferencia de pagamento</a>
