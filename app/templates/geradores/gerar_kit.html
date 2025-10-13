@@ -8,21 +8,28 @@
       <a href="{{ url_for('auth.fechar') }}" class="close-btn">✖</a>
     </div>
     <h1>Gerar Kit</h1>
+    <h2>Gerando Kit para o contrato: {{dados.numero_contrato}}</h2>
     <div>
       <form id="form-gerar-kit" action="{{ url_for('doc_gen.gerar_documentos') }}" method="POST">
-        <label for="plano_nome">Nome do plano</label><br>
+        <label for="numero_contrato">Número do Contrato:</label>
+        <input type="text" id="numero_contrato" name="numero_contrato" value="{{ dados.numero_contrato }}"required readonly>
+        <label for="nome_responsavel">Nome do Responsável:</label>
+        <input type="text" id="nome_responsavel" name="nome_responsavel" value="{{ dados.nome_responsavel }}"required>
+        <label for="plano_nome">Nome do plano</label>
         <select id="plano_nome" name="plano_nome" required>
-          <option value="AMACOR EXCLUSIVO I">Exclusivo I</option>
-          <option value="AMACOR EXCLUSIVO II">Exclusivo II </option>
+          <option value="{{dados.tipo_produto}}" disabled selected>{{dados.tipo_produto}}</option>
+        
+          <option value="Amacor Exclusivo I" >AMACOR EXCLUSIVO I</option>
+          <option value="Amacor Exclusivo II" >AMACOR EXCLUSIVO II</option>
           <option value="AMACOR EXCLUSIVO II EMPRESARIAL">Exclusivo II Empresarial</option>
           <option value="AMACOR CLASSICO EMPRESARIAL">Classico Empresarial</option>
         </select>
-        <label for="nome_responsavel">Nome do Responsável:</label>
-        <input type="text" id="nome_responsavel" name="nome_responsavel" required>
+        <br>
         <label for="data_contrato">Data do Contrato:</label>
-        <input type="date" id="data_contrato" name="data_contrato" required>
-        <label for="numero_contrato">Número do Contrato:</label>
-        <input type="text" id="numero_contrato" name="numero_contrato" required>
+        <input type="date" name="data_venda" value="{{ dados.data_venda | format_date_iso }}" required>
+        <br>
+        <br>
+        <br>
         <button class="btn" type="submit">Gerar Documento</button>
       </form>
     </div>
