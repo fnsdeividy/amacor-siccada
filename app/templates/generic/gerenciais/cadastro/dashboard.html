@@ -384,7 +384,7 @@
             <span>🆔</span>
             <p>Gerar carteirinha</p>
         </a>
-        <a href="{{ (url_for('doc_gen.gerar_documentos')) }}" class="quick-action-card">
+        <a href="{{ (url_for('doc_gen.render_gerar_kit')) }}" class="quick-action-card">
             <span>📁</span>
             <p>Gerar kit</p>
         </a>
@@ -398,7 +398,7 @@
 
     <div class="welcome-card">
             <h2>👋 Olá <span>{{ nome_user }}</span></h2>
-            <p>Essa é a métrica de cadastro no período: <strong>{{ dados.periodo.inicio }}</strong> até <strong>{{ dados.periodo.fim }}</strong></p>
+            <p>Essa é a métrica de cadastro no período: <strong>{{ dados.periodo.inicio | format_date_br }}</strong> até <strong>{{ dados.periodo.fim | format_date_br }}</strong></p>
         </div>
     <div class="dashboard-container">
     
