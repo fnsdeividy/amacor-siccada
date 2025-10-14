@@ -9,7 +9,7 @@ from .routes.cadastro import cad_bp
 from .routes.doc_gen import docgen_bp
 from .routes.gerencial import gerencial_bp
 from .routes.everflow_mantis import mantis_bp
-
+from datetime import datetime
 
 
 from datetime import timedelta
@@ -65,7 +65,48 @@ def create_app():
         except (ValueError, TypeError):
             return "0,00"
 
+    @app.template_filter('format_date_br')
+    def format_date_br(value):
+        try:
+            # Tenta converter de string "aaaa-mm-dd" para datetime
+            if isinstance(value, str):
+                data = datetime.strptime(value, "%Y-%m-%d")
+            else:
+                data = value  # já é datetime
             
+            # Retorna formatado como "dd/mm/aaaa"
+            return data.strftime("%d/%m/%Y")
+        
+        except (ValueError, TypeError):
+            return ""  # ou "Data inválida"
+    @app.template_filter('format_date_iso')
+    def format_date_iso(value):
+        from datetime import datetime, date
+
+        if not value:
+            return ""
+        
+        try:
+            # Se for datetime ou date
+            if isinstance(value, (datetime, date)):
+                return value.strftime("%Y-%m-%d")
+
+            # Converte para string e limpa espaços
+            value_str = str(value).strip()
+
+            # Já no formato ISO? (aaaa-mm-dd ou aaaa-mm-dd hh:mm:ss)
+            if "-" in value_str and len(value_str.split("-")[0]) == 4:
+                return value_str.split(" ")[0]
+
+            # Formato BR (dd/mm/aaaa)
+            if "/" in value_str:
+                data = datetime.strptime(value_str, "%d/%m/%Y")
+                return data.strftime("%Y-%m-%d")
+
+        except Exception as e:
+            print(f"Erro ao formatar data: {value} -> {e}")
+
+        return ""   
 
 
     return app
