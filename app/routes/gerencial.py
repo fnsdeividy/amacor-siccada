@@ -187,7 +187,8 @@ def dashboard():
 
     return render_template(
         'generic/gerenciais/vendas/dashboard.html',
-        dados=dados_dashboard
+        dados=dados_dashboard,
+        nome_user=nome_user
     )
 
 @gerencial_bp.route('/dashboard_cobranca')
