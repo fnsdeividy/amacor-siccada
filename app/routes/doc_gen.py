@@ -171,10 +171,25 @@ def juntar_pdf(lista_caminhos, caminho_saida):
         merger.close()
         
 
+@docgen_bp.route('render_gerar_kit', methods=['GET','POST'])
+def render_gerar_kit():
+    
+    if request.method == 'POST':
+        numero_contrato= request.form.get('numero_contrato','').strip()
+        
+        return redirect(url_for('doc_gen.gerar_documentos', numero_contrato=numero_contrato))
+
+    return render_template('geradores/render_gerar_kit.html')
+
 @docgen_bp.route('/gerar_documentos', methods=['GET', 'POST'])
 @login_required
 @acesso('cadastro','administrativo')
 def gerar_documentos():
+    from ..models.database import get_info_cnt
+    numero_contrato = request.args.get('numero_contrato', '').strip()
+    print('numero_contrato:', numero_contrato)
+    dados= get_info_cnt(numero_contrato)
+    print('dados:', dados)
     if request.method == 'POST':
         plano_nome = request.form.get('plano_nome', '').strip()
         nome_responsavel = request.form.get('nome_responsavel', '').strip()
@@ -244,7 +259,7 @@ def gerar_documentos():
         return redirect(url_for('doc_gen.upload_documento'))
 
     # Caso o método seja GET, renderizar a página normalmente
-    return render_template('geradores/gerar_kit.html')
+    return render_template('geradores/gerar_kit.html', dados=dados)
 
 @docgen_bp.route('/upload_documento', methods=['GET', 'POST'])
 @login_required

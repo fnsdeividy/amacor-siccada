@@ -1,26 +1,28 @@
-
-
-
-.divisoria2 {
-    position: relative; /* Necessário para posicionar o botão "X" */
-    background-color: #2d2d2d; /* Fundo escuro */
-    justify-content: center;
-    padding: 20px; /* Espaçamento interno */
-    border-radius: 8px; /* Bordas arredondadas */
-    max-width: 600px; /* Limita a largura máxima */
-    width: 100%; /* Garante que o formulário ocupe toda a largura disponível */
-    text-align: center;
+h1{
     color: white;
-    margin: 0; /* Remove margens extras */
-    box-shadow: none; /* Remove a sombra */
-    border: 1px solid #444; /* Adiciona uma borda sutil (opcional) */
+    font-family: 'Poppins', sans-serif;
 }
+
+h2{
+    color: white;
+    font-family: 'Poppins', sans-serif;
+}
+label{
+    color: white;
+    font-family: 'Poppins', sans-serif;
+}
+a{
+    color: white;
+    font-family: 'Poppins', sans-serif;
+}
+
 
 
 .divisoria2 h1 {
     font-size: 24px;
-    color: #333;
+    color: #e6e6e6;
     margin-bottom: 20px;
+    
 }
 
 .cpf-form {
@@ -78,7 +80,8 @@
 a.btn {
     display: inline-block;
     margin-top: 20px;
-    background-color: #6c757d;
+    background-color: #004691;
+;
     color: white;
     padding: 10px 20px;
     font-size: 16px;
@@ -89,7 +92,7 @@ a.btn {
 }
 
 a.btn:hover {
-    background-color: #5a6268;
+    background-color: #00468F;
 }
 
 .container {
@@ -150,6 +153,9 @@ a.btn:hover {
     top: 10px;
     right: 10px;
 }
+.padrao-envio{
+    justify-content: right;
+}
 
 .close-btn {
     text-decoration: none;
@@ -159,15 +165,16 @@ a.btn:hover {
     padding: 5px 10px;
     border-radius: 50%;
     font-weight: bold;
-    transition: background-color 0.3s ease;
+    transition: color 0.3s ease;
     display: inline-block;
     text-align: center;
 }
 
 .close-btn:hover {
-    background-color: #ff1a1a;
-    color: white;
+    
+    color: #c82333;
 }
+
 
 .table-container {
     
@@ -196,7 +203,7 @@ a.btn:hover {
 }
 /* Título do formulário */
 .table-container .h1 {
-    color: #333;
+    color: #e4e4e4;
     text-align: center;
     margin-bottom: 20px;
 }
