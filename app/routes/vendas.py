@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, session,redirect,url_for, flash
-from ..models.database import query_db, salvar_venda, get_email, get_nome, get_status
+from ..models.database import query_db, salvar_venda, get_email, get_nome, get_status, listar_vendedor, get_corretoras_ext
 import re
 from app.utils import login_required, acesso, hierarquia
 from datetime import datetime
@@ -7,15 +7,6 @@ import sqlite3
 from ..api_conex.conections import email_gmail, msg_email
 from flask import current_app
 
-
-def listar_vendedor():
-    conn = sqlite3.connect(current_app.config['DATABASE'])
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM usuarios WHERE classe_usuario = 'vendedor'")
-    vendedores = cur.fetchall()
-    cur.close()
-    conn.close()
-    return vendedores
 
 vendas_bp = Blueprint('vendas', __name__)
 
@@ -75,6 +66,7 @@ def lista_retorno():
 def informar_cnt():
     
     vendedor = listar_vendedor()
+
    
     print("Vendedores:", vendedor)
     return render_template('vendas/adicionar_contrato.html', vendedor=vendedor)
@@ -96,9 +88,11 @@ def nova_venda_pj():
 def nova_venda():
     
     vendedor = listar_vendedor()
+    corretoras= get_corretoras_ext()
+    print('corretora exibida no vendas:',corretoras)
     print("Vendedores:", vendedor)  # Para verificar a lista de vendedores
 
-    return render_template('vendas/vendas_form.html', vendedor=vendedor)
+    return render_template('vendas/vendas_form.html', vendedor=vendedor, corretora=corretoras)
 
 @vendas_bp.route('/saldobenef')
 @acesso('vendas','cadastro')

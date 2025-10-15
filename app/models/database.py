@@ -133,6 +133,15 @@ def get_nome(proposta_id, database_path=None):
     print('nome enviado: ', nome)
     return nome['nome'] if nome else None
 
+def listar_vendedor(database_path= None):
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+    cur.execute("SELECT * FROM usuarios WHERE classe_usuario = 'vendedor'")
+    vendedores = cur.fetchall()
+    cur.close()
+    conn.close()
+    return vendedores
+
 def get_status(proposta_id, database_path=None):
     print(f"proposta recebida: {proposta_id}") 
     conn = get_db_connection(database_path)
@@ -307,8 +316,6 @@ def get_info_cnt(numero_contrato, database_path=None):
 
     return dados
     
-    
-
 def get_contrato(cpf, database_path=None):
     print(f"dados recebidos: {cpf}") 
     conn = get_db_connection(database_path)
@@ -1129,3 +1136,52 @@ def atualiza_atrasos(database_path=None):
     conn.close()
 
     print(f"✅ Atualização concluída: {total_atrasadas} atrasadas, {total_atualizadas} dentro do prazo.")
+
+def get_corretoras_cnt(database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+    SELECT
+    """)
+
+def get_corretoras_ext(database_path=None):
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+    cur.execute("SELECT * FROM corretora_ext WHERE corretora_ativa = true")
+    corretoras = cur.fetchall()
+    cur.close()
+    conn.close()
+    return corretoras
+
+def cadastrar_corretora(dados, database_path=None):
+    print(dados)
+    from datetime import datetime
+    nome= dados.get('nome')
+    cnpj= dados.get('cnpj')
+    data_cadastro = datetime.now().strftime('%Y-%m-%d')
+    corretora_ativa= True
+    #data_cadastro = dados.get('data_cadastro')
+    
+    print(f"nome:{nome},cnpj{cnpj},data:{data_cadastro}")
+
+    if data_cadastro:
+            from datetime import datetime
+            data_cadastro = datetime.now().strftime('%Y-%m-%d')
+            try:
+                conn= get_db_connection(database_path)
+                cur= conn.cursor()
+                print("tentando acessar os dados para escrecer no banco")
+                cur.execute("""
+                INSERT INTO corretora_ext(nome_corretora,data_cadastro,corretora_ativa,cnpj)
+                            VALUES(?,?,?,?)
+                """, (nome,data_cadastro,corretora_ativa,cnpj))
+                conn.commit()
+                conn.close()
+                return True
+            except Exception as e:
+                print(f"Erro ao cadastrar corretora: {e}")
+                return False
+    
+    
+

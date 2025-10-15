@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cadastro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos_login.css') }}">
+</head>
+<body class="login-body">
+
+    
+
+    <div class="divisoria">
+        <a class="voltar" href="{{ url_for('auth.fechar') }}">voltar</a>
+        <h1>Cadastro de Corretora</h1><br><br>
+        <form action="{{ url_for('auth.cadastrar_corretora') }}" method="POST">
+
+            <label for="nome">Nome da Corretora:</label>
+            <input type="text" id="nome" name="nome" required><br><br>
+
+            <label for="cnpj">CNPJ:</label>
+            <input type="text" id="cnpj" name="cnpj" required><br><br>
+
+            </select>
+            <br>
+            <input class="envia2" type="submit" value="Cadastrar">
+        </form>
+    </div>
+
+    
+
+</body>
+</html>

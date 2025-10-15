@@ -16,6 +16,9 @@ tipo de usuario: {{classe_usuario}}
 <a class="btn" href="{{ url_for('auth.mudar_senha') }}">Alterar senha</a>
 {% if classe_usuario == 'supervisor' %}
     <a class="btn" href="{{ url_for('auth.cadastrar') }}">Adicionar usuário</a>
+    {% if tipo_usuario == 'vendas' %}
+    <a class="btn" href="{{ url_for('auth.cadastrar_corretora') }}">Cadastrar Corretoras</a>
+    {% endif %}
 {% endif %}
 </p>
 </div>
