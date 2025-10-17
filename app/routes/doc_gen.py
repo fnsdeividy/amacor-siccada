@@ -194,8 +194,16 @@ def gerar_documentos():
         plano_nome = request.form.get('plano_nome', '').strip()
         nome_responsavel = request.form.get('nome_responsavel', '').strip()
         data_hoje = datetime.now().strftime('%Y-%m-%d')
-        data_contrato = request.form.get('data_contrato', '').strip()
+        data_contrato = request.form.get('data_venda', '').strip()
         numero_contrato = request.form.get('numero_contrato', '').strip()
+
+        if plano_nome == 'AMACOR EXCLUSIVO I':
+            plano_nome = 'Amacor Exclusivo I'
+        elif plano_nome == 'Amacor Exclusivo II':
+            plano_nome = 'Amacor Exclusivo II'
+        elif plano_nome == 'AMACOR EXC II EMP':
+            plano_nome = 'Amacor Exclusivo II Empresarial'
+
 
         print('request.form:', request.form)
         print('data_contrato:', data_contrato)
