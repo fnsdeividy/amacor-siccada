@@ -1,0 +1,28 @@
+{% extends "window.html" %}
+{% block title %}Gerar Proposta{% endblock %}
+{% block window_content %}
+
+
+        <h1>
+            Filtragem de Corretora
+        </h1>
+        <p>Deixe vazio para não filtrar</p>
+        <br><br>
+
+<form method="POST" action="{{ url_for('gerencial.render_relatorio_concessionarias') }}">
+    <label for="data_ref">Data de Início:</label>
+    <input type="date" id="data_ref" name="data_ref">
+
+    <label for="corretora">Corretora Responsável</label>
+    <select name="corretora" id="corretora">
+        <option value="">Todas</option>
+        {% if corretora_ext %}
+            {% for c in corretora_ext %}
+                <option value="{{ c.nome_corretora }}">{{ c.nome_corretora }}</option>
+            {% endfor %}
+        {% endif %}
+    </select>
+    <br><br>
+    <input type="submit" value="Gerar Relatório" class="btn">
+
+{% endblock %}

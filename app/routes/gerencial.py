@@ -369,3 +369,52 @@ def download_relatorio():
     else:
         return "Arquivo não encontrado", 404
 
+@gerencial_bp.route('/render_relatorio_concessionarias', methods=['GET','POST'])
+@hierarquia('supervisor')
+@acesso('vendas', 'financeiro')
+def render_relatorio_concessionarias():
+    from ..models.database import get_corretoras_ext
+    corretoras_ext = get_corretoras_ext()
+    if request.method == 'POST':
+        data_ref= request.form.get('data_ref')
+        concessionaria= request.form.get('concessionaria')
+
+        if not data_ref or not concessionaria:
+            data_ref= datetime.now().strftime('%Y-%m-%d')
+            concessionaria= 'Todas'
+            return redirect(url_for('gerencial.contratos_corretora', data_ref=data_ref, concessionaria=concessionaria))
+        
+        return redirect(url_for('gerencial.contratos_corretora', data_ref=data_ref, concessionaria=concessionaria))
+        
+    return render_template('gerencial/render_relatorio_concessionarias.html', corretora_ext=corretoras_ext)
+
+
+
+@gerencial_bp.route('/contratos_concessionarias')
+@hierarquia('supervisor')
+@acesso('vendas', 'financeiro')
+def contratos_corretora():
+    from ..models.database import get_corretoras_cnt
+    from datetime import datetime, timedelta
+    from .doc_gen import gerar_relatorio_concessionarias
+    ##para fazer relatorio de pagamento das concessionarias
+    corretora= request.args.get('concessionaria')
+    data_ref= request.args.get('data_ref')
+    data_ref= datetime.strptime(data_ref, '%Y-%m-%d')
+
+    dias = int(90)
+    
+    data_entrada = (data_ref - timedelta(days=dias)).date()
+
+    corretoras_vendas= get_corretoras_cnt(corretora, data_ref,data_entrada)
+
+    print("corretoras vendas:",corretoras_vendas)
+
+    csv_corretoras_vendas= gerar_relatorio_concessionarias(corretoras_vendas)
+    
+    
+
+    return render_template('gerencial/relatorio_concessionarias.html', dados=corretoras_vendas, data_ref=data_ref, concessionaria=corretora)
+
+    pass
+

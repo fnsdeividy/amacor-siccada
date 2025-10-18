@@ -1136,19 +1136,48 @@ def atualiza_atrasos(database_path=None):
     conn.close()
 
     print(f"✅ Atualização concluída: {total_atrasadas} atrasadas, {total_atualizadas} dentro do prazo.")
-
-def get_corretoras_cnt(database_path=None):
+def get_corretoras_cnt(nome_corretora, data_ref, data_entrada, database_path=None):
     conn = get_db_connection(database_path)
     cur = conn.cursor()
-
-    cur.execute("""
-    SELECT
-    """)
+    
+    if nome_corretora == 'Todas':
+        corretoras = get_corretoras_ext()
+        nome_corretoras = [corretora[0] for corretora in corretoras]
+        corretoras_str = "', '".join(nome_corretoras)
+        
+        query = f"""
+        SELECT v.*, o.*
+        FROM venda v 
+        INNER JOIN beneficiarios o ON v.numero_contrato = o.sNumeroCNT
+        WHERE v.corretor_resp IN ('{corretoras_str}')
+          AND o.sMotivoCancelamentoTIT IS NULL
+          AND v.data_venda BETWEEN '{data_entrada}' AND '{data_ref}'
+        """
+    else:
+        # CORREÇÃO: Usar a corretora individual, não a lista
+        query = f"""
+        SELECT v.*, o.*
+        FROM venda v 
+        INNER JOIN beneficiarios o ON v.numero_contrato = o.sNumeroCNT
+        WHERE v.corretor_resp = '{nome_corretora}'
+          AND o.sMotivoCancelamentoTIT IS NULL
+          AND v.data_venda BETWEEN '{data_entrada}' AND '{data_ref}'
+        """
+    
+    cur.execute(query)
+    resultados = cur.fetchall()
+    resultados_dict= []
+    for row in resultados:
+        resultados_dict.append(dict(row))
+    print('resultado',resultados_dict)
+    cur.close()
+    conn.close()  # Não esqueça de fechar a conexão!
+    return resultados_dict
 
 def get_corretoras_ext(database_path=None):
     conn = get_db_connection(database_path)
     cur=conn.cursor()
-    cur.execute("SELECT * FROM corretora_ext WHERE corretora_ativa = true")
+    cur.execute("SELECT nome_corretora FROM corretora_ext WHERE corretora_ativa = true")
     corretoras = cur.fetchall()
     cur.close()
     conn.close()
