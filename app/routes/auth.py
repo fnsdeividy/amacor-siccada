@@ -235,3 +235,31 @@ def login_redir():
 def fechar():
     return redirect(url_for('auth.login_redir'))
     
+@auth_bp.route('/cadastrar_corretora', methods=['GET','POST'])
+def cadastrar_corretora():
+    from ..models.database import cadastrar_corretora
+    if request.method=='POST':
+        nome = request.form['nome']
+        nome_format = nome.strip()  # Remove espaços em branco extras
+        nome = nome_format  # Formata o nome para ter a primeira letra maiúscula
+        cnpj= request.form['cnpj']
+        
+        dados= {
+            'nome': nome,
+            'cnpj': cnpj,
+        }
+
+        exist = query_db("SELECT * FROM corretora_ext WHERE cnpj = ?", (cnpj,))
+   
+
+        if exist:
+            flash("Esta corretora já possui cadastro")
+            return redirect(request.url)
+
+        else:
+            
+            cadastrar_corretora(dados)
+
+            flash('Corretora cadastrada com sucesso!')
+            return redirect(url_for('auth.fechar'))
+    return render_template('generic/cadastrar_corretoras.html')

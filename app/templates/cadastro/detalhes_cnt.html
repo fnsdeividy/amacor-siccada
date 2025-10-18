@@ -23,6 +23,7 @@
             <a href="{{ url_for('cad.atualizar_cnt', contrato=venda[13], proposta=venda[1], id=venda[0], last_resp=venda[14], status=venda[6]) }}">
                 {{ 'N/A' if venda[13] == 'None' else venda[13] }}
             </a>
+            <p><strong>Corretor Responsável:</strong> {{ venda[5] }}</p>
         </p>
         <p><strong>Data:</strong> {{ data_formatada }}</p>
         <br>
@@ -32,17 +33,26 @@
         <p><strong>Tipo de Contrato:</strong> {{ venda[3] }}</p>
         <p><strong>Produto:</strong> {{ venda[4] }}</p>
         <br>
-        <p><strong>Corretor Responsável:</strong> {{ venda[5] }}</p>
+        
         <p><strong>Status:</strong> 
             <a href="{{ url_for('cad.atualizar_cnt', contrato=venda[13], proposta=venda[1], id=venda[0], last_resp=venda[14], status=venda[6]) }}">
                 {{ venda[6] }}
             </a>
+            
+            {% if venda[16] != None %}
+            <p><strong>Processo finalizado em: </strong>{{venda[16]|format_date_br}}</p>
+            {% endif %}
+
+            {% if venda[22] != None %}
+            <p><strong>Neste status deste: </strong>{{venda[22]|format_date_br}}</p>
+            {% endif %}
 
         {% if variavel_comp != None %}
         <p><strong>{{variavel_comp}}</strong> {{complemento}}</p>
         <p><strong>Digitado por:</strong> {{venda[7]}}
         {% else %}
         <p><strong>Sem complemento para esta fase</strong></p>
+        <br>
         <p><strong>Digitado por:</strong> {{venda[7]}}
         {% endif %}
         </p>

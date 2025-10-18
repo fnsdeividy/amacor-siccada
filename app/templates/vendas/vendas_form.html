@@ -166,12 +166,15 @@ function removeDependente(button) {
                         <option value="" disabled selected>Selecione</option>
                         {% if vendedor %}
                             {% for v in vendedor %}
-                                <option value="{{ v[1] }}">{{ v[1] }}</option>
+                                <option value="{{ v.nome }}">{{ v.nome }}</option>
                             {% endfor %}
                         {% endif %}
-                        <option value="externo">Corretor externo</option>
-                        <option value="Lapis Bellus">Lapis Bellus</option>
-                        <option value="Unix">Unix</option>
+                        {% if corretora %}
+                            {% for c in corretora %}
+                                <option value="{{ c.nome_corretora }}">{{ c.nome_corretora }}</option>
+                            {% endfor %}
+                        {% endif %}
+                                                
                         <option value="administrativo">Administrativo</option>
                     </select>
                 </div>
