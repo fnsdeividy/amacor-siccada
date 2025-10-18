@@ -1184,6 +1184,105 @@ def exportar_dependente_to_sig():
 
     return redirect(url_for('auth.fechar'))
        
+def gerar_relatorio_concessionarias(dados):
+    import pandas as pd 
+    from datetime import datetime, timedelta
+    pasta_raiz= os.path.join(os.getcwd(), 'static','geren_docgen','relatorios', 'concessionarias')
+    os.makedirs(pasta_raiz, exist_ok= True)
+    arquivo_csv= os.path.join(pasta_raiz, 'relatorio_concessionarias.csv')
+    
+
+    if dados:
+        print("dados recebidos")
+        limpar_pasta_saida(pasta_raiz)
+
+    try:
+        total_registros = len(dados)
+        valor_corretora= sum(float(item.get('valor_venda',0))for item in dados)
+        
+        def calcular_datas_pagamento(data_venda):
+            data_base = datetime.strptime(data_venda, '%Y-%m-%d')
+            primeira_parcela = data_base + timedelta(days=30)
+            segunda_parcela = data_base + timedelta(days=60)
+            terceira_parcela = data_base + timedelta(days=90)
+            
+            return (
+                primeira_parcela.strftime('%d/%m/%Y'),
+                segunda_parcela.strftime('%d/%m/%Y'),
+                terceira_parcela.strftime('%d/%m/%Y')
+            )
+        
+        # Preparar dados para o DataFrame
+        dados_relatorio = []
+        
+        for item in dados:
+            # Calcular datas de pagamento
+            primeira_data, segunda_data, terceira_data = calcular_datas_pagamento(item['data_venda'])
+            
+            # Formatar valor
+            valor_venda = float(item.get('valor_venda', 0))
+            valor_primeira = valor_venda  # 100%
+            valor_segunda = valor_venda * 0.5  # 50%
+            valor_terceira = valor_venda * 0.5  # 50%
+            
+            linha = {
+                'nome do responsavel pelo contrato': item.get('sNomeResp', ''),
+                'nome da corretora': item.get('corretor_resp', ''),
+                'data de adesão ao plano': item.get('data_venda', ''),
+                'pagamento de primeira parcela à corretora - 100%': f"R$ {valor_primeira:.2f} - Data: {primeira_data}",
+                'pagamento de segunda parcela à corretora - 50%': f"R$ {valor_segunda:.2f} - Data: {segunda_data}",
+                'pagamento terceira parcela à corretora - 50%': f"R$ {valor_terceira:.2f} - Data: {terceira_data}",
+                'numero contrato': item.get('numero_contrato', ''),
+                'valor total venda': f"R$ {valor_venda:.2f}",
+                'produto': item.get('tipo_produto', ''),
+                'cpf responsavel': item.get('sCpfCgcResp', ''),
+                'telefone': item.get('Fone_CNT', ''),
+                'status': item.get('status', '')
+            }
+            dados_relatorio.append(linha)
+        
+        # Criar DataFrame
+        df = pd.DataFrame(dados_relatorio)
+        
+        # Reordenar colunas conforme solicitado
+        colunas = [
+            'nome do responsavel pelo contrato',
+            'nome da corretora', 
+            'data de adesão ao plano',
+            'pagamento de primeira parcela à corretora - 100%',
+            'pagamento de segunda parcela à corretora - 50%', 
+            'pagamento terceira parcela à corretora - 50%',
+            'numero contrato',
+            'valor total venda',
+            'produto',
+            'cpf responsavel',
+            'telefone',
+            'status'
+        ]
+        
+        df = df[colunas]
+        
+        # Salvar como CSV
+        df.to_csv(arquivo_csv, index=False, encoding='utf-8-sig')
+        
+        print(f"Relatório gerado com sucesso!")
+        print(f"Total de registros: {total_registros}")
+        print(f"Valor total das vendas: R$ {valor_corretora:.2f}")
+        print(f"Arquivo salvo em: {arquivo_csv}")
+        
+        return {
+            'success': True,
+            'arquivo': arquivo_csv,
+            'total_registros': total_registros,
+            'valor_total': valor_corretora
+        }
+        
+    except Exception as e:
+        print(f"Erro ao gerar relatório: {str(e)}")
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
 
 
