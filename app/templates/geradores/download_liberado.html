@@ -1,13 +1,8 @@
-{% extends 'base1.html' %}
+{% extends "window.html" %}
 
-{% block title %}Download de CPT{% endblock %}
-{% block content %}
-<div class="container">
-  <div class="divisoria2">
-    <div class="close-btn-container">
-      <a href="{{ url_for('auth.redir_atent') }}" class="close-btn">✖</a>
-    </div>
+{% block title %}Download CPT{% endblock %}
 
+{% block window_content %}
     <h1>Selecione o formato do arquivo</h1>
     <h3>Em qual formato deseja baixar o arquivo?</h3>
     <br>
