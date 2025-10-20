@@ -1,0 +1,25 @@
+{% extends 'base1.html' %}
+
+{% block title %}Banco desatualizado{% endblock %}
+
+{% block content %}
+<body class="body">
+    <br><br>
+    <h1>Atualização pendente</h1>
+    <h3>O banco de dados do Siccada não foi atualizado, solicite ao setor de cadastro que atualize o banco.</h3>
+    <a class="btn" href="{{ url_for('auth.fechar') }}"> voltar</a>
+</body>
+
+<script>
+    function goBack() {
+        if (document.referrer) {
+            // Voltar para a página anterior
+            window.history.back();
+        } else {
+            // Redirecionar para a home se não houver página anterior
+            window.location.href = '/';
+        }
+    }
+</script>
+
+{% endblock %}
