@@ -1388,11 +1388,18 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
         print(f"Erro ao gerar relatório: {str(e)}")
         return {'success': False, 'error': str(e)}
 
-
-
-
-
-        
-            
-
+@docgen_bp.route('/download_relatorio')
+def download_relatorio():
+    pasta_raiz = os.path.join(os.getcwd(), 'static', 'geren_docgen','relatorios','concessionarias')
     
+    caminho_final= os.path.join(pasta_raiz,'relatorio_concessionarias.csv')
+   
+   # Caminho do documento final
+    
+
+    # Verificar se o arquivo existe
+    if not os.path.exists(caminho_final):
+        return "Erro: Documento final não encontrado.", 404
+
+    # Enviar o arquivo para download
+    return send_file(caminho_final, as_attachment=True)

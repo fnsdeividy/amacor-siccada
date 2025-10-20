@@ -380,7 +380,7 @@ def render_relatorio_concessionarias():
     print("validade do log:",validade)
 
     if not validade:
-        flash('O relatório de concessionárias está desatualizado. Favor gerar um novo relatório.', 'warning')
+        flash('O banco de beneficiários está desatualizado. Favor carregar atualização.', 'warning')
         return render_template('gerencial/errata.html')
 
 
@@ -439,7 +439,7 @@ def contratos_corretora():
     
     
 
-    return render_template('gerencial/relatorio_concessionarias.html', dados=corretoras_vendas, data_ref=data_ref, concessionaria=corretora)
+    return render_template('gerencial/download_relatorio.html')
 
     pass
 
