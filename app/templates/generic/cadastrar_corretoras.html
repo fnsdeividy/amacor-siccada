@@ -1,3 +1,8 @@
+{% extends 'base1.html' %}
+
+{% block title %}Bem-vindo{% endblock %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,12 +11,15 @@
     <title>cadastro</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos_login.css') }}">
 </head>
-<body class="login-body">
+<body class="body">
 
     
 
-    <div class="divisoria">
-        <a class="voltar" href="{{ url_for('auth.fechar') }}">voltar</a>
+    <div class="divisoria5">
+        <div class="close-btn-container">
+      <a href="{{ url_for('auth.fechar') }}" class="close-btn">✖</a>
+    </div>
+        
         <h1>Cadastro de Corretora</h1><br><br>
         <form action="{{ url_for('auth.cadastrar_corretora') }}" method="POST">
 
@@ -20,14 +28,37 @@
 
             <label for="cnpj">CNPJ:</label>
             <input type="text" id="cnpj" name="cnpj" required><br><br>
+            <div>
+                <label for="taxa_corretora">Taxas da corretora:</label>
+                <label for="taxa1">Primeira taxa:</label>
+                <input type="number" id="taxa1" name="taxa1" required><br><br>
+                <label for="taxa2">Segunda taxa:</label>
+                <input type="number" id="taxa2" name="taxa2" required><br><br>
+                <label for="taxa3">Terceira taxa:</label>
+                <input type="number" id="taxa3" name="taxa3" required><br><br>
+                <label for="vitalicia">Mensalidade vitalícia?</label>
+<input type="checkbox" id="vitalicia" name="vitalicia">
 
-            </select>
+<!-- Campos adicionais ocultos -->
+<div id="taxas-adicionais" style="display: none;">
+    <label for="taxa4">Taxa vitalicia:</label>
+    <input type="number" id="taxa4" name="taxa4"><br>
+
+</div>
             <br>
-            <input class="envia2" type="submit" value="Cadastrar">
+
+            <input class="envia" type="submit" value="Cadastrar">
         </form>
     </div>
 
     
 
 </body>
+<script>
+    document.getElementById('vitalicia').addEventListener('change', function() {
+        const adicionais = document.getElementById('taxas-adicionais');
+        adicionais.style.display = this.checked ? 'block' : 'none';
+    });
+</script>
 </html>
+{% endblock %}
