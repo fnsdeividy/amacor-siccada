@@ -1254,6 +1254,80 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
 
         valor_corretora = sum(parse_num(item.get('valor_venda', 0)) if isinstance(item, dict) else 0.0 for item in dados_list)
 
+        def vencimentos_pagamentos(data_venda: str, parcelas=4):
+            from calendar import monthrange
+            """
+            Gera as próximas datas de vencimento com base na data da venda,
+            mas retorna apenas o vencimento do mês vigente (mês atual).
+
+            - Vencimentos ocorrem nos dias 10, 20 ou 30.
+            - O primeiro vencimento depende do dia da venda:
+                • até dia 10  → dia 10
+                • até dia 20  → dia 20
+                • até dia 30  → dia 30
+                • após dia 30 → dia 10 do mês seguinte
+            Retorna uma string com a data de vencimento do mês vigente (formato DD/MM/YYYY),
+            ou "" caso não haja vencimento neste mês.
+            """
+            # Converter a data da venda
+            data_base = None
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y'):
+                try:
+                    data_base = datetime.strptime(data_venda, fmt)
+                    break
+                except ValueError:
+                    continue
+            if not data_base:
+                return ""
+
+            dia_venda = data_base.day
+            mes = data_base.month
+            ano = data_base.year
+
+            # Determinar o primeiro vencimento
+            if dia_venda <= 10:
+                dia_venc = 10
+            elif dia_venda <= 20:
+                dia_venc = 20
+            elif dia_venda <= 30:
+                dia_venc = 30
+            else:
+                dia_venc = 10
+                mes += 1
+                if mes > 12:
+                    mes = 1
+                    ano += 1
+
+            vencimentos = []
+
+            # Gerar as próximas parcelas
+            for i in range(parcelas):
+                m = mes + i
+                a = ano + (m - 1) // 12
+                m = (m - 1) % 12 + 1
+
+                try:
+                    venc = datetime(a, m, dia_venc)
+                except ValueError:
+                    # Caso o mês não tenha o dia (ex: fevereiro 30)
+                    ultimo_dia = monthrange(a, m)[1]
+                    venc = datetime(a, m, ultimo_dia)
+
+                vencimentos.append(venc)
+
+            # Mês vigente
+            hoje = datetime.now()
+            mes_atual = hoje.month
+            ano_atual = hoje.year
+
+            # Filtrar apenas o vencimento do mês vigente
+            for venc in vencimentos:
+                if venc.month == mes_atual and venc.year == ano_atual:
+                    return venc.strftime('%d/%m/%Y')
+
+            # Caso não exista vencimento neste mês, retorna vazio
+            return ""
+
         def calcular_datas_pagamento(data_venda):
             """
             Retorna um inteiro com a parcela atual (1,2,3,4) calculado pela
@@ -1271,12 +1345,12 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
             if not data_base:
                 return 0
             hoje = datetime.now()
-            delta_days = (hoje - data_base).days  # agora ambos são datetimes -> int
-            if delta_days >=30 and delta_days<60:
+            diff_meses = (hoje.year - data_base.year) * 12 + (hoje.month - data_base.month)
+            if diff_meses <=1:
                 return 1
-            elif delta_days >=60 and delta_days<120:
+            elif diff_meses == 2:
                 return 2
-            elif delta_days <= 90:
+            elif diff_meses == 3:
                 return 3
             else:
                 return 4
@@ -1334,6 +1408,7 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
             parcela= calcular_datas_pagamento(data_venda)
             percentual= get_percentual(parcela, corretora_name )
             percentual_bnt = percentual*100
+            valor_a_pagar= round(valor_venda*percentual,2)
             
 
             linha = {
@@ -1343,12 +1418,12 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
                 'data de adesão ao plano': data_venda,
                 'parcela': parcela,
                 'percentual': percentual_bnt,
-                'valor à pagar': valor_venda*percentual,
+                'valor à pagar': valor_a_pagar,
+                'vencimento da parcela': vencimentos_pagamentos(data_venda),
                 'numero contrato': item.get('numero_contrato', ''),
                 'valor total venda': f"R$ {valor_venda:.2f}",
                 'produto': item.get('tipo_produto', ''),
                 'cpf responsavel': item.get('sCpfCgcResp', '') or item.get('sCpfUSR',''),
-                'telefone': item.get('Fone_CNT', '') or item.get('Fone_TIT',''),
                 'status': item.get('status', '')
             }
             dados_relatorio.append(linha)
@@ -1362,11 +1437,11 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
             'parcela',
             'percentual',
             'valor à pagar',
+            'vencimento da parcela',
             'numero contrato',
             'valor total venda',
             'produto',
             'cpf responsavel',
-            'telefone',
             'status'
         ]
         df = df.reindex(columns=colunas)
