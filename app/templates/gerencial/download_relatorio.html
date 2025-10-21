@@ -1,0 +1,14 @@
+{% extends "window.html" %}
+
+{% block title %}Download Relatorio{% endblock %}
+
+{% block window_content %}
+    <h1>Download do Relatorio</h1>
+    <h3>Relatório gerado com sucesso, selecione abaixo para baixar</h3>
+    <br>
+    <a class="btn" href="{{ url_for('doc_gen.download_relatorio') }}" title="Documento CSV">
+      <strong>Baixar</strong>
+    </a>
+  </div>
+</div>
+{%endblock%}
