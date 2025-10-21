@@ -15,7 +15,7 @@
 
     <label for="corretora">Corretora Responsável</label>
     <select name="corretora" id="corretora">
-        <option value="">Todas</option>
+        <option value="" selected disabled>selecione</option>
         {% if corretora_ext %}
             {% for c in corretora_ext %}
                 <option value="{{ c.nome_corretora }}">{{ c.nome_corretora }}</option>

@@ -41,39 +41,83 @@
      </style>
  </head>
  <body>
-     <div id="flash-message" class="alert"></div>
- 
-     <script>
-         // Capturar mensagens flash do Flask
-         const flashMessages = {{ get_flashed_messages() | tojson }};
-         const flashContainer = document.getElementById('flash-message');
- 
-         if (flashMessages.length > 0) {
-             // Exibir a primeira mensagem flash
-             flashContainer.textContent = flashMessages[0];
-             flashContainer.style.display = 'block';
- 
-             // Ocultar o alerta após 5 segundos
-             setTimeout(() => {
-                 flashContainer.style.display = 'none';
-             }, 5000);
-         }
-     </script>
- </body>
- </html>
-     
- </head>
-</head>
-<body>
+    <div id="flash-message" class="alert"></div>
+    
+    <!-- Modal de Perfil -->
+<div class="profile-modal" id="profileModal">
+    <div class="profile-content">
+        <div class="profile-header">
+            <button class="profile-close" id="closeProfileModal">✖</button>
+            <div class="profile-avatar">
+                <div class="avatar-circle">
+                    <span class="avatar-initial">{{ session['user_nome'][0] if session['user_nome'] else 'U' }}</span>
+                    <button class="edit-avatar-btn" onclick="editProfilePhoto()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                            <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <h2 class="profile-name">{{ session['user_nome'] or 'Usuário' }}</h2>
+            <div class="profile-badge">{{ session.get('classe_usuario', 'Usuário') }}</div>
+        </div>
+        
+        <div class="profile-details">
+            <div class="detail-item">
+                <span class="detail-label">Nome:</span>
+                <span class="detail-value">{{ session['user_nome'] or 'Não informado' }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Tipo:</span>
+                <span class="detail-value">{{ session.get('tipo_usuario', 'Não informado') }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Categoria:</span>
+                <span class="detail-value">{{ session.get('classe_usuario', 'Não informada') }}</span>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <a class="profile-btn primary" href="{{ url_for('auth.mudar_senha') }}">
+                <span class="profile-icon">🔒</span>
+                Alterar senha
+            </a>
+            
+            {% if session.get('classe_usuario') == 'supervisor' %}
+                <a class="profile-btn secondary" href="{{ url_for('auth.cadastrar') }}">
+                    <span class="profile-icon">👤</span>
+                    Adicionar usuário
+                </a>
+                
+                {% if session.get('tipo_usuario') == 'financeiro' %}
+                <a class="profile-btn secondary" href="{{ url_for('auth.cadastrar_corretora') }}">
+                    <span class="profile-icon">🏢</span>
+                    Cadastrar Corretoras
+                </a>
+                
+                {% elif session.get('tipo_usuario') == 'vendas' %}
+                <a class="profile-btn secondary" href="{{ url_for('auth.cadastrar_corretora') }}">
+                    <span class="profile-icon">🏢</span>
+                    Cadastrar Corretoras
+                </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
     <nav class="navbar">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <span class="menu-title">SICCADA: {% block title %}Inicial{% endblock %}</span>
         <div class="user-info">
-            <span class="user-name"><a href="{{url_for('generic.profile')}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="vertical-align: right;">
-      <circle cx="12" cy="8" r="4" stroke="#fff" stroke-width="2" fill="#fff"/>
-      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#fff" stroke-width="2" fill="none"/>
-    </svg></a> {{ session['user_nome'] }}</span>
-            
+            <span class="user-profile-link" onclick="openProfileModal()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="8" r="4" stroke="#fff" stroke-width="2" fill="#fff"/>
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#fff" stroke-width="2" fill="none"/>
+                </svg>
+                {{ session['user_nome'] }}
+            </span>
+        </div>
     </nav>
 
     <div class="sidebar" id="sidebar">
@@ -165,27 +209,90 @@
 }
 </style>
 
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
+   <script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
 
-        function toggleSubmenu(id) {
-            const submenu = document.getElementById(id);
-            submenu.classList.toggle('show');
-        }
-        document.addEventListener("DOMContentLoaded", function () {
+    function toggleSubmenu(id) {
+        const submenu = document.getElementById(id);
+        submenu.classList.toggle('show');
+    }
+    
+    // Funções para o modal de perfil
+    function openProfileModal() {
+        document.getElementById('profileModal').classList.add('active');
+    }
+    
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('active');
+    }
+    
+    document.addEventListener("DOMContentLoaded", function () {
         const img = new Image();
-        img.src = "/static/image/fundo-siccada-all.png"; // Substitua pelo caminho da sua imagem
+        img.src = "/static/image/fundo-siccada-all.png";
         img.onload = function () {
             document.body.style.backgroundImage = `url('${img.src}')`;
         };
+        
+        // Configurar eventos do modal de perfil
+        // Fechar modal ao clicar no botão de fechar
+        document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+        
+        // Fechar modal ao clicar fora do conteúdo
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProfileModal();
+            }
+        });
+        
+        // Fechar modal com a tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeProfileModal();
+            }
+        });
     });
 
     window.addEventListener("load", function () {
         document.getElementById("loader").style.display = "none";
     });
-    </script>
+     // Capturar mensagens flash do Flask
+         const flashMessages = {{ get_flashed_messages() | tojson }};
+         const flashContainer = document.getElementById('flash-message');
+ 
+         if (flashMessages.length > 0) {
+             // Exibir a primeira mensagem flash
+             flashContainer.textContent = flashMessages[0];
+             flashContainer.style.display = 'block';
+ 
+             // Ocultar o alerta após 5 segundos
+             setTimeout(() => {
+                 flashContainer.style.display = 'none';
+             }, 5000);
+         }
+
+    function editProfilePhoto() {
+    // Aqui você pode implementar a lógica para editar a foto
+    // Por exemplo, abrir um seletor de arquivos ou outro modal
+    window.location.href = "{{ url_for('generic.render_definir_perfil') }}";
+    // Exemplo de implementação:
+    // const input = document.createElement('input');
+    // input.type = 'file';
+    // input.accept = 'image/*';
+    // input.onchange = handleProfilePhotoUpload;
+    // input.click();
+}
+
+function handleProfilePhotoUpload(event) {
+    // Lógica para upload da foto
+    const file = event.target.files[0];
+    if (file) {
+        // Aqui você faria o upload para o servidor
+        console.log('Foto selecionada:', file.name);
+    }
+}
+</script>
 </body>
 </html>
