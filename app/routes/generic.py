@@ -60,3 +60,16 @@ def home_corretor():
         dados=dados_dashboard,
         corretor_resp=corretor_resp
     )
+
+@generic_bp.route('/upload_foto_perfil')
+def render_definir_perfil():
+    
+    return render_template('generic/render_definir_perfil.html')
+
+
+@generic_bp.route('/definir_perfil')
+def definir_perfil():
+
+    flash('Foto de Perfil atualizada!', 'success')
+    return redirect(url_for('auth.fechar'))
+    
