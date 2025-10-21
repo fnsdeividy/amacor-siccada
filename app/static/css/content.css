@@ -17,6 +17,26 @@ a{
 }
 
 
+.divisoria5 {
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 40px;
+    background: rgba(13, 14, 58, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
 
 .divisoria2 h1 {
     font-size: 24px;
