@@ -65,12 +65,14 @@ def verifica_log_att(arquivo_log='log_atualizacoa_banco.txt', limite_dias= 7):
                return False
            ultima_linha= linhas[-1].strip()
            data_str= ultima_linha.split(']')[0].replace('[','').strip()
-           data_log= datetime.strptime(data_str, '%Y-%m-%d').date()
+           data_log = datetime.strptime(data_str, '%Y-%m-%d %H:%M:%S').date()
+
 
            hoje= datetime.now().date()
            difereca= hoje-data_log
            if difereca.days<=limite_dias:
-               return True
+               return data_log
+           
            else:
                return False
     except FileNotFoundError:

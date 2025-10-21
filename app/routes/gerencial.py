@@ -369,3 +369,77 @@ def download_relatorio():
     else:
         return "Arquivo não encontrado", 404
 
+@gerencial_bp.route('/render_relatorio_concessionarias', methods=['GET','POST'])
+@hierarquia('supervisor')
+@acesso('vendas', 'financeiro')
+def render_relatorio_concessionarias():
+    from ..models.database import get_corretoras_ext
+    from ..utils import verifica_log_att
+    corretoras_ext = get_corretoras_ext()
+    validade= verifica_log_att()
+    print("validade do log:",validade)
+
+    if not validade:
+        flash('O banco de beneficiários está desatualizado. Favor carregar atualização.', 'warning')
+        return render_template('gerencial/errata.html')
+
+
+    
+    if request.method == 'POST':
+        data_ref= request.form.get('data_ref')
+        concessionaria= request.form.get('corretora')
+
+        if not data_ref:
+            data_ref= datetime.now().strftime('%Y-%m-%d')
+            return redirect(url_for('gerencial.contratos_corretora', data_ref=data_ref, concessionaria=concessionaria))
+        
+        if not concessionaria:
+            concessionaria= 'Todas'
+            return redirect(url_for('gerencial.contratos_corretora', data_ref=data_ref, concessionaria=concessionaria))
+        
+        return redirect(url_for('gerencial.contratos_corretora', data_ref=data_ref, concessionaria=concessionaria))
+        
+    return render_template('gerencial/render_relatorio_concessionarias.html', corretora_ext=corretoras_ext)
+
+
+
+@gerencial_bp.route('/contratos_concessionarias')
+@hierarquia('supervisor')
+@acesso('vendas', 'financeiro')
+def contratos_corretora():
+    from ..models.database import get_corretoras_cnt, get_corretoras_ext, get_extend_corretoras_ext
+    from datetime import datetime, timedelta
+    from .doc_gen import gerar_relatorio_concessionarias
+    ##para fazer relatorio de pagamento das concessionarias
+    corretora= request.args.get('concessionaria')
+    data_ref= request.args.get('data_ref')
+    data_ref= datetime.strptime(data_ref, '%Y-%m-%d')
+
+    dias = int(90)
+    
+    data_entrada = (data_ref - timedelta(days=dias)).date()
+
+    corretoras_vendas= get_corretoras_cnt(corretora, data_ref,data_entrada)
+    
+    corretora_infos = get_extend_corretoras_ext(corretora)
+
+    # Se a função retornou lista, normaliza para um dict (pega primeiro registro)
+    if isinstance(corretora_infos, list):
+        corretora_infos = corretora_infos[0] if corretora_infos else {}
+
+    # usar .get corretamente e fornecer valor padrão
+    dados = corretora_infos.get('parcela1', '')
+    print(dados)
+
+    print("corretoras vendas:", corretoras_vendas)
+
+    # garantir que extend_corretoras esteja definido ao chamar o gerador
+    extend_corretoras = corretora_infos
+    csv_corretoras_vendas = gerar_relatorio_concessionarias(corretoras_vendas, corretora,extend_corretoras)
+    
+    
+
+    return render_template('gerencial/download_relatorio.html')
+
+    pass
+

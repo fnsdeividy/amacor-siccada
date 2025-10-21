@@ -14,6 +14,18 @@ def get_db_connection(database_path=None):
     conn.row_factory = sqlite3.Row
     return conn
 
+def query_db_doc(query, one=False, database_path=None):
+    """
+    Executa uma consulta no banco de dados.
+    """
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute(query)
+    rv = cur.fetchall()
+    conn.close()
+    return (rv[0] if rv else None) if one else rv
+
+
 def query_db(query, args=(), one=False, database_path=None):
     """
     Executa uma consulta no banco de dados.
@@ -1136,23 +1148,103 @@ def atualiza_atrasos(database_path=None):
     conn.close()
 
     print(f"✅ Atualização concluída: {total_atrasadas} atrasadas, {total_atualizadas} dentro do prazo.")
+def get_corretoras_cnt(nome_corretora, data_ref, data_entrada, database_path=None):
+    """
+    Retorna um dicionário:
+      { 'resultados_dic': [ {linha1}, {linha2}, ... ], 'corretora': nome_corretora }
+    Aceita data_ref/data_entrada como date/datetime/str.
+    """
+    from datetime import date, datetime
 
-def get_corretoras_cnt(database_path=None):
+    def _to_date_str(d):
+        if d is None:
+            return None
+        if isinstance(d, datetime):
+            return d.date().strftime('%Y-%m-%d')
+        if isinstance(d, date):
+            return d.strftime('%Y-%m-%d')
+        return str(d)
+
+    data_ref_s = _to_date_str(data_ref)
+    data_entrada_s = _to_date_str(data_entrada)
+
+    nome_corretora = (nome_corretora or '').strip()
     conn = get_db_connection(database_path)
     cur = conn.cursor()
 
-    cur.execute("""
-    SELECT
-    """)
+    try:
+        resultados = []
+        if nome_corretora.lower() in ('todas', ''):
+            corretoras = get_corretoras_ext(database_path)
+            if not corretoras:
+                resultados = []
+            else:
+                placeholders = ','.join('?' for _ in corretoras)
+                query = f"""
+                    SELECT v.*, o.*
+                    FROM venda v
+                    INNER JOIN beneficiarios o ON v.numero_contrato = o.sNumeroCNT
+                    WHERE v.corretor_resp IN ({placeholders})
+                      AND o.sMotivoCancelamentoTIT IS NULL
+                      AND v.data_venda BETWEEN ? AND ?
+                """
+                params = tuple(corretoras) + (data_entrada_s, data_ref_s)
+                cur.execute(query, params)
+                resultados = cur.fetchall()
+        else:
+            query = """
+                SELECT v.*, o.*
+                FROM venda v
+                INNER JOIN beneficiarios o ON v.numero_contrato = o.sNumeroCNT
+                WHERE v.corretor_resp = ?
+                  AND o.sMotivoCancelamentoTIT IS NULL
+                  AND v.data_venda BETWEEN ? AND ?
+            """
+            cur.execute(query, (nome_corretora, data_entrada_s, data_ref_s))
+            resultados = cur.fetchall()
+
+        # converter resultados para lista de dicts
+        resultados_list = []
+        if resultados:
+            # se cursor tiver descrição e rows forem tuplas, usar zip; sqlite3.Row -> dict(row) funciona
+            col_names = [d[0] for d in cur.description] if cur.description else []
+            for row in resultados:
+                if hasattr(row, 'keys'):
+                    resultados_list.append(dict(row))
+                else:
+                    resultados_list.append(dict(zip(col_names, row)))
+
+        return {'resultados_dic': resultados_list, 'corretora': nome_corretora or 'Todas'}
+    finally:
+        cur.close()
+        conn.close()
 
 def get_corretoras_ext(database_path=None):
     conn = get_db_connection(database_path)
-    cur=conn.cursor()
-    cur.execute("SELECT * FROM corretora_ext WHERE corretora_ativa = true")
-    corretoras = cur.fetchall()
+    cur = conn.cursor()
+    # usa 1/0 para booleano no sqlite
+    cur.execute("SELECT nome_corretora FROM corretora_ext WHERE corretora_ativa = 1")
+    corretora = cur.fetchall()
     cur.close()
     conn.close()
-    return corretoras
+            
+    return corretora
+
+def get_extend_corretoras_ext(corretora, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    # usa query parametrizada para evitar SQL injection
+    if corretora == 'Todas':
+        cur.execute("SELECT * FROM corretora_ext WHERE corretora_ativa = 1")
+        rows = cur.fetchall()
+    else:
+        cur.execute("SELECT * FROM corretora_ext WHERE nome_corretora = ? AND corretora_ativa = 1", (corretora,))
+        rows = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    # converter cada sqlite3.Row em dict; retorna lista (vazia se nada)
+    return [dict(r) for r in rows] if rows else []
 
 def cadastrar_corretora(dados, database_path=None):
     print(dados)

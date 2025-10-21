@@ -1184,12 +1184,297 @@ def exportar_dependente_to_sig():
 
     return redirect(url_for('auth.fechar'))
        
+def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
+    import pandas as pd 
+    from datetime import datetime, timedelta
+    import json
+    from ..models.database import query_db_doc
 
 
+    pasta_raiz = os.path.join(os.getcwd(), 'static','geren_docgen','relatorios', 'concessionarias')
+    os.makedirs(pasta_raiz, exist_ok=True)
+    arquivo_csv = os.path.join(pasta_raiz, 'relatorio_concessionarias.csv')
+    print("iniciando docgen")
 
+    # Normaliza 'dados' para uma lista de registros
+    if isinstance(dados, dict):
+        if 'resultados_dic' in dados and isinstance(dados['resultados_dic'], list):
+            dados_list = dados['resultados_dic']
+        elif 'resultados_dict' in dados and isinstance(dados['resultados_dict'], list):
+            dados_list = dados['resultados_dict']
+        else:
+            # pega primeira lista encontrada ou coloca vazio
+            dados_list = next((v for v in dados.values() if isinstance(v, list)), [])
+        # se corretora não foi passada separadamente, tenta pegar do dict
+        if not corretora:
+            corretora = dados.get('corretora')
+    elif isinstance(dados, list):
+        dados_list = dados
+    elif isinstance(dados, str):
+        try:
+            parsed = json.loads(dados)
+            if isinstance(parsed, list):
+                dados_list = parsed
+            elif isinstance(parsed, dict) and 'resultados_dic' in parsed:
+                dados_list = parsed['resultados_dic']
+            else:
+                dados_list = [parsed]
+        except Exception:
+            dados_list = []
+    else:
+        dados_list = []
 
+    # Normaliza corretora (pode vir como lista)
+    if isinstance(corretora, list):
+        corretora_name = corretora[0] if corretora else ''
+    else:
+        corretora_name = corretora or ''
 
-        
+    print("dados recebidos", {'resultados_dic': dados_list, 'corretora': corretora_name})
+    limpar_pasta_saida(pasta_raiz)
+
+    try:
+        total_registros = len(dados_list)
+
+        def parse_num(v):
+            if v in (None, ''):
+                return 0.0
+            if isinstance(v, (int, float)):
+                return float(v)
+            s = str(v).strip()
+            # Trata formatos BR (1.234,56) => 1234.56 ou '463,29' => 463.29
+            if ',' in s and '.' in s:
+                s = s.replace('.', '').replace(',', '.')
+            else:
+                s = s.replace(',', '.')
+            try:
+                return float(s)
+            except Exception:
+                return 0.0
+
+        valor_corretora = sum(parse_num(item.get('valor_venda', 0)) if isinstance(item, dict) else 0.0 for item in dados_list)
+
+        def vencimentos_pagamentos(data_venda: str, parcelas=4):
+            from calendar import monthrange
+            """
+            Gera as próximas datas de vencimento com base na data da venda,
+            mas retorna apenas o vencimento do mês vigente (mês atual).
+
+            - Vencimentos ocorrem nos dias 10, 20 ou 30.
+            - O primeiro vencimento depende do dia da venda:
+                • até dia 10  → dia 10
+                • até dia 20  → dia 20
+                • até dia 30  → dia 30
+                • após dia 30 → dia 10 do mês seguinte
+            Retorna uma string com a data de vencimento do mês vigente (formato DD/MM/YYYY),
+            ou "" caso não haja vencimento neste mês.
+            """
+            # Converter a data da venda
+            data_base = None
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y'):
+                try:
+                    data_base = datetime.strptime(data_venda, fmt)
+                    break
+                except ValueError:
+                    continue
+            if not data_base:
+                return ""
+
+            dia_venda = data_base.day
+            mes = data_base.month
+            ano = data_base.year
+
+            # Determinar o primeiro vencimento
+            if dia_venda <= 10:
+                dia_venc = 10
+            elif dia_venda <= 20:
+                dia_venc = 20
+            elif dia_venda <= 30:
+                dia_venc = 30
+            else:
+                dia_venc = 10
+                mes += 1
+                if mes > 12:
+                    mes = 1
+                    ano += 1
+
+            vencimentos = []
+
+            # Gerar as próximas parcelas
+            for i in range(parcelas):
+                m = mes + i
+                a = ano + (m - 1) // 12
+                m = (m - 1) % 12 + 1
+
+                try:
+                    venc = datetime(a, m, dia_venc)
+                except ValueError:
+                    # Caso o mês não tenha o dia (ex: fevereiro 30)
+                    ultimo_dia = monthrange(a, m)[1]
+                    venc = datetime(a, m, ultimo_dia)
+
+                vencimentos.append(venc)
+
+            # Mês vigente
+            hoje = datetime.now()
+            mes_atual = hoje.month
+            ano_atual = hoje.year
+
+            # Filtrar apenas o vencimento do mês vigente
+            for venc in vencimentos:
+                if venc.month == mes_atual and venc.year == ano_atual:
+                    return venc.strftime('%d/%m/%Y')
+
+            # Caso não exista vencimento neste mês, retorna vazio
+            return ""
+
+        def calcular_datas_pagamento(data_venda):
+            """
+            Retorna um inteiro com a parcela atual (1,2,3,4) calculado pela
+            diferença em dias entre hoje e a data_venda.
+            """
+            if not data_venda:
+                return 0
+            data_base = None
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d-%m-%Y'):
+                try:
+                    data_base = datetime.strptime(data_venda, fmt)
+                    break
+                except Exception:
+                    data_base = None
+            if not data_base:
+                return 0
+            hoje = datetime.now()
+            diff_meses = (hoje.year - data_base.year) * 12 + (hoje.month - data_base.month)
+            if diff_meses <=1:
+                return 1
+            elif diff_meses == 2:
+                return 2
+            elif diff_meses == 3:
+                return 3
+            else:
+                return 4
+        def get_percentual(parcela, corretora_name):
+            """
+            Retorna o percentual (float) para a parcela da corretora.
+            Aceita retorno de query_db_doc como sqlite3.Row, dict, tuple, list ou scalar.
+            Normaliza ',' para '.' e divide por 100.
+            """
+            try:
+                if not corretora_name:
+                    return 0.0
+                nome_escaped = corretora_name.replace("'", "''")
+                query = f"SELECT parcela{parcela} FROM corretora_ext WHERE nome_corretora = '{nome_escaped}'"
+                print("SQL get_percentual:", query)
+                percentual_raw = query_db_doc(query, one=True)
+
+                if percentual_raw is None:
+                    return 0.0
+
+                # Extrair valor de diferentes tipos de retorno
+                if isinstance(percentual_raw, dict):
+                    val = next(iter(percentual_raw.values()), None)
+                elif hasattr(percentual_raw, 'keys'):  # sqlite3.Row
+                    # tenta acessar pela coluna específica, senão pega o primeiro valor
+                    try:
+                        val = percentual_raw[f"parcela{parcela}"]
+                    except Exception:
+                        vals = list(percentual_raw)
+                        val = vals[0] if vals else None
+                elif isinstance(percentual_raw, (list, tuple)):
+                    val = percentual_raw[0] if percentual_raw else None
+                else:
+                    val = percentual_raw
+
+                if val in (None, ''):
+                    return 0.0
+
+                # normaliza string para float (trata vírgula decimal)
+                return float(str(val).replace(',', '.')) / 100.0
+
+            except Exception as e:
+                print("Erro get_percentual:", e)
+                return 0.0
+
+        # Preparar dados para o DataFrame
+        dados_relatorio = []
+        for item in dados_list:
+            if not isinstance(item, dict):
+                continue
+            data_venda = item.get('data_venda') or item.get('dt_cadastro') or ''
             
 
+            valor_venda = parse_num(item.get('valor_venda', 0))
+            parcela= calcular_datas_pagamento(data_venda)
+            percentual= get_percentual(parcela, corretora_name )
+            percentual_bnt = percentual*100
+            valor_a_pagar= round(valor_venda*percentual,2)
+            
+
+            linha = {
+                'nome do responsavel pelo contrato': item.get('sNomeResp') or item.get('nome_responsavel',''),
+                'numero da proposta': item.get('numero_proposta',''),
+                'nome da corretora': item.get('corretor_resp','') or corretora_name,
+                'data de adesão ao plano': data_venda,
+                'parcela': parcela,
+                'percentual': percentual_bnt,
+                'valor à pagar': valor_a_pagar,
+                'vencimento da parcela': vencimentos_pagamentos(data_venda),
+                'numero contrato': item.get('numero_contrato', ''),
+                'valor total venda': f"R$ {valor_venda:.2f}",
+                'produto': item.get('tipo_produto', ''),
+                'cpf responsavel': item.get('sCpfCgcResp', '') or item.get('sCpfUSR',''),
+                'status': item.get('status', '')
+            }
+            dados_relatorio.append(linha)
+
+        df = pd.DataFrame(dados_relatorio)
+        colunas = [
+            'nome do responsavel pelo contrato',
+            'numero da proposta',
+            'nome da corretora', 
+            'data de adesão ao plano',
+            'parcela',
+            'percentual',
+            'valor à pagar',
+            'vencimento da parcela',
+            'numero contrato',
+            'valor total venda',
+            'produto',
+            'cpf responsavel',
+            'status'
+        ]
+        df = df.reindex(columns=colunas)
+        df.to_csv(arquivo_csv, index=False, encoding='utf-8-sig')
+
+        print(f"Relatório gerado com sucesso!")
+        print(f"Total de registros: {total_registros}")
+        print(f"Valor total das vendas: R$ {valor_corretora:.2f}")
+        print(f"Arquivo salvo em: {arquivo_csv}")
+
+        return {
+            'success': True,
+            'arquivo': arquivo_csv,
+            'total_registros': total_registros,
+            'valor_total': valor_corretora
+        }
+
+    except Exception as e:
+        print(f"Erro ao gerar relatório: {str(e)}")
+        return {'success': False, 'error': str(e)}
+
+@docgen_bp.route('/download_relatorio')
+def download_relatorio():
+    pasta_raiz = os.path.join(os.getcwd(), 'static', 'geren_docgen','relatorios','concessionarias')
     
+    caminho_final= os.path.join(pasta_raiz,'relatorio_concessionarias.csv')
+   
+   # Caminho do documento final
+    
+
+    # Verificar se o arquivo existe
+    if not os.path.exists(caminho_final):
+        return "Erro: Documento final não encontrado.", 404
+
+    # Enviar o arquivo para download
+    return send_file(caminho_final, as_attachment=True)
