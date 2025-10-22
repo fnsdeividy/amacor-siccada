@@ -302,25 +302,34 @@ async function loadProfilePhoto() {
     try {
         const response = await fetch('/generic/api/user/profile-photo');
         const data = await response.json();
-        
+
+        const avatarContainer = document.getElementById('avatar-container');
+        const avatarInitial = document.getElementById('avatar-initial');
+
+        // 🔥 Remove qualquer imagem antiga existente
+        const oldImg = avatarContainer.querySelector('.avatar-image');
+        if (oldImg) {
+            oldImg.remove();
+        }
+
         if (data.foto_url) {
-            const avatarContainer = document.getElementById('avatar-container');
-            const avatarInitial = document.getElementById('avatar-initial');
-            
+            // Esconde a inicial e adiciona a imagem
             avatarInitial.style.display = 'none';
-            
+
             const img = document.createElement('img');
-            // Tenta codificar a URL para lidar com espaços
             img.src = encodeURI(data.foto_url);
             img.alt = 'Foto de perfil';
             img.className = 'avatar-image';
             img.onerror = function() {
                 console.error('Erro ao carregar imagem:', data.foto_url);
-                img.style.display = 'none';
+                img.remove(); // remove a imagem quebrada
                 avatarInitial.style.display = 'flex';
             };
-            
+
             avatarContainer.appendChild(img);
+        } else {
+            // Se não há foto, mostra a inicial normalmente
+            avatarInitial.style.display = 'flex';
         }
     } catch (error) {
         console.error('Erro ao carregar foto do perfil:', error);
