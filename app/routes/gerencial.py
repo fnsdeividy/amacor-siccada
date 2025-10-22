@@ -375,8 +375,9 @@ def download_relatorio():
 def render_relatorio_concessionarias():
     from ..models.database import get_corretoras_ext
     from ..utils import verifica_log_att
+    nome_log= 'log_atualizacoa_banco.txt'
     corretoras_ext = get_corretoras_ext()
-    validade= verifica_log_att()
+    validade= verifica_log_att(nome_log)
     print("validade do log:",validade)
 
     if not validade:

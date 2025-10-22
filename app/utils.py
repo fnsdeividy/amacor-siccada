@@ -57,7 +57,7 @@ def log_atualiza_banco(mensagem):
     with open('log_atualizacoa_banco.txt','a')as f:
         f.write(linha)
 
-def verifica_log_att(arquivo_log='log_atualizacoa_banco.txt', limite_dias= 7):
+def verifica_log_att(arquivo_log, limite_dias= 7):
     try:
        with open(arquivo_log,'r')as f:
            linhas=f.readlines()
@@ -81,3 +81,13 @@ def verifica_log_att(arquivo_log='log_atualizacoa_banco.txt', limite_dias= 7):
     except Exception as e:
         print(f"⚠️ Erro ao verificar log: {e}")
         return False
+
+def log_atualiza_status(numero_contrato, status, last_resp):
+    agora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    nome_usuario= session.get('user_nome')
+    mensagem= f"Contrato {numero_contrato} mudado para {status} em {agora}, alterado por {nome_usuario} setor: {last_resp}\n"
+    linha= f'[{agora}]-{mensagem}'
+    with open('log_atualiza_status.txt','a')as f:
+        f.write(linha)
+    
+    
