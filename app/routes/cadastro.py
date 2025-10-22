@@ -322,6 +322,7 @@ def adicionar_doc():
 def gravar_alteracao():
     from ..verifix import verificar_cnt
     from datetime import datetime
+    from ..utils import log_atualiza_status
     info = request.form.get('info') #nome da coluna a ser atualizada       
     print(info)
     hoje= datetime.now().date()
@@ -355,6 +356,8 @@ def gravar_alteracao():
                 cur.close()
                 conn.close()
                 flash('Alteração realizada com sucesso!', 'success')
+                
+                
                 
                 
                 
@@ -397,6 +400,7 @@ def gravar_alteracao():
             cur.close()
             conn.close()
             flash('Alteração realizada com sucesso!', 'success')
+            log_atualiza_status(proposta, status, tipo_usuario)
                 
                 
                 

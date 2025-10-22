@@ -86,6 +86,9 @@ def tab():
     metodo_pagamento = request.args.get('metodo_pagamento', '').strip()
     status = request.args.get('status', '').strip()
     tipo_lancamento = request.args.get('tipo_lancamento', '').strip()
+
+    buscar= request.args.get('buscar')
+
     
     print(f"Parâmetros recebidos na URL: {request.args}")  # Depuração
     
@@ -107,6 +110,9 @@ def tab():
             if metodo_pagamento:
                 query += " AND metodo_pagamento = ?"
                 params.append(metodo_pagamento)
+            if buscar:
+                query += " AND ncontrato = ?"
+                params.append(buscar)
 
             if status:
                 query += " AND status = ?"
