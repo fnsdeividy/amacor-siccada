@@ -1,4 +1,6 @@
 import requests
+from flask import session, jsonify, url_for
+import os
 import base64 
 from email.message import EmailMessage
 import google.auth
@@ -6,6 +8,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import smtplib
 from ..models.database import get_nome
+from ..routes.generic import get_relative_path_img
 
 def consultar_api():
     #url da api
@@ -780,3 +783,21 @@ def redefinir_senha(email,senha):
     """
     complemento = None
     return assunto, mensagem, complemento
+
+def get_profile_photo():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'foto_url': None})
+    
+    # Verifica se a foto existe
+    foto_path = os.path.join(get_relative_path_img(), f'foto_perfil{user_id}')
+    extensions = ['.jpg', '.jpeg', '.png', '.gif']
+    
+    for ext in extensions:
+        caminho_completo = foto_path + ext
+        if os.path.exists(caminho_completo):
+            # Retorna a URL relativa para o frontend
+            foto_url = url_for('static', filename=f'uploads/profile_photos/foto_perfil{user_id}{ext}')
+            return jsonify({'foto_url': foto_url})
+    
+    return jsonify({'foto_url': None})
