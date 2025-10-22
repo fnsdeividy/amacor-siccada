@@ -49,15 +49,20 @@
         <div class="profile-header">
             <button class="profile-close" id="closeProfileModal">✖</button>
             <div class="profile-avatar">
-                <div class="avatar-circle">
-                    <span class="avatar-initial">{{ session['user_nome'][0] if session['user_nome'] else 'U' }}</span>
-                    <button class="edit-avatar-btn" onclick="editProfilePhoto()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                            <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
+    <div class="avatar-circle">
+        <div id="avatar-container">
+            <span class="avatar-initial" id="avatar-initial">
+                {{ session['user_nome'][0] if session['user_nome'] else 'U' }}
+            </span>
+        </div>
+    </div>
+    <!-- 🔥 BOTÃO FORA do avatar-circle -->
+    <button class="edit-avatar-btn" onclick="editProfilePhoto()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+            <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+        </svg>
+    </button>
+</div>
             <h2 class="profile-name">{{ session['user_nome'] or 'Usuário' }}</h2>
             <div class="profile-badge">{{ session.get('classe_usuario', 'Usuário') }}</div>
         </div>
@@ -292,6 +297,40 @@ function handleProfilePhotoUpload(event) {
         // Aqui você faria o upload para o servidor
         console.log('Foto selecionada:', file.name);
     }
+}
+async function loadProfilePhoto() {
+    try {
+        const response = await fetch('/generic/api/user/profile-photo');
+        const data = await response.json();
+        
+        if (data.foto_url) {
+            const avatarContainer = document.getElementById('avatar-container');
+            const avatarInitial = document.getElementById('avatar-initial');
+            
+            avatarInitial.style.display = 'none';
+            
+            const img = document.createElement('img');
+            // Tenta codificar a URL para lidar com espaços
+            img.src = encodeURI(data.foto_url);
+            img.alt = 'Foto de perfil';
+            img.className = 'avatar-image';
+            img.onerror = function() {
+                console.error('Erro ao carregar imagem:', data.foto_url);
+                img.style.display = 'none';
+                avatarInitial.style.display = 'flex';
+            };
+            
+            avatarContainer.appendChild(img);
+        }
+    } catch (error) {
+        console.error('Erro ao carregar foto do perfil:', error);
+    }
+}
+
+// Chama quando o modal é aberto
+function openProfileModal() {
+    document.getElementById('profileModal').classList.add('active');
+    loadProfilePhoto(); // Carrega a foto quando abre o modal
 }
 </script>
 </body>

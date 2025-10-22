@@ -1,3 +1,4 @@
+import os
 from functools import wraps
 from flask import session, redirect, url_for, flash
 from functools import wraps
@@ -90,4 +91,11 @@ def log_atualiza_status(numero_contrato, status, last_resp):
     with open('log_atualiza_status.txt','a')as f:
         f.write(linha)
     
+def get_relative_path_img(user_id=None):
+    """Retorna o caminho da pasta de fotos para um usuário específico"""
+    if user_id is None:
+        user_id = session.get('user_id')
     
+    pasta_raiz = os.path.join(os.getcwd(), 'app', 'static', 'uploads', 'profile_photos', f'fotos_perfil_{user_id}')
+    print(f"DEBUG - Caminho para user {user_id}: {pasta_raiz}")
+    return pasta_raiz

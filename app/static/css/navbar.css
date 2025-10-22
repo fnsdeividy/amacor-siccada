@@ -89,9 +89,18 @@
         }
         
         .profile-avatar {
-            margin-bottom: 15px;
-        }
-        
+    position: relative; /* 🔥 AGORA o botão se posiciona em relação a este container */
+    display: inline-block;
+}
+       #avatar-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: hidden; /* 🔥 Corta conteúdo extra */
+} 
         .avatar-circle {
             width: 80px;
             height: 80px;
@@ -104,10 +113,15 @@
         }
         
         .avatar-initial {
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-        }
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
         
         .profile-name {
             margin: 10px 0 5px;
@@ -261,6 +275,16 @@
     align-items: center;
     justify-content: center;
     border: 3px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden; /* 🔥 IMPORTANTE: Corta o que sai do círculo */
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%; /* 🔥 Garante que a imagem seja redonda */
+    object-fit: cover; /* 🔥 MAGIC: Ajusta a imagem sem distorcer */
+    object-position: center; /* 🔥 Foca no centro da imagem */
+    display: block;
 }
 
 /* Ajuste no ícone de perfil da navbar para ficar clicável */
