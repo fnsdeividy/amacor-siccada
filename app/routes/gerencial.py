@@ -430,9 +430,9 @@ def contratos_corretora():
 
     # usar .get corretamente e fornecer valor padrão
     dados = corretora_infos.get('parcela1', '')
-    print(dados)
+    
 
-    print("corretoras vendas:", corretoras_vendas)
+    
 
     # garantir que extend_corretoras esteja definido ao chamar o gerador
     extend_corretoras = corretora_infos

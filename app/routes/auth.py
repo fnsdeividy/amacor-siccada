@@ -243,10 +243,18 @@ def cadastrar_corretora():
         nome_format = nome.strip()  # Remove espaços em branco extras
         nome = nome_format  # Formata o nome para ter a primeira letra maiúscula
         cnpj= request.form['cnpj']
-        
+        parcela1= request.form['taxa1']
+        parcela2= request.form['taxa2']
+        parcela3= request.form['taxa3']
+        vitalicia = request.form['taxa4']
+
         dados= {
             'nome': nome,
             'cnpj': cnpj,
+            'parcela1': parcela1,
+            'parcela2': parcela2,
+            'parcela3': parcela3,
+            'vitalicia': vitalicia
         }
 
         exist = query_db("SELECT * FROM corretora_ext WHERE cnpj = ?", (cnpj,))

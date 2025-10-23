@@ -10,12 +10,14 @@ body {
     margin: 5px;
     padding: 5px;
     box-sizing: border-box;
-    background-image: url('/static/image/fundo-siccada-all.png') ; /* Cor de fundo para combinar com a navbar */
+    background-image: url('/static/image/fundo-siccada-all.png');
     background-repeat: no-repeat;
-    
+    background-attachment: fixed; /* 👈 Faz o fundo ficar parado */
+    background-size: cover;       /* Ajusta a imagem pra cobrir toda a tela */
+    background-position: center;  /* Centraliza a imagem */
     background-color: #021124;
-    color: white; /* Cor do texto */
-    transition: background 0.3s ease-in-out; /* Transição suave */
+    color: white;
+    transition: background 0.5s ease-in-out;
 }
 
 

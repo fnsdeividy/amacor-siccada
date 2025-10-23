@@ -1164,6 +1164,10 @@ def get_corretoras_cnt(nome_corretora, data_ref, data_entrada, database_path=Non
         if isinstance(d, date):
             return d.strftime('%Y-%m-%d')
         return str(d)
+    
+    dados_corretora= get_extend_corretoras_ext(nome_corretora)
+    vitalicia = dados_corretora.get('vitalicia')
+    print (vitalicia)
 
     data_ref_s = _to_date_str(data_ref)
     data_entrada_s = _to_date_str(data_entrada)
@@ -1181,26 +1185,33 @@ def get_corretoras_cnt(nome_corretora, data_ref, data_entrada, database_path=Non
             else:
                 placeholders = ','.join('?' for _ in corretoras)
                 query = f"""
-                    SELECT v.*, o.*
-                    FROM venda v
-                    INNER JOIN beneficiarios o ON v.numero_contrato = o.sNumeroCNT
-                    WHERE v.corretor_resp IN ({placeholders})
-                      AND o.sMotivoCancelamentoTIT IS NULL
-                      AND v.data_venda BETWEEN ? AND ?
+                     SELECT v.*
+            FROM venda v
+            WHERE v.corretor_resp IN ({placeholders})
+              AND v.data_venda BETWEEN ? AND ?
+              AND EXISTS (
+                  SELECT 1 
+                  FROM beneficiarios o 
+                  WHERE o.sNumeroCNT = v.numero_contrato 
+                  AND o.sMotivoCancelamentoTIT IS NULL
+              )
                 """
                 params = tuple(corretoras) + (data_entrada_s, data_ref_s)
                 cur.execute(query, params)
                 resultados = cur.fetchall()
-        else:
-            query = """
-                SELECT v.*, o.*
-                FROM venda v
-                INNER JOIN beneficiarios o ON v.numero_contrato = o.sNumeroCNT
-                WHERE v.corretor_resp = ?
-                  AND o.sMotivoCancelamentoTIT IS NULL
-                  AND v.data_venda BETWEEN ? AND ?
-            """
-            cur.execute(query, (nome_corretora, data_entrada_s, data_ref_s))
+
+        elif vitalicia:
+            query = f"""
+                    SELECT v.*
+            FROM venda v
+            WHERE v.corretor_resp = '{nome_corretora}'
+              AND EXISTS (
+                  SELECT 1 
+                  FROM beneficiarios o 
+                  WHERE o.sNumeroCNT = v.numero_contrato 
+                  AND o.sMotivoCancelamentoTIT IS NULL)
+                """
+            cur.execute(query)
             resultados = cur.fetchall()
 
         # converter resultados para lista de dicts
@@ -1233,24 +1244,35 @@ def get_corretoras_ext(database_path=None):
 def get_extend_corretoras_ext(corretora, database_path=None):
     conn = get_db_connection(database_path)
     cur = conn.cursor()
-    # usa query parametrizada para evitar SQL injection
+    
     if corretora == 'Todas':
         cur.execute("SELECT * FROM corretora_ext WHERE corretora_ativa = 1")
-        rows = cur.fetchall()
     else:
         cur.execute("SELECT * FROM corretora_ext WHERE nome_corretora = ? AND corretora_ativa = 1", (corretora,))
-        rows = cur.fetchall()
+    
+    rows = cur.fetchall()
     cur.close()
     conn.close()
 
-    # converter cada sqlite3.Row em dict; retorna lista (vazia se nada)
-    return [dict(r) for r in rows] if rows else []
-
+    # Se encontrou resultados, retorna o PRIMEIRO como dicionário
+    if rows:
+        if hasattr(rows[0], 'keys'):  # Se já é sqlite3.Row (que se comporta como dict)
+            return dict(rows[0])      # Converte para dict normal
+        else:                         # Se é tupla
+            col_names = [description[0] for description in cur.description]
+            return dict(zip(col_names, rows[0]))
+    
+    # Retorna dict vazio se não encontrou
+    return {}
 def cadastrar_corretora(dados, database_path=None):
     print(dados)
     from datetime import datetime
     nome= dados.get('nome')
     cnpj= dados.get('cnpj')
+    parcela1= dados.get('parcela1')
+    parcela2= dados.get('parcela2')
+    parcela3= dados.get('parcela3')
+    vitalicia= dados.get('vitalicia')
     data_cadastro = datetime.now().strftime('%Y-%m-%d')
     corretora_ativa= True
     #data_cadastro = dados.get('data_cadastro')
@@ -1265,9 +1287,9 @@ def cadastrar_corretora(dados, database_path=None):
                 cur= conn.cursor()
                 print("tentando acessar os dados para escrecer no banco")
                 cur.execute("""
-                INSERT INTO corretora_ext(nome_corretora,data_cadastro,corretora_ativa,cnpj)
-                            VALUES(?,?,?,?)
-                """, (nome,data_cadastro,corretora_ativa,cnpj))
+                INSERT INTO corretora_ext(nome_corretora,data_cadastro,corretora_ativa,cnpj, parcela1,parcela2,parcela3,vitalicia)
+                            VALUES(?,?,?,?,?,?,?,?)
+                """, (nome,data_cadastro,corretora_ativa,cnpj, parcela1,parcela2,parcela3, vitalicia))
                 conn.commit()
                 conn.close()
                 return True

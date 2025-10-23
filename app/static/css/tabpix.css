@@ -3,7 +3,7 @@
     width: 95vw; /* ocupa 95% da largura da tela */
     margin: 0 auto;
     padding: 120px 20px 20px;
-    background: rgba(29, 29, 43, 0.493);
+    background: rgba(40, 40, 58, 0);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 8px;
@@ -14,11 +14,14 @@
 .container-tab-pix2{
     display: flex;
     justify-content: center;
+    background: rgba(29, 29, 43, 0.493);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     max-width: auto;
     max-height: auto;
     margin: 0 auto;
     padding: 120px 2px 20px; /* Adiciona espaçamento superior para compensar a navbar */
-    background-color:  rgba(29, 29, 43, 0.493); /* Fundo escuro */
+   
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
     color: #f9f9f9; /* Cor do texto para contraste */
@@ -110,8 +113,10 @@
 /* Tabela */
 .table-container-tab-pix {
     overflow-x: auto; /* Permite rolagem horizontal em telas menores */
-    background-color: #2d2d2d; /* Fundo escuro do contêiner */
+    background: rgba(13, 13, 31, 0.021);
     
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);    
     padding: 10px; /* Espaçamento interno */
     border-radius: 8px; /* Bordas arredondadas */
 }
@@ -120,27 +125,30 @@
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
-    background-color: #3a3a3a; /* Fundo escuro da tabela */
+
+    background: rgba(29, 29, 43, 0);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: #f9f9f9; /* Cor do texto */
 }
 
 .table-tab-pix th, .table-tab-pix td {
     padding: 10px;
     text-align: left;
-    border: 1px solid #555; /* Bordas com tom escuro */
+    border: 1px solid #55555544; /* Bordas com tom escuro */
 }
 
 .table-tab-pix th {
-    background-color: #444; /* Fundo mais escuro para o cabeçalho */
+    background-color: #4444446b; /* Fundo mais escuro para o cabeçalho */
     font-weight: bold;
 }
 
 .table-tab-pix tr:nth-child(even) {
-    background-color: #3a3a3a; /* Fundo alternado para linhas pares */
+    background-color: #3a3a3a7c; /* Fundo alternado para linhas pares */
 }
 
 .table-tab-pix tr:nth-child(odd) {
-    background-color: #2d2d2d; /* Fundo alternado para linhas ímpares */
+    background-color: #2d2d2d75; /* Fundo alternado para linhas ímpares */
 }
 
 /* Links de status */
