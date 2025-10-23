@@ -1183,7 +1183,8 @@ def exportar_dependente_to_sig():
         flash("Nenhuma linha gerada para exportação.", "warning")
 
     return redirect(url_for('auth.fechar'))
-       
+
+@docgen_bp.route('/gerar_relatorio_concessionarias')      
 def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
     import pandas as pd 
     from datetime import datetime, timedelta
@@ -1254,7 +1255,7 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
 
         valor_corretora = sum(parse_num(item.get('valor_venda', 0)) if isinstance(item, dict) else 0.0 for item in dados_list)
 
-        def vencimentos_pagamentos(data_venda: str, parcelas=4):
+        def vencimentos_pagamentos(data_venda: str, parcelas=99):
             from calendar import monthrange
             """
             Gera as próximas datas de vencimento com base na data da venda,
@@ -1352,8 +1353,8 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
                 return 2
             elif diff_meses == 3:
                 return 3
-            else:
-                return 4
+            elif diff_meses >= 4:
+                return diff_meses
         def get_percentual(parcela, corretora_name):
             """
             Retorna o percentual (float) para a parcela da corretora.
@@ -1363,10 +1364,16 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
             try:
                 if not corretora_name:
                     return 0.0
-                nome_escaped = corretora_name.replace("'", "''")
-                query = f"SELECT parcela{parcela} FROM corretora_ext WHERE nome_corretora = '{nome_escaped}'"
-                print("SQL get_percentual:", query)
-                percentual_raw = query_db_doc(query, one=True)
+                if parcela<=3:
+                    nome_escaped = corretora_name.replace("'", "''")
+                    query = f"SELECT parcela{parcela} FROM corretora_ext WHERE nome_corretora = '{nome_escaped}'"
+                    print("SQL get_percentual:", query)
+                    percentual_raw = query_db_doc(query, one=True)
+                if parcela>3:
+                    nome_escaped = corretora_name.replace("'", "''")
+                    query = f"SELECT vitalicia FROM corretora_ext WHERE nome_corretora = '{nome_escaped}'"
+                    print("SQL get_percentual:", query)
+                    percentual_raw = query_db_doc(query, one=True)
 
                 if percentual_raw is None:
                     return 0.0
@@ -1478,3 +1485,71 @@ def download_relatorio():
 
     # Enviar o arquivo para download
     return send_file(caminho_final, as_attachment=True)
+
+def gerar_relatorio_pdr_siccada(dados,
+    nome_relatorio,
+    nome_usuario,
+    logo_path,
+    output_path):
+    
+    from openpyxl import Workbook
+    from openpyxl.drawing.image import Image
+    from openpyxl.styles import Font, Alignment, Border, Side
+    from datetime import datetime
+
+    
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Relatório"
+
+    # ---------- Estilos ----------
+    bold = Font(bold=True)
+    italic = Font(italic=True)
+    underline = Font(bold=True, italic=False)
+    align_center = Alignment(horizontal="center", vertical="center")
+    thin_border = Border(
+        left=Side(style='thin'), right=Side(style='thin'),
+        top=Side(style='thin'), bottom=Side(style='thin')
+    )
+
+    # ---------- Inserir Logo ----------
+    img = Image(logo_path)
+    img.height = 40
+    img.width = 120
+    ws.add_image(img, "A1")
+
+    # ---------- Cabeçalho ----------
+    ws["D1"] = "Siccada - DocGen"
+    ws["D2"] = "Sistema Continuado de Cadastro"
+    ws["V1"] = f"Emitido em: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    ws["V2"] = f"Emitido por: {nome_usuario}"
+
+    # ---------- Título ----------
+    ws.merge_cells("A4:Y4")
+    ws["A4"] = nome_relatorio
+    ws["A4"].font = Font(bold=True, size=12)
+    ws["A4"].alignment = align_center
+    ws["A5"] = ""  # linha de espaçamento
+
+    # ---------- Tabela ----------
+    linha_inicial = 6
+    for i, linha in enumerate(dados, start=linha_inicial):
+        for j, valor in enumerate(linha, start=1):
+            cel = ws.cell(row=i, column=j, value=valor)
+            cel.border = thin_border
+            cel.alignment = Alignment(horizontal="center", vertical="center")
+
+    # ---------- Rodapé ----------
+    ultima_linha = linha_inicial + len(dados) + 1
+    ws.merge_cells(f"A{ultima_linha}:Y{ultima_linha}")
+    ws[f"A{ultima_linha}"] = "Documento emitido pelo motor de geração de documentos - DocGen"
+    ws[f"A{ultima_linha}"].font = italic
+    ws[f"A{ultima_linha}"].alignment = align_center
+
+    # ---------- Ajustes de layout ----------
+    for col in range(1, 10):
+        ws.column_dimensions[chr(64 + col)].width = 15
+
+    wb.save(output_path)
+    print(f"✅ Relatório gerado: {output_path}")
