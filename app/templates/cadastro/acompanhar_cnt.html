@@ -95,10 +95,12 @@
 
     .card {
         width: 280px;
-        border: 1px solid #ddd;
+        border: 1px solid #f8f8f8bd;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
+        background: rgba(202, 202, 214, 0.589);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         overflow: hidden;
         margin-bottom: 20px;
         transition: transform 0.3s ease;
@@ -109,7 +111,9 @@
         border: 1px solid #000000;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: #e65757;
+        background: rgba(255, 126, 126, 0.493);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         overflow: hidden;
 
         margin-bottom: 20px;
@@ -140,14 +144,17 @@
     .card-body p {
         margin: 6px 0;
         font-size: 13px;
-        color: #555;
+        color: #242424;
     }
 
     .card-details {
         display: none;
         padding: 12px;
         border-top: 1px solid #ddd;
-        background-color: #f9f9f9;
+        
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
     }
 
     .card-details-atrasado {

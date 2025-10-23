@@ -3,6 +3,7 @@
             font-family: 'Poppins', sans-serif;
             margin: 0;
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-attachment: fixed; /* 👈 Faz o fundo ficar parado */
             background-size: cover;
             color: #fff;
             padding: 20px;
@@ -278,7 +279,7 @@
             color: white;
         }
  .welcome-card {
-    background: linear-gradient(135deg, #1a2a6c, #36a2eb);
+    background: linear-gradient(135deg, #1a2a6c, #2a6e9c);
     padding: 20px 30px;
     border-radius: 16px;
     margin-bottom: 30px;
@@ -287,6 +288,23 @@
     text-align: left;
     animation: fadeIn 0.8s ease-in-out;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+    .filter-section select option {
+        background: rgba(11, 40, 83, 0.95);
+        color: white;
+        padding: 8px 12px;
+    }
+    
+    .filter-section select option:checked {
+        background: linear-gradient(45deg, #19418d, #0b2853);
+        color: white;
+        font-weight: bold;
+    }
 
 .welcome-card h2 {
     font-size: 2rem;
@@ -322,7 +340,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+    background: linear-gradient(145deg, #1a2a6c, #2a6e9c);
     padding: 18px;
     border-radius: 12px;
     text-decoration: none;

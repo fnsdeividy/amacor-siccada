@@ -41,7 +41,7 @@
 
     <div class="welcome-card">
             <h2>👋 Olá <span>{{ nome_user }}</span></h2>
-            <p>Essa é a métrica do Financeiro no período: <strong>{{ dados.periodo.inicio }}</strong> até <strong>{{ dados.periodo.fim }}</strong></p>
+            <p>Essa é a métrica do Financeiro no período: <strong>{{ dados.periodo.inicio|format_date_br }}</strong> até <strong>{{ dados.periodo.fim|format_date_br }}</strong></p>
         </div>
 
     <div class="dashboard-container">
@@ -68,11 +68,7 @@
             </form>
                 
     <!-- Botão no canto direito -->
-    <div class="filter-actions">
-        <a class="a-btn" href=" {{url_for('gerencial.dashboard_financeiro_cnt')}}">
-            Alterar para Cadastro
-        </a>
-    </div>
+    
     </div>
 </div>
         </div>
@@ -82,7 +78,7 @@
             <div class="card stat-card">
                 <div class="stat-value">{{ dados.resumo_geral.total_pagamentos }}</div>
                 <div class="stat-label">Total de pagamentos</div>
-                <div class="stat-label">Período: {{ dados.periodo.inicio }} até {{ dados.periodo.fim }}</div>
+                <div class="stat-label">Período: {{ dados.periodo.inicio|format_date_br }} até {{ dados.periodo.fim|format_date_br }}</div>
             </div>
             <!-- Card de Valor em atraso -->
             <div class="card stat-card">
@@ -101,7 +97,7 @@
             <div class="card stat-card">
                 <div class="stat-value"> {{ dados.pendentes }}</div>
                 <div class="stat-label">Baixas pendentes no periodo</div>
-                <div class="stat-label">Baixas pendentes de: {{ dados.periodo.inicio }} até {{ dados.periodo.fim }}</div>
+                <div class="stat-label">Baixas pendentes de: {{ dados.periodo.inicio|format_date_br }} até {{ dados.periodo.fim|format_date_br }}</div>
             </div>
             <!-- Card de Valor Total -->
             <div class="card stat-card">

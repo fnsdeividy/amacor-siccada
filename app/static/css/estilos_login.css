@@ -21,11 +21,6 @@ h1 {
     margin: 10px 0;
 }
 
-h2 {
-    color: #666;
-    font-size: 1.2em;
-    margin-bottom: 20px;
-}
 
 /* Centralizar o conteúdo da página */
 .login-body {
@@ -37,6 +32,7 @@ h2 {
     font-family: 'Poppins', sans-serif;
     background-image: url('/static/image/fundo-siccada-all.png');
     background-repeat: no-repeat;
+    background-attachment: fixed; /* 👈 Faz o fundo ficar parado */
     background-position: center;
     background-size: cover; /* Garante que cubra toda a tela */
 }
