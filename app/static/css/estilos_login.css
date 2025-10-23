@@ -30,7 +30,7 @@ h1 {
     height: 100vh;
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    background-image: url('/static/image/fundo-siccada-all.png');
+    background-image: url('/static/image/fundo2.jpg');
     background-repeat: no-repeat;
     background-attachment: fixed; /* 👈 Faz o fundo ficar parado */
     background-position: center;
