@@ -26,6 +26,8 @@ def login():
             (email, senha), 
             one=True
         )
+        
+
 
         if usuario:
             # Salva informações do usuário na sessão
@@ -33,6 +35,7 @@ def login():
             session['tipo_usuario'] = usuario['tipo_usuario']
             session['user_nome']= usuario['nome']
             session['classe_usuario'] = usuario['classe_usuario']
+            session['preferencia_wpp']= usuario['preferencias_wpp']
             
             classe_usuario= session.get('classe_usuario')
             session.permanent = True
@@ -241,7 +244,7 @@ def cadastrar_corretora():
     if request.method=='POST':
         nome = request.form['nome']
         nome_format = nome.strip()  # Remove espaços em branco extras
-        nome = nome_format  # Formata o nome para ter a primeira letra maiúscula
+        
         cnpj= request.form['cnpj']
         parcela1= request.form['taxa1']
         parcela2= request.form['taxa2']

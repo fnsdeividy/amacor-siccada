@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash,jsonify, send_file
 from ..models.database import data_dashboard_corretor
-from ..utils import get_relative_path_img
+from ..utils import get_relative_path_img, get_relative_path_backgrounds
 import re
 import sqlite3
 import csv
@@ -168,3 +168,105 @@ def get_profile_photo():
     
     print("DEBUG - Nenhuma foto encontrada")
     return jsonify({'foto_url': None})
+
+@generic_bp.route('/render_escolher_wllpp')
+def escolher_wllpp():
+    """Página para escolher papel de parede entre opções do sistema"""
+    
+    # Caminho dos wallpapers padrão do sistema
+    wallpapers_path = os.path.join(os.getcwd(),'app', 'static', 'image' , 'system_wallapaper')
+    print(f"DEBUG - Caminho wallpapers: {wallpapers_path}")
+    
+    base_url = request.host_url.rstrip('/')  # http://192.168.0.150:8001
+    
+    # Lista todos os wallpapers disponíveis
+    wallpapers = []
+    if os.path.exists(wallpapers_path):
+        for file in os.listdir(wallpapers_path):
+            if file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                # Gera URL completa
+                static_path = url_for('static', filename=f'image/system_wallapaper/{file}')
+                full_url = f"{base_url}{static_path}"
+                
+                wallpapers.append({
+                    'filename': file,
+                    'url': full_url,  # URL completa com IP
+                    'name': os.path.splitext(file)[0].replace('_', ' ').title()
+                })
+    
+    # Ordena por nome
+    wallpapers.sort(key=lambda x: x['name'])
+    print(f"DEBUG - Wallpapers encontrados: {len(wallpapers)}")
+    
+    return render_template('generic/escolher_wallpaper.html', 
+                         wallpapers=wallpapers,
+                         user_id=session.get('user_id'))
+
+@generic_bp.route('/api/set_wallpaper', methods=['POST'])
+def set_wallpaper():
+    from ..models.database import user_preference   
+    """Define o wallpaper escolhido pelo usuário e atualiza sessão + banco"""
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Usuário não logado'})
+    
+    user_id = session.get('user_id')
+    wallpaper_filename = request.json.get('wallpaper')
+    
+    if not wallpaper_filename:
+        return jsonify({'success': False, 'message': 'Wallpaper não especificado'})
+    
+    # Verifica se o wallpaper existe no sistema
+    wallpaper_path = os.path.join(os.getcwd(), 'app', 'static', 'image', 'system_wallapaper', wallpaper_filename)
+    print(f"DEBUG - Verificando wallpaper: {wallpaper_path}")
+    
+    if not os.path.exists(wallpaper_path):
+        return jsonify({'success': False, 'message': 'Wallpaper não encontrado no sistema'})
+    
+    try:
+        # 🔥 SALVA NO BANCO
+        preferencia = f"system:{wallpaper_filename}"
+        user_preference(preferencia, user_id)  # Sua função do banco
+        
+        # 🔥 ATUALIZA A SESSÃO (para acesso imediato)
+        session['preferencia_wpp'] = preferencia
+        
+        # Gera a URL completa do wallpaper escolhido
+        base_url = request.host_url.rstrip('/')
+        static_path = url_for('static', filename=f'image/system_wallapaper/{wallpaper_filename}')
+        full_url = f"{base_url}{static_path}"
+        
+        return jsonify({
+            'success': True, 
+            
+            'background_url': full_url  # 🔥 Retorna a URL completa
+        })
+        
+    except Exception as e:
+        print(f"Erro ao definir wallpaper: {e}")
+        return jsonify({'success': False, 'message': 'Erro ao alterar wallpaper'})
+
+@generic_bp.route('/api/user/background')
+def get_user_background():
+    """Retorna o background do usuário baseado na sessão"""
+    
+    # Se não tem usuário logado, retorna padrão
+    if 'user_id' not in session:
+        default_bg = url_for('static', filename='image/system_wallapaper/fundo-siccada-all.png')
+        return jsonify({'background_url': default_bg})
+    
+    # 🔥 USA A PREFERÊNCIA DA SESSÃO (mais rápido que consultar banco)
+    preferencia = session.get('preferencia_wpp')
+    base_url = request.host_url.rstrip('/')
+    
+    if preferencia and preferencia.startswith('system:'):
+        # Wallpaper do sistema salvo na sessão
+        filename = preferencia.replace('system:', '')
+        static_path = url_for('static', filename=f'image/system_wallapaper/{filename}')
+        background_url = f"{base_url}{static_path}"
+        
+    else:
+        # Fallback para wallpaper padrão
+        static_path = url_for('static', filename='image/system_wallapaper/fundo-siccada-all.png')
+        background_url = f"{base_url}{static_path}"
+    
+    return jsonify({'background_url': background_url})

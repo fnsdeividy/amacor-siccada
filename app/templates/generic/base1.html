@@ -48,6 +48,13 @@
     <div class="profile-content">
         <div class="profile-header">
             <button class="profile-close" id="closeProfileModal">✖</button>
+            <div class="profile-header-actions">
+                <button class="personalize-bg-btn" onclick="personalizeBackground()" title="Personalizar papel de parede">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+        <path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/>
+    </svg>
+</button>
+            </div>
             <div class="profile-avatar">
     <div class="avatar-circle">
         <div id="avatar-container">
@@ -236,7 +243,7 @@
     
     document.addEventListener("DOMContentLoaded", function () {
         const img = new Image();
-        img.src = "/static/image/fundo-siccada-all.png";
+        
         img.onload = function () {
             document.body.style.backgroundImage = `url('${img.src}')`;
         };
@@ -335,12 +342,64 @@ async function loadProfilePhoto() {
         console.error('Erro ao carregar foto do perfil:', error);
     }
 }
+function personalizeBackground() {
+    // Redireciona para a página de personalização de background
+    window.location.href = "{{ url_for('generic.escolher_wllpp') }}";
+}
 
 // Chama quando o modal é aberto
 function openProfileModal() {
     document.getElementById('profileModal').classList.add('active');
     loadProfilePhoto(); // Carrega a foto quando abre o modal
 }
+async function loadUserBackground() {
+    try {
+        // Tenta carregar do localStorage primeiro (mais rápido)
+        const cachedBackground = localStorage.getItem('userBackground');
+        if (cachedBackground) {
+            applyBackground(cachedBackground);
+        }
+        
+        // Busca a preferência atualizada do servidor
+        const response = await fetch('/generic/api/user/background');
+        const data = await response.json();
+        
+        if (data.background_url) {
+            // Atualiza cache e aplica
+            localStorage.setItem('userBackground', data.background_url);
+            applyBackground(data.background_url);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar background:', error);
+        // Fallback padrão
+        applyBackground('/static/image/726999-windows-xp-desktop-backgrounds-1920x1200-for-4k-monitor.jpg');
+    }
+}
+
+// Função para aplicar background no CSS
+function applyBackground(fullImageUrl) {
+    const img = new Image();
+    img.src = fullImageUrl;
+    img.onload = function () {
+        // 🔥 MUDA O CSS DINAMICAMENTE
+        document.body.style.backgroundImage = `url('${fullImageUrl}')`;
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        
+        console.log('✅ Background aplicado:', fullImageUrl);
+    };
+    img.onerror = function () {
+        console.error('❌ Erro ao carregar background:', fullImageUrl);
+    };
+}
+
+// Carrega o background quando a página inicia
+document.addEventListener('DOMContentLoaded', function() {
+    loadUserBackground();
+});
 </script>
 </body>
 </html>

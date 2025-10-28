@@ -484,6 +484,7 @@ def excluir_proposta():
     from ..models.database import get_senha, excluir_proposta
     proposta = request.args.get('proposta')
     from ..cripto import hash_senha
+    last_resp= session.get('tipo_usuario')
     
     if request.method == 'POST':
         
@@ -504,7 +505,7 @@ def excluir_proposta():
         if senha.strip() in [s.strip() for s in senha_cancelamento]:
     
             print(f"senha correta: {senha_cancelamento}")
-            excluir_proposta(proposta)
+            excluir_proposta(proposta, last_resp)
             flash('Proposta excluída com sucesso!', 'success')
             return redirect(url_for('cad.acompanhar_cnt'))
         else:

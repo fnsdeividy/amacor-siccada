@@ -306,3 +306,32 @@
     background-color: rgba(255, 255, 255, 0.1);
     transform: translateY(-1px);
 }
+/* Container dos botões de ação no header */
+.profile-header-actions {
+    position: absolute;
+    top: 79%;
+    left: 91%;
+    display: flex;
+    gap: 8px;
+}
+
+/* Botão de personalizar background */
+.personalize-bg-btn {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: white;
+}
+
+.personalize-bg-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}

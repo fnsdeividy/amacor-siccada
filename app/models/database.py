@@ -479,7 +479,8 @@ def get_senha(database_path=None):
     if resultado:
         return [row['senha'] for row in resultado]
     
-def excluir_proposta(proposta, database_path=None):
+def excluir_proposta(proposta, last_resp,database_path=None):
+    from ..utils import log_atualiza_status
     """
     Exclui uma proposta e todos os seus dados associados do banco de dados.
     """
@@ -489,6 +490,7 @@ def excluir_proposta(proposta, database_path=None):
         cur = conn.cursor()
 
         cur.execute("UPDATE venda SET status = 'venda cancelada' WHERE numero_proposta = ?", (proposta,))
+
         
         conn.commit()
     except Exception as e:
@@ -496,6 +498,10 @@ def excluir_proposta(proposta, database_path=None):
         raise e
     finally:
         conn.close()
+        fase= 'venda cancelada'
+        
+        log_atualiza_status(proposta, fase, last_resp)
+
 
 def get_dados_proposta(proposta_id, database_path=None):
     """
@@ -1264,6 +1270,7 @@ def get_extend_corretoras_ext(corretora, database_path=None):
     
     # Retorna dict vazio se não encontrou
     return {}
+
 def cadastrar_corretora(dados, database_path=None):
     print(dados)
     from datetime import datetime
@@ -1297,5 +1304,28 @@ def cadastrar_corretora(dados, database_path=None):
                 print(f"Erro ao cadastrar corretora: {e}")
                 return False
     
-    
+def user_preference(preferencia,user_id, database_path= None):
+    conn= get_db_connection(database_path)
+    cur= conn.cursor()
+    try:    
+        cur.execute("""
+            UPDATE usuarios SET preferencias_wpp = ? WHERE id = ?;
+        """,(preferencia, user_id))
 
+        conn.commit()
+        conn.close()
+
+    except Exception as e:
+        print("erro:",e)
+
+def get_user_preference(user_id):
+     conn = get_db_connection()
+     cur = conn.cursor()
+     cur.execute("SELECT preferencias_wpp FROM usuarios WHERE id = ?", (user_id,))
+     result = cur.fetchone()
+     conn.close()
+        
+     preferencia = result[0] if result and result[0] else None
+     
+     return preferencia
+        
