@@ -10,7 +10,7 @@ body {
     margin: 5px;
     padding: 5px;
     box-sizing: border-box;
-    background-image: url('/static/image/fundo-siccada-all.png');
+    
     background-repeat: no-repeat;
     background-attachment: fixed; /* 👈 Faz o fundo ficar parado */
     background-size: cover;       /* Ajusta a imagem pra cobrir toda a tela */

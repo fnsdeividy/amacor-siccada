@@ -99,3 +99,11 @@ def get_relative_path_img(user_id=None):
     pasta_raiz = os.path.join(os.getcwd(), 'app', 'static', 'uploads', 'profile_photos', f'fotos_perfil_{user_id}')
     print(f"DEBUG - Caminho para user {user_id}: {pasta_raiz}")
     return pasta_raiz
+
+def get_relative_path_backgrounds(user_id,nome_wallpaper):
+    print(nome_wallpaper)
+
+    
+    pasta_raiz = os.path.join(os.getcwd(), 'app', 'static', 'image', 'system_wallpaper', f'{nome_wallpaper}')
+    print(f"DEBUG - Caminho para user {user_id}: {pasta_raiz}")
+    return pasta_raiz
