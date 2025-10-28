@@ -9,7 +9,7 @@ from flask import Response, request
 import os
 
 
-from app.utils import login_required, acesso
+from app.utils import login_required, acesso, hierarquia
 
 
 ##defs para validação de calculo do acordo
@@ -127,24 +127,9 @@ def tab():
             print(f"pagamentos:{query, params}")
             cur.close()
             
-  # Formatar datas para dd/MM/yyyy
-            pagamentos_formatados = []
-            for p in pagamentos:
-                p = list(p)
-                # Supondo que data_pagamento está na posição 5 e data_vencimento na 10 (ajuste se necessário)
-                try:
-                    if p[5]:
-                        p[5] = datetime.strptime(p[5], "%Y-%m-%d").strftime("%d/%m/%Y")
-                except Exception:
-                    pass
-                try:
-                    if p[10]:
-                        p[10] = datetime.strptime(p[10], "%Y-%m-%d").strftime("%d/%m/%Y")
-                except Exception:
-                    pass
-                pagamentos_formatados.append(p)
+  
 
-            return render_template('financeiro/tab_pix.html', pagamentos=pagamentos_formatados)
+            return render_template('financeiro/tab_pix.html', pagamentos=pagamentos)
 
         except Exception as e:
             print(f"Erro ao buscar pagamentos: {e}")
@@ -243,11 +228,6 @@ def receber_comprovante():
         else:
             flash('Arquivo com extensão não permitida.', "error")
             return redirect(url_for('finan.tab'))
-
-
-
-
-    
 
 @finan_bp.route('/definir_tabela', methods=['GET','POST'])
 def definir():
@@ -431,3 +411,27 @@ def comprovante(pagamento_id):
     print(f"Pagamento recebido: {pagamento_id}, Nome do arquivo: {filename}")
     
     return send_from_directory(comprovante_folder, filename, as_attachment=True)
+
+@finan_bp.route('/render_cancelamentos_boletos', methods=['GET','POST'])
+@acesso('financeiro')
+@hierarquia('supervisor')
+def render_cancelamento_boletos():
+    if request.method == 'POST':
+        data_inicial= request.form.get('data_inicial','')
+        data_final= request.form.get('data_final', '')
+
+        return redirect(url_for('finan.cancelamento_boletos', data_inicial=data_inicial, data_final=data_final))
+
+    return render_template('financeiro/definir_cancelamento.html')
+
+@finan_bp.route('/cancelamentos_boletos')
+@acesso('financeiro')
+@hierarquia('supervisor')
+def cancelamento_boletos():
+    from ..models.database import get_relatorio_cancelamento_boletos
+    data_inicial= request.args.get('data_inicial')
+    data_final= request.args.get('data_final')
+    dados_relatorio= get_relatorio_cancelamento_boletos(data_inicial, data_final)
+    print('dados do relatorio',dados_relatorio)
+
+    return render_template('financeiro/relatorio_boletos_cancelados.html', dados=dados_relatorio)

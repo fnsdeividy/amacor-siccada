@@ -1,21 +1,20 @@
-{% extends 'base1.html' %}
+{% extends "window.html" %}
 
-{% block title %}Filtragem de pagamento{% endblock %}
+{% block window_content %}
 
-{% block content %}
-
-
-<div class="container">
-    <div class="divisoria2">
-        <div class="close-btn-container">
-            <a href="{{ url_for('finan.tab') }}" class="close-btn">✖</a>
+<div class="filter-container">
+        <div class="filter-header">
+            <div class="close-btn-container">
+                <a href="{{ url_for('finan.tab') }}" class="close-btn">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+            <h1 class="filter-title">
+                <i class="fas fa-filter"></i>
+                Filtragem de Pagamentos
+            </h1>
+            <p class="filter-subtitle">Selecione os critérios para filtrar os pagamentos</p>
         </div>
-        <h1>
-            Filtragem de Pagamentos
-        </h1>
-
-        <br><br>
-
 <form method="POST" action="{{ url_for('finan.definir') }}">
     <label for="data_inicio">Data de Início:</label>
     <input type="date" id="data_inicio" name="data_inicio">

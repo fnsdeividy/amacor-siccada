@@ -1,0 +1,47 @@
+{% extends "window.html" %}
+
+{% block window_content %}
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<div class="filter-container">
+    <div class="filter-header">
+        <h1 class="filter-title">
+            <i class="fas fa-filter"></i>
+            Filtragem de Pagamentos
+        </h1>
+        <p class="filter-subtitle">Selecione o período para visualizar os pagamentos</p>
+    </div>
+
+    <div class="filter-form-container">
+        <form method="POST" action="{{ url_for('finan.render_cancelamento_boletos') }}" class="filter-form">
+            <div class="date-inputs">
+                <div class="input-group">
+                    <label for="data_inicial" class="input-label">
+                        <i class="far fa-calendar-alt"></i>
+                        Data de Início
+                    </label>
+                    <input type="date" id="data_inicial" name="data_inicial" class="date-input">
+                </div>
+                
+                <div class="input-group">
+                    <label for="data_final" class="input-label">
+                        <i class="far fa-calendar-alt"></i>
+                        Data de Fim
+                    </label>
+                    <input type="date" id="data_final" name="data_final" class="date-input">
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i>
+                Filtrar
+            </button>
+        </form>
+    </div>
+</div>
+
+
+<!-- Adicionando Font Awesome para ícones -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
