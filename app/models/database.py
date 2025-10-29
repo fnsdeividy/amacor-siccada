@@ -1,6 +1,7 @@
 import sqlite3
 from flask import current_app
 import os
+from datetime import timedelta, datetime
 
 def get_db_connection(database_path=None):
     """
@@ -1329,3 +1330,182 @@ def get_user_preference(user_id):
      
      return preferencia
         
+def get_relatorio_cancelamento_boletos(data_inicial, data_final, database_path=None):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("""
+            WITH validos AS (
+                SELECT sNumeroCNT
+                FROM beneficiarios
+                GROUP BY sNumeroCNT
+                HAVING SUM(
+                    CASE 
+                        WHEN 
+                            date(substr(dExclusaoUSR, 7, 4) || '-' || 
+                                 substr(dExclusaoUSR, 4, 2) || '-' || 
+                                 substr(dExclusaoUSR, 1, 2))
+                            BETWEEN date(?) AND date(?)
+                            AND sDescricaoCancTit <> 'Inadimpl?cia'
+                        THEN 0 ELSE 1
+                    END
+                ) = 0
+            ),
+            primeiro_registro AS (
+                SELECT sNumeroCNT,
+                       sCodigoUSR,
+                       sNomeUSR,
+                       '',
+                       cPrecoPRD,
+                       sDescricaoCancUsu,
+                       dExclusao,
+                       dExclusaoUSR,
+                       sDescricaoCancTit AS cancelamentos,
+                       ROW_NUMBER() OVER (PARTITION BY sNumeroCNT ORDER BY sNumeroCNT DESC) AS rn
+                FROM beneficiarios
+                WHERE sNumeroCNT IN (SELECT sNumeroCNT FROM validos)
+            )
+            SELECT sNumeroCNT,
+                   sCodigoUSR,
+                   sNomeUSR,
+                   '',
+                   cPrecoPRD,
+                   sDescricaoCancUsu,
+                   dExclusao,
+                   dExclusaoUSR,
+                   cancelamentos
+            FROM primeiro_registro
+            WHERE rn = 1;
+        """, (data_inicial, data_final))
+        
+        rows = cur.fetchall()
+        return rows
+        
+    except Exception as e:
+        print(f"Erro na consulta: {e}")
+        return []
+    finally:
+        # Garante que a conexão será fechada
+        cur.close()
+        conn.close()
+
+def criar_tabela_cancelar_boleto(dados, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    try:
+        # 1️⃣ Cria a tabela caso não exista
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS boletos_a_cancelar (
+                sNumeroCNT TEXT PRIMARY KEY,
+                sCodigoUSR TEXT,
+                sNomeUSR TEXT,
+                campo_vazio TEXT,
+                cPrecoPRD REAL,
+                sDescricaoCancUsu TEXT,
+                dExclusao TEXT,
+                dExclusaoUSR TEXT,
+                cancelamentos TEXT,
+                pago BOOLEAN DEFAULT 0,
+                update_date TEXT
+            );
+        """)
+
+        # 2️⃣ Insere registros sem duplicar
+        cur.executemany("""
+            INSERT OR IGNORE INTO boletos_a_cancelar (
+                sNumeroCNT, sCodigoUSR, sNomeUSR, campo_vazio,
+                cPrecoPRD, sDescricaoCancUsu, dExclusao, dExclusaoUSR, cancelamentos
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, dados)
+
+        conn.commit()
+        print(f"{len(dados)} registros processados com sucesso.")
+        
+    except Exception as e:
+        print(f"Erro ao criar tabela: {e}")
+        conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+
+def get_cancelamentos(numero_contato, data_inicial, data_final, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    try:
+        if not numero_contato:
+            cur.execute("""
+                SELECT * FROM boletos_a_cancelar
+                WHERE date(substr(dExclusaoUSR, 7, 4) || '-' || 
+                          substr(dExclusaoUSR, 4, 2) || '-' || 
+                          substr(dExclusaoUSR, 1, 2))
+                BETWEEN date(?) AND date(?)
+            """, (data_inicial, data_final))
+            dados = cur.fetchall()
+        else:
+            # CORREÇÃO: Use parâmetros em vez de f-string
+            cur.execute("""
+                SELECT * FROM boletos_a_cancelar
+                WHERE sNumeroCNT = ?
+            """, (numero_contato,))
+            dados = cur.fetchone()
+            
+        return dados
+        
+    except Exception as e:
+        print(f"Erro na consulta: {e}")
+        return None
+    finally:
+        cur.close()
+        conn.close()
+
+def alterar_registro_cancelamento(numero_contrato, database_path=None):
+    print("Tentando alterar info de registro")
+    print('Valor do contrato:', numero_contrato)
+    
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    try:
+        hoje = datetime.now().date()
+        
+        # CORREÇÃO: Use parâmetros em vez de f-string
+        cur.execute("""
+            UPDATE boletos_a_cancelar 
+            SET pago = 1, update_date = ?
+            WHERE sNumeroCNT = ?
+        """, (str(hoje), numero_contrato))
+        
+        conn.commit()
+        print("Registro atualizado com sucesso!")
+        
+    except Exception as e:
+        print(f"Erro ao atualizar registro: {e}")
+        conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+
+def delete_registros_antigos(database_path=None, limite=7):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    try:
+        data_limite = (datetime.now() - timedelta(days=limite)).date()
+        
+        cur.execute("""
+            DELETE FROM boletos_a_cancelar 
+            WHERE update_date < ?
+        """, (str(data_limite),))
+        
+        conn.commit()
+        print(f"Registros antigos anteriores a {data_limite} removidos.")
+        
+    except Exception as e:
+        print(f"Erro ao deletar registros: {e}")
+        conn.rollback()
+    finally:
+        cur.close()
+        conn.close()

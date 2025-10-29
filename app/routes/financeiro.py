@@ -428,10 +428,44 @@ def render_cancelamento_boletos():
 @acesso('financeiro')
 @hierarquia('supervisor')
 def cancelamento_boletos():
-    from ..models.database import get_relatorio_cancelamento_boletos
+    from ..models.database import get_relatorio_cancelamento_boletos, criar_tabela_cancelar_boleto, get_cancelamentos, delete_registros_antigos
     data_inicial= request.args.get('data_inicial')
     data_final= request.args.get('data_final')
+    delete_registros_antigos()
     dados_relatorio= get_relatorio_cancelamento_boletos(data_inicial, data_final)
-    print('dados do relatorio',dados_relatorio)
+    criar_tabela_cancelar_boleto(dados_relatorio)
+    numero_contrato = None
+    dados= get_cancelamentos(numero_contrato, data_inicial, data_final)
+    
+    return render_template('financeiro/relatorio_boletos_cancelados.html', dados=dados, data_inicial=data_inicial, data_final=data_final)
 
-    return render_template('financeiro/relatorio_boletos_cancelados.html', dados=dados_relatorio)
+@finan_bp.route('alterar_stts_boleto', methods= ['GET','POST'])
+@acesso('financeiro')
+@hierarquia('supervisor')
+def cancelar_boleto():
+    from ..models.database import get_cancelamentos, alterar_registro_cancelamento
+
+    data_inicial= request.args.get('data_inicial','')
+    data_final= request.args.get('data_final', '')
+    numero_contrato= request.args.get('numero_contrato')
+    print(numero_contrato)
+    dados= get_cancelamentos(numero_contrato, data_inicial, data_final)
+    print(dados)
+    
+
+    if request.method == 'POST':
+        numero_contrato = request.form.get('numero_contrato')
+        data_inicial= request.form.get('data_inicial','')
+        data_final= request.form.get('data_final', '')
+
+        try:
+            alterar_registro_cancelamento(numero_contrato)
+        except Exception as e:            
+            print(f"❌ Erro ao processar: {e}")
+        finally:
+            return redirect(url_for('finan.cancelamento_boletos',data_inicial=data_inicial, data_final=data_final))
+
+
+
+    return render_template('financeiro/cancelar_boleto.html', dados=dados, numero_contrato=numero_contrato,data_inicial=data_inicial, data_final=data_final)
+    

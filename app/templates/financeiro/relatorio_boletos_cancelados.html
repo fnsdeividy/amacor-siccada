@@ -22,10 +22,7 @@
     <form class="filter-tab-pix" method="POST">
         <a class="btn-tab-pix" href="{{ url_for('finan.definir') }}">Filtrar tabela</a>
     </form>
-    <form method="get" action="{{ url_for('finan.tab') }}" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
-        <input type="text" name="buscar" placeholder="Buscar por Contrato" value="{{ request.args.get('buscar', '') }}" style="padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; min-width: 220px; font-size: 15px; background: #fff; color: #222;">
-        <button class="btn" type="submit">Buscar</button>
-    </form>  
+     
 
     <!-- Tabela de pagamentos -->
     <div class="table-container-tab-pix">
@@ -37,6 +34,7 @@
                     <th>Matricula</th>
                     <th>Data de Exclusão</th>
                     <th>Motivo de Exclusão</th>
+                    <th>Pagamento</th>
                     
                 </tr>
             </thead>
@@ -46,8 +44,14 @@
                     <td>{{ dado[0]}}</td>
                     <td>{{ dado[2] }}</td>
                     <td>{{ dado[1] }}</td>
-                    <td>{{ dado[6] }}</td>
                     <td>{{ dado[7] }}</td>
+                    <td>{{ dado[8] }}</td>
+                    <td>
+                        <a class="{% if dado[9] == 1 %}status-enviado{% else %}status-pendente {% endif %}"
+                        href="{{ url_for('finan.cancelar_boleto',data_inicial=data_inicial, data_final=data_final ,numero_contrato= dado[0]) }}">
+                            {{ 'Cancelar' if dado[9] == 0 else 'Cancelado' }}
+                        </a>
+                    </td>
                     
                 </tr>
                 {% endfor %}
@@ -57,10 +61,7 @@
 </div>
 
     <!-- Botões de ação -->
-    <div class="action-buttons-tab-pix">
-        <a id="export_csv" class="btn-tab-pix">Exportar CSV</a>
-            
-</div>
+    
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

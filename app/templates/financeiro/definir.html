@@ -15,12 +15,12 @@
             </h1>
             <p class="filter-subtitle">Selecione os critérios para filtrar os pagamentos</p>
         </div>
-<form method="POST" action="{{ url_for('finan.definir') }}">
+<form method="POST" action="{{ url_for('finan.definir') }}" >
     <label for="data_inicio">Data de Início:</label>
-    <input type="date" id="data_inicio" name="data_inicio">
+    <input type="date" id="data_inicio" name="data_inicio" class="date-input">
 
     <label for="data_fim">Data de Fim:</label>
-    <input type="date" id="data_fim" name="data_fim">
+    <input type="date" id="data_fim" name="data_fim" class="date-input">
 
     <label for="metodo_pagamento">Método de Pagamento:</label>
     <select id="metodo_pagamento" name="metodo_pagamento">
