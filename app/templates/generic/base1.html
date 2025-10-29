@@ -173,9 +173,10 @@
         <a href="#" onclick="toggleSubmenu('financeiro-submenu')">Financeiro 💰</a>
         <div class="submenu" id="financeiro-submenu">
             <a href="{{ url_for('finan.pix') }}">Lançar Pagamento</a>
-            <a href="{{ url_for('finan.tab') }}">Conferencia de pagamento</a>
+            <a href="{{ url_for('finan.tab', status='efetuado') }}">Conferencia de pagamento</a>
             <a href="{{ url_for('doc_gen.processar_csv_form') }}">gerar prevencimento</a>
-            
+            <a href="{{ url_for('finan.render_cancelamento_boletos') }}">relatorio de boletos</a>
+
         </div>
         <button class="logout-btn" onclick="window.location.href='{{ url_for('auth.logoff') }}'">Sair</button>
     </div>

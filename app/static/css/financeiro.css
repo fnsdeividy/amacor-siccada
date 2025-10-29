@@ -1,0 +1,184 @@
+.titulo-pagamento {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.6em;
+    letter-spacing: 0.5px;
+}
+
+.form-pagamento {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.info-pagamento p {
+    margin: 4px 0;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+.campo-status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1em;
+}
+
+.acoes-form {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn,
+.btn-cancela {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.btn:hover,
+.btn-cancela:hover {
+    transform: scale(1.05);
+}
+
+
+.filter-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    
+    border-radius: 12px;
+    
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.filter-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.filter-title {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.filter-title i {
+    color: #3498db;
+}
+
+.filter-subtitle {
+    color: #ffffff;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.filter-form-container {
+    padding: 1rem 0;
+}
+
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.date-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .date-inputs {
+        flex-direction: row;
+        gap: 1rem;
+    }
+    
+    .input-group {
+        flex: 1;
+    }
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-label i {
+    color: #3498db;
+}
+
+.date-input {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background-color: #fff;
+}
+
+.btn-primary {
+    background-color: #004691;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1rem;
+}
+
+.btn-primary:hover {
+    background-color: #013369;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(66, 128, 168, 0.411);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Estilo para o container principal */
+body {
+    background-color: #f5f7fa;
+    padding: 2rem 1rem;
+}

@@ -1,21 +1,14 @@
-{% extends 'base1.html' %}
+{% extends "window.html" %}
 
 {% block title %}Filtragem de Contratos{% endblock %}
 
-{% block content %}
-
-
-<div class="container">
-    <div class="divisoria2">
-        <div class="close-btn-container">
-            <a href="{{ url_for('auth.fechar') }}" class="close-btn">✖</a>
-        </div>
+{% block window_content %}
         <h1>
             Filtragem de Contratos
         </h1>
 
         
-        <form method="GET" action="{{ url_for('gerencial.relatorio_vendas') }}">
+        <form method="GET" action="{{ url_for('gerencial.relatorio_vendas') }}" class="filter-form">
             <label for ="status">Status da proposta:</label>
             <select name="status" id="status">
                 <option value="" disabled selected>Selecione</option>
@@ -28,14 +21,14 @@
                 <option value="geração de kit">gerar kit</option>
                 <option value="contrato finalizado">contrato finalizado</option>
             </select>
-            <br><br>
-            <label for="data_inicio">Data de Início:</label>
-            <input type="date" id="data_inicio" name="venda_inicial">
+            
+            <label for="data_inicio" class="input-label">Data de Início:</label>
+            <input type="date" id="data_inicio" name="venda_inicial" class="date-input">
         
-            <label for="data_fim">Data de Fim:</label>
-            <input type="date" id="data_fim" name="venda_final">
+            <label for="data_fim" class="input-label">Data de Fim:</label>
+            <input type="date" id="data_fim" name="venda_final" class="date-input">
         
-            <button type="submit">Redirecionar</button>
+            <button type="submit" class="btn btn-primary">Redirecionar</button>
         </form>
     </div>
 </div>  

@@ -1,0 +1,76 @@
+{% extends 'base1.html' %}
+
+{% block title %}Tabela de dados{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tabpix.css') }}">
+
+<div class="container-tab-pix">
+    <!-- Botão de fechar -->
+    <div class="filter-tab-pix2">
+        <a class="close-btn" href="{{ url_for('auth.login_redir') }}" class="close-btn">✖</a>
+    </div>
+
+    
+    
+    
+
+    <!-- Título da tabela -->
+    <h1 class="table-title-tab-pix">Boletos para cancelamento</h1>
+
+    <form class="filter-tab-pix" method="POST">
+        <a class="btn-tab-pix" href="{{ url_for('finan.definir') }}">Filtrar tabela</a>
+    </form>
+     
+
+    <!-- Tabela de pagamentos -->
+    <div class="table-container-tab-pix">
+        <table class="table-tab-pix">
+            <thead>
+                <tr>
+                    <th>Contrato</th>
+                    <th>Responsável</th>
+                    <th>Matricula</th>
+                    <th>Data de Exclusão</th>
+                    <th>Motivo de Exclusão</th>
+                    <th>Pagamento</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for dado in dados %}
+                <tr>
+                    <td>{{ dado[0]}}</td>
+                    <td>{{ dado[2] }}</td>
+                    <td>{{ dado[1] }}</td>
+                    <td>{{ dado[7] }}</td>
+                    <td>{{ dado[8] }}</td>
+                    <td>
+                        <a class="{% if dado[9] == 1 %}status-enviado{% else %}status-pendente {% endif %}"
+                        href="{{ url_for('finan.cancelar_boleto',data_inicial=data_inicial, data_final=data_final ,numero_contrato= dado[0]) }}">
+                            {{ 'Cancelar' if dado[9] == 0 else 'Cancelado' }}
+                        </a>
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <!-- Botões de ação -->
+    
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let urlParams = new URLSearchParams(window.location.search);
+        let filtroStatus = urlParams.get("status") || "todos";
+        let exportLink = document.getElementById("export_csv");
+
+        // Atualiza o href do botão com o status correto
+        exportLink.href = `/finan/csv?status=${encodeURIComponent(filtroStatus)}`;
+    });
+</script>
+{% endblock %}

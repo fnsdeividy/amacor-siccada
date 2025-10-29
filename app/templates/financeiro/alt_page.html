@@ -1,38 +1,88 @@
-{% extends 'base1.html' %}
+{% extends "window.html" %}
 
-{% block title %}Editar Pagamento{% endblock %}
+{% block window_content %}
 
-{% block content %}
-<div class="container">
-       
-<div class="divisoria2">
-    <div class="close-btn-container">
-        <a href="{{ url_for('auth.login_redir') }}" class="close-btn">✖</a>
+<h1 class="titulo-pagamento">Editar Lançamento de Pagamento</h1>
+
+<form method="POST" class="form-pagamento">
+    
+    <div class="info-pagamento">
+        <p><strong>Número de Contrato:</strong> {{ pagamento[2] }}</p>
+        <p><strong>Responsável:</strong> {{ pagamento[3] }}</p>
+        <p><strong>Valor:</strong> R$ {{ pagamento[4] }}</p>
+        <p><strong>Data de Pagamento:</strong> {{ pagamento[5] }}</p>
+        <p><strong>Método:</strong> {{ pagamento[6] }}</p>
+        <p><strong>Descrição:</strong> {{ pagamento[7] }}</p>
     </div>
-    <h1>Editar Lançamento de pagamento</h1>
-    <form method="POST">
-        
-        <p><strong>Numero de Contrato:  </strong> {{ pagamento[2] }}</p>
 
-        <p><strong>Responsável:  </strong> {{ pagamento[3] }}</p>
-        <p><strong>Valor:  </strong> R$ {{ pagamento[4] }}</p>
-        <p><strong>Data de Pagamento:  </strong> {{ pagamento[5] }}</p>
-        <p><strong>Método:  </strong> {{ pagamento[6] }}</p>
-        <p><strong>Descrição:  </strong> {{ pagamento[7] }}</p>
-        <br>
-        <label for="status">Status:</label>
+    <div class="campo-status">
+        <label for="status"><strong>Status:</strong></label>
         <select id="status" name="status" required>
             <option value="efetuado" {% if pagamento[8] == 'pendente' %}selected{% endif %}>Pendente</option>
-            <option value="baixado" {% if pagamento[8] == 'pago' %}selected{% endif %}>baixado</option>
+            <option value="baixado" {% if pagamento[8] == 'pago' %}selected{% endif %}>Baixado</option>
             <option value="cancelado" {% if pagamento[8] == 'cancelado' %}selected{% endif %}>Cancelado</option>
         </select>
-        <br><br>
-        <br>
+    </div>
 
+    <div class="acoes-form">
         <button class="btn" type="submit">Salvar</button>
-        <br><br>
         <a class="btn-cancela" href="{{ url_for('finan.tab', status=pagamento[8]) }}">Cancelar</a>
-    </form>
-</div>
-</div>
+    </div>
+</form>
+<style>
+.titulo-pagamento {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.6em;
+    letter-spacing: 0.5px;
+}
+
+.form-pagamento {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.info-pagamento p {
+    margin: 4px 0;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+.campo-status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+select {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1em;
+}
+
+.acoes-form {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn,
+.btn-cancela {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.btn:hover,
+.btn-cancela:hover {
+    transform: scale(1.05);
+}
+</style>
 {% endblock %}
