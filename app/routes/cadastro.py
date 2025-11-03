@@ -162,7 +162,7 @@ def detalhes_cnt():
             complemento = f'{complemento}'
             variavel_comp = "agendado para: "  
         elif len(complemento) > 40:
-            complemento = 'Aguardando assinatura da declaração'
+            complemento = 'Aguardando assinatura'
             variavel_comp = "complemento de fase:"  
         elif len(complemento) > 20 and len(complemento)<40:
             complemento = f'{complemento}'
