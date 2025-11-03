@@ -173,7 +173,9 @@ def juntar_pdf(lista_caminhos, caminho_saida):
 
 @docgen_bp.route('render_gerar_kit', methods=['GET','POST'])
 def render_gerar_kit():
-    
+    numero_contrato= request.args.get('numero_contrato','')
+    if numero_contrato:
+        return redirect(url_for('doc_gen.gerar_documentos', numero_contrato=numero_contrato))
     if request.method == 'POST':
         numero_contrato= request.form.get('numero_contrato','').strip()
         

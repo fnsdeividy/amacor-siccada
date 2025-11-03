@@ -215,3 +215,21 @@
 .close-btn:hover {
     color:  #c82333;
 }
+
+.btn-detalhes {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: medium;
+    margin: 2px;
+    background-color: #004691;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.5s ease, transform 0.5s ease;
+}
+
+.btn-detalhes:hover {
+    background-color: #013368;
+    transform: scale(1.05); /* ✅ use transform, não scale isolado */
+}
