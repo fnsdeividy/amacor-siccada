@@ -74,7 +74,7 @@ def acompanhar_cnt():
     elif venda_final and venda_inicial:      
         
         print(f"Venda inicial: {venda_inicial}, Venda final: {venda_final}")
-        cur.execute("SELECT * FROM venda WHERE data_venda BETWEEN ? AND ?", (venda_inicial, venda_final))
+        cur.execute("SELECT * FROM venda WHERE data_venda BETWEEN ? AND ? ORDER BY data_venda DESC", (venda_inicial, venda_final))
         result = cur.fetchall()
         print(f"result: {result}")
         return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
@@ -85,7 +85,7 @@ def acompanhar_cnt():
         except ValueError:
             buscar = buscar  # permite buscar strings também
         print(f"buscando por: {buscar}")
-        query = f"SELECT * FROM venda WHERE numero_proposta = ? OR numero_contrato = ? OR nome_responsavel LIKE '%{buscar}%'" 
+        query = f"SELECT * FROM venda WHERE numero_proposta = ? OR numero_contrato = ? OR nome_responsavel LIKE '%{buscar}%' ORDER BY data_venda DESC" 
         result = query_db(query, (buscar,buscar))
         # Converte cada Row em dict para evitar erro de serialização
         if result:
@@ -98,13 +98,13 @@ def acompanhar_cnt():
         
         if tipo_usuario == 'vendas':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status <>'contrato finalizado'"
+            query = "SELECT * FROM venda WHERE status <>'contrato finalizado' ORDER BY data_venda DESC"
             result = query_db(query)
             print(area, tipo_usuario)
-            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
+            return render_template('cadastro/acompanhar_cnt.html ORDER BY data_venda DESC', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'cadastro':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status = 'Enviado ao cadastro' OR status = 'entrevista online enviada'" 
+            query = "SELECT * FROM venda WHERE status = 'Enviado ao cadastro' OR status = 'entrevista online enviada ORDER BY data_venda DESC'" 
             result = query_db(query)
             if result is None:
                return render_template('cadastro/sem_registro.html ', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
@@ -112,12 +112,12 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'financeiro':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'Enviado ao cadastro' OR status = 'boleto emitido'"
+            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'Enviado ao cadastro' OR status = 'boleto emitido ORDER BY data_venda DESC'"
             result = query_db(query)
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro' OR status ='kit enviado' OR status = 'em pendencia'"
+            query = "SELECT * FROM venda WHERE status ='entrevista agendada' OR status = 'analise de declaração'OR status= 'geração de kit' OR status = 'Enviado ao cadastro' OR status ='kit enviado' OR status = 'em pendencia' ORDER BY data_venda DESC"
             result = query_db(query)
 
             return render_template('cadastro/acompanhar_cnt.html', result=result, area=tipo_usuario,classe_usuario=classe_usuario)
