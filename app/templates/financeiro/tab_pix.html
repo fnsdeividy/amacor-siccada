@@ -53,7 +53,7 @@
                     <td>{{ pagamento[2] }}</td>
                     <td>{{ pagamento[3] }}</td>
                     <td>
-    <a class="{% if pagamento[13] == 1 %}status-enviado{% else %}status-pendente {% endif %}"
+    <a class="{% if pagamento[13] == 1 %}status-enviado{% else %}status-pendente-btn {% endif %}"
        href="{{ url_for('finan.comprovante', pagamento_id=pagamento[0]) }}">
        {{ pagamento[4] }}
     </a>

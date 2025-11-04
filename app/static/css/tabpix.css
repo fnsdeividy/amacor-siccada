@@ -27,7 +27,7 @@
     color: #f9f9f9; /* Cor do texto para contraste */
 }
 
-.status-pendente{
+.status-pendente-btn{
     display: inline-block;
     padding: 10px 20px;
     background-color: #f3c784;
@@ -38,7 +38,7 @@
     transition: background-color 0.3s ease;
 
 }
-.status-pendente:hover {
+.status-pendente-btn:hover {
     background-color: #f39d4d;
     color: rgb(0, 0, 0);
     scale: 1.05; /* Aumenta o tamanho do botão ao passar o mouse */
