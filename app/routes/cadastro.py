@@ -29,7 +29,7 @@ def doc_home():
 @hierarquia('supervisor','agente','vendedor')
 
 def acompanhar_cnt():
-    from ..models.database import atualiza_atrasos
+    from ..models.database import atualiza_atrasos, get_acompanhar_cnt
     buscar = request.args.get('buscar')
 
     atualiza_atrasos()
@@ -47,6 +47,8 @@ def acompanhar_cnt():
     classe_usuario = session.get('classe_usuario')
     venda_inicial = request.args.get('venda_inicial')
     venda_final = request.args.get('venda_final')
+    
+    
 
     print(classe_usuario)
     
@@ -54,13 +56,12 @@ def acompanhar_cnt():
 
     print(resp)
     if resp:
-        cur.execute("SELECT * FROM venda WHERE corretor_resp = ?", (resp,))
-        result = cur.fetchall()
-        print(f"result: {result}")
+        tipo_consulta= 'corretor'
+        result= get_acompanhar_cnt(tipo_consulta, resp)        
         return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp)
         
     elif filtrar:
-        cur.execute("SELECT * FROM venda WHERE status = ?", (filtrar,))
+        cur.execute("SELECT * FROM venda WHERE status = ? ORDER BY data_venda DESC", (filtrar,))
         result = cur.fetchall()
         print(f"result: {result}")
         return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario, classe_usuario=classe_usuario)

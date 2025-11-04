@@ -155,6 +155,28 @@ def listar_vendedor(database_path= None):
     conn.close()
     return vendedores
 
+def get_acompanhar_cnt(tipo_consulta, valor_espex, database_path= None):
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+
+    print (f'consultando para {tipo_consulta} com valor {valor_espex}')
+
+    if tipo_consulta == 'corretor':
+        cur.execute("SELECT * FROM venda WHERE corretor_resp = ? ORDER BY data_venda DESC", (valor_espex,))
+        result = cur.fetchall()
+        
+    elif tipo_consulta == 'filtar':
+        cur.execute("SELECT * FROM venda WHERE status= ? ORDER BY data_venda DESC", (valor_espex,))
+        result = cur.fetchall()
+    
+
+    return result
+    
+    
+
+
+    
+
 def get_status(proposta_id, database_path=None):
     print(f"proposta recebida: {proposta_id}") 
     conn = get_db_connection(database_path)
@@ -384,7 +406,8 @@ def get_carteirinha_to_app(cpf, database_path=None):
 
     cur.execute("""
         SELECT * FROM beneficiarios 
-        WHERE sCpfUSR = ? 
+        WHERE sCpfUSR = ? AND 
+        dExclusaoUSR IS NULL
         
     """, (cpf,))  
 
@@ -1059,31 +1082,28 @@ def data_dashboard_vendas(data_ref, database_path=None):
     return dashboard_data
 
 def get_payment_to_app(data, database_path=None):
+    print(f"dados recebidos: {data}")
     ncontrato= data
     print(f"dados recebidos: {ncontrato}") 
     conn = get_db_connection(database_path)
     cur = conn.cursor()
 
     cur.execute("""
-       SELECT SUM(cPrecoPRD) as preco_mensalidade
-FROM (
-    SELECT DISTINCT sCpfUSR, cPrecoPRD
-    FROM beneficiarios 
-    WHERE sNumeroCNT = ?
-      AND sCpfUSR IS NOT NULL
-) AS distinct_cpfs;
+       SELECT * FROM boletos
+                WHERE contrato = ?
         
     """, (ncontrato,))  
-    resultado = cur.fetchone()
+    resultado = cur.fetchall()
     conn.close()
 
     print(f'responsavel retornado: {resultado}')
     
     # Converte o resultado em um dicionário
+    for result in resultado:
+        print(dict(result))
     if resultado:
-        return dict(resultado)
+        return [dict(row) for row in resultado]
     return None
-
 def atualiza_atrasos(database_path=None):
     from datetime import datetime
     from flask import current_app
@@ -1100,12 +1120,13 @@ def atualiza_atrasos(database_path=None):
     print(f"Data de hoje: {hoje}")
 
     limites = {
-        'enviado ao cadastro': 1,
+        'Enviado ao cadastro': 1,
         'entrevista online enviada': 2,
         'entrevista agendada': 4,
         'enviado para financeiro': 3,
         'analise de declaração': 2,
         'geração de kit': 1,
+        'em pendencia': 10,
     }
 
     cur.execute("""
