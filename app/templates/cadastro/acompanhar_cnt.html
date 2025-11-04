@@ -242,7 +242,7 @@
                 </div>
                 <div class="card-body" onclick="toggleDetails(this)">
                     <h3 style="color: #333;"><strong>Responsavel:</strong> {{ row[18] }}</h3>
-                    <p><strong>Data:</strong> {{ row[2] }}</p>
+                    <p><strong>Data:</strong> {{ row[2]|format_date_br }}</p>
                     <p><strong>Status:</strong> {{ row[6] }}</p>
                     {% if row[6] == 'entrevista agendada' %}
                         <p><strong>Agendada para: {{row[20]}}</strong>
