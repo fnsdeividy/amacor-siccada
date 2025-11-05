@@ -43,7 +43,7 @@
                     <td>{{ dado[7] }}</td>
                     <td>{{ dado[8] }}</td>
                     <td>
-                        <a class="{% if dado[9] == 1 %}status-enviado{% else %}status-pendente {% endif %}"
+                        <a class="{% if dado[9] == 1 %}status-enviado{% else %}status-pendente-btn {% endif %}"
                         href="{{ url_for('finan.cancelar_boleto',data_inicial=data_inicial, data_final=data_final ,numero_contrato= dado[0]) }}">
                             {{ 'Cancelar' if dado[9] == 0 else 'Cancelado' }}
                         </a>
