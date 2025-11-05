@@ -101,7 +101,7 @@ def acompanhar_cnt():
             query = "SELECT * FROM venda WHERE status <>'contrato finalizado' ORDER BY data_venda DESC"
             result = query_db(query)
             print(area, tipo_usuario)
-            return render_template('cadastro/acompanhar_cnt.html ORDER BY data_venda DESC', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'cadastro':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status = 'Enviado ao cadastro' OR status = 'entrevista online enviada ORDER BY data_venda DESC'" 
