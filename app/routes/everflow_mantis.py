@@ -82,14 +82,24 @@ def mantis():
         'session_id': session_id
     })
 
-@mantis_bp.route('/get_card', endpoint='get_card')
+@mantis_bp.route('/get_card', endpoint='get_card', methods=['POST'])
 def card_to_app():
     from ..models.database import get_carteirinha_to_app
-    session_id = request.args.get('token', '')
+    
+    data = request.get_json(silent=True)
+    token = request.headers.get('Authorization')
+    print(f"dados recebidos: {data} e token {token}")
+    
+
+    session_id= token    
+    session['session_id'] = session_id
+    
+   
     internal_sesson_id = session.get('session_id', '')
-    hashed_cpf = request.args.get('cpf', '')
+    hashed_cpf = data.get('cpf')
     print("id da sessao",session_id)
     print(internal_sesson_id)
+
 
     if not session_id:
         return jsonify({'error': 'No session_id provided'}), 400
@@ -106,3 +116,52 @@ def card_to_app():
     dados_carteirinha = get_carteirinha_to_app(cpf)
     dados_carteirinha_hashed= encrypt_data(key,str(dados_carteirinha))
     return jsonify(dados_carteirinha_hashed)
+
+@mantis_bp.route('/get_payment_app', methods= ['POST'])
+def get_payment_app():
+    numero_contrato= request.args.get('contrato')
+    from ..models.database import get_payment_to_app
+    
+    data = request.get_json(silent=True)
+    session_id = request.headers.get('Authorization')
+    
+    numero_contrato= data.get('contrato')
+
+    session['session_id'] = session_id
+    print("id de sessao",session_id)
+
+    print(f"dados recebidos: {data} e token {session_id}")
+    
+    if not session_id:
+        return jsonify({'error': 'No session_id provided'}), 400
+    crypto_key = generate_shared_key(session_id)
+    if not crypto_key:
+        return jsonify({'error': 'Invalid or expired session'}), 400
+    print("crypto_key", crypto_key)
+
+    dados_pagamento= get_payment_to_app(numero_contrato)
+    print("dados pagamento", dados_pagamento)
+    key = bytes.fromhex(crypto_key)
+    dados_pagamento_hashed= encrypt_data(key,str(dados_pagamento))
+    return jsonify(dados_pagamento_hashed)
+
+@mantis_bp.route('get_especialidades_app', endpoint='get_especialidades_app', methods= ['POST'])
+def get_especialidades_app():
+    from ..models.database import get_especialidade_to_app
+    data= request.get_json(silent=True)
+    session_id= request.headers.get('Authorization')
+    especialidade= data.get('especialidade')
+
+    session['session_id'] = session_id  
+    
+    if not session_id:
+        return jsonify({'error': 'No session_id provided'}), 400
+    crypto_key = generate_shared_key(session_id)
+    if not crypto_key:
+        return jsonify({'error': 'Invalid or expired session'}), 400
+    
+    dados_especialidade= get_especialidade_to_app(especialidade)
+
+    key= bytes.fromhex(crypto_key)
+    dados_especialidade_hashed= encrypt_data(key,str(dados_especialidade))
+    return jsonify(dados_especialidade_hashed)

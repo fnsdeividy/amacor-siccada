@@ -49,7 +49,7 @@ def create_app():
         # Define a duração da sessão como permanente
         rotas_publicas = [
             'auth.login', 'auth.cadastrar', 'static', 'api.teste_suri', 
-            'api.get_boleto', 'auth.esqueci_senha', 'mantis.EverFlow', 'mantis.get_card'   # Mantendo a rota pública
+            'api.get_boleto', 'auth.esqueci_senha', 'mantis.EverFlow', 'mantis.get_card', 'mantis.get_payment_app', 'mantis.get_especialidades_app'   # Mantendo a rota pública
         ]
             
         if 'user_id' not in session and request.endpoint not in rotas_publicas:

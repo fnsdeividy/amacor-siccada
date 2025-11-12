@@ -421,6 +421,53 @@ def get_carteirinha_to_app(cpf, database_path=None):
         return dict(resultado)
     return None
 
+def get_payment_to_app(data, database_path=None):
+    print(f"dados recebidos: {data}")
+    ncontrato= data
+    print(f"dados recebidos: {ncontrato}") 
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+       SELECT * FROM boletos
+                WHERE contrato = ?
+        
+    """, (ncontrato,))  
+    resultado = cur.fetchall()
+    conn.close()
+
+    print(f'responsavel retornado: {resultado}')
+    
+    # Converte o resultado em um dicionário
+    for result in resultado:
+        print(dict(result))
+    if resultado:
+        return [dict(row) for row in resultado]
+    return None
+
+def get_especialidade_to_app(especialidade, database_path= None):
+    print('dados recebidos:', especialidade)
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT c.* 
+        FROM clinicas c
+        INNER JOIN clinica_especialidade ce ON c.id = ce.clinica_id
+        INNER JOIN especialidades e ON ce.especialidade_id = e.id
+        WHERE LOWER(e.nome) LIKE LOWER(?);
+    """,(especialidade,))
+
+    resultado = cur.fetchall()
+    conn.close()
+    for result in resultado:
+        print(dict(result))
+    if resultado:
+        return [dict(row) for row in resultado]
+    return None
+
+
+
 
 def get_data_relatorio(data_inicial, data_final, database_path=None):
     print(f"dados recebidos: data inicial:{data_inicial} data final: {data_final}")
@@ -465,7 +512,6 @@ def get_data_relatorio_wstatus(data_inicial, data_final, status, database_path=N
     print(f"Primeiros 5 resultados: {resultado[:5]}")  # Mostrar os 5 primeiros resultados
 
     return resultado if resultado else None
-
 
 def get_boleto(contrato, database_path= None):
     print(f"dados recebidos: {contrato}")
@@ -526,7 +572,6 @@ def excluir_proposta(proposta, last_resp,database_path=None):
         
         log_atualiza_status(proposta, fase, last_resp)
 
-
 def get_dados_proposta(proposta_id, database_path=None):
     """
     Obtém os dados de uma proposta específica.
@@ -571,7 +616,6 @@ def get_dados_proposta(proposta_id, database_path=None):
         'dependentes': [dict(dep) for dep in dependentes]
     } if venda else None
 
-
 def get_email_user(email, database_path=None):
     """
     Obtém o email de um usuário específico.
@@ -588,7 +632,6 @@ def get_email_user(email, database_path=None):
     conn.close()
 
     return resultado['email'] if resultado else None
-
 
 def get_propostas(database_path=None):
 
@@ -759,7 +802,6 @@ def data_dashboard_adm(data_ref,database_path=None):
     }
     
     return dashboard_data
-
 
 def data_dashboard_cobranca(data_ref,database_path=None):
     from datetime import datetime, timedelta
@@ -1081,29 +1123,6 @@ def data_dashboard_vendas(data_ref, database_path=None):
     print(dashboard_data)
     return dashboard_data
 
-def get_payment_to_app(data, database_path=None):
-    print(f"dados recebidos: {data}")
-    ncontrato= data
-    print(f"dados recebidos: {ncontrato}") 
-    conn = get_db_connection(database_path)
-    cur = conn.cursor()
-
-    cur.execute("""
-       SELECT * FROM boletos
-                WHERE contrato = ?
-        
-    """, (ncontrato,))  
-    resultado = cur.fetchall()
-    conn.close()
-
-    print(f'responsavel retornado: {resultado}')
-    
-    # Converte o resultado em um dicionário
-    for result in resultado:
-        print(dict(result))
-    if resultado:
-        return [dict(row) for row in resultado]
-    return None
 def atualiza_atrasos(database_path=None):
     from datetime import datetime
     from flask import current_app
@@ -1176,6 +1195,7 @@ def atualiza_atrasos(database_path=None):
     conn.close()
 
     print(f"✅ Atualização concluída: {total_atrasadas} atrasadas, {total_atualizadas} dentro do prazo.")
+
 def get_corretoras_cnt(nome_corretora, data_ref, data_entrada, database_path=None):
     """
     Retorna um dicionário:
