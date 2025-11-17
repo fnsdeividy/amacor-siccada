@@ -418,7 +418,10 @@ def get_carteirinha_to_app(cpf, database_path=None):
     
     # Converte o resultado em um dicionário
     if resultado:
-        return dict(resultado)
+        result= (dict(resultado))
+        print (result)
+        return result
+    
     return None
 
 def get_payment_to_app(data, database_path=None):
@@ -466,7 +469,54 @@ def get_especialidade_to_app(especialidade, database_path= None):
         return [dict(row) for row in resultado]
     return None
 
+def get_data_status_plano_to_app(contrato, database_path=None):
+    print(f"dados recebidos: {contrato}")
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
 
+    cur.execute("""
+        SELECT status, complemento_fase FROM venda 
+        WHERE numero_contrato = ? 
+        AND (status = 'entrevista online enviada' OR status = 'kit enviado')
+    """, (contrato,))
+    
+    resultado = cur.fetchone()
+    conn.close()
+    
+    if resultado:
+        # Converte a tupla para dicionário
+        return {
+            'status': resultado[0],
+            'complemento_fase': resultado[1]
+        }
+    return None
+
+def post_suspender_cnt_to_app(contrato, motivo, database_path=None):
+    print(f"dados recebidos: {contrato}, motivo: {motivo}")
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            UPDATE beneficiarios 
+            SET motivo_suspensao = ?, suspenso = 1 
+            WHERE sNumeroCNT = ?
+        """, (motivo, contrato))
+
+        # Verifica se alguma linha foi afetada
+        if cur.rowcount > 0:
+            print(f"✅ Contrato {contrato} suspenso com sucesso. Linhas afetadas: {cur.rowcount}")
+        else:
+            print(f"⚠️  Nenhum contrato encontrado com o número: {contrato}")
+
+        conn.commit()
+        
+    except Exception as e:
+        print(f"❌ Erro ao suspender contrato: {e}")
+        conn.rollback()
+        
+    finally:
+        conn.close()
 
 
 def get_data_relatorio(data_inicial, data_final, database_path=None):
@@ -1141,11 +1191,12 @@ def atualiza_atrasos(database_path=None):
     limites = {
         'Enviado ao cadastro': 1,
         'entrevista online enviada': 2,
-        'entrevista agendada': 4,
+        'entrevista agendada': 7,
         'enviado para financeiro': 3,
         'analise de declaração': 2,
         'geração de kit': 1,
         'em pendencia': 10,
+        'boleto emitido': 1,
     }
 
     cur.execute("""
