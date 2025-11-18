@@ -303,22 +303,11 @@ def get_from_siccada(numero_contrato, database_path=None):
 
         # Busca proposta
         cur.execute("""
-            SELECT numero_proposta FROM venda 
+            SELECT * FROM venda 
             WHERE numero_contrato = ?
         """, (numero_contrato,))
         
-        proposta = cur.fetchone()
-        
-        if not proposta:
-            print(f"Contrato {numero_contrato} não encontrado na tabela venda")
-            return None
-            
-        # Busca responsável
-        cur.execute("""
-            SELECT * FROM responsavel 
-            WHERE proposta_id = ?
-        """, (proposta["numero_proposta"],))  # já acessa como dict
-        
+       
         resultado = cur.fetchone()
         return dict(resultado) if resultado else None
         
