@@ -2,6 +2,7 @@ import pandas as pd
 import sqlite3
 import shutil
 import os
+import json
 
 db_name = "MHV_DB.db"
 
@@ -312,9 +313,108 @@ def apagar_tabelas(tabelas, db_path):
     conn.close()
     print(f"Tabelas apagadas: {', '.join(tabelas)}")
 
+def registrar_clinicas(db_path, json_clinicas_path, json_coordenadas_path):
+    # Conectar ao banco
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
 
+    # Criar tabelas (só se não existirem)
+    cur.executescript("""
+    CREATE TABLE IF NOT EXISTS clinicas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bloco_id TEXT UNIQUE,
+        nome TEXT,
+        endereco TEXT,
+        telefone TEXT,
+        horario_funcionamento TEXT
+    );
 
-# Chamando as funções
+    CREATE TABLE IF NOT EXISTS coordenadas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        clinica_id INTEGER,
+        endereco_original TEXT,
+        endereco_formatado TEXT,
+        latitude REAL,
+        longitude REAL,
+        confianca TEXT,
+        FOREIGN KEY (clinica_id) REFERENCES clinicas(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS especialidades (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT UNIQUE
+    );
+
+    CREATE TABLE IF NOT EXISTS clinica_especialidade (
+        clinica_id INTEGER,
+        especialidade_id INTEGER,
+        FOREIGN KEY (clinica_id) REFERENCES clinicas(id),
+        FOREIGN KEY (especialidade_id) REFERENCES especialidades(id)
+    );
+    """)
+
+    # Ler os arquivos JSON
+    with open(json_clinicas_path, 'r', encoding='utf-8') as f:
+        dados_clinicas = json.load(f)
+
+    with open(json_coordenadas_path, 'r', encoding='utf-8') as f:
+        dados_coordenadas = json.load(f)
+
+    # Percorrer os blocos do JSON
+    for bloco_id, clinica in dados_clinicas.items():
+        nome = clinica.get("nome_clinica")
+        endereco = clinica.get("endereco")
+        telefone = clinica.get("telefone")
+        horario = clinica.get("horario_funcionamento", "")
+        especialidades = clinica.get("especialidades", [])
+
+        # Inserir clínica
+        cur.execute("""
+            INSERT OR IGNORE INTO clinicas (bloco_id, nome, endereco, telefone, horario_funcionamento)
+            VALUES (?, ?, ?, ?, ?)
+        """, (bloco_id, nome, endereco, telefone, horario))
+
+        # Pegar ID da clínica (mesmo se já existir)
+        cur.execute("SELECT id FROM clinicas WHERE bloco_id = ?", (bloco_id,))
+        clinica_id = cur.fetchone()[0]
+
+        # Inserir coordenadas se existirem no outro JSON
+        dados_coord = dados_coordenadas.get(bloco_id)
+        if dados_coord:
+            coord = dados_coord.get("coordenadas")
+            if isinstance(coord, dict):  # <-- garante que não é None
+                cur.execute("""
+                    INSERT OR IGNORE INTO coordenadas
+                    (clinica_id, endereco_original, endereco_formatado, latitude, longitude, confianca)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (
+                    clinica_id,
+                    coord.get("endereco_original"),
+                    coord.get("endereco_formatado"),
+                    coord.get("latitude"),
+                    coord.get("longitude"),
+                    coord.get("confianca")
+                ))
+        # Inserir especialidades (removendo duplicadas)
+        for nome_esp in set(especialidades):
+            cur.execute("INSERT OR IGNORE INTO especialidades (nome) VALUES (?)", (nome_esp,))
+            cur.execute("SELECT id FROM especialidades WHERE nome = ?", (nome_esp,))
+            esp_id = cur.fetchone()[0]
+            cur.execute("""
+                INSERT OR IGNORE INTO clinica_especialidade (clinica_id, especialidade_id)
+                VALUES (?, ?)
+            """, (clinica_id, esp_id))
+
+    # Confirmar e fechar
+    conn.commit()
+    conn.close()
+    print("✅ Clínicas registradas com sucesso!")
+
+# -------------------------------------------------
+# Execução direta do script
 if __name__ == "__main__":
-    # Garante que as tabelas serão zeradas antes de criar
-   backup_db (db_name, "MHV_DB_backup.db")
+    registrar_clinicas(
+        db_path=db_name,
+        json_clinicas_path="dados_clinicas.json",
+        json_coordenadas_path="geocodificacao_parcial.json"
+    )
