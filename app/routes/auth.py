@@ -274,3 +274,8 @@ def cadastrar_corretora():
             flash('Corretora cadastrada com sucesso!')
             return redirect(url_for('auth.fechar'))
     return render_template('generic/cadastrar_corretoras.html')
+
+
+@auth_bp.route('manutencao')
+def manutencao():
+    return render_template('generic/manutencao.html')
