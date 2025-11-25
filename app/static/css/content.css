@@ -222,7 +222,7 @@ a.btn:hover {
 .form-container {
     max-width: 800px; /* Limita a largura máxima do formulário */
     width: 100%; /* Faz o formulário ocupar toda a largura disponível */
-    background-color: #fff; /* Fundo branco */
+    
     border-radius: 8px; /* Bordas arredondadas */
     padding: 20px 30px; /* Espaçamento interno */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
@@ -246,14 +246,17 @@ a.btn:hover {
 .tab {
     padding: 10px 20px;
     background-color: #e1e1e1;
-    border: 1px solid #ddd;
-    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-weight: bold;
     text-align: center;
     flex: 1; /* Faz com que as abas ocupem o mesmo espaço */
     margin: 0 5px; /* Espaçamento entre as abas */
+    transition: 0.5 ease;
+}
+
+.tab:hover{
+    scale: 1.05;
 }
 
 .tab.active {

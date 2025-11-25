@@ -142,7 +142,7 @@
 
         <a href="#" onclick="toggleSubmenu('vendas-submenu')">Comercial 📋 </a>
         <div class="submenu" id="vendas-submenu">
-            <a href="{{ url_for('auth.manutencao') }}">Nova venda</a>
+            <a href="{{ url_for('vendas.render_tipo_venda') }}">Nova venda</a>
             <a href="{{ url_for('vendas.informar_cnt') }}">Inclusão de beneficiario</a>
             <a href="https://servicos.receita.fazenda.gov.br/servicos/cpf/consultasituacao/consultapublica.asp" target="_blank">Verificar CPF na Receita</a>
             <a href="https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp" target="_blank">Verificar CNPJ na Receita</a>

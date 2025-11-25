@@ -77,6 +77,8 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
         conn = get_db_connection(database_path)
         cur = conn.cursor()
 
+        print('tentando salvar venda')
+
         # Inserir dados da venda
         cur.execute("""
             INSERT INTO venda (numero_proposta, data_venda, tipo_contrato, tipo_produto, corretor_resp, status, digitador, valor_venda, dt_cadastro, taxa_inscricao, iss, valor_tabela, vidas, nome_responsavel,tipo_pagamento)
@@ -95,24 +97,24 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)
         """, (proposta_id, responsavel['nome'], responsavel['cpf'], responsavel['data_nascimento'],
               responsavel['cep'], responsavel['celular'], responsavel['email'], responsavel['estado_civil'], responsavel['endereco'], responsavel['rg'],responsavel['nome_socio'],responsavel['cnpj']))
-
+        print('dados de responsavel inseridos')
         # Inserir dados do titular
         cur.execute("""
-            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade,grau_parentesco, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo, numero_rg)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade,grau_parentesco, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo, numero_rg, valor)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (proposta_id, titular['nome'], titular['cpf'], titular['data_nascimento'], titular['idade'],titular['grau_parentesco'],
               titular['endereco'], titular['celular'], titular['email'], titular['estado_civil'],
-              titular['nome_mae'], titular['nome_pai'], titular['sexo'], titular['rg']))
+              titular['nome_mae'], titular['nome_pai'], titular['sexo'], titular['rg'],titular['valor_titular']))
 
         # Inserir dados dos dependentes
         for dependente in dependentes:
             print("dependentes",dependentes)
             
             cur.execute("""
-                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo)
-                VALUES (?, ?, ?, ?, ?, ?,?,?)
+                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo, valor, idade)
+                VALUES (?, ?, ?, ?, ?, ?,?,?,?,?)
             """, (proposta_id, dependente['nome'], dependente['cpf'], dependente['data_nascimento'],
-                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo']))
+                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo'], dependente['valor_dependente'], dependente['idade_dependente']))
 
         conn.commit()
         conn.close()
@@ -120,6 +122,7 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
 
 
     except Exception as e:
+        print("erro em:", e)
         conn.rollback()
         conn.close()
         raise e
@@ -1588,5 +1591,48 @@ def delete_registros_antigos(database_path=None, limite=7):
         print(f"Erro ao deletar registros: {e}")
         conn.rollback()
     finally:
+        cur.close()
+        conn.close()
+
+def get_idades(idade, plano, database_path=None):
+    print("dados recebidos: ", idade, plano)
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            SELECT pp.valor
+            FROM precos_plano pp
+            INNER JOIN planos p ON pp.plano_id = p.id
+            INNER JOIN faixas_etarias f ON pp.faixa_id = f.id
+            WHERE LOWER(p.nome_plano) = LOWER(?)
+              AND ? BETWEEN f.idade_min_ref AND f.idade_max_ref;
+        """, (plano, idade))
+
+        row = cur.fetchone()
+        return row["valor"] if row else None
+
+    finally:
+        conn.close()
+
+def listar_planos(database_path=None):
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+        SELECT nome_plano from planos
+    """) 
+        
+        nome= cur.fetchall()
+
+        return nome
+
+    except Exception as e:
+        print(f"Erro na consulta: {e}")
+        return []
+    finally:
+        # Garante que a conexão será fechada
         cur.close()
         conn.close()
