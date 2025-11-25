@@ -672,6 +672,7 @@ def venda_form():
         
         # Salvar os dados no banco
         try:
+            print("iniciando salvar venda")
             salvar_venda(venda, responsavel, titular, dependentes)
         except Exception as e:
             erro = str(e)
@@ -691,7 +692,7 @@ def venda_form():
                 motivo = "Erro inesperado ao salvar a venda."
 
             flash(f"Erro ao salvar venda: {motivo}", "error")
-            return redirect(url_for('auth.fechar'
+            return redirect(url_for('auth.manutencao'
         ))
 
 
