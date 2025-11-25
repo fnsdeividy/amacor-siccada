@@ -410,11 +410,120 @@ def registrar_clinicas(db_path, json_clinicas_path, json_coordenadas_path):
     conn.close()
     print("✅ Clínicas registradas com sucesso!")
 
+
+import sqlite3
+import pandas as pd
+
+def criar_planos(db_path):
+    import sqlite3
+    import pandas as pd
+
+    EXCEL_PATH = "Amacor_Tabela.xlsx"
+
+    # 1. Ler Excel
+    df = pd.read_excel(EXCEL_PATH)
+
+    # 2. Normalizar valores
+    def parse_val(v):
+        v = str(v).strip().replace(",", ".")
+        try:
+            return float(v)
+        except:
+            return None
+
+    df["Valor"] = df["Valor (R$)"].apply(parse_val)
+
+    # --- LIMPEZA CRÍTICA PARA EVITAR O ERRO ---
+    # Remover linhas sem nome de plano
+    df = df.dropna(subset=["Plano"])
+
+    # Remover espaços em branco
+    df["Plano"] = df["Plano"].astype(str).str.strip()
+    df["Categoria"] = df["Categoria"].astype(str).str.strip()
+    df["Faixa Etária"] = df["Faixa Etária"].astype(str).str.strip()
+
+    # Remover valores "nan" como string
+    df = df[df["Plano"].str.lower() != "nan"]
+
+    # 3. Conectar
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+
+    # 4. Criar tabelas
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS planos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome_plano TEXT NOT NULL,
+        categoria TEXT NOT NULL
+    );
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS faixas_etarias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        faixa TEXT NOT NULL
+    );
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS precos_plano (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        plano_id INTEGER NOT NULL,
+        faixa_id INTEGER NOT NULL,
+        valor REAL,
+        FOREIGN KEY (plano_id) REFERENCES planos(id),
+        FOREIGN KEY (faixa_id) REFERENCES faixas_etarias(id)
+    );
+    """)
+
+    # 5. Inserir planos
+    df_planos = df[["Plano", "Categoria"]].drop_duplicates()
+
+    plano_ids = {}
+
+    for _, row in df_planos.iterrows():
+        nome = row["Plano"]
+        categoria = row["Categoria"]
+
+        if not nome:
+            continue
+
+        cur.execute(
+            "INSERT INTO planos (nome_plano, categoria) VALUES (?, ?)",
+            (nome, categoria)
+        )
+        plano_ids[(nome, categoria)] = cur.lastrowid
+
+    # 6. Inserir faixas etárias
+    df_faixas = df["Faixa Etária"].drop_duplicates()
+    faixa_ids = {}
+
+    for faixa in df_faixas:
+        if not faixa:
+            continue
+        cur.execute("INSERT INTO faixas_etarias (faixa) VALUES (?)", (faixa,))
+        faixa_ids[faixa] = cur.lastrowid
+
+    # 7. Inserir preços
+    for _, row in df.iterrows():
+        plano_id = plano_ids.get((row["Plano"], row["Categoria"]))
+        faixa_id = faixa_ids.get(row["Faixa Etária"])
+        valor = row["Valor"]
+
+        if plano_id and faixa_id:
+            cur.execute("""
+                INSERT INTO precos_plano (plano_id, faixa_id, valor)
+                VALUES (?, ?, ?)
+            """, (plano_id, faixa_id, valor))
+
+    conn.commit()
+    conn.close()
+
+    print("Importação concluída com sucesso!")
+
+
+
 # -------------------------------------------------
 # Execução direta do script
 if __name__ == "__main__":
-    registrar_clinicas(
-        db_path=db_name,
-        json_clinicas_path="dados_clinicas.json",
-        json_coordenadas_path="geocodificacao_parcial.json"
-    )
+    criar_planos(db_name)

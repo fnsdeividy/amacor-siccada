@@ -21,7 +21,7 @@ def create_app():
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
     app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
     app.config['DATABASE'] = 'MHV_DB.db'
-    app.secret_key = os.urandom(24)
+    app.secret_key = 'os.urandom(24)'
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=50)
     app.config['UPLOAD_FOLDER'] = 'uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}

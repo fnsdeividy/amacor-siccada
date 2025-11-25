@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, session,redirect,url_for, flash
-from ..models.database import query_db, salvar_venda, get_email, get_nome, get_status, listar_vendedor, get_corretoras_ext
+from ..models.database import query_db, salvar_venda, get_email, get_nome, get_status, listar_vendedor, get_corretoras_ext, listar_planos
 import re
 from app.utils import login_required, acesso, hierarquia
 from datetime import datetime
@@ -86,13 +86,13 @@ def nova_venda_pj():
 @acesso('vendas','cadastro','administrativo')
 @hierarquia('supervisor','agente','vendedor')
 def nova_venda():
-    
+    planos= listar_planos()
     vendedor = listar_vendedor()
     corretoras= get_corretoras_ext()
     print('corretora exibida no vendas:',corretoras)
     print("Vendedores:", vendedor)  # Para verificar a lista de vendedores
 
-    return render_template('vendas/vendas_form.html', vendedor=vendedor, corretora=corretoras)
+    return render_template('vendas/vendas_form.html', vendedor=vendedor, corretora=corretoras,planos=planos)
 
 @vendas_bp.route('/saldobenef')
 @acesso('vendas','cadastro')
@@ -530,11 +530,14 @@ def venda_form_pj():
 
 def venda_form():  
     nome_usuario = session.get('user_nome')
+    
     print(nome_usuario)
     
     try:
         print(nome_usuario)
         # Dados da venda
+        valor_venda_str = request.form.get('valor_venda', '0').replace('R$ ', '').strip()
+
         venda = {
             "numero_proposta": request.form.get('numero_proposta'),
             "data_venda": request.form.get('data_venda'),
@@ -543,7 +546,8 @@ def venda_form():
             "corretor_resp": request.form.get('corretor_resp'),
             "status": "Enviado ao cadastro",
             "digitador": nome_usuario,
-            "valor_venda": float(request.form.get('valor_venda', '0').replace(',', '.')),
+            "valor_venda_str": valor_venda_str,
+            "valor_venda": float(valor_venda_str.replace(',', '.')),
             "dt_cadastro": datetime.now().strftime("%d-%m-%Y"),
             "tipo_pagamento": request.form.get('forma_pagamento'),
         }
@@ -609,7 +613,8 @@ def venda_form():
             "nome_mae": request.form.get('nome_mae_beneficiario'),
             "nome_pai": request.form.get('nome_pai_beneficiario'),
             "sexo": request.form.get('sexo_beneficiario'),
-            "quantidade_titular" : 1
+            "quantidade_titular" : 1,
+            "valor_titular": request.form.get('valor_titular')
         }
         print (titular)
         
@@ -623,6 +628,7 @@ def venda_form():
         graus_parentesco_dependentes = request.form.getlist('grau_parentesco_dependente[]')
         mae_dependente = request.form.getlist('mae_dependente[]')
         dependente_sexo= request.form.getlist('dependente_sexo[]')
+        valor_dependente= request.form.getlist('valor_dependente')
         print(dependente_sexo)
 
         print(nomes_dependentes)
@@ -685,9 +691,8 @@ def venda_form():
                 motivo = "Erro inesperado ao salvar a venda."
 
             flash(f"Erro ao salvar venda: {motivo}", "error")
-            return redirect(request.url, 
-            form_data=request.form
-        )
+            return redirect(url_for('auth.fechar'
+        ))
 
 
         flash("Venda salva com sucesso!", "success")
@@ -719,3 +724,14 @@ def concluido():
     tipo_contrato = request.args.get('tipo_contrato')
 
     return render_template('vendas/concluido.html', proposta=proposta, tipo_contrato=tipo_contrato)
+
+@vendas_bp.route('/preco/idade/<int:idade>/<string:plano>', methods= ["GET","POST"])
+def preco_idade(idade,plano):
+    from ..models.database import get_idades
+    preco= get_idades(idade,plano)
+
+    return jsonify({
+        "idade": idade,
+        "plano": plano,
+        "preco" : preco
+    })
