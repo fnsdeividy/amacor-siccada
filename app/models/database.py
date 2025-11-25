@@ -111,10 +111,10 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
             print("dependentes",dependentes)
             
             cur.execute("""
-                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo, valor)
+                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo, valor, idade)
                 VALUES (?, ?, ?, ?, ?, ?,?,?,?,?)
             """, (proposta_id, dependente['nome'], dependente['cpf'], dependente['data_nascimento'],
-                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo'], dependente['valor_dependente']))
+                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo'], dependente['valor_dependente'], dependente['idade_dependente']))
 
         conn.commit()
         conn.close()
