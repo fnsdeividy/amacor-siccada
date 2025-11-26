@@ -445,7 +445,7 @@ def venda_form_pj():
         print (titular)
 
          # Dados dos dependentes
-        quantidade_dependentes = int( 0)
+        quantidade_dependentes = int(0)
         dependentes = []
         nomes_dependentes = request.form.getlist('nome_dependente[]')
         cpfs_dependentes = request.form.getlist('cpf_dependente[]')
@@ -485,19 +485,18 @@ def venda_form_pj():
             
             print("dependente: ", dependente)
             
-            # CORREÇÃO: Estas linhas devem estar DENTRO do loop
             dependente["cpf_titular"] = titular["cpf"]
             dependente["data_nascimento"] = datetime.strptime(dependente["data_nascimento"], "%Y-%m-%d").strftime("%d/%m/%Y")
             dependentes.append(dependente)
             quantidade_dependentes += 1
 
             # Agora sim, fora do loop, atualiza o total de vidas
-            venda["vida"] = titular["quantidade_titular"] + quantidade_dependentes
-            venda['nome_responsavel'] = responsavel['nome']
-            print(venda['nome_responsavel'])
-            print(venda["vida"])
+        venda["vida"] = titular["quantidade_titular"] + quantidade_dependentes
+        venda['nome_responsavel'] = responsavel['nome']
+        print(venda['nome_responsavel'])
+        print(venda["vida"])
 
-        numero_proposta= venda['numero_proposta']
+        numero_proposta = venda['numero_proposta']
 
         
         # Salvar os dados no banco
