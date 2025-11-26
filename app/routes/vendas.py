@@ -450,15 +450,13 @@ def venda_form_pj():
         nomes_dependentes = request.form.getlist('nome_dependente[]')
         cpfs_dependentes = request.form.getlist('cpf_dependente[]')
         datas_nascimento_dependentes = request.form.getlist('dt_nascimento_dependente[]')
-        idade_dependente = request.form.getlist('idade_dependente[]')  # CORREÇÃO: adicionar []
+        idade_dependente = request.form.getlist('idade_dependente[]')
         graus_parentesco_dependentes = request.form.getlist('grau_parentesco_dependente[]')
         mae_dependente = request.form.getlist('mae_dependente[]')
         dependente_sexo = request.form.getlist('dependente_sexo[]')
-        valor_dependente = request.form.getlist('valor_dependente[]')  # CORREÇÃO: adicionar []
+        valor_dependente = request.form.getlist('valor_dependente[]')
 
-        print(nomes_dependentes)
-        print(dependente_sexo)
-        
+        print("valor_dependente:", valor_dependente)  # DEBUG
 
         # Usa o menor tamanho entre as listas para evitar erro de index
         num_dependentes = min(
@@ -472,28 +470,32 @@ def venda_form_pj():
             len(valor_dependente)
         )
 
+        # CORREÇÃO: Todo o processamento do dependente deve estar DENTRO do loop
         for i in range(num_dependentes):
             dependente = {
-            "nome": nomes_dependentes[i],
-            "cpf": cpfs_dependentes[i],
-            "data_nascimento": datas_nascimento_dependentes[i],
-            "idade_dependente": idade_dependente[i],
-            "grau_parentesco": graus_parentesco_dependentes[i],
-            "mae_dependente": mae_dependente[i],
-            "dependente_sexo": dependente_sexo[i],
-            "valor_dependente": valor_dependente[i]  # CORREÇÃO: mudar para "valor" (sem _dependente)
-        }
+                "nome": nomes_dependentes[i],
+                "cpf": cpfs_dependentes[i],
+                "data_nascimento": datas_nascimento_dependentes[i],
+                "idade_dependente": idade_dependente[i],
+                "grau_parentesco": graus_parentesco_dependentes[i],
+                "mae_dependente": mae_dependente[i],
+                "dependente_sexo": dependente_sexo[i],
+                "valor_dependente": valor_dependente[i]
+            }
+            
             print("dependente: ", dependente)
-        dependente["cpf_titular"] = titular["cpf"]
-        dependente["data_nascimento"] = datetime.strptime(dependente["data_nascimento"], "%Y-%m-%d").strftime("%d/%m/%Y")
-        dependentes.append(dependente)
-        quantidade_dependentes += 1
-                
+            
+            # CORREÇÃO: Estas linhas devem estar DENTRO do loop
+            dependente["cpf_titular"] = titular["cpf"]
+            dependente["data_nascimento"] = datetime.strptime(dependente["data_nascimento"], "%Y-%m-%d").strftime("%d/%m/%Y")
+            dependentes.append(dependente)
+            quantidade_dependentes += 1
 
-        venda["vida"] = titular["quantidade_titular"] + quantidade_dependentes
-        venda['nome_responsavel'] = responsavel['nome']
-        print(venda['nome_responsavel'])
-        print(venda["vida"])
+            # Agora sim, fora do loop, atualiza o total de vidas
+            venda["vida"] = titular["quantidade_titular"] + quantidade_dependentes
+            venda['nome_responsavel'] = responsavel['nome']
+            print(venda['nome_responsavel'])
+            print(venda["vida"])
 
         numero_proposta= venda['numero_proposta']
 
