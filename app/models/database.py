@@ -107,14 +107,15 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
               titular['nome_mae'], titular['nome_pai'], titular['sexo'], titular['rg'],titular['valor_titular']))
 
         # Inserir dados dos dependentes
-        for dependente in dependentes:
-            print("dependentes",dependentes)
-            
-            cur.execute("""
-                INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo, valor, idade)
-                VALUES (?, ?, ?, ?, ?, ?,?,?,?,?)
-            """, (proposta_id, dependente['nome'], dependente['cpf'], dependente['data_nascimento'],
-                  dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo'], dependente['valor_dependente'], dependente['idade_dependente']))
+        if dependentes:
+            for dependente in dependentes:
+                print("dependentes",dependentes)
+                
+                cur.execute("""
+                    INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo, valor, idade)
+                    VALUES (?, ?, ?, ?, ?, ?,?,?,?,?)
+                """, (proposta_id, dependente['nome'], dependente['cpf'], dependente['data_nascimento'],
+                    dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo'], dependente['valor_dependente'], dependente['idade_dependente']))
 
         conn.commit()
         conn.close()
