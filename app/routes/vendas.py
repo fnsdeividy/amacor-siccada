@@ -445,7 +445,7 @@ def venda_form_pj():
         print (titular)
 
          # Dados dos dependentes
-        quantidade_dependentes = int(request.form.get('quantidade_dependentes', 0))
+        quantidade_dependentes = int( 0)
         dependentes = []
         nomes_dependentes = request.form.getlist('nome_dependente[]')
         cpfs_dependentes = request.form.getlist('cpf_dependente[]')
