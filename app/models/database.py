@@ -3,6 +3,7 @@ from flask import current_app
 import os
 from datetime import timedelta, datetime
 
+
 def get_db_connection(database_path=None):
     """
     Retorna uma conexão com o banco de dados.
@@ -69,6 +70,7 @@ def update_db(query, args=(), database_path=None):
         conn.close()
 
 def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
+    from ..api_conex.conections import email_gmail, msg_email
     """
     Salva os dados da venda, responsável, titular e dependentes no banco de dados.
     Agora usa apenas proposta_id (TEXT) como referência, sem venda_id.
@@ -120,6 +122,82 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
         conn.commit()
         conn.close()
 
+        status= venda['status']
+        complemento= None
+        
+        email= responsavel['email']
+        nome= responsavel['nome']
+
+        assunto= assunto= f'{nome} seu processo de contratação foi iniciado'
+        mensagem = f'''
+        <p>Olá {nome},</p>
+        <p>Recebemos a documentação da sua proposta do plano de saúde e o processo de contratação foi iniciado.</p>
+        <p>Dentro dos próximos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano.</p>
+        <h3 style="color: #0a2f68; border-bottom: 2px solid #0a2f68; padding-bottom: 5px; display: inline-block;">
+            Próximas etapas do seu plano:
+        </h3>
+        <div style="margin: 25px 0; position: relative;">
+            <!-- Etapa 1 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">1</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Entrevista Presencial</h4>
+                    <p style="margin: 0; color: #555;">Entraremos em contato para agendar uma entrevista de acolhimento do novo cliente ao plano.</p>
+                </div>
+            </div>
+            <!-- Etapa 2 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">2</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Análise de Declaração</h4>
+                    <p style="margin: 0; color: #555;">Sua entrevista de acolhimento será analisada por nossa equipe.</p>
+                </div>
+            </div>
+            <!-- Etapa 3 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">3</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Cadastro</h4>
+                    <p style="margin: 0; color: #555;">Após analise da entrevista, os dados do novo cliente serão adicionados aos nossos sistemas e ele se torna um beneficiario Amacor Planos de saúde.</p>
+                </div>
+            </div>
+            <!-- Etapa 4 -->
+            <div style="display: flex; margin-bottom: 25px; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">4</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Geração de Kit</h4>
+                    <p style="margin: 0; color: #555;">Emitiremos todos os documentos necessários para seu contrato.</p>
+                </div>
+            </div>
+            <!-- Etapa 5 -->
+            <div style="display: flex; align-items: flex-start;">
+                <div style="background-color: #0a2f68; color: white; width: 28px; height: 28px; 
+                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                            margin-right: 15px; flex-shrink: 0;">5</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Finalização do Contrato</h4>
+                    <p style="margin: 0; color: #555;">Enviaremos seu kit contratual para assinatura digital e pedido da carteirinha.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background-color: #fff8e6; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 0 4px 4px 0;">
+            <p style="margin: 0; color: #856404; font-weight: 500;">
+                ⏱️ <strong>Todo esse processo deverá ser realizado em até 30 dias corridos</strong> a partir da data de pagamento da adesão. 
+                Caso não cumpra o prazo o plano será suspenso e após 10 dias de suspensão seu plano será <strong>cancelado.</strong>
+            </p>
+        </div>
+        '''
+        print("preparando inserçao de dados")
+        email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
 
 
     except Exception as e:
@@ -147,7 +225,7 @@ def get_nome(proposta_id, database_path=None):
     cur.execute("SELECT nome FROM responsavel WHERE proposta_id = ?", (proposta_id,))
     nome= cur.fetchone()
     conn.close()
-    print('nome enviado: ', nome)
+    print('nome enviado: ', nome['nome'])
     return nome['nome'] if nome else None
 
 def listar_vendedor(database_path= None):
