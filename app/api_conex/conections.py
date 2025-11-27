@@ -143,6 +143,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
    
 
     # Monta o e-mail
+    print("monatando email...")
     msg = MIMEMultipart()
     msg["From"] = f"Amacor Alertas <{remetente}>"
     msg["To"] = destinatario
@@ -305,14 +306,14 @@ def msg_email(status,proposta, complemento):
 """
                 return assunto, mensagem, complemento
             elif status == 'analise de declaração':
-                assunto= f'{nome} sua Declaração de saúde Online foi enviada para análise'
+                assunto= f'{nome} sua Declaração de saúde foi enviada para análise'
                 mensagem = f"""
 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
     <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
     
     <p style="font-size: 16px;">Sua Declaração de saúde online foi enviada para análise interna.</p>
     
-    <p style="font-size: 16px;">Durante essa análise verificaremos se há necessidade de uma entrevista presencial com o médico. Caso a necessidade seja confirmada, entraremos em contrato por telefone ou Whatsapp para efetuar agendamento.</p>
+    <p style="font-size: 16px;">Durante essa análise verificaremos as patologias declaradas na entrevista de acolhimento.</p>
 
     <!-- Linha do tempo de progresso -->
     <div style="margin: 40px 0; position: relative;">
@@ -322,7 +323,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">1</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
             </div>
             
@@ -330,16 +331,16 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">2</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Declaração</p>
-                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Analise</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
             </div>
             
             <div style="text-align: center; width: 24%;">
-                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                <div style="background-color: #e0e0e0; color: #666; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">3</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
-                <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
+                <p style="margin: 0; font-size: 14px; color: #666; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
             </div>
             
             <div style="text-align: center; width: 24%;">
@@ -353,7 +354,7 @@ def msg_email(status,proposta, complemento):
         
         <!-- Barra de progresso -->
         <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 75%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+            <div style="width: 30%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
         </div>
     </div>
     
@@ -391,47 +392,47 @@ def msg_email(status,proposta, complemento):
     </p>
 
     <!-- Linha do tempo de progresso -->
-    <div style="margin: 40px 0; position: relative;">
-        <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
-            <!-- Etapas -->
-            <div style="text-align: center; width: 24%;">
-                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
-                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-                            margin: 0 auto 10px; font-weight: bold;">1</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
-                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
-            </div>
-            
-            <div style="text-align: center; width: auto;">
-                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
-                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-                            margin: 0 auto 10px; font-weight: bold;">2</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Declaração</p>
-                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
-            </div>
-            
-            <div style="text-align: center; width: 24%;">
-                <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
-                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-                            margin: 0 auto 10px; font-weight: bold;">3</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
-                <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
-            </div>
-            
-            <div style="text-align: center; width: 24%;">
-                <div style="background-color: #e0e0e0; color: #666; width: 30px; height: 30px; 
-                            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-                            margin: 0 auto 10px; font-weight: bold;">4</div>
-                <p style="margin: 0; font-size: 14px; color: #666;">Finalização</p>
-                <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
-            </div>
+<div style="margin: 40px 0; position: relative;">
+    <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 15px;">
+        <!-- Etapas -->
+        <div style="text-align: center; width: 24%;">
+            <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
+                        border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                        margin: 0 auto 10px; font-weight: bold;">1</div>
+            <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+            <p style="margin: 0; font-size: 12px; color: #666;">Em andamento</p>
         </div>
         
-        <!-- Barra de progresso -->
-        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 75%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        <div style="text-align: center; width: 24%;">
+            <div style="background-color: #e0e0e0; color: white; width: 30px; height: 30px; 
+                        border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                        margin: 0 auto 10px; font-weight: bold;">2</div>
+            <p style="margin: 0; font-size: 14px; color: #666; font-weight: bold;">Análise</p>
+            <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
+        </div>
+        
+        <div style="text-align: center; width: 24%;">
+            <div style="background-color: #e0e0e0; color: white; width: 30px; height: 30px; 
+                        border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                        margin: 0 auto 10px; font-weight: bold;">3</div>
+            <p style="margin: 0; font-size: 14px; color: #666; font-weight: bold;">Cadastro</p>
+            <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
+        </div>
+        
+        <div style="text-align: center; width: 24%;">
+            <div style="background-color: #e0e0e0; color: #666; width: 30px; height: 30px; 
+                        border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+                        margin: 0 auto 10px; font-weight: bold;">4</div>
+            <p style="margin: 0; font-size: 14px; color: #666;">Finalização</p>
+            <p style="margin: 0; font-size: 12px; color: #666;">Pendente</p>
         </div>
     </div>
+    
+    <!-- Barra de progresso -->
+    <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+        <div style="width: 5%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+    </div>
+</div>
     
     <p style="font-size: 14px; color: #666; margin-top: 30px;">
         Caso precise reagendar ou tenha alguma dúvida, entre em contato pelo WhatsApp:
@@ -450,7 +451,7 @@ def msg_email(status,proposta, complemento):
     
     <div style="background-color: #f0f8ff; border: 1px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
         <p style="font-size: 18px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
-            🎉  {nome}, seu contrato está pronto para ser entregue!
+        {nome}, seu contrato está pronto para ser entregue!
         </p>
         <p style="font-size: 16px; margin: 0;">
             O kit contratual será gerado e enviado em breve.
@@ -465,7 +466,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">1</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
             </div>
             
@@ -473,7 +474,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">2</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Analise</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
             </div>
             
@@ -481,8 +482,8 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">3</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
-                <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
             </div>
             
             <div style="text-align: center; width: 24%;">
@@ -528,7 +529,7 @@ def msg_email(status,proposta, complemento):
     
     <div style="background-color: #f0f8ff; border: 2px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
         <p style="font-size: 20px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
-            🎉 Parabéns {nome}! Seu contrato foi finalizado com sucesso!
+             Parabéns {nome}! Seu contrato foi finalizado com sucesso!
         </p>
         <p style="font-size: 16px; margin: 0;">
             Sua carteirinha está pronta para ser enviada.
@@ -543,7 +544,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">1</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
             </div>
             
@@ -551,7 +552,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">2</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
             </div>
             
@@ -559,7 +560,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">3</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
             </div>
             
@@ -617,7 +618,7 @@ def msg_email(status,proposta, complemento):
            style="display: inline-block; background-color: #0a2f68; color: white; 
                   padding: 15px 30px; text-decoration: none; border-radius: 4px; 
                   font-weight: bold; font-size: 18px; box-shadow: 0 4px 8px rgba(10, 47, 104, 0.2);">
-            📄 Assinar Contrato
+            Assinar Contrato
         </a>
     
     
@@ -630,7 +631,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">1</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluído</p>
             </div>
             
@@ -638,7 +639,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">2</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Entrevista</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
             </div>
             
@@ -646,7 +647,7 @@ def msg_email(status,proposta, complemento):
                 <div style="background-color: #0a2f68; color: white; width: 30px; height: 30px; 
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin: 0 auto 10px; font-weight: bold;">3</div>
-                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Análise</p>
+                <p style="margin: 0; font-size: 14px; color: #0a2f68; font-weight: bold;">Cadastro</p>
                 <p style="margin: 0; font-size: 12px; color: #666;">Concluída</p>
             </div>
             
@@ -661,7 +662,7 @@ def msg_email(status,proposta, complemento):
         
         <!-- Barra de progresso -->
         <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 90%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+            <div style="width: 70%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
         </div>
     </div>
     
@@ -712,8 +713,8 @@ def msg_email(status,proposta, complemento):
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin-right: 15px; flex-shrink: 0;">1</div>
                 <div>
-                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Declaração Online</h4>
-                    <p style="margin: 0; color: #555;">Você receberá um link para preencher sua declaração de saúde online.</p>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Entrevista Presencial</h4>
+                    <p style="margin: 0; color: #555;">Entraremos em contato para agendar uma entrevista de acolhimento do novo cliente ao plano.</p>
                 </div>
             </div>
             <!-- Etapa 2 -->
@@ -723,7 +724,7 @@ def msg_email(status,proposta, complemento):
                             margin-right: 15px; flex-shrink: 0;">2</div>
                 <div>
                     <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Análise de Declaração</h4>
-                    <p style="margin: 0; color: #555;">Sua declaração será analisada para verificar necessidade de entrevista médica.</p>
+                    <p style="margin: 0; color: #555;">Sua entrevista de acolhimento será analisada por nossa equipe.</p>
                 </div>
             </div>
             <!-- Etapa 3 -->
@@ -732,8 +733,8 @@ def msg_email(status,proposta, complemento):
                             border-radius: 50%; display: flex; justify-content: center; align-items: center; 
                             margin-right: 15px; flex-shrink: 0;">3</div>
                 <div>
-                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Entrevista Presencial</h4>
-                    <p style="margin: 0; color: #555;">Se necessário, agendaremos entrevista presencial com nosso médico.</p>
+                    <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Cadastro</h4>
+                    <p style="margin: 0; color: #555;">Após analise da entrevista, os dados do novo cliente serão adicionados aos nossos sistemas e ele se torna um beneficiario Amacor Planos de saúde.</p>
                 </div>
             </div>
             <!-- Etapa 4 -->
@@ -753,7 +754,7 @@ def msg_email(status,proposta, complemento):
                             margin-right: 15px; flex-shrink: 0;">5</div>
                 <div>
                     <h4 style="margin: 0 0 5px 0; color: #0a2f68;">Finalização do Contrato</h4>
-                    <p style="margin: 0; color: #555;">Enviaremos seu kit para assinatura digital e pedido da carteirinha.</p>
+                    <p style="margin: 0; color: #555;">Enviaremos seu kit contratual para assinatura digital e pedido da carteirinha.</p>
                 </div>
             </div>
         </div>
@@ -770,6 +771,8 @@ def msg_email(status,proposta, complemento):
             else:
                 print(status)
                 return complemento
+
+
 
 
 def redefinir_senha(email,senha):

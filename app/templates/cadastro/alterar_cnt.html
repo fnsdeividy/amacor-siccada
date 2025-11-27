@@ -38,7 +38,7 @@
                         
 
                         {% if area == 'administrativo' and classe_usuario == 'supervisor' %}
-
+                        <option value="Enviado ao cadastro">Enviar para cadastro</option>
                         <option value="entrevista online enviada">entrevista online enviada</option>
                         <option value="enviado para financeiro">Enviar para financeiro</option>
                         <option value="analise de declaração">Enviar para analise</option>
@@ -54,6 +54,8 @@
                         <input type="text" id="complemento" name="complemento" placeholder="complemento de fase (opcional)">
 
                         {% elif classe_usuario == 'supervisor' %}
+                        <option value="Enviado ao cadastro">Enviar para cadastro</option>
+
                         <option value="entrevista online enviada">entrevista online enviada</option>
                         <option value="enviado para financeiro">Enviar para financeiro</option>
                         <option value="analise de declaração">Enviar para analise</option>
@@ -68,6 +70,9 @@
 
 
                         {% elif area == 'cadastro' %}
+                        <option value="Enviado ao cadastro">Enviar para cadastro</option>
+
+                        
                         <option value="entrevista online enviada">entrevista online enviada</option>
                         <option value="enviado para financeiro">Enviar para financeiro</option>
                         <option value="analise de declaração">Enviar para analise</option>
@@ -78,6 +83,8 @@
                         <option value="boleto emitido">boleto emitido</option>
                         <option value="analise de declaração">analise de declaração</option>
                         {% elif area == 'administrativo' %}
+                        <option value="Enviado ao cadastro">Enviar para cadastro</option>
+
                         <option value="entrevista agendada">entrevista Agendada</option>
                         <option value="geração de kit">gerar kit</option>
                         <option value="kit enviado">kit enviado</option>
