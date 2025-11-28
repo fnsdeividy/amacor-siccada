@@ -576,7 +576,7 @@ def venda_form():
         if tipo == "empresarial":
             taxa = venda["taxa_inscricao"]
             valor_sem_taxa = venda['valor_venda'] - taxa
-            mensalidade = round(valor_sem_taxa / 1.05, 2)
+            mensalidade = round(valor_sem_taxa * 1.05, 2)
             iss = round(valor_sem_taxa - mensalidade, 2)
 
             venda["valor_tabela"] = mensalidade
