@@ -1,0 +1,370 @@
+{% extends "base1.html" %}
+{% block title %}Entrevista de Beneficiario{% endblock %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionário de Saúde - Patologias</title>
+    <!-- Bootstrap CSS -->
+    
+    <style>
+       
+        .category-card {
+            background-color: rgba(61, 61, 61, 0.385);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 5px solid #347abb;
+        }
+        .category-title {
+            color: #347abb;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .form-check {
+            padding: 5px 0;
+        }
+        .form-check-input {
+            border: 2px solid #347abb;
+            padding-inline: initial ;
+        }
+        .form-check-input:checked {
+            background-color: #347abb;
+            border-color: #347abb;
+        }
+        .form-check-label {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .btn-submit {
+            background-color: #347abb;
+            color: white;
+            padding: 10px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .btn-submit:hover {
+            background-color: #2a6098;
+        }
+        .sub-question {
+            margin-left: 25px;
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 2px dashed #ddd;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="">
+        <h1 class="text-center mb-4" style="color: #e7eaec;">Questionário de Saúde</h1>
+        <p class="text-center mb-5">Marque as patologias que possui ou já teve</p>
+        
+        <form id="health-form">
+            <!-- Categoria: Doenças Oculares -->
+            <div class="category-card">
+                <h3 class="category-title">Doenças Oculares</h3>
+                <div class="form-check">
+                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_ocular">
+                    <label class="form-check-label" for="cat_ocular">
+                        Possui alguma doença ocular?
+                    </label>
+                </div>
+                <div class="sub-question" id="sub_ocular">
+                    <div class="checkbox-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_miopia" name="miopia">
+                            <label class="form-check-label" for="form_miopia">Miopia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_estrabismo" name="estrabismo">
+                            <label class="form-check-label" for="form_estrabismo">Estrabismo</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_glaucoma" name="glaucoma">
+                            <label class="form-check-label" for="form_glaucoma">Glaucoma</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hipermetropia" name="hipermetropia">
+                            <label class="form-check-label" for="form_hipermetropia">Hipermetropia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_astigmatismo" name="astigmatismo">
+                            <label class="form-check-label" for="form_astigmatismo">Astigmatismo</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_catarata" name="catarata">
+                            <label class="form-check-label" for="form_catarata">Catarata</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_ceratocone" name="ceratocone">
+                            <label class="form-check-label" for="form_ceratocone">Ceratocone</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_retinopatia" name="retinopatia">
+                            <label class="form-check-label" for="form_retinopatia">Retinopatia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_cegueira" name="cegueira">
+                            <label class="form-check-label" for="form_cegueira">Cegueira</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categoria: Doenças Cardiovasculares -->
+            <div class="category-card">
+                <h3 class="category-title">Doenças Cardiovasculares</h3>
+                <div class="form-check">
+                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_cardiovascular">
+                    <label class="form-check-label" for="cat_cardiovascular">
+                        Possui alguma doença cardiovascular?
+                    </label>
+                </div>
+                <div class="sub-question" id="sub_cardiovascular">
+                    <div class="checkbox-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hipertensao_arterial" name="hipertensao_arterial">
+                            <label class="form-check-label" for="form_hipertensao_arterial">Hipertensão Arterial</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_doenca_coronariana" name="doenca_coronariana">
+                            <label class="form-check-label" for="form_doenca_coronariana">Doença Coronariana</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_varizes" name="varizes">
+                            <label class="form-check-label" for="form_varizes">Varizes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_problemas_arteriais" name="problemas_arteriais">
+                            <label class="form-check-label" for="form_problemas_arteriais">Problemas Arteriais</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_trombose" name="trombose">
+                            <label class="form-check-label" for="form_trombose">Trombose</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_valvulopatias" name="valvulopatias">
+                            <label class="form-check-label" for="form_valvulopatias">Valvulopatias</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_insuficiencia_cardiaca" name="insuficiencia_cardiaca">
+                            <label class="form-check-label" for="form_insuficiencia_cardiaca">Insuficiência Cardíaca</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_arritmias" name="arritmias">
+                            <label class="form-check-label" for="form_arritmias">Arritmias</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_infarto" name="infarto">
+                            <label class="form-check-label" for="form_infarto">Infarto</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_cicatrizes_toracica" name="cicatrizes_toracica">
+                            <label class="form-check-label" for="form_cicatrizes_toracica">Cicatrizes Torácica</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categoria: Doenças Endócrinas/Metabólicas -->
+            <div class="category-card">
+                <h3 class="category-title">Doenças Endócrinas/Metabólicas</h3>
+                <div class="form-check">
+                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_endocrina">
+                    <label class="form-check-label" for="cat_endocrina">
+                        Possui alguma doença endócrina ou metabólica?
+                    </label>
+                </div>
+                <div class="sub-question" id="sub_endocrina">
+                    <div class="checkbox-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_diabetes" name="diabetes">
+                            <label class="form-check-label" for="form_diabetes">Diabetes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hipertireoidismo" name="hipertireoidismo">
+                            <label class="form-check-label" for="form_hipertireoidismo">Hipertireoidismo</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hipotireoidismo" name="hipotireoidismo">
+                            <label class="form-check-label" for="form_hipotireoidismo">Hipotireoidismo</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_colesterol_alto" name="colesterol_alto">
+                            <label class="form-check-label" for="form_colesterol_alto">Colesterol Alto</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_triglicerides_alto" name="triglicerides_alto">
+                            <label class="form-check-label" for="form_triglicerides_alto">Triglicérides Alto</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_desnutricao" name="desnutricao">
+                            <label class="form-check-label" for="form_desnutricao">Desnutrição</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_obesidade" name="obesidade">
+                            <label class="form-check-label" for="form_obesidade">Obesidade</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categoria: Doenças Gastrointestinais -->
+            <div class="category-card">
+                <h3 class="category-title">Doenças Gastrointestinais</h3>
+                <div class="form-check">
+                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_gastrointestinal">
+                    <label class="form-check-label" for="cat_gastrointestinal">
+                        Possui alguma doença gastrointestinal?
+                    </label>
+                </div>
+                <div class="sub-question" id="sub_gastrointestinal">
+                    <div class="checkbox-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_gastrite" name="gastrite">
+                            <label class="form-check-label" for="form_gastrite">Gastrite</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_ulcera" name="ulcera">
+                            <label class="form-check-label" for="form_ulcera">Úlcera</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_colite" name="colite">
+                            <label class="form-check-label" for="form_colite">Colite</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_cirrose_hepatica" name="cirrose_hepatica">
+                            <label class="form-check-label" for="form_cirrose_hepatica">Cirrose Hepática</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hepatite" name="hepatite">
+                            <label class="form-check-label" for="form_hepatite">Hepatite</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_cicatrizes_abdominais" name="cicatrizes_abdominais">
+                            <label class="form-check-label" for="form_cicatrizes_abdominais">Cicatrizes Abdominais</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hernia" name="hernia">
+                            <label class="form-check-label" for="form_hernia">Hérnia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_pancreatite" name="pancreatite">
+                            <label class="form-check-label" for="form_pancreatite">Pancreatite</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_doenca_da_vesicula_biliar" name="doenca_da_vesicula_biliar">
+                            <label class="form-check-label" for="form_doenca_da_vesicula_biliar">Doença da Vesícula Biliar</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hemorroidas" name="hemorroidas">
+                            <label class="form-check-label" for="form_hemorroidas">Hemorroidas</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_diverticulite" name="diverticulite">
+                            <label class="form-check-label" for="form_diverticulite">Diverticulite</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Continue adicionando outras categorias seguindo o mesmo padrão -->
+
+            <!-- Botão de Envio -->
+            <div class="text-center">
+                <button type="button" class="btn-submit" onclick="enviarFormulario()">Enviar Formulário</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Script para mostrar/esconder as subcategorias
+        document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const categoryId = this.id.replace('cat_', '');
+                const subQuestion = document.getElementById('sub_' + categoryId);
+                
+                if (this.checked) {
+                    subQuestion.style.display = 'block';
+                } else {
+                    subQuestion.style.display = 'none';
+                    // Desmarcar todos os checkboxes dentro da subcategoria
+                    subQuestion.querySelectorAll('input[type="checkbox"]').forEach(subCheckbox => {
+                        subCheckbox.checked = false;
+                    });
+                }
+            });
+        });
+
+        // Função para coletar todos os dados do formulário
+        function enviarFormulario() {
+            const formData = {};
+            
+            // Coletar checkboxes das categorias principais
+            document.querySelectorAll('.category-checkbox').forEach(cb => {
+                const categoryName = cb.id.replace('cat_', '');
+                formData[categoryName] = cb.checked;
+            });
+            
+            // Coletar checkboxes das subcategorias
+            document.querySelectorAll('.sub-question input[type="checkbox"]').forEach(cb => {
+                if (cb.checked) {
+                    formData[cb.name] = true;
+                }
+            });
+            
+            // Aqui você pode enviar os dados para um servidor
+            console.log('Dados do formulário:', formData);
+            alert('Formulário enviado! Verifique o console para ver os dados.');
+            
+            // Exemplo de envio para um endpoint (descomente quando tiver um endpoint)
+            /*
+            fetch('seu-endpoint-aqui', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Sucesso:', data);
+                alert('Dados enviados com sucesso!');
+            })
+            .catch((error) => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar dados.');
+            });
+            */
+        }
+
+        // Para um formulário muito grande, você pode adicionar mais funcionalidades:
+        // 1. Salvar progresso automaticamente no localStorage
+        // 2. Adicionar validação
+        // 3. Adicionar busca/filtro por doença
+        // 4. Mostrar contador de doenças selecionadas
+    </script>
+</body>
+</html>
+
+{% endblock %}
