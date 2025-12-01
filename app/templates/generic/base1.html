@@ -178,6 +178,14 @@
             <a href="{{ url_for('finan.render_cancelamento_boletos') }}">relatorio de boletos</a>
 
         </div>
+
+        <a href="#" onclick="toggleSubmenu('enfermagem-submenu')">Enfermagem 👩🏻‍⚕️</a>
+        <div class="submenu" id="enfermagem-submenu">
+            
+            <a href="{{ url_for('enfermagem.declaracao') }}">lançar entrevista</a>
+            
+        </div>
+
         <button class="logout-btn" onclick="window.location.href='{{ url_for('auth.logoff') }}'">Sair</button>
     </div>
 

@@ -681,7 +681,7 @@ def excluir_proposta(proposta, last_resp,database_path=None):
         cur = conn.cursor()
 
         cur.execute("UPDATE venda SET status = 'venda cancelada' WHERE numero_proposta = ?", (proposta,))
-        cur.execute("UPDATE venda SET valor_venda= 0, vidas = 0 WHERE numero_proposta= ?",(proposta,))
+        cur.execute("UPDATE venda SET valor_venda= 0, vidas = 0, valor_tabela = 0 WHERE numero_proposta= ?",(proposta,))
 
         
         conn.commit()

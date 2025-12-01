@@ -67,7 +67,7 @@
 }
 
 .sidebar .logout-btn {
-    position: fixed; /* Fixa o botão na parte inferior da barra lateral */
+    position: flex; /* Fixa o botão na parte inferior da barra lateral */
     bottom: 20px; /* Espaçamento da parte inferior */
     left: 20px; /* Espaçamento da lateral esquerda */
     width: calc(100% - 40px); /* Ajusta o tamanho do botão */
@@ -76,7 +76,7 @@
     padding: 18px 28px;
     border: 1px solid rgba(182, 31, 31, 0.384);
     color: white;
-    
+    top: 5px;
     text-align: center;
     padding: 10px;
     
