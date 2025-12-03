@@ -10,7 +10,7 @@ from .routes.doc_gen import docgen_bp
 from .routes.gerencial import gerencial_bp
 from .routes.everflow_mantis import mantis_bp
 from datetime import datetime
-from .routes.enfermagem import enefermagem_bp
+from .routes.enfermagem import enfermagem_bp
 
 from datetime import timedelta
 import os
@@ -38,7 +38,7 @@ def create_app():
     app.register_blueprint(docgen_bp, url_prefix='/docgen')
     app.register_blueprint(gerencial_bp, url_prefix='/gerencial')
     app.register_blueprint(mantis_bp, url_prefix='/mantis')
-    app.register_blueprint(enefermagem_bp, url_prefix= '/enfermagem')
+    app.register_blueprint(enfermagem_bp, url_prefix= '/enfermagem')
 
     # Verifique se a pasta de upload existe
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
