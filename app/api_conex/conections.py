@@ -251,7 +251,7 @@ def msg_email(status, proposta, complemento):
         <div style="text-align: center; width: 24%; min-width: 80px;">
             <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto 10px;">
                 <tr>
-                    <td style="background-color: {cor_fundo}; color: white; width: 30px; height: 30px; border-radius: 50%; text-align: center; font-weight: bold; font-size: 16px; line-height: 30px;">
+                    <td style="background-color: {cor_fundo}; color: white; width: 30px; height: 30px; border-radius: 60%; text-align: center; font-weight: bold; font-size: 16px; line-height: 30px;">
                         {numero}
                     </td>
                 </tr>
