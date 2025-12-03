@@ -16,8 +16,18 @@ import pandas as pd
 import re
 import shutil
 
-enefermagem_bp= Blueprint('enfermagem', __name__)
+enfermagem_bp= Blueprint('enfermagem', __name__)
 
-@enefermagem_bp.route('declaracao', methods= ["GET","POST"])
+@enfermagem_bp.route('declaracao', methods= ["GET","POST"])
 def declaracao():
-    return render_template('enfermagem/entrevista.html')
+    from ..models.database import get_titular_dependente
+    cpf= request.args.get('cpf','')
+
+
+    dados= get_titular_dependente(cpf=cpf)
+    print (dados)
+    return render_template('enfermagem/entrevista.html', dados=dados)
+
+@enfermagem_bp.route('enviar_entrevista')
+def receber_entrevista():
+    pass

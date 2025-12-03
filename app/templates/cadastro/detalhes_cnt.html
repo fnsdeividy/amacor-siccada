@@ -7,10 +7,8 @@
 <div class="container-tab-pix">
     <!-- Botão de fechar -->
     <div class="filter-tab-pix2">
-        <a  class="close-btn" onclick="goBack()" class="close-btn"><-</a>
-        
+        <a class="close-btn" onclick="goBack()"><-</a>
     </div>
-    
 
     <!-- Título da página -->
     <h1 class="table-title-tab-pix">Detalhes do Contrato</h1>
@@ -23,13 +21,12 @@
             <a href="{{ url_for('cad.atualizar_cnt', contrato=venda[13], proposta=venda[1], id=venda[0], last_resp=venda[14], status=venda[6]) }}">
                 {{ 'N/A' if venda[13] == 'None' else venda[13] }}
             </a>
-            <p><strong>Corretor Responsável:</strong> {{ venda[5] }}</p>
         </p>
+        <p><strong>Corretor Responsável:</strong> {{ venda[5] }}</p>
         <p><strong>Data:</strong> {{ data_formatada }}</p>
         <br>
-        <p><strong>Valor total:</strong>{{ venda [8] }}</p>
-         <p>Tipo de pagamento: {{  'N/A' if venda[21] == 'None' else venda[21] }}</p>
-        
+        <p><strong>Valor total:</strong>{{ venda[8] }}</p>
+        <p><strong>Tipo de pagamento:</strong> {{ 'N/A' if venda[21] == 'None' else venda[21] }}</p>
         <p><strong>Tipo de Contrato:</strong> {{ venda[3] }}</p>
         <p><strong>Produto:</strong> {{ venda[4] }}</p>
         <br>
@@ -38,34 +35,37 @@
             <a href="{{ url_for('cad.atualizar_cnt', contrato=venda[13], proposta=venda[1], id=venda[0], last_resp=venda[14], status=venda[6]) }}">
                 {{ venda[6] }}
             </a>
-            
-            {% if venda[16] != None %}
-            <p><strong>Processo finalizado em: </strong>{{venda[16]|format_date_br}}</p>
-            {% endif %}
+        </p>
+        
+        {% if venda[16] != None %}
+        <p><strong>Processo finalizado em: </strong>{{venda[16]|format_date_br}}</p>
+        {% endif %}
 
-            {% if venda[22] != None %}
-            <p><strong>Neste status deste: </strong>{{venda[22]|format_date_br}}</p>
-            {% endif %}
+        {% if venda[22] != None %}
+        <p><strong>Neste status desde: </strong>{{venda[22]|format_date_br}}</p>
+        {% endif %}
 
         {% if variavel_comp != None %}
         <p><strong>{{variavel_comp}}</strong> {{complemento}}</p>
-        <p><strong>Digitado por:</strong> {{venda[7]}}
         {% else %}
         <p><strong>Sem complemento para esta fase</strong></p>
         <br>
-        <p><strong>Digitado por:</strong> {{venda[7]}}
         {% endif %}
-        </p>
+        
+        <p><strong>Digitado por:</strong> {{venda[7]}}</p>
     </div>
+    
     <br><br>
-        <div>
-            <a href="{{ url_for('cad.alterar_proposta', proposta= venda[1]) }}" class="btn-detalhes">Editar Informações</a>
-            <a href="{{ url_for('cad.render_page_doc', proposta=venda[1]) }}" class="btn-detalhes">Anexar Documentos</a>
-            <a href="{{ url_for('cad.documento_contrato', proposta=venda[1]) }}" class="btn-detalhes">Visualizar/Download Documentos</a>
-            <a href="{{ url_for('vendas.concluido', proposta=venda[1], tipo_contrato=venda[3]) }}" class="btn-detalhes">Gerar documento de proposta</a>
-            <a href="{{ url_for('doc_gen.render_gerar_kit', numero_contrato= venda[13])}}" class="btn-detalhes">Gerar KIT</a>
-        <div>
+    <div>
+        <a href="{{ url_for('cad.alterar_proposta', proposta=venda[1]) }}" class="btn-detalhes">Editar Informações</a>
+        <a href="{{ url_for('cad.render_page_doc', proposta=venda[1]) }}" class="btn-detalhes">Anexar Documentos</a>
+        <a href="{{ url_for('cad.documento_contrato', proposta=venda[1]) }}" class="btn-detalhes">Visualizar/Download Documentos</a>
+        <a href="{{ url_for('vendas.concluido', proposta=venda[1], tipo_contrato=venda[3]) }}" class="btn-detalhes">Gerar documento de proposta</a>
+        <a href="{{ url_for('doc_gen.render_gerar_kit', numero_contrato=venda[13]) }}" class="btn-detalhes">Gerar KIT</a>
+    </div>
+    
     <br><br>
+    
     <!-- Seção de responsáveis -->
     <div class="section-tab-pix">
         <h2>Responsáveis</h2>
@@ -121,6 +121,9 @@
                         <th>Estado Civil</th>
                         <th>Nome da Mãe</th>
                         <th>Sexo</th>
+                        {% if venda[6] == 'entrevista agendada' %}
+                        <th>Ações</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -136,6 +139,13 @@
                         <td>{{ titular[9] }}</td>
                         <td>{{ titular[10] }}</td>
                         <td>{{ titular[12] }}</td>
+                        {% if venda[6] == 'entrevista agendada' %}
+                        <td>
+                            <a class="btn" href="{{url_for('enfermagem.declaracao', cpf=titular[3])}}">
+                                Entrevistar
+                            </a>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -159,6 +169,9 @@
                         <th>Data de Nascimento</th>
                         <th>Grau de Parentesco</th>
                         <th>Nome da Mãe</th>
+                        {% if venda[6] == 'entrevista agendada' %}
+                        <th>Ações</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -169,6 +182,13 @@
                         <td>{{ dependente[4] }}</td>
                         <td>{{ dependente[5] }}</td>
                         <td>{{ dependente[6] }}</td>
+                        {% if venda[6] == 'entrevista agendada' %}
+                        <td>
+                            <a class="btn" href="{{url_for('enfermagem.declaracao', cpf=dependente[3])}}">
+                                Entrevistar
+                            </a>
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
