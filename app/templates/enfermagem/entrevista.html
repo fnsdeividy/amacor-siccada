@@ -12,8 +12,15 @@
     
     <style>
        
+       label {
+        font-size: 14px;
+        color: #ffffff;
+        margin-bottom: 5px;
+        display: inline;
+        text-align: left;
+        }
         .category-card {
-            background-color: rgba(61, 61, 61, 0.385);
+            background-color: rgba(13, 14, 58, 0.25);
             backdrop-filter: blur(10px);
             border-radius: 10px;
             padding: 20px;
@@ -26,7 +33,7 @@
             font-weight: bold;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 2px solid #347abb;
         }
         .checkbox-group {
             display: grid;
@@ -72,6 +79,7 @@
     </style>
 </head>
 <body>
+    <br>
     <div class="">
         <h1 class="text-center mb-4" style="color: #e7eaec;">Questionário de Saúde</h1>
         <p class="text-center mb-5">Marque as patologias que possui ou já teve</p>
@@ -280,6 +288,92 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_diverticulite" name="diverticulite">
                             <label class="form-check-label" for="form_diverticulite">Diverticulite</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categoria: Doenças de sangue -->
+            <div class="category-card">
+                <h3 class="category-title">Doenças sanguineas</h3>
+                <div class="form-check">
+                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_sanguinea">
+                    <label class="form-check-label" for="cat_sanguinea">
+                        Possui alguma doença sanguinea?
+                    </label>
+                </div>
+                <div class="sub-question" id="sub_sanguinea">
+                    <div class="checkbox-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_anemia" name="anemia">
+                            <label class="form-check-label" for="form_anemia">Anemia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_leucemia" name="leucemia">
+                            <label class="form-check-label" for="form_leucemia">Leucemia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hemofilia" name="hemofilia">
+                            <label class="form-check-label" for="form_hemofilia">Hemofilia</label>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+             <div class="category-card">
+                <h3 class="category-title">Doenças Osteomusculares</h3>
+                <div class="form-check">
+                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_osteomuscular">
+                    <label class="form-check-label" for="cat_osteomuscular">
+                        Possui alguma doença osteomuscular?
+                    </label>
+                </div>
+                <div class="sub-question" id="sub_osteomuscular">
+                    <div class="checkbox-group">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_hernia-disco" name="hernia-disco">
+                            <label class="form-check-label" for="form_hernia-disco">Hérnia de Disco</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_osteoporose" name="osteoporose">
+                            <label class="form-check-label" for="form_osteoporose">Osteoporose</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_lesao-menisco" name="lesao-menisco">
+                            <label class="form-check-label" for="form_lesao-menisco">Lesão do menisco ou ligamentos</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_bursite" name="lesao-bursite">
+                            <label class="form-check-label" for="form_bursite">Bursite</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_artrites" name="artrites">
+                            <label class="form-check-label" for="form_artites">Artrites</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_artroses" name="artroses">
+                            <label class="form-check-label" for="form_artroses">Artroses</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_gota" name="gota">
+                            <label class="form-check-label" for="form_gota">Gota</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_lupus" name="lupus">
+                            <label class="form-check-label" for="form_lupus">Lúpus</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_tenossinovites" name="tenossinovites">
+                            <label class="form-check-label" for="form_tenossinovites">Tenossinovites</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_escoliose" name="escoliose">
+                            <label class="form-check-label" for="form_escoliose">Escoliose</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_lordose" name="lordose">
+                            <label class="form-check-label" for="form_lordose">Lordose</label>
                         </div>
                     </div>
                 </div>

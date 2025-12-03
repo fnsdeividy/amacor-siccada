@@ -3,7 +3,7 @@
     width: auto; /* ocupa 95% da largura da tela */
     margin: 0 auto;
     padding: 120px 20px 20px;
-    background: rgba(40, 40, 58, 0);
+    background: rgba(13, 14, 58, 0.123);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 8px;
@@ -15,7 +15,7 @@
     display: flex;
     justify-content: center;
     background: rgba(29, 29, 43, 0.493);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(10px);
     max-width: auto;
     max-height: auto;

@@ -483,7 +483,7 @@ def alterar_infos_proposta():
         return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta)
         
 @cad_bp.route('/excluir_proposta', methods=['GET','POST'])
-@acesso('vendas')
+@acesso('vendas','administrativo')
 @hierarquia('supervisor')
 def excluir_proposta():
     from ..models.database import get_senha, excluir_proposta
