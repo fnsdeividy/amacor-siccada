@@ -141,7 +141,7 @@
                         <td>{{ titular[12] }}</td>
                         {% if venda[6] == 'entrevista agendada' %}
                         <td>
-                            <a class="btn" href="{{url_for('enfermagem.declaracao', cpf=titular[3])}}">
+                            <a class="btn" id="entrevista" href="{{url_for('enfermagem.declaracao', cpf=titular[3])}}">
                                 Entrevistar
                             </a>
                         </td>
@@ -201,6 +201,9 @@
 </div>
 
 <script>
+        document.getElementById('entrevista').addEventListener('click', function() {
+        document.getElementById('loader').style.display = 'flex';
+    });
     function goBack() {
         if (document.referrer) {
             // Voltar para a página anterior
