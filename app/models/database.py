@@ -662,7 +662,7 @@ def get_senha(database_path=None):
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT senha FROM usuarios WHERE tipo_usuario = 'vendas' AND classe_usuario = 'supervisor'
+        SELECT senha FROM usuarios WHERE tipo_usuario IN ('vendas', 'administrativo') AND classe_usuario = 'supervisor'
     """, )
     resultado = cur.fetchall()
     conn.close()
@@ -1708,6 +1708,35 @@ def listar_planos(database_path=None):
         nome= cur.fetchall()
 
         return nome
+
+    except Exception as e:
+        print(f"Erro na consulta: {e}")
+        return []
+    finally:
+        # Garante que a conexão será fechada
+        cur.close()
+        conn.close()
+
+def get_titular_dependente(cpf,database_path= None):
+    conn= get_db_connection(database_path)
+    cur= conn.cursor()
+    print("cpf recebido: ", cpf)
+
+    try:
+        cur.execute("""
+        SELECT * FROM titulares WHERE cpf= ?
+    """,(cpf,))
+        resultado= cur.fetchone()
+
+        if not resultado:
+            print('bucando por dependente...')
+
+            cur.execute("""
+            SELECT * FROM dependentes WHERE cpf= ?
+            """,(cpf,))
+            resultado= cur.fetchone()
+
+        return resultado
 
     except Exception as e:
         print(f"Erro na consulta: {e}")
