@@ -134,8 +134,9 @@ def acompanhar_cnt():
 def detalhes_cnt():
     id = request.args.get('proposta')
     print(f"ID recebido: {id}")
-
-      
+    tipo_usuario= session.get('tipo_usuario')
+    print(tipo_usuario)
+    
     conn = sqlite3.connect(current_app.config['DATABASE'])
     cur = conn.cursor()
 
@@ -196,7 +197,9 @@ def detalhes_cnt():
         dependentes=dependentes,
         complemento= complemento,
         variavel_comp=variavel_comp,
-        data_formatada=data_formatada
+        data_formatada=data_formatada,
+        tipo_usuario= tipo_usuario,
+        last_resp=tipo_usuario
     )
 
 @cad_bp.route('/alterar_proposta', methods=['POST', 'GET'])
@@ -227,9 +230,7 @@ def atualizar_cnt():
 
     print(id, proposta,tipo_usuario)
     
-    if  not contrato:
-        return redirect(url_for('cad.adicionar_cnt',proposta=proposta,contrato=contrato,tipo_usuario=tipo_usuario,area=last_resp))
-
+    
     print(f"Contrato: {contrato}, Proposta: {proposta}, ID: {id}")
   
     print(tipo_usuario)

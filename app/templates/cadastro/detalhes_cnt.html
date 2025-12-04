@@ -18,8 +18,8 @@
         <h2>Venda</h2>
         <p><strong>Proposta:</strong> {{venda[1]}}</p>
         <p><strong>Contrato:</strong> 
-            <a href="{{ url_for('cad.atualizar_cnt', contrato=venda[13], proposta=venda[1], id=venda[0], last_resp=venda[14], status=venda[6]) }}">
-                {{ 'N/A' if venda[13] == 'None' else venda[13] }}
+            <a href="{{ url_for('cad.adicionar_cnt',proposta=venda[1],contrato=contrato,tipo_usuario=tipo_usuario,area=last_resp)}}">
+                {{ 'N/A' if venda[13] == 'Ainda' else venda[13] }}
             </a>
         </p>
         <p><strong>Corretor Responsável:</strong> {{ venda[5] }}</p>
