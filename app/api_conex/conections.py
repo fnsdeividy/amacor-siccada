@@ -329,18 +329,20 @@ def msg_email(status, proposta, complemento):
     <div style="margin: 40px 0; position: relative;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
             <tr>
-                <td width="25%" align="center">
-                    {criar_etapa("1", "Entrevista", "", concluido=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("2", "Análise", "", ativo=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("2", "Análise", "Declaração", ativo=True)}
                 </td>
-                <td width="25%" align="center">
+                <td width="20%" align="center">
                     {criar_etapa("3", "Cadastro", "", ativo=False)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("4", "Finalização", "", ativo=False)}
+                <td width="20%" align="center">
+                    {criar_etapa("4", "Geração", "Kit", ativo=False)}
                 </td>
+                <td width="20%" align="center">
+                    {criar_etapa("5", "Contrato", "Finalizado", ativo=False)}
             </tr>
         </table>
         
@@ -388,18 +390,20 @@ def msg_email(status, proposta, complemento):
     <div style="margin: 40px 0; position: relative;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
             <tr>
-                <td width="25%" align="center">
-                    {criar_etapa("1", "Entrevista", "", ativo=True)}
+                 <td width="20%" align="center">
+                    {criar_etapa("1", "Entrevista", "Presencial", ativo=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("2", "Análise", "", ativo=False)}
+                <td width="20%" align="center">
+                    {criar_etapa("2", "Análise", "Declaração", ativo=False)}
                 </td>
-                <td width="25%" align="center">
+                <td width="20%" align="center">
                     {criar_etapa("3", "Cadastro", "", ativo=False)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("4", "Finalização", "", ativo=False)}
+                <td width="20%" align="center">
+                    {criar_etapa("4", "Geração", "Kit", ativo=False)}
                 </td>
+                <td width="20%" align="center">
+                    {criar_etapa("5", "Contrato", "Finalizado", ativo=False)}
             </tr>
         </table>
         
@@ -426,7 +430,7 @@ def msg_email(status, proposta, complemento):
     
     <div style="background-color: #f0f8ff; border: 1px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
         <p style="font-size: 18px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
-        {nome}, seu contrato está pronto para ser entregue!
+        {nome}, seu contrato está sendo prepadado para ser entregue!
         </p>
         <p style="font-size: 16px; margin: 0;">
             O kit contratual será gerado e enviado em breve.
@@ -437,18 +441,20 @@ def msg_email(status, proposta, complemento):
     <div style="margin: 40px 0; position: relative;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
             <tr>
-                <td width="25%" align="center">
-                    {criar_etapa("1", "Entrevista", "", concluido=True)}
+                 <td width="20%" align="center">
+                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("2", "Análise", "", concluido=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("2", "Análise", "Declaração", concluido=True)}
                 </td>
-                <td width="25%" align="center">
+                <td width="20%" align="center">
                     {criar_etapa("3", "Cadastro", "", concluido=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("4", "Kit", "Contratual", ativo=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("4", "Geração", "Kit", ativo=True)}
                 </td>
+                <td width="20%" align="center">
+                    {criar_etapa("5", "Contrato", "Finalizado", ativo=False)}
             </tr>
         </table>
         
@@ -499,18 +505,20 @@ def msg_email(status, proposta, complemento):
     <div style="margin: 40px 0; position: relative;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
             <tr>
-                <td width="25%" align="center">
-                    {criar_etapa("1", "Entrevista", "", concluido=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("2", "Análise", "", concluido=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("2", "Análise", "Declaração", concluido=True)}
                 </td>
-                <td width="25%" align="center">
+                <td width="20%" align="center">
                     {criar_etapa("3", "Cadastro", "", concluido=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("4", "Kit", "Assinado", concluido=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("4", "Geração", "Kit", concluido=True)}
                 </td>
+                <td width="20%" align="center">
+                    {criar_etapa("5", "Contrato", "Finalizado", concluido=True)}
             </tr>
         </table>
         
@@ -566,18 +574,20 @@ def msg_email(status, proposta, complemento):
     <div style="margin: 40px 0; position: relative;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
             <tr>
-                <td width="25%" align="center">
-                    {criar_etapa("1", "Entrevista", "", concluido=True)}
+                 <td width="20%" align="center">
+                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("2", "Análise", "", concluido=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("2", "Análise", "Declaração", concluido=True)}
                 </td>
-                <td width="25%" align="center">
+                <td width="20%" align="center">
                     {criar_etapa("3", "Cadastro", "", concluido=True)}
                 </td>
-                <td width="25%" align="center">
-                    {criar_etapa("4", "Kit", "Enviado", ativo=True)}
+                <td width="20%" align="center">
+                    {criar_etapa("4", "Geração", "Kit", concluido=False)}
                 </td>
+                <td width="20%" align="center">
+                    {criar_etapa("5", "Contrato", "Finalizado", ativo=True)}
             </tr>
         </table>
         
@@ -602,7 +612,7 @@ def msg_email(status, proposta, complemento):
             ⏳ ATENÇÃO: Prazo de 24 horas para assinatura!
         </p>
     <p style="font-size: 16px; color: #d80000; font-weight: bold; text-align: center;">
-        ⚠️ Após 5 dias a partir do envio, o contrato será cancelado automaticamente se não for assinado.
+        ⚠️ Após 5 dias a partir do envio, o envio do contrato será cancelado automaticamente se não for assinado.
     </p>
     </div>
     
@@ -619,12 +629,12 @@ def msg_email(status, proposta, complemento):
         return assunto, mensagem, complemento
     
     elif status == 'Enviado ao cadastro':
-        assunto = f'{nome} seu processo de contratação foi iniciado'
+        assunto = f'{nome} seu processo de cadastro foi iniciado'
         mensagem = f'''
 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
     <p>Olá {nome},</p>
-    <p>Recebemos a documentação da sua proposta do plano de saúde e o processo de contratação foi iniciado.</p>
-    <p>Dentro dos próximos 02 dias entraremos em contato para prosseguir com o processo de adesão ao plano.</p>
+    <p>Nosso setor de cadastro recebeu a sua documentação e estamos incluindo seus dados aos nossos sitemas.</p>
+    <p>Dentro dos próximos 05 dias entraremos em contato para prosseguir com o processo de adesão ao plano.</p>
     
     <h3 style="color: #0a2f68; border-bottom: 2px solid #0a2f68; padding-bottom: 5px; display: inline-block;">
         Próximas etapas do seu plano:
@@ -635,13 +645,13 @@ def msg_email(status, proposta, complemento):
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
             <tr>
                 <td width="20%" align="center">
-                    {criar_etapa("1", "Entrevista", "Presencial", ativo=True)}
+                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
                 </td>
                 <td width="20%" align="center">
-                    {criar_etapa("2", "Análise", "Declaração", ativo=False)}
+                    {criar_etapa("2", "Análise", "Declaração", concluido=True)}
                 </td>
                 <td width="20%" align="center">
-                    {criar_etapa("3", "Cadastro", "", ativo=False)}
+                    {criar_etapa("3", "Cadastro", "", ativo=True)}
                 </td>
                 <td width="20%" align="center">
                     {criar_etapa("4", "Geração", "Kit", ativo=False)}
@@ -651,6 +661,11 @@ def msg_email(status, proposta, complemento):
                 </td>
             </tr>
         </table>
+    </div>
+
+    <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+            <div style="width: 55%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
+        </div>
     </div>
     
     <div style="background-color: #fff8e6; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 0 4px 4px 0;">
