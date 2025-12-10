@@ -521,9 +521,52 @@ def criar_planos(db_path):
 
     print("Importação concluída com sucesso!")
 
-
-
-# -------------------------------------------------
-# Execução direta do script
+def criar_tabelas_patologias(database_path):
+    """Cria as tabelas necessárias para o sistema de patologias"""
+    
+    conn = sqlite3.connect(database_path)
+    cursor = conn.cursor()
+    
+    # Remover tabela existente (se houver)
+    cursor.execute('DROP TABLE IF EXISTS patologias')
+    
+    # Tabela de patologias MODIFICADA - apenas um registro por pessoa
+    cursor.execute('''
+        CREATE TABLE patologias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titular_id INTEGER NULL UNIQUE,
+            dependente_id INTEGER NULL UNIQUE,
+            tipo_pessoa TEXT NOT NULL,
+            
+            -- Todas as doenças em um único campo (JSON)
+            patologias_json TEXT NOT NULL DEFAULT '{}',
+            
+            -- CID principal (o mais grave)
+            cid_principal TEXT,
+            
+            -- Risco calculado
+            grau_risco TEXT,
+            pontuacao_risco INTEGER DEFAULT 0,
+            
+            -- Data
+            data_declaracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            
+            -- Constraints
+            CHECK (
+                (titular_id IS NOT NULL AND dependente_id IS NULL) OR 
+                (titular_id IS NULL AND dependente_id IS NOT NULL)
+            )
+        )
+    ''')
+    
+    # Criar índices
+    cursor.execute('CREATE INDEX idx_patologias_titular ON patologias(titular_id)')
+    cursor.execute('CREATE INDEX idx_patologias_dependente ON patologias(dependente_id)')
+    cursor.execute('CREATE INDEX idx_patologias_risco ON patologias(grau_risco)')
+    
+    conn.commit()
+    conn.close()
+    print("✅ Tabelas criadas com sucesso!")
 if __name__ == "__main__":
-    criar_planos(db_name)
+    criar_tabelas_patologias(db_name)

@@ -686,5 +686,68 @@ def atualizar_data():
                 flash(f'Erro ao atualizar a tabela: {e}', 'error')
                 return redirect(url_for('cad.form_atualizar_data'))
                                 
+@cad_bp.route('/respostas_entrevista')
+@acesso('cadastro','administrativo', 'enfermagem', 'financeiro')
+@hierarquia('supervisor', 'agente')
+def respostas_entrevista():
+    from ..models.database import get_titular_dependente, get_entrevista_info
+    import json
 
+    cpf = request.args.get('cpf', '').strip()
+    
+    if not cpf:
+        flash("CPF não informado", 'error')
+        # Em vez de redirect(url_for(request.url)), use:
+        return redirect(url_for('cadastro.buscar_entrevista'))  # ou a rota apropriada
+    
+    try:
+        # Buscar dados da pessoa
+        dados = get_titular_dependente(cpf)
         
+        if not dados:
+            flash(f"Nenhuma pessoa encontrada com CPF: {cpf}", 'error')
+            return redirect(url_for('cadastro.buscar_entrevista'))
+        
+        # Extrair informações
+        pessoa_id = dados.get('id')
+        pessoa_cpf = dados.get('cpf')
+        tipo_pessoa = dados.get('tipo_pessoa')
+        
+        if not pessoa_id:
+            flash("ID da pessoa não encontrado", 'error')
+            return redirect(url_for('cadastro.buscar_entrevista'))
+        
+        # Buscar informações da entrevista
+        entrevista_info = get_entrevista_info(pessoa_id, tipo_pessoa)
+        
+        if not entrevista_info:
+            flash(f"Nenhuma entrevista encontrada para CPF: {cpf}", 'warning')
+            return render_template('enfermagem/respostas_entrevista.html', 
+                                 dados=dados, 
+                                 entrevista_info=None,
+                                 patologias_data=None)
+        
+        # Parsear o JSON de patologias
+        patologias_data = None
+        if entrevista_info.get('patologias_json'):
+            try:
+                patologias_data = json.loads(entrevista_info['patologias_json'])
+            except json.JSONDecodeError as e:
+                flash(f"Erro ao decodificar JSON de patologias: {e}", 'warning')
+                patologias_data = {}
+            except Exception as e:
+                flash(f"Erro ao processar dados: {e}", 'warning')
+                patologias_data = {}
+        
+        # Renderizar template com todos os dados
+        return render_template('enfermagem/respostas_entrevista.html', 
+                             dados=dados,
+                             entrevista_info=entrevista_info,
+                             patologias_data=patologias_data)
+        
+    except Exception as e:
+        import traceback
+        print(f"❌ ERRO CRÍTICO em respostas_entrevista: {str(e)}")
+        print(traceback.format_exc())
+        flash(f"Erro ao buscar entrevista: {str(e)}", 'error')
+        return redirect(url_for('auth.fechar'))  # Redireciona para dashboard ou página inicial

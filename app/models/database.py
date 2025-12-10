@@ -1718,30 +1718,130 @@ def listar_planos(database_path=None):
         conn.close()
 
 def get_titular_dependente(cpf,database_path= None):
-    conn= get_db_connection(database_path)
-    cur= conn.cursor()
+   
+    conn = get_db_connection(database_path)
+    # IMPORTANTE: Configurar para retornar dicionários
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    
     print("cpf recebido: ", cpf)
 
     try:
-        cur.execute("""
-        SELECT * FROM titulares WHERE cpf= ?
-    """,(cpf,))
-        resultado= cur.fetchone()
-
-        if not resultado:
-            print('bucando por dependente...')
-
-            cur.execute("""
-            SELECT * FROM dependentes WHERE cpf= ?
-            """,(cpf,))
-            resultado= cur.fetchone()
-
-        return resultado
-
+        # Buscar como titular
+        cur.execute("SELECT * FROM titulares WHERE cpf = ?", (cpf,))
+        resultado = cur.fetchone()
+        
+        if resultado:
+            # Converter Row para dicionário e adicionar tipo_pessoa
+            resultado_dict = dict(resultado)
+            resultado_dict['tipo_pessoa'] = 'titular'
+            return resultado_dict
+        else:
+            # Buscar como dependente
+            cur.execute("SELECT * FROM dependentes WHERE cpf = ?", (cpf,))
+            resultado = cur.fetchone()
+            
+            if resultado:
+                resultado_dict = dict(resultado)
+                resultado_dict['tipo_pessoa'] = 'dependente'
+                return resultado_dict
+            
+            return None
+            
     except Exception as e:
-        print(f"Erro na consulta: {e}")
-        return []
+        print(f"Erro ao buscar pessoa: {e}")
+        return None
     finally:
-        # Garante que a conexão será fechada
-        cur.close()
         conn.close()
+
+# No arquivo enfermagem.py, remova a linha problemática e defina a função localmente:
+
+def criar_tabelas_patologias(database_path):
+    """Cria as tabelas necessárias para o sistema de patologias"""
+    
+    conn = sqlite3.connect(database_path)
+    cursor = conn.cursor()
+    
+    # Tabela de patologias MODIFICADA - apenas um registro por pessoa
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS patologias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            titular_id INTEGER NULL,
+            dependente_id INTEGER NULL,
+            tipo_pessoa TEXT NOT NULL,
+            
+            -- Todas as doenças em um único campo (JSON)
+            patologias_json TEXT NOT NULL DEFAULT '{}',
+            
+            -- CID principal (o mais grave)
+            cid_principal TEXT,
+            
+            -- Risco calculado
+            grau_risco TEXT,
+            pontuacao_risco INTEGER DEFAULT 0,
+            
+            -- Data
+            data_declaracao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            
+            -- Constraints
+            CHECK (
+                (titular_id IS NOT NULL AND dependente_id IS NULL) OR 
+                (titular_id IS NULL AND dependente_id IS NOT NULL)
+            )
+        )
+    ''')
+    
+    # Criar índices
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_patologias_titular ON patologias(titular_id)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_patologias_dependente ON patologias(dependente_id)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_patologias_risco ON patologias(grau_risco)')
+    
+    conn.commit()
+    conn.close()
+    print("✅ Tabelas criadas com sucesso!")
+
+def get_entrevista_info(id, tipo_pessoa, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    print("dados recebidos: ", tipo_pessoa, id)
+
+    if tipo_pessoa.lower() == 'titular':
+        cur.execute("""
+            SELECT * FROM patologias WHERE titular_id = ?
+        """, (id,))
+    else:
+        cur.execute("""
+            SELECT * FROM patologias WHERE dependente_id = ?
+        """, (id,))
+    
+    # Se você configurou row_factory como sqlite3.Row, pode usar:
+    dados = cur.fetchall()
+    
+    # Debug: mostrar o que retornou
+    print(f"DEBUG - Total de registros encontrados: {len(dados)}")
+    
+    if not dados:
+        conn.close()
+        return None
+    
+    # Converter para lista de dicionários
+    resultados = []
+    for row in dados:
+        # Se row_factory é sqlite3.Row, converta para dict
+        if hasattr(row, 'keys'):
+            resultados.append(dict(row))
+        else:
+            # Se for tupla, precisamos saber os nomes das colunas
+            colunas = [desc[0] for desc in cur.description]
+            resultados.append(dict(zip(colunas, row)))
+    
+    conn.close()
+    
+    # Retornar o primeiro resultado (se houver)
+    if resultados:
+        # Debug: mostrar primeiro resultado
+        print(f"DEBUG - Primeiro resultado: {resultados[0]}")
+        return resultados[0]  # Retorna apenas o primeiro registro
+    
+    return None

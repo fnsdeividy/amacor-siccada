@@ -121,7 +121,7 @@
                         <th>Estado Civil</th>
                         <th>Nome da Mãe</th>
                         <th>Sexo</th>
-                        {% if venda[6] == 'entrevista agendada' %}
+                        {% if venda[6] == 'entrevista agendada' or venda[6] == 'analise de declaração' %}
                         <th>Ações</th>
                         {% endif %}
                     </tr>
@@ -145,6 +145,11 @@
                                 Entrevistar
                             </a>
                         </td>
+                        {% elif venda[6] == 'analise de declaração' %}
+                        <td>
+                            <a class="btn" id="ver_entrevista" href="{{url_for('cad.respostas_entrevista', cpf=titular[3])}}">
+                                Ver Entrevista
+                            </a>
                         {% endif %}
                     </tr>
                     {% endfor %}
