@@ -18,8 +18,10 @@
     <div class="campo-status">
         <label for="status"><strong>Status:</strong></label>
         <select id="status" name="status" required>
+            {% if tipo_usuario == 'financeiro' %}
             <option value="efetuado" {% if pagamento[8] == 'pendente' %}selected{% endif %}>Pendente</option>
             <option value="baixado" {% if pagamento[8] == 'pago' %}selected{% endif %}>Baixado</option>
+            {% endif %}
             <option value="cancelado" {% if pagamento[8] == 'cancelado' %}selected{% endif %}>Cancelado</option>
         </select>
     </div>

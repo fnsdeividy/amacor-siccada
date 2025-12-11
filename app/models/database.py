@@ -364,6 +364,7 @@ def get_from_sig(numero_contrato, database_path=None):
             dados_mapeados = {sig_to_beneficiarios_map.get(key, key): value for key, value in dados_sig.items()}
             
             # Retorna os dados já no formato mapeado
+            dados_mapeados['info_origem'] = 'sig'
             return dados_mapeados
         else:
             return None
@@ -385,12 +386,23 @@ def get_from_siccada(numero_contrato, database_path=None):
 
         # Busca proposta
         cur.execute("""
-            SELECT * FROM venda 
+            SELECT numero_proposta FROM venda 
             WHERE numero_contrato = ?
         """, (numero_contrato,))
-        
-       
+        venda= cur.fetchone()
+        if not venda:
+            return None
+
+        cur.execute("""
+            SELECT r.* FROM responsavel r
+            INNER JOIN venda v ON r.proposta_id = v.numero_proposta
+                    WHERE proposta_id = ?
+                    
+        """, (venda))
+               
         resultado = cur.fetchone()
+        dados_siccada= dict(resultado)
+        dados_siccada['info_origem'] = 'siccada'
         return dict(resultado) if resultado else None
         
     except Exception as e:

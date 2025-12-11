@@ -137,16 +137,31 @@ def inclusao_render_form():
     nome_usuario = session.get('user_nome')
     numero_contrato = request.form.get('numero_contrato')  # Note: verifique se é 'numero_contrato' ou 'numero_contrato'
     
+
     # Obter dados do contrato
     dados = get_info_cnt(numero_contrato)
+    print("Dados recebudis: ", dados)
+    
     if not dados:
         flash("Contrato não encontrado. Verifique o número do contrato.", "error")
         return redirect (url_for('generic.home'))
     print(dados)
-    if len(dados['cpf'])>14:
-        tipo_contrato= 'empresarial'
-    elif len(dados['cpf'])==14:
-        tipo_contrato = 'individual'
+    if dados.get('info_origem') == 'sig':
+        if len(dados['cpf']) > 14:
+            tipo_contrato = 'empresarial'
+        else:
+            tipo_contrato = 'individual'
+        cpf = dados['cpf']
+        
+    if dados.get('info_origem') == 'siccada':
+        if dados['cnpj']:
+            tipo_contrato= 'empresarial'
+            cpf= dados['cnpj']
+        else:
+            tipo_contrato= 'individual'
+            cpf= dados['cpf']
+
+        
     
     # Obter dados do SICCADA
     vendedor = listar_vendedor()
@@ -173,6 +188,7 @@ def inclusao_render_form():
         data_nascimento=data_nascimento,
         tipo_contrato=tipo_contrato,
         numero_contrato=numero_contrato,
+        cpf=cpf,
         nome_usuario=nome_usuario,
         vendedor=vendedor
     )
