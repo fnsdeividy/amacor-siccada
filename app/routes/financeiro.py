@@ -287,13 +287,14 @@ def calculo_acordo():
     return render_template('financeiro/calcula.html')
 
 @finan_bp.route('/alt_page/<int:pagamento_id>', methods= ['GET', 'POST'])
-@acesso('financeiro')
+@acesso('financeiro', 'cobranca')
 def alt_page(pagamento_id):
     pagamento_status = request.args.get('status', '').strip()
     print(f"Status recebido na rota alt_page: {pagamento_status}")  # Depuração
-
+    
     print(pagamento_id)
     conn = sqlite3.connect(current_app.config['DATABASE'])
+    tipo_usuario = session.get('tipo_usuario')
     try:
         if request.method == 'POST':
             novo_status = request.form['status']
@@ -312,7 +313,7 @@ def alt_page(pagamento_id):
             flash("Pagamento não encontrado!", "error")
             return redirect(url_for('finan.tab'))
 
-        return render_template('financeiro/alt_page.html', pagamento=pagamento, status=pagamento_status)
+        return render_template('financeiro/alt_page.html', pagamento=pagamento, status=pagamento_status, tipo_usuario=tipo_usuario)
     except Exception as e:
         flash(f"Erro ao editar pagamento: {e}", "error")
         return redirect(url_for('finan.tab', status=pagamento_status ))

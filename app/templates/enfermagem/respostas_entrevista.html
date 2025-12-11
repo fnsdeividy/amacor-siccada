@@ -1,0 +1,728 @@
+{% extends "base1.html" %}
+{% block title %}Análise de Declaração{% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <!-- Adicionando Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <div class="container-tab-pix">
+        <!-- Cabeçalho melhorado -->
+        <div class="page-header mb-5">
+            <h1 class="display-5 fw-bold text-primary">
+                <i class="fas fa-clipboard-check me-2"></i>Resultados da Análise de Entrevista
+            </h1>
+            <p class="lead text-muted">Análise coletadas durante a entrevista</p>
+            <div class="header-divider">
+                <span class="line"></span>
+                <span class="circle"></span>
+                <span class="line"></span>
+            </div>
+        </div>
+        
+        <!-- Container principal com layout melhorado -->
+        <div class="results-container">
+            {% if dados %}
+            <!-- Seção Dados da Pessoa -->
+            <section class="person-card card-hover-effect mb-5">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h2 class="section-title">Dados Pessoais</h2>
+                </div>
+                <div class="person-info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-id-card"></i> CPF
+                        </div>
+                        <div class="info-value highlight">{{ dados.cpf }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i> Nome Completo
+                        </div>
+                        <div class="info-value">{{ dados.nome }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-birthday-cake"></i> Data de Nascimento
+                        </div>
+                        <div class="info-value">{{ dados.data_nascimento }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-venus-mars"></i> Sexo
+                        </div>
+                        <div class="info-value">{{ dados.sexo }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-tag"></i> Tipo de Pessoa
+                        </div>
+                        <div class="info-value">{{ dados.tipo_pessoa }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-file-contract"></i> Proposta ID
+                        </div>
+                        <div class="info-value proposal-id">{{ dados.proposta_id }}</div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+            
+            {% if entrevista_info %}
+            <!-- Seção Avaliação de Risco -->
+            <section class="risk-assessment mb-5">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h2 class="section-title">Avaliação de Risco</h2>
+                    <div class="section-subtitle">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Entrevista realizada em {{ entrevista_info.data_declaracao }}
+                    </div>
+                </div>
+                
+                <div class="risk-grid">
+                    <!-- Cartão Grau de Risco -->
+                    <div class="risk-card">
+                        <div class="risk-card-header">
+                            <h5><i class="fas fa-exclamation-triangle me-2"></i>Grau de Risco</h5>
+                        </div>
+                        <div class="risk-card-body risk-level-{{ entrevista_info.grau_risco|replace(' ', '-')|lower }}">
+                            <div class="risk-indicator">
+                                <div class="risk-value">{{ entrevista_info.grau_risco }}</div>
+                                <div class="risk-bar">
+                                    <div class="risk-fill" data-risk="{{ entrevista_info.grau_risco }}"></div>
+                                </div>
+                            </div>
+                            <div class="risk-description">
+                                {% if entrevista_info.grau_risco == 'Muito Alto' %}
+                                <i class="fas fa-skull-crossbones text-danger me-1"></i> Risco significativo que requer atenção imediata
+                                {% elif entrevista_info.grau_risco == 'Alto' %}
+                                <i class="fas fa-exclamation-circle text-warning me-1"></i> Risco elevado que necessita análise cuidadosa
+                                {% elif entrevista_info.grau_risco == 'Médio' %}
+                                <i class="fas fa-info-circle text-info me-1"></i> Risco moderado, recomenda-se acompanhamento
+                                {% elif entrevista_info.grau_risco == 'Baixo' %}
+                                <i class="fas fa-check-circle text-success me-1"></i> Risco dentro dos parâmetros aceitáveis
+                                {% else %}
+                                <i class="fas fa-question-circle text-secondary me-1"></i> Risco não classificado
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cartão Pontuação -->
+                    <div class="risk-card">
+                        <div class="risk-card-header">
+                            <h5><i class="fas fa-calculator me-2"></i>Pontuação de Risco</h5>
+                        </div>
+                        <div class="risk-card-body">
+                            <div class="score-display">
+                                <div class="score-value">{{ entrevista_info.pontuacao_risco }}</div>
+                                <div class="score-label">pontos</div>
+                            </div>
+                            <div class="score-context">
+                                <i class="fas fa-chart-bar me-1"></i> Escala de 0-100 pontos
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cartão CID Principal -->
+                    <div class="risk-card">
+                        <div class="risk-card-header">
+                            <h5><i class="fas fa-stethoscope me-2"></i>CID Principal</h5>
+                        </div>
+                        <div class="risk-card-body">
+                            <div class="cid-display">
+                                {% if entrevista_info.cid_principal %}
+                                <span class="cid-code">{{ entrevista_info.cid_principal }}</span>
+                                <div class="cid-info">Classificação Internacional de Doenças</div>
+                                {% else %}
+                                <div class="no-cid">
+                                    <i class="fas fa-minus-circle text-muted"></i>
+                                    <div>Não informado</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            
+            
+            <!-- Botões de ação -->
+            <div class="action-buttons mt-5 pt-4 border-top">
+                <div class="d-flex justify-content-between">
+                    <a href="   " class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Voltar
+                    </a>
+                    <div>
+                        <button onclick="window.print()" class="btn btn-outline-secondary btn-lg me-2">
+                            <i class="fas fa-print me-2"></i>Imprimir
+                        </button>
+                        <a href="" class="btn btn-primary btn-lg">
+                            <i class="fas fa-edit me-2"></i>Editar Entrevista
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            {% else %}
+            <!-- Mensagem se não houver entrevista -->
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-clipboard-question fa-4x text-muted"></i>
+                </div>
+                <h3 class="empty-state-title">Nenhuma entrevista encontrada</h3>
+                <p class="empty-state-description">
+                    Não foi possível localizar os dados da entrevista para esta pessoa.
+                </p>
+                <a href="   " class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-search me-2"></i>Buscar outra entrevista
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Estilos adicionais para melhorar a aparência -->
+    <style>
+        /* Estilos gerais */
+        .results-container {
+            
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Cabeçalho da página */
+        .page-header {
+            text-align: center;
+            padding-bottom: 1.5rem;
+        }
+        
+        .header-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        .header-divider .line {
+            height: 2px;
+            width: 100px;
+            background: linear-gradient(90deg, transparent, #4e73df, transparent);
+        }
+        
+        .header-divider .circle {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4e73df;
+            margin: 0 15px;
+        }
+        
+        /* Seções */
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #2d54c6;
+            padding-bottom: 0.75rem;
+            padding-top: 18px;
+        }
+        
+        .section-icon {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: #456ad8  ;
+            margin-bottom: 0;
+        }
+        
+        .section-subtitle {
+            margin-left: auto;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        /* Card de dados pessoais */
+        .person-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+        
+        .info-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.25rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #4e73df;
+            transition: transform 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .info-label i {
+            width: 20px;
+            margin-right: 8px;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2e3a59;
+        }
+        
+        .highlight {
+            color: #4e73df;
+            font-weight: 700;
+        }
+        
+        .proposal-id {
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        
+        /* Avaliação de risco */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .risk-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .risk-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .risk-card-header {
+            background: #f8f9fa;
+            padding: 1.25rem;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .risk-card-header h5 {
+            color: #2e3a59;
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+        
+        .risk-card-body {
+            padding: 1.5rem;
+        }
+        
+        .risk-level-muito-alto .risk-value {
+            color: #e74a3b;
+        }
+        
+        .risk-level-alto .risk-value {
+            color: #f6c23e;
+        }
+        
+        .risk-level-médio .risk-value {
+            color: #36b9cc;
+        }
+        
+        .risk-level-baixo .risk-value {
+            color: #1cc88a;
+        }
+        
+        .risk-indicator {
+            margin-bottom: 1rem;
+        }
+        
+        .risk-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .risk-bar {
+            height: 10px;
+            background-color: #eaeaea;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .risk-fill {
+            height: 100%;
+            border-radius: 5px;
+            width: 0;
+            transition: width 1s ease;
+        }
+        
+        .risk-fill[data-risk="Muito Alto"] {
+            background: linear-gradient(90deg, #e74a3b, #f8afa6);
+            width: 95%;
+        }
+        
+        .risk-fill[data-risk="Alto"] {
+            background: linear-gradient(90deg, #f6c23e, #fce8b2);
+            width: 75%;
+        }
+        
+        .risk-fill[data-risk="Médio"] {
+            background: linear-gradient(90deg, #36b9cc, #b6e6ee);
+            width: 50%;
+        }
+        
+        .risk-fill[data-risk="Baixo"] {
+            background: linear-gradient(90deg, #1cc88a, #a6f1d5);
+            width: 25%;
+        }
+        
+        .risk-description {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        /* Pontuação */
+        .score-display {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4e73df;
+            line-height: 1;
+        }
+        
+        .score-label {
+            font-size: 1rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .score-context {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #858796;
+        }
+        
+        /* CID */
+        .cid-display {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .cid-code {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cid-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .no-cid {
+            text-align: center;
+            color: #b7b9cc;
+            padding: 1rem 0;
+        }
+        
+        .no-cid i {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Resumo de patologias */
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .summary-header {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            padding: 1.25rem;
+        }
+        
+        .summary-header h5 {
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+        
+        .summary-body {
+            display: flex;
+            padding: 1.5rem;
+        }
+        
+        .summary-item {
+            flex: 1;
+            text-align: center;
+            padding: 0 1rem;
+        }
+        
+        .summary-item:not(:last-child) {
+            border-right: 1px solid #eaeaea;
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .badge-count {
+            display: inline-block;
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            line-height: 70px;
+            text-align: center;
+        }
+        
+        /* Lista de patologias */
+        .styled-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .styled-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #2e3a59;
+        }
+        
+        .styled-list li:last-child {
+            border-bottom: none;
+        }
+        
+        /* Códigos CID */
+        .cids-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 18px;
+        }
+        
+        .cid-tag {
+            background: linear-gradient(135deg, #36b9cc, #2e9aaa);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Tabela */
+        .badge-cid {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .category-badge {
+            background-color: #f8f9fa;
+            color: #2e3a59;
+            padding: 0.35rem 0.75rem;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            border: 1px solid #eaeaea;
+        }
+        
+        /* Efeito de hover em cards */
+        .card-hover-effect {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-hover-effect:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Botões de gradiente */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #4e73df, #224abe) !important;
+        }
+        
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #36b9cc, #2e9aaa) !important;
+        }
+        
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #1cc88a, #17a673) !important;
+        }
+        
+        /* Estado vazio */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        
+        .empty-state-icon {
+            margin-bottom: 1.5rem;
+        }
+        
+        .empty-state-title {
+            font-weight: 600;
+            color: #2e3a59;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state-description {
+            color: #6c757d;
+            max-width: 500px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        /* Botões de ação */
+        .action-buttons .btn {
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+        
+        /* Estilos para impressão */
+        @media print {
+            .btn, .action-buttons, .header-divider, .section-subtitle {
+                display: none !important;
+            }
+            
+            .results-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .section-header {
+                border-bottom: 2px solid #000;
+            }
+            
+            .risk-card, .info-item, .summary-card, .card {
+                break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #000 !important;
+            }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .person-info-grid, .risk-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-body {
+                flex-direction: column;
+            }
+            
+            .summary-item:not(:last-child) {
+                border-right: none;
+                border-bottom: 1px solid #eaeaea;
+                padding-bottom: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .section-subtitle {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .action-buttons .d-flex {
+                flex-direction: column;
+            }
+            
+            .action-buttons .d-flex > div {
+                width: 100%;
+            }
+        }
+    </style>
+    
+    <!-- Script para animar barras de progresso -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animar barras de risco quando a página carregar
+            const riskFills = document.querySelectorAll('.risk-fill');
+            riskFills.forEach(fill => {
+                // Redefinir largura para 0 para animação
+                const width = fill.style.width;
+                fill.style.width = '0';
+                
+                // Animar após um pequeno delay
+                setTimeout(() => {
+                    fill.style.width = width;
+                }, 300);
+            });
+            
+            // Adicionar efeito de clique nos cards
+            const cards = document.querySelectorAll('.card-hover-effect, .risk-card, .info-item');
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+    </script>
+{% endblock %}
