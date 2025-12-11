@@ -152,6 +152,8 @@ def inclusao_render_form():
         else:
             tipo_contrato = 'individual'
         cpf = dados['cpf']
+        if dados['tipo_produto'] == 'AMACOR CLASSICO EMP':
+            dados['tipo_produto'] = 'Amacor Clássico'
         
     if dados.get('info_origem') == 'siccada':
         if dados['cnpj']:
@@ -247,8 +249,9 @@ def inclusao_form():
             venda["iss"] = iss
         elif tipo == 'inclusao individual':
             venda["valor_tabela"] = round(valor_base, 2)
-            venda["iss"] = 0
+       
 
+        
         print(f"Valor tabela: {venda['valor_tabela']}, ISS: {venda['iss']}")
 
 
