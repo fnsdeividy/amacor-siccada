@@ -153,7 +153,7 @@ def inclusao_render_form():
             tipo_contrato = 'individual'
         cpf = dados['cpf']
         if dados['tipo_produto'] == 'AMACOR CLASSICO EMP':
-            dados['tipo_produto'] = 'Amacor Clássico'
+            dados['tipo_produto'] = 'Amacor Clássico EMP'
         
     if dados.get('info_origem') == 'siccada':
         if dados['cnpj']:
