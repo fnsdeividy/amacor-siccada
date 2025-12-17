@@ -389,17 +389,7 @@ def get_from_siccada(numero_contrato, database_path=None):
             SELECT numero_proposta FROM venda 
             WHERE numero_contrato = ?
         """, (numero_contrato,))
-        venda= cur.fetchone()
-        if not venda:
-            return None
-
-        cur.execute("""
-            SELECT r.* FROM responsavel r
-            INNER JOIN venda v ON r.proposta_id = v.numero_proposta
-                    WHERE proposta_id = ?
                     
-        """, (venda))
-               
         resultado = cur.fetchone()
         dados_siccada= dict(resultado)
         dados_siccada['info_origem'] = 'siccada'

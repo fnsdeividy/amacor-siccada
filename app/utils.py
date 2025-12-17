@@ -90,6 +90,14 @@ def log_atualiza_status(numero_contrato, status, last_resp):
     linha= f'[{agora}]-{mensagem}'
     with open('log_atualiza_status.txt','a')as f:
         f.write(linha)
+
+def log_atualiza_pagamentos(pagamento_id, status):
+    agora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    nome_usuario= session.get('user_nome')
+    mensagem= f"Pagamento ID {pagamento_id} mudado para {status} em {agora}, alterado por {nome_usuario}\n"
+    linha= f'[{agora}] - {mensagem}'
+    with open('log_atualiza_pagamentos.txt','a')as f:
+        f.write(linha)
     
 def get_relative_path_img(user_id=None):
     """Retorna o caminho da pasta de fotos para um usuário específico"""
@@ -107,3 +115,4 @@ def get_relative_path_backgrounds(user_id,nome_wallpaper):
     pasta_raiz = os.path.join(os.getcwd(), 'app', 'static', 'image', 'system_wallpaper', f'{nome_wallpaper}')
     print(f"DEBUG - Caminho para user {user_id}: {pasta_raiz}")
     return pasta_raiz
+
