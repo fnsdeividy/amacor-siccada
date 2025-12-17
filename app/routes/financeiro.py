@@ -291,6 +291,7 @@ def calculo_acordo():
 def alt_page(pagamento_id):
     pagamento_status = request.args.get('status', '').strip()
     print(f"Status recebido na rota alt_page: {pagamento_status}")  # Depuração
+    from ..utils import log_atualiza_pagamentos
     
     print(pagamento_id)
     conn = sqlite3.connect(current_app.config['DATABASE'])
@@ -298,9 +299,12 @@ def alt_page(pagamento_id):
     try:
         if request.method == 'POST':
             novo_status = request.form['status']
+            data_hoje= datetime.now().strftime('%Y-%m-%d')
+            print(f"Novo status recebido: {novo_status}")  # Depuração
             cur = conn.cursor()
-            cur.execute("UPDATE pagamentos SET status = ? WHERE id = ?", (novo_status, pagamento_id))
+            cur.execute("UPDATE pagamentos SET status = ?, data_quitacao = ? WHERE id = ?", (novo_status, data_hoje, pagamento_id))
             conn.commit()
+            log_atualiza_pagamentos(pagamento_id, novo_status)
             print("Status atualizado com sucesso!")
             return redirect(url_for('finan.tab', status=pagamento_status))
         # Obter os dados do pagamento
@@ -308,6 +312,7 @@ def alt_page(pagamento_id):
         cur.execute("SELECT * FROM pagamentos WHERE id = ?", (pagamento_id,))
         pagamento = cur.fetchone()
         cur.close()
+        
 
         if not pagamento:
             flash("Pagamento não encontrado!", "error")
