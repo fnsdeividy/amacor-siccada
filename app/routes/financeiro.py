@@ -86,7 +86,8 @@ def tab():
     metodo_pagamento = request.args.get('metodo_pagamento', '').strip()
     status = request.args.get('status', '').strip()
     tipo_lancamento = request.args.get('tipo_lancamento', '').strip()
-
+    data_quitacao_inicial= request.args.get('data_quitacao_inicial', '').strip()
+    data_quitacao_final= request.args.get('data_quitacao_final', '').strip()
     buscar= request.args.get('buscar')
 
     
@@ -104,9 +105,13 @@ def tab():
             query = "SELECT * FROM pagamentos WHERE 1=1"
             params = []
 
-            if data_inicial and data_fim:
-                query += " AND data_pagamento BETWEEN ? AND ?"
-                params.extend([data_inicial, data_fim])
+            if data_inicial:
+                query += " AND data_pagamento >= ?"
+                params.extend([data_inicial])
+            if data_fim:
+                query += " AND data_pagamento <= ?"
+                params.extend([data_fim])
+
             if metodo_pagamento:
                 query += " AND metodo_pagamento = ?"
                 params.append(metodo_pagamento)
@@ -121,7 +126,12 @@ def tab():
             if tipo_lancamento:
                 query+= " AND tipo_lancamento = ?"
                 params.append(tipo_lancamento)
-
+            if data_quitacao_inicial:
+                query += " AND data_quitacao >= ?"
+                params.append(data_quitacao_inicial)
+            if data_quitacao_final:
+                query += " AND data_quitacao <= ?"
+                params.append(data_quitacao_final)
             cur.execute(query, params)
             pagamentos = cur.fetchall()
             print(f"pagamentos:{query, params}")
@@ -233,6 +243,8 @@ def receber_comprovante():
 def definir():
     conn=sqlite3.connect(current_app.config['DATABASE'])    
     cur=conn.cursor()
+    tipo_usuario= session.get('classe_usuario')
+    print(tipo_usuario)
 
 
     if request.method == 'POST':
@@ -245,7 +257,7 @@ def definir():
     
         return redirect(url_for('finan.tab', data_inicial=data_inicial, data_fim=data_fim, metodo_pagamento=metodo_pagamento, status=status, tipo_lancamento=tipo_lancamento))
 
-    return render_template('financeiro/definir.html')
+    return render_template('financeiro/definir.html', tipo_usuario=tipo_usuario)
 @finan_bp.route('/calculo_acordo', methods=['GET','POST'])
 def calculo_acordo():
     if request.method == 'POST':

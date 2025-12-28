@@ -1,53 +1,137 @@
 {% extends "window.html" %}
-
+{% block title%} Filtragem de Pagamentos {% endblock %}
 {% block window_content %}
 
-<div class="filter-container">
-        <div class="filter-header">
-            <div class="close-btn-container">
-                <a href="{{ url_for('finan.tab') }}" class="close-btn">
-                    <i class="fas fa-times"></i>
-                </a>
-            </div>
-            <h1 class="filter-title">
-                <i class="fas fa-filter"></i>
-                Filtragem de Pagamentos
-            </h1>
-            <p class="filter-subtitle">Selecione os critérios para filtrar os pagamentos</p>
+<div class="filter-tabs">
+    {% if tipo_usuario == 'supervisor' %}
+        <div class="tabs">
+            <button type="button" class="tabb-btn active" data-tab="geral">Geral</button>
+            
+            <button type="button" class="tabb-btn" data-tab="especificas">Específicas</button>
+            
         </div>
-<form method="POST" action="{{ url_for('finan.definir') }}" >
-    <label for="data_inicio">Data de Início:</label>
-    <input type="date" id="data_inicio" name="data_inicio" class="date-input">
-
-    <label for="data_fim">Data de Fim:</label>
-    <input type="date" id="data_fim" name="data_fim" class="date-input">
-
-    <label for="metodo_pagamento">Método de Pagamento:</label>
-    <select id="metodo_pagamento" name="metodo_pagamento">
-        <option value="">Todos</option> <!-- Opção de não filtrar por pagamento -->
-        <option value="cartao">Cartão</option>
-        <option value="boleto">Boleto</option>
-        <option value="PIX">Pix</option>
-    </select>
-
-    <label for="tipo_lancamento">Tipo de lançamento</label>
-    <select name="tipo_lancamento" id="tipo_lancamento">
-        <option value="">Todos</option> <!-- Opção de não filtrar por tipo de lançamento -->
-        <option value="adesao">Adesão</option>
-        <option value="mensalidade">Mensalidade</option>
-
-    </select>
-
-    <label for="status">Status:</label>
-    <select id="status" name="status">
-        <option value="">Todos</option> <!-- Opção de não filtrar por status -->
-        <option value="efetuado">Efetuado</option>
-        <option value="baixado">Baixado</option>
-        <option value="cancelado">Cancelado</option>
-    </select>
-    <br><br>
-    <button class="btn" type="submit">Filtrar</button>
-</form>
+{% endif %}
+<div class="filter-container">
+    
+    <div class="filter-header">
+        <div class="close-btn-container">
+            <a href="{{ url_for('finan.tab') }}" class="close-btn">
+                <i class="fas fa-times"></i>
+            </a>
+        </div>
+        <h1 class="filter-title">
+            <i class="fas fa-filter"></i>
+            Filtragem de Pagamentos
+        </h1>
+        <p class="filter-subtitle">Selecione os critérios para filtrar os pagamentos</p>
     </div>
-</div>  
+
+    
+
+        <div class="tab-content">
+            <div id="geral" class="tab-panel active">
+                <form method="GET" action="{{ url_for('finan.tab') }}">
+                    <label for="data_inicio">Data de Início:</label>
+                    <input type="date" id="data_inicio" name="data_inicio" class="date-input">
+
+                    <label for="data_fim">Data de Fim:</label>
+                    <input type="date" id="data_fim" name="data_fim" class="date-input">
+
+                    <label for="metodo_pagamento">Método de Pagamento:</label>
+                    <select id="metodo_pagamento" name="metodo_pagamento">
+                        <option value="">Todos</option>
+                        <option value="cartao">Cartão</option>
+                        <option value="boleto">Boleto</option>
+                        <option value="PIX">Pix</option>
+                    </select>
+
+                    <label for="tipo_lancamento">Tipo de lançamento</label>
+                    <select name="tipo_lancamento" id="tipo_lancamento">
+                        <option value="">Todos</option>
+                        <option value="adesao">Adesão</option>
+                        <option value="mensalidade">Mensalidade</option>
+                    </select>
+
+                    <label for="status">Status:</label>
+                    <select id="status" name="status">
+                        <option value="">Todos</option>
+                        <option value="efetuado">Efetuado</option>
+                        <option value="baixado">Baixado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+
+                    <br><br>
+                    <button class="btn" type="submit">Filtrar</button>
+                </form>
+            </div>
+
+            <div id="especificas" class="tab-panel">
+                <form method="GET" action="{{ url_for('finan.tab') }}">
+                    <!-- Campos específicos; por padrão duplicam os campos principais. Ajuste conforme necessário. -->
+            
+                    <h3 for="data_quitacao">Data de quitação:</h3>
+                    <label for="dt_qtc">inicial</label>
+                    <input type="date" id="data_quitacao_inicial" name="data_quitacao_inicial" class="date-input">
+                    <label for="dt_qtc">final</label>
+
+                    <input type="date" id="data_quitacao_final" name="data_quitacao_final" class="date-input">
+
+                    <br><br>
+                    <button class="btn" type="submit">Filtrar Específico</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Tabs header styling: aparência de cabeçalho no topo */
+.tabs{
+    display:flex;
+    gap:150px;
+    margin:0 0 12px 0;
+    width:100%;
+    justify-content:center;
+    padding:10px 12px;
+   
+    position:sticky;
+    top:0;
+    z-index:20;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+    border-bottom:1px solid #e6e6e6;
+    align-items:center;
+}
+.tabb-btn{
+    padding:10px 18px;
+    border:1px solid transparent;
+    background:#f3f3f379;
+    cursor:pointer;
+    border-radius:6px;
+    font-weight:600;
+    color:#333;
+}
+.tabb-btn.active{
+    background:#599ee9b2;
+    color:#fff;
+    
+    box-shadow:0 1px 0 rgba(0,0,0,0.04);
+}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.filter-container .date-input{display:block;margin-bottom:8px}
+</style>
+
+<script>
+document.querySelectorAll('.tabb-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+        var tab = this.getAttribute('data-tab');
+        document.querySelectorAll('.tabb-btn').forEach(function(b){b.classList.remove('active')});
+        document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.remove('active')});
+        this.classList.add('active');
+        var panel = document.getElementById(tab);
+        if(panel) panel.classList.add('active');
+    });
+});
+</script>
+
 {% endblock %}
