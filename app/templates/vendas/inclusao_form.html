@@ -394,6 +394,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card">
                     <h3>Informações do Responsável</h3>
                     <div class="form-field">
+                        <label for="numero_contrato">Contrato:</label>
+                        <input type="text" id="numero_contrato" name="numero_contrato" value="{{dados['numero_contrato']}}" readonly required>
+                    </div>
+                    <div class="form-field">
                         <label for="nome_responsavel">Nome do Responsável:</label>
                         <input type="text" id="nome_responsavel" name="nome_responsavel" value="{{dados['nome_responsavel']}}" readonly required>
                     </div>
@@ -531,18 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <option value="outro">Outro</option>            
                     </select>
                     </div>
-                    <div class="form-field">
-                        <label for="endereco_beneficiario">Endereço:</label>
-                        <input type="text" id="endereco_beneficiario" name="endereco_beneficiario" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="celular_titular">Celular:</label>
-                        <input type="text" id="celular_titular" name="celular_titular" required>
-                    </div>
-                    <div class="form-field">
-                        <label for="email_titular">Email:</label>
-                        <input type="email" id="email_titular" name="email_titular" required>
-                    </div>
+                   
                     <div class="form-field">
                         <label for="estado_cv_beneficiario">Estado Civil:</label>
                         <select id="estado_cv_beneficiario" name="estado_cv_beneficiario" required>
