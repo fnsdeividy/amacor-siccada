@@ -1847,3 +1847,15 @@ def get_entrevista_info(id, tipo_pessoa, database_path=None):
         return resultados[0]  # Retorna apenas o primeiro registro
     
     return None
+
+def alterar_cnt(proposta, database_path=None):
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+    try:
+        cur.execute("""
+            UPDATE venda SET status= 'analise de declaração' WHERE id= ?;
+        """,(proposta,))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print ("erro: ", e)
