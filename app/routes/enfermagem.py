@@ -31,9 +31,119 @@ def declaracao():
     print (dados)
     return render_template('enfermagem/entrevista.html', dados=dados)
 
+@enfermagem_bp.route('/gerar_qrcode')
+def gerar_qrcode():
+    import qrcode
+    import os
+    import io
+    import base64
+    import socket
+    import re
+    from flask import render_template, abort, jsonify, request
+    from datetime import datetime
+    
+    # Obter CPF do parâmetro
+    cpf = request.args.get('cpf', '')
+    formato = request.args.get('formato', 'html')  # 'html', 'json', ou 'raw'
+    
+    if not cpf:
+        abort(400, description="CPF não fornecido")
+    
+    # Função para obter IP do servidor dinamicamente
+    def get_server_ip_and_port():
+        """
+        Obtém o IP e porta do servidor de forma inteligente
+        """
+        try:
+            # Tenta obter IP local
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            server_ip = s.getsockname()[0]
+            s.close()
+            
+            # Obtém a porta do request
+            server_port = request.environ.get('SERVER_PORT', '8001')
+            
+            return server_ip, server_port
+        except:
+            # Fallback para valores padrão
+            return "192.168.0.157", "8001"
+    
+    # Obter IP e porta do servidor
+    server_ip, server_port = get_server_ip_and_port()
+    
+    # Criar diretório se não existir
+    qr_code_dir = os.path.join(os.getcwd(), 'static', 'qrcode', 'entrevista')
+    
+    try:
+        # Criar diretório recursivamente
+        os.makedirs(qr_code_dir, exist_ok=True)
+        
+        # URL dinâmica para o QR Code apontar
+        url = f"http://{server_ip}:{server_port}/enfermagem/declaracao?cpf={cpf}"
+        
+        # Criar QR Code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(url)
+        qr.make(fit=True)
+        
+        # Criar imagem com cores personalizadas
+        img = qr.make_image(fill_color="#347abb", back_color="white")
+        
+        # Converter para base64 para exibir na página
+        buffered = io.BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        
+        # Sanitizar CPF para nome de arquivo (remover caracteres inválidos)
+        cpf_sanitizado = re.sub(r'[^\w\-_.]', '_', cpf)
+        
+        # Criar nome do arquivo único com timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        qr_code_filename = f'qrcode_{cpf_sanitizado}_{timestamp}.png'
+        qr_code_path = os.path.join(qr_code_dir, qr_code_filename)
+        
+        # Salvar imagem
+        img.save(qr_code_path)
+        
+        # Retornar conforme o formato solicitado
+        if formato == 'json':
+            return jsonify({
+                'success': True,
+                'cpf': cpf,
+                'url': url,
+                'qrcode_base64': img_str,
+                'data_geracao': datetime.now().isoformat(),
+                'servidor': f"{server_ip}:{server_port}",
+                'instrucoes': 'Escaneie este QR Code com a câmera do seu celular para acessar a declaração'
+            })
+        elif formato == 'raw':
+            # Retorna apenas a imagem
+            return f'data:image/png;base64,{img_str}'
+        else:
+            # Retornar página HTML completa
+            return render_template(
+                'enfermagem/exibir_qrcode.html',
+                cpf=cpf,
+                url=url,
+                qrcode_base64=img_str,
+                timestamp=datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+                ip_servidor=f"{server_ip}:{server_port}"
+            )
+            
+    except PermissionError:
+        abort(500, description="Permissão negada para criar diretório ou arquivo")
+    except Exception as e:
+        abort(500, description=f"Erro ao gerar QR Code: {str(e)}")
 
 @enfermagem_bp.route('/enviar_entrevista', methods=['POST'])
 def receber_entrevista():
+    from ..models.database import alterar_cnt
     try:
         print("🔍 === INICIANDO PROCESSAMENTO DE ENTREVISTA ===")
         
@@ -228,14 +338,15 @@ def receber_entrevista():
         # Buscar pessoa no banco
         pessoa_id = None
         if tipo_pessoa == 'TITULAR':
-            cursor.execute('SELECT id FROM titulares WHERE cpf = ? AND proposta_id = ?', 
-                         (cpf, proposta_id))
+            print(f"buscando por cpf: {cpf} na proposta {proposta_id}")
+            cursor.execute('SELECT id FROM titulares WHERE cpf = ?', 
+                         (cpf,))
             titular = cursor.fetchone()
             if titular:
                 pessoa_id = titular['id']
         else:  # DEPENDENTE
-            cursor.execute('SELECT id FROM dependentes WHERE cpf = ? AND proposta_id = ?', 
-                         (cpf, proposta_id))
+            cursor.execute('SELECT id FROM dependentes WHERE cpf = ?', 
+                         (cpf,))
             dependente = cursor.fetchone()
             if dependente:
                 pessoa_id = dependente['id']
@@ -389,17 +500,26 @@ def receber_entrevista():
             print(f"✅ Risco salvo na tabela risco_cliente")
         
         conn.close()
+        alterar_cnt(proposta_id)
         
         return jsonify({
-            'success': True,
-            'message': 'Entrevista registrada com sucesso',
-            'registro_id': registro_id,
-            'risco_id': risco_id,
-            'total_patologias': len(patologias_detectadas),
-            'patologias_detectadas': patologias_detectadas,
-            'risco_calculado': risco,
-            'redirect': '/dashboard'
-        })
+    'success': True,
+    'message': 'Entrevista registrada com sucesso',
+    'registro_id': registro_id,
+    'risco_id': risco_id,
+    'total_patologias': len(patologias_detectadas),
+    'patologias_detectadas': patologias_detectadas,
+    'risco_calculado': risco,
+    'redirect': url_for('enfermagem.entrevista_concluida') + \
+        f'?nome={data.get("nome", "Não informado")}' + \
+        f'&cpf={cpf}' + \
+        f'&proposta_id={proposta_id}' + \
+        f'&tipo_pessoa={tipo_pessoa}' + \
+        f'&registro_id={registro_id}' + \
+        f'&risco={risco["grau_risco"]}' + \
+        f'&total_patologias={len(patologias_detectadas)}' + \
+        f'&timestamp={datetime.now().isoformat()}'
+})
         
     except Exception as e:
         import traceback
@@ -419,10 +539,10 @@ def calcular_risco_por_patologias(patologias, cids):
         pat_lower = patologia.lower()
         
         # Sistema de pontuação
-        if any(termo in pat_lower for termo in ['câncer', 'leucemia', 'hiv', 'aids', 'neoplásica', 'neoplasia']):
-            pontuacao += 15
-        elif any(termo in pat_lower for termo in ['infarto', 'derrame', 'esclerose', 'cirrose', 'insuficiência renal']):
-            pontuacao += 10
+        if any(termo in pat_lower for termo in ['câncer', 'leucemia', 'hiv', 'esclerose','aids', 'neoplásica', 'neoplasia','insuficiência renal']):
+            pontuacao += 30
+        elif any(termo in pat_lower for termo in ['infarto', 'derrame', 'cirrose']):
+            pontuacao += 20
         elif any(termo in pat_lower for termo in ['diabetes', 'hipertensão', 'hepatite', 'asma', 'epilepsia']):
             pontuacao += 6
         elif any(termo in pat_lower for termo in ['gastrite', 'rinite', 'sinusite', 'miopia', 'artrite']):
@@ -453,3 +573,38 @@ def calcular_risco_por_patologias(patologias, cids):
         'pontuacao': pontuacao,
         'total_patologias': len(patologias)
     }
+
+@enfermagem_bp.route('/entrevista_concluida')
+def entrevista_concluida():
+    from datetime import datetime
+    
+    
+    # Pegar dados da URL
+    dados = {
+        'nome': request.args.get('nome', 'Não informado'),
+        'cpf': request.args.get('cpf', ''),
+        'proposta_id': request.args.get('proposta_id', ''),
+        'tipo_pessoa': request.args.get('tipo_pessoa', 'Beneficiário'),
+        'registro_id': request.args.get('registro_id', ''),
+        'risco': request.args.get('risco', 'Não calculado'),
+        'total_patologias': request.args.get('total_patologias', '0')
+    }
+
+
+    
+    # Usar timestamp da URL ou criar novo
+    timestamp_str = request.args.get('timestamp')
+    if timestamp_str:
+        try:
+            dt = datetime.fromisoformat(timestamp_str)
+            timestamp = dt.strftime('%d/%m/%Y às %H:%M')
+        except:
+            timestamp = datetime.now().strftime('%d/%m/%Y às %H:%M')
+    else:
+        timestamp = datetime.now().strftime('%d/%m/%Y às %H:%M')
+    
+    return render_template(
+        'enfermagem/entrevista_concluida.html',
+        dados=dados,
+        timestamp=timestamp
+    )

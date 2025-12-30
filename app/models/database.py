@@ -102,7 +102,7 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
         print('dados de responsavel inseridos')
         # Inserir dados do titular
         cur.execute("""
-            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade,grau_parentesco, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo, numero_rg, valor)
+            INSERT INTO titulares (proposta_id, nome, cpf, data_nascimento, idade,grau_parentesco, cep, celular, email, estado_civil, nome_mae, nome_pai, sexo, numero_rg, valor_titular)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (proposta_id, titular['nome'], titular['cpf'], titular['data_nascimento'], titular['idade'],titular['grau_parentesco'],
               titular['endereco'], titular['celular'], titular['email'], titular['estado_civil'],
@@ -114,7 +114,7 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
                 print("dependentes",dependentes)
                 
                 cur.execute("""
-                    INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo, valor, idade)
+                    INSERT INTO dependentes (proposta_id, nome, cpf, data_nascimento, grau_parentesco, cpf_titular,nome_mae,sexo, valor_dependente, idade_dependente)
                     VALUES (?, ?, ?, ?, ?, ?,?,?,?,?)
                 """, (proposta_id, dependente['nome'], dependente['cpf'], dependente['data_nascimento'],
                     dependente['grau_parentesco'], dependente['cpf_titular'],dependente['mae_dependente'],dependente['dependente_sexo'], dependente['valor_dependente'], dependente['idade_dependente']))
@@ -1847,3 +1847,15 @@ def get_entrevista_info(id, tipo_pessoa, database_path=None):
         return resultados[0]  # Retorna apenas o primeiro registro
     
     return None
+
+def alterar_cnt(proposta, database_path=None):
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+    try:
+        cur.execute("""
+            UPDATE venda SET status= 'analise de declaração' WHERE id= ?;
+        """,(proposta,))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print ("erro: ", e)

@@ -205,19 +205,21 @@ def inclusao_form():
     try:
         print(nome_usuario)
         # Dados da venda
+        valor_venda_str = request.form.get('valor_venda', '0').replace('R$ ', '').strip()
+
         venda = {
-            "numero_proposta": request.form.get('numero_proposta'),
+            "numero_proposta": request.form.get('numero_contrato'),
             "data_venda": request.form.get('data_venda'),
             "tipo_contrato": request.form.get('tipo_contrato'),
             "tipo_produto": request.form.get('tipo_produto'),
             "corretor_resp": request.form.get('corretor_resp'),
             "status": "Aguardando entrevista",
             "digitador": nome_usuario,
-            "valor_venda": float(request.form.get('valor_venda', '0').replace(',', '.')),
+            "valor_venda_str": valor_venda_str,
+            "valor_venda": float(valor_venda_str.replace(',', '.')),
             "dt_cadastro": datetime.now().strftime("%d-%m-%Y"),
             "tipo_pagamento": request.form.get('forma_pagamento'),
         }
-        print(venda['tipo_pagamento'])
 
         # Calcular valores adicionais
         # Calcular valores adicionais
@@ -290,7 +292,8 @@ def inclusao_form():
             "nome_mae": request.form.get('nome_mae_beneficiario'),
             "nome_pai": request.form.get('nome_pai_beneficiario'),
             "sexo": request.form.get('sexo_beneficiario'),
-            "quantidade_titular" : 1
+            "quantidade_titular" : 1,
+            "valor_titular": request.form.get('valor_titular')
         }
         print(titular)
 
@@ -365,6 +368,8 @@ def inclusao_form():
             form_data=request.form
         )
 
+        flash("Venda salva com sucesso!", "success")
+        return redirect(url_for('vendas.concluido', proposta=numero_proposta, tipo_contrato=venda['tipo_contrato']))
     except Exception as e:
         return f"Erro ao processar os dados: {e}"
 
@@ -405,7 +410,7 @@ def venda_form_pj():
         if tipo == "empresarial":
             taxa = venda["taxa_inscricao"]
             valor_sem_taxa = venda['valor_venda'] - taxa
-            mensalidade = round(valor_sem_taxa / 1.05, 2)
+            mensalidade = round(valor_sem_taxa * 1.05, 2)
             iss = round(valor_sem_taxa - mensalidade, 2)
 
             venda["valor_tabela"] = mensalidade

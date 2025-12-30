@@ -1,5 +1,4 @@
-{% extends "base1.html" %}
-{% block title %}Entrevista de Beneficiario{% endblock %}
+
 {% block content %}
 
 <!DOCTYPE html>
@@ -8,19 +7,578 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Questionário de Saúde - Patologias</title>
-   <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        
+        
+        .container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.8s ease-out;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.header-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 20px 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.header-info h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.header-info h2 {
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 5px;
+    opacity: 0.9;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.header-info .badge {
+    background: rgba(255, 255, 255, 0.25);
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: 50px;
+    margin-top: 8px;
+    display: inline-block;
+    text-align: center;
+}
+
+.category-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px 15px;
+    margin-bottom: 18px;
+    border-left: 4px solid #667eea;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    width: 100%;
+}
+
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.category-title {
+    color: #667eea;
+    font-weight: 700;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    flex-wrap: wrap;
+}
+
+.category-title i {
+    font-size: 1.1rem;
+}
+
+.form-check {
+    padding: 7px 0;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    margin: 2px 0;
+}
+
+.form-check:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+.form-check-input {
+    border: 2px solid #667eea;
+    width: 1.1em;
+    height: 1.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    margin-top: 0.1em;
+    margin-left: 0.5em;
+}
+
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.form-check-label {
+    margin-left: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #333;
+    user-select: none;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.sub-question {
+    margin-left: 10px;
+    margin-top: 12px;
+    padding-left: 12px;
+    border-left: 2px solid #e0e0e0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sub-question.show {
+    max-height: 5000px;
+    opacity: 1;
+    margin-top: 15px;
+    padding-top: 12px;
+}
+
+.outras-input {
+    margin-top: 15px;
+    padding: 10px 15px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    background: rgba(102, 126, 234, 0.05);
+    display: none;
+    animation: slideIn 0.4s ease-out;
+    box-sizing: border-box;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.outras-input:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.15);
+    background: white;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    margin: 25px auto 15px;
+    transition: all 0.3s;
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 300px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.btn-submit:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
+}
+
+.btn-submit:active {
+    transform: translateX(-50%) translateY(0);
+}
+
+.progress-container {
+    background: #f0f0f0;
+    border-radius: 8px;
+    height: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    height: 100%;
+    width: 0%;
+    transition: width 0.6s ease;
+    border-radius: 8px;
+}
+
+.progress-text {
+    text-align: center;
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    padding: 0 10px;
+}
+
+.category-counter {
+    background: #667eea;
+    color: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.category-toggle {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    
+    background: rgba(102, 126, 234, 0.08);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.category-toggle:hover {
+    background: rgba(102, 126, 234, 0.12);
+}
+
+.category-toggle i {
+    transition: transform 0.3s ease;
+    color: #667eea;
+    font-size: 0.9rem;
+}
+
+.category-toggle.active i {
+    transform: rotate(180deg);
+}
+
+.floating-alert {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    left: 15px;
+    padding: 12px 15px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    display: none;
+    animation: slideInRight 0.5s ease;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.cid-badge {
+    background: #f0f7ff;
+    color: #667eea;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: 600;
+    border: 1px solid #d1e0ff;
+    white-space: nowrap;
+}
+
+.search-container {
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+.search-input {
+    padding: 10px 15px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.15);
+}
+
+/* Melhorias específicas para mobile */
+@media (max-width: 576px) {
+    .container {
+        padding: 12px;
+        margin: 10px auto;
+        border-radius: 12px;
+    }
+    
+    .header-info {
+        padding: 15px 12px;
+        border-radius: 10px;
+    }
+    
+    .header-info h1 {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+    }
+    
+    .header-info h2 {
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+    
+    .category-card {
+        padding: 15px 12px;
+        margin-bottom: 15px;
+        border-left-width: 3px;
+    }
+    
+    .category-title {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        gap: 6px;
+    }
+    
+    .form-check-label {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    .checkbox-group {
+        gap: 6px;
+    }
+    
+    .btn-submit {
+        padding: 12px 25px;
+        font-size: 0.95rem;
+        max-width: 280px;
+    }
+    
+    .outras-input {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .progress-container {
+        height: 6px;
+    }
+    
+    .progress-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* Melhorias para telas muito pequenas */
+@media (max-width: 360px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .header-info h1 {
+        font-size: 1.2rem;
+    }
+    
+    .category-title {
+        font-size: 0.95rem;
+    }
+    
+    .form-check-label {
+        font-size: 0.85rem;
+    }
+    
+    .btn-submit {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Ajustes para orientação paisagem em mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .container {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .category-card {
+        padding: 12px 10px;
+        margin-bottom: 10px;
+    }
+    
+    .checkbox-group {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Ajustes para evitar quebra de layout */
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    min-height: 24px;
+    margin-left: 22px;
+
+}
+
+.form-check-input {
+    margin-top: 0.15em;
+    margin-left: 1.8em;
+}
+
+/* Melhorias de toque para dispositivos móveis */
+@media (hover: none) and (pointer: coarse) {
+    .category-toggle:hover {
+        background: rgba(102, 126, 234, 0.08);
+    }
+    
+    .form-check:hover {
+        background-color: transparent;
+    }
+    
+    .btn-submit:hover {
+        transform: translateX(-50%) translateY(0);
+        box-shadow: 0 6px 15px rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-submit:active {
+        transform: translateX(-50%) translateY(2px);
+        box-shadow: 0 3px 8px rgba(102, 126, 234, 0.25);
+    }
+    
+    .category-card:hover {
+        transform: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    
+    .category-card:active {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Melhorias de acessibilidade */
+.form-check-input:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.search-input:focus,
+.outras-input:focus {
+    outline: 2px solid #764ba2;
+    outline-offset: 2px;
+}
+
+/* Prevenir zoom em inputs no iOS */
+@media (max-width: 768px) {
+    input[type="text"],
+    input[type="search"],
+    .search-input,
+    .outras-input {
+        font-size: 16px; /* Previne zoom automático no iOS */
+    }
+}
+
+/* Ajustes para garantir que tudo caiba na tela */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    background-color: #f8f9fa;
+}
+
+/* Melhorias para os checkboxes em linha */
+.checkbox-group .form-check {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+/* Ajuste para garantir que o texto não saia da tela */
+.form-check-label {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Ajuste específico para o CID badge */
+.cid-badge {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Melhorias para o header info em várias linhas */
+.header-info h1,
+.header-info h2 {
+    word-break: break-word;
+}
+    </style>
 </head>
 <body>
-    <br>
-    
-        <h1 class="text-center mb-4" style="color: #e7eaec;">Questionário de Saúde - {{dados.tipo_pessoa}}</h1>
-        <h2>Nome: {{dados.nome}}</h2>
-        <h2>Proposta: {{dados.proposta_id}}</h2>
-        <h2>CPF: {{dados.cpf}}</h2>
-        <br>
-        <p class="text-center mb-5">Marque as patologias que possui ou já teve</p>
-        <br>
+    <div class="container1">
+        <!-- Cabeçalho com informações do beneficiário -->
+        <div class="header-info text-center">
+            <h1><i class="fas fa-clipboard-check me-2"></i>Questionário de Saúde • {{dados.tipo_pessoa}}</h1>
+            <h2> Proposta: {{dados.proposta_id}}</h2>
+            <h2>{{dados.nome}} <br>CPF: {{dados.cpf}}</h2>
+            <span class="badge"><i class="fas fa-info-circle me-2"></i>Marque as patologias que possui ou já teve</span>
+        </div>
+        
+        <!-- Barra de progresso -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">0% completado</div>
+        
+        <!-- Campo de busca -->
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar doença ou categoria...">
+        </div>
+        
         <form id="health-form">
             <input type="hidden" id="cpf" name="cpf" value="{{ dados.cpf }}">
             <input type="hidden" id="proposta_id" name="proposta_id" value="{{ dados.proposta_id }}">
@@ -28,50 +586,56 @@
             
             <!-- Categoria 1: Doenças Cardiovasculares -->
             <div class="category-card">
-                <h3 class="category-title">1. Doenças Cardiovasculares</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_cardiovascular">
-                    <label class="form-check-label" for="cat_cardiovascular">
-                        Sofre de alguma doença cardiovascular?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">1</span>
+                    <i class="fas fa-heartbeat"></i> Doenças Cardiovasculares
+                </h3>
+                <div class="category-toggle" id="toggle_cardiovascular">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_cardiovascular">
+                        <label class="form-check-label" for="cat_cardiovascular">
+                            <strong>Sofre de alguma doença cardiovascular?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_cardiovascular">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hipertensao_arterial" name="hipertensao_arterial" data-cid="I10">
-                            <label class="form-check-label" for="form_hipertensao_arterial">Hipertensão Arterial</label>
+                            <label class="form-check-label" for="form_hipertensao_arterial">Hipertensão Arterial <span class="cid-badge">I10</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_doenca_coronariana" name="doenca_coronariana" data-cid="I20-I25">
-                            <label class="form-check-label" for="form_doenca_coronariana">Doença Coronariana</label>
+                            <label class="form-check-label" for="form_doenca_coronariana">Doença Coronariana <span class="cid-badge">I20-I25</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_varizes" name="varizes" data-cid="I83">
-                            <label class="form-check-label" for="form_varizes">Varizes</label>
+                            <label class="form-check-label" for="form_varizes">Varizes <span class="cid-badge">I83</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_problemas_arteriais" name="problemas_arteriais" data-cid="I70-I79">
-                            <label class="form-check-label" for="form_problemas_arteriais">Problemas Arteriais</label>
+                            <label class="form-check-label" for="form_problemas_arteriais">Problemas Arteriais <span class="cid-badge">I70-I79</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_trombose" name="trombose" data-cid="I80-I82">
-                            <label class="form-check-label" for="form_trombose">Trombose</label>
+                            <label class="form-check-label" for="form_trombose">Trombose <span class="cid-badge">I80-I82</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_valvulopatias" name="valvulopatias" data-cid="I05-I08">
-                            <label class="form-check-label" for="form_valvulopatias">Valvulopatias</label>
+                            <label class="form-check-label" for="form_valvulopatias">Valvulopatias <span class="cid-badge">I05-I08</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_insuficiencia_cardiaca" name="insuficiencia_cardiaca" data-cid="I50">
-                            <label class="form-check-label" for="form_insuficiencia_cardiaca">Insuficiência Cardíaca</label>
+                            <label class="form-check-label" for="form_insuficiencia_cardiaca">Insuficiência Cardíaca <span class="cid-badge">I50</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_arritmias" name="arritmias" data-cid="I47-I49">
-                            <label class="form-check-label" for="form_arritmias">Arritmias</label>
+                            <label class="form-check-label" for="form_arritmias">Arritmias <span class="cid-badge">I47-I49</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_infarto" name="infarto" data-cid="I21-I22">
-                            <label class="form-check-label" for="form_infarto">Infarto</label>
+                            <label class="form-check-label" for="form_infarto">Infarto <span class="cid-badge">I21-I22</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_cicatrizes_toracica" name="cicatrizes_toracica">
@@ -79,39 +643,48 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_cardiovascular" name="outras_cardiovascular">
-                            <label class="form-check-label" for="form_outras_cardiovascular">Outras</label>
+                            <label class="form-check-label" for="form_outras_cardiovascular">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_cardiovascular_text" name="outras_cardiovascular_text" placeholder="Especifique outras doenças cardiovasculares">
+                    <input type="text" class="outras-input" id="outras_cardiovascular_text" name="outras_cardiovascular_text" 
+                           placeholder="Descreva aqui outras doenças cardiovasculares não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 2: Doenças Endócrinas/Metabólicas -->
             <div class="category-card">
-                <h3 class="category-title">2. Doenças Endócrinas/Metabólicas</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_endocrina">
-                    <label class="form-check-label" for="cat_endocrina">
-                        Sofre de alguma doença endócrina ou metabólica?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">2</span>
+                    <i class="fas fa-seedling"></i> Doenças Endócrinas/Metabólicas
+                </h3>
+                <div class="category-toggle" id="toggle_endocrina">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_endocrina">
+                        <label class="form-check-label" for="cat_endocrina">
+                            <strong>Sofre de alguma doença endócrina ou metabólica?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_endocrina">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_diabetes" name="diabetes" data-cid="E10-E14">
-                            <label class="form-check-label" for="form_diabetes">Diabetes</label>
+                            <label class="form-check-label" for="form_diabetes">Diabetes <span class="cid-badge">E10-E14</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hipertireoidismo" name="hipertireoidismo" data-cid="E05">
-                            <label class="form-check-label" for="form_hipertireoidismo">Hipertireoidismo</label>
+                            <label class="form-check-label" for="form_hipertireoidismo">Hipertireoidismo <span class="cid-badge">E05</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hipotireoidismo" name="hipotireoidismo" data-cid="E03">
-                            <label class="form-check-label" for="form_hipotireoidismo">Hipotireoidismo</label>
+                            <label class="form-check-label" for="form_hipotireoidismo">Hipotireoidismo <span class="cid-badge">E03</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_colesterol_alto" name="colesterol_alto" data-cid="E78">
-                            <label class="form-check-label" for="form_colesterol_alto">Colesterol Alto</label>
+                            <label class="form-check-label" for="form_colesterol_alto">Colesterol Alto <span class="cid-badge">E78</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_triglicerides_alto" name="triglicerides_alto">
@@ -119,51 +692,60 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_desnutricao" name="desnutricao" data-cid="E40-E46">
-                            <label class="form-check-label" for="form_desnutricao">Desnutrição</label>
+                            <label class="form-check-label" for="form_desnutricao">Desnutrição <span class="cid-badge">E40-E46</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_obesidade" name="obesidade" data-cid="E66">
-                            <label class="form-check-label" for="form_obesidade">Obesidade</label>
+                            <label class="form-check-label" for="form_obesidade">Obesidade <span class="cid-badge">E66</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_endocrina" name="outras_endocrina">
-                            <label class="form-check-label" for="form_outras_endocrina">Outras</label>
+                            <label class="form-check-label" for="form_outras_endocrina">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_endocrina_text" name="outras_endocrina_text" placeholder="Especifique outras doenças endócrinas">
+                    <input type="text" class="outras-input" id="outras_endocrina_text" name="outras_endocrina_text" 
+                           placeholder="Descreva aqui outras doenças endócrinas não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 3: Doenças do Aparelho Digestivo -->
             <div class="category-card">
-                <h3 class="category-title">3. Doenças do Aparelho Digestivo</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_digestivo">
-                    <label class="form-check-label" for="cat_digestivo">
-                        Sofre de alguma doença do aparelho digestivo?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">3</span>
+                    <i class="fas fa-stomach"></i> Doenças do Aparelho Digestivo
+                </h3>
+                <div class="category-toggle" id="toggle_digestivo">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_digestivo">
+                        <label class="form-check-label" for="cat_digestivo">
+                            <strong>Sofre de alguma doença do aparelho digestivo?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_digestivo">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_gastrite" name="gastrite" data-cid="K29">
-                            <label class="form-check-label" for="form_gastrite">Gastrite</label>
+                            <label class="form-check-label" for="form_gastrite">Gastrite <span class="cid-badge">K29</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_ulcera" name="ulcera" data-cid="K25-K28">
-                            <label class="form-check-label" for="form_ulcera">Úlcera</label>
+                            <label class="form-check-label" for="form_ulcera">Úlcera <span class="cid-badge">K25-K28</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_colite" name="colite" data-cid="K50-K52">
-                            <label class="form-check-label" for="form_colite">Colite</label>
+                            <label class="form-check-label" for="form_colite">Colite <span class="cid-badge">K50-K52</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_cirrose_hepatica" name="cirrose_hepatica" data-cid="K74">
-                            <label class="form-check-label" for="form_cirrose_hepatica">Cirrose Hepática</label>
+                            <label class="form-check-label" for="form_cirrose_hepatica">Cirrose Hepática <span class="cid-badge">K74</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hepatite" name="hepatite" data-cid="B15-B19">
-                            <label class="form-check-label" for="form_hepatite">Hepatite</label>
+                            <label class="form-check-label" for="form_hepatite">Hepatite <span class="cid-badge">B15-B19</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_cicatrizes_abdominais" name="cicatrizes_abdominais">
@@ -171,567 +753,679 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hernia_abdominal" name="hernia_abdominal" data-cid="K40-K46">
-                            <label class="form-check-label" for="form_hernia_abdominal">Hérnia Abdominal</label>
+                            <label class="form-check-label" for="form_hernia_abdominal">Hérnia Abdominal <span class="cid-badge">K40-K46</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_pancreatite" name="pancreatite" data-cid="K85">
-                            <label class="form-check-label" for="form_pancreatite">Pancreatite</label>
+                            <label class="form-check-label" for="form_pancreatite">Pancreatite <span class="cid-badge">K85</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_doenca_vesicula" name="doenca_vesicula" data-cid="K80-K81">
-                            <label class="form-check-label" for="form_doenca_vesicula">Doença da Vesícula Biliar</label>
+                            <label class="form-check-label" for="form_doenca_vesicula">Doença da Vesícula Biliar <span class="cid-badge">K80-K81</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hemorroidas" name="hemorroidas" data-cid="K64">
-                            <label class="form-check-label" for="form_hemorroidas">Hemorroidas</label>
+                            <label class="form-check-label" for="form_hemorroidas">Hemorroidas <span class="cid-badge">K64</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_diverticulite" name="diverticulite" data-cid="K57">
-                            <label class="form-check-label" for="form_diverticulite">Diverticulite</label>
+                            <label class="form-check-label" for="form_diverticulite">Diverticulite <span class="cid-badge">K57</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_digestivo" name="outras_digestivo">
-                            <label class="form-check-label" for="form_outras_digestivo">Outras</label>
+                            <label class="form-check-label" for="form_outras_digestivo">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_digestivo_text" name="outras_digestivo_text" placeholder="Especifique outras doenças digestivas">
+                    <input type="text" class="outras-input" id="outras_digestivo_text" name="outras_digestivo_text" 
+                           placeholder="Descreva aqui outras doenças digestivas não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 4: Doenças do Sangue -->
             <div class="category-card">
-                <h3 class="category-title">4. Doenças do Sangue</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_sangue">
-                    <label class="form-check-label" for="cat_sangue">
-                        Sofre de doença do sangue?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">4</span>
+                    <i class="fas fa-tint"></i> Doenças do Sangue
+                </h3>
+                <div class="category-toggle" id="toggle_sangue">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_sangue">
+                        <label class="form-check-label" for="cat_sangue">
+                            <strong>Sofre de doença do sangue?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_sangue">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_anemia" name="anemia" data-cid="D50-D64">
-                            <label class="form-check-label" for="form_anemia">Anemia</label>
+                            <label class="form-check-label" for="form_anemia">Anemia <span class="cid-badge">D50-D64</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_leucemia" name="leucemia" data-cid="C91-C95">
-                            <label class="form-check-label" for="form_leucemia">Leucemia</label>
+                            <label class="form-check-label" for="form_leucemia">Leucemia <span class="cid-badge">C91-C95</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hemofilia" name="hemofilia" data-cid="D66-D68">
-                            <label class="form-check-label" for="form_hemofilia">Hemofilia</label>
+                            <label class="form-check-label" for="form_hemofilia">Hemofilia <span class="cid-badge">D66-D68</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_sangue" name="outras_sangue">
-                            <label class="form-check-label" for="form_outras_sangue">Outras</label>
+                            <label class="form-check-label" for="form_outras_sangue">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_sangue_text" name="outras_sangue_text" placeholder="Especifique outras doenças do sangue">
+                    <input type="text" class="outras-input" id="outras_sangue_text" name="outras_sangue_text" 
+                           placeholder="Descreva aqui outras doenças do sangue não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 5: Doenças Osteomusculares -->
             <div class="category-card">
-                <h3 class="category-title">5. Doenças Osteomusculares</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_osteomuscular">
-                    <label class="form-check-label" for="cat_osteomuscular">
-                        Sofre de alguma doença osteomuscular?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">5</span>
+                    <i class="fas fa-bone"></i> Doenças Osteomusculares
+                </h3>
+                <div class="category-toggle" id="toggle_osteomuscular">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_osteomuscular">
+                        <label class="form-check-label" for="cat_osteomuscular">
+                            <strong>Sofre de alguma doença osteomuscular?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_osteomuscular">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hernia_disco" name="hernia_disco" data-cid="M51">
-                            <label class="form-check-label" for="form_hernia_disco">Hérnia de Disco</label>
+                            <label class="form-check-label" for="form_hernia_disco">Hérnia de Disco <span class="cid-badge">M51</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_osteoporose" name="osteoporose" data-cid="M80-M81">
-                            <label class="form-check-label" for="form_osteoporose">Osteoporose</label>
+                            <label class="form-check-label" for="form_osteoporose">Osteoporose <span class="cid-badge">M80-M81</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_lesao_menisco" name="lesao_menisco" data-cid="S83">
-                            <label class="form-check-label" for="form_lesao_menisco">Lesão de Menisco ou Ligamentos</label>
+                            <label class="form-check-label" for="form_lesao_menisco">Lesão de Menisco ou Ligamentos <span class="cid-badge">S83</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_bursite" name="bursite" data-cid="M71">
-                            <label class="form-check-label" for="form_bursite">Bursite</label>
+                            <label class="form-check-label" for="form_bursite">Bursite <span class="cid-badge">M71</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_artrites" name="artrites" data-cid="M05-M06">
-                            <label class="form-check-label" for="form_artrites">Artrite</label>
+                            <label class="form-check-label" for="form_artrites">Artrite <span class="cid-badge">M05-M06</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_artroses" name="artroses" data-cid="M15-M19">
-                            <label class="form-check-label" for="form_artroses">Artrose</label>
+                            <label class="form-check-label" for="form_artroses">Artrose <span class="cid-badge">M15-M19</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_gota" name="gota" data-cid="M10">
-                            <label class="form-check-label" for="form_gota">Gota</label>
+                            <label class="form-check-label" for="form_gota">Gota <span class="cid-badge">M10</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_lupus" name="lupus" data-cid="M32">
-                            <label class="form-check-label" for="form_lupus">Lúpus</label>
+                            <label class="form-check-label" for="form_lupus">Lúpus <span class="cid-badge">M32</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_tenossinovites" name="tenossinovites" data-cid="M65">
-                            <label class="form-check-label" for="form_tenossinovites">Tenossinovite</label>
+                            <label class="form-check-label" for="form_tenossinovites">Tenossinovite <span class="cid-badge">M65</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_escoliose" name="escoliose" data-cid="M41">
-                            <label class="form-check-label" for="form_escoliose">Escoliose</label>
+                            <label class="form-check-label" for="form_escoliose">Escoliose <span class="cid-badge">M41</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_lordose" name="lordose" data-cid="M40">
-                            <label class="form-check-label" for="form_lordose">Lordose</label>
+                            <label class="form-check-label" for="form_lordose">Lordose <span class="cid-badge">M40</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_osteomuscular" name="outras_osteomuscular">
-                            <label class="form-check-label" for="form_outras_osteomuscular">Outras</label>
+                            <label class="form-check-label" for="form_outras_osteomuscular">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_osteomuscular_text" name="outras_osteomuscular_text" placeholder="Especifique outras doenças osteomusculares">
+                    <input type="text" class="outras-input" id="outras_osteomuscular_text" name="outras_osteomuscular_text" 
+                           placeholder="Descreva aqui outras doenças osteomusculares não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 6: Doenças Neurológicas -->
             <div class="category-card">
-                <h3 class="category-title">6. Doenças Neurológicas</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_neurologica">
-                    <label class="form-check-label" for="cat_neurologica">
-                        Sofre de alguma doença neurológica?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">6</span>
+                    <i class="fas fa-brain"></i> Doenças Neurológicas
+                </h3>
+                <div class="category-toggle" id="toggle_neurologica">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_neurologica">
+                        <label class="form-check-label" for="cat_neurologica">
+                            <strong>Sofre de alguma doença neurológica?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_neurologica">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_enxaqueca" name="enxaqueca" data-cid="G43">
-                            <label class="form-check-label" for="form_enxaqueca">Enxaqueca</label>
+                            <label class="form-check-label" for="form_enxaqueca">Enxaqueca <span class="cid-badge">G43</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_parkinson" name="parkinson" data-cid="G20">
-                            <label class="form-check-label" for="form_parkinson">Mal de Parkinson</label>
+                            <label class="form-check-label" for="form_parkinson">Mal de Parkinson <span class="cid-badge">G20</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_alzheimer" name="alzheimer" data-cid="G30">
-                            <label class="form-check-label" for="form_alzheimer">Doença de Alzheimer</label>
+                            <label class="form-check-label" for="form_alzheimer">Doença de Alzheimer <span class="cid-badge">G30</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_epilepsia" name="epilepsia" data-cid="G40-G41">
-                            <label class="form-check-label" for="form_epilepsia">Epilepsia</label>
+                            <label class="form-check-label" for="form_epilepsia">Epilepsia <span class="cid-badge">G40-G41</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_tumores_cerebrais" name="tumores_cerebrais" data-cid="C71">
-                            <label class="form-check-label" for="form_tumores_cerebrais">Tumores Cerebrais</label>
+                            <label class="form-check-label" for="form_tumores_cerebrais">Tumores Cerebrais <span class="cid-badge">C71</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_paralisia" name="paralisia" data-cid="G80-G83">
-                            <label class="form-check-label" for="form_paralisia">Paralisia</label>
+                            <label class="form-check-label" for="form_paralisia">Paralisia <span class="cid-badge">G80-G83</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_derrame" name="derrame" data-cid="I60-I69">
-                            <label class="form-check-label" for="form_derrame">Derrame (AVC)</label>
+                            <label class="form-check-label" for="form_derrame">Derrame (AVC) <span class="cid-badge">I60-I69</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_esclerose_multipla" name="esclerose_multipla" data-cid="G35">
-                            <label class="form-check-label" for="form_esclerose_multipla">Esclerose Múltipla</label>
+                            <label class="form-check-label" for="form_esclerose_multipla">Esclerose Múltipla <span class="cid-badge">G35</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_aneurisma" name="aneurisma" data-cid="I67">
-                            <label class="form-check-label" for="form_aneurisma">Aneurisma</label>
+                            <label class="form-check-label" for="form_aneurisma">Aneurisma <span class="cid-badge">I67</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_neurologica" name="outras_neurologica">
-                            <label class="form-check-label" for="form_outras_neurologica">Outras</label>
+                            <label class="form-check-label" for="form_outras_neurologica">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_neurologica_text" name="outras_neurologica_text" placeholder="Especifique outras doenças neurológicas">
+                    <input type="text" class="outras-input" id="outras_neurologica_text" name="outras_neurologica_text" 
+                           placeholder="Descreva aqui outras doenças neurológicas não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 7: Doenças Congênitas -->
             <div class="category-card">
-                <h3 class="category-title">7. Doenças Congênitas</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_congenita">
-                    <label class="form-check-label" for="cat_congenita">
-                        Sofre de alguma doença congênita?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">7</span>
+                    <i class="fas fa-dna"></i> Doenças Congênitas
+                </h3>
+                <div class="category-toggle" id="toggle_congenita">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_congenita">
+                        <label class="form-check-label" for="cat_congenita">
+                            <strong>Sofre de alguma doença congênita?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_congenita">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_sindrome_down" name="sindrome_down" data-cid="Q90">
-                            <label class="form-check-label" for="form_sindrome_down">Síndrome de Down</label>
+                            <label class="form-check-label" for="form_sindrome_down">Síndrome de Down <span class="cid-badge">Q90</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_mal_formacoes" name="mal_formacoes" data-cid="Q00-Q99">
-                            <label class="form-check-label" for="form_mal_formacoes">Má Formações</label>
+                            <label class="form-check-label" for="form_mal_formacoes">Má Formações <span class="cid-badge">Q00-Q99</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_congenita" name="outras_congenita">
-                            <label class="form-check-label" for="form_outras_congenita">Outras</label>
+                            <label class="form-check-label" for="form_outras_congenita">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_congenita_text" name="outras_congenita_text" placeholder="Especifique outras doenças congênitas">
+                    <input type="text" class="outras-input" id="outras_congenita_text" name="outras_congenita_text" 
+                           placeholder="Descreva aqui outras doenças congênitas não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 8: Doenças Respiratórias -->
             <div class="category-card">
-                <h3 class="category-title">8. Doenças Respiratórias</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_respiratoria">
-                    <label class="form-check-label" for="cat_respiratoria">
-                        Sofre de alguma doença respiratória?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">8</span>
+                    <i class="fas fa-lungs"></i> Doenças Respiratórias
+                </h3>
+                <div class="category-toggle" id="toggle_respiratoria">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_respiratoria">
+                        <label class="form-check-label" for="cat_respiratoria">
+                            <strong>Sofre de alguma doença respiratória?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_respiratoria">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_asma" name="asma" data-cid="J45">
-                            <label class="form-check-label" for="form_asma">Asma</label>
+                            <label class="form-check-label" for="form_asma">Asma <span class="cid-badge">J45</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_bronquite" name="bronquite" data-cid="J40-J42">
-                            <label class="form-check-label" for="form_bronquite">Bronquite</label>
+                            <label class="form-check-label" for="form_bronquite">Bronquite <span class="cid-badge">J40-J42</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_enfisema" name="enfisema" data-cid="J43">
-                            <label class="form-check-label" for="form_enfisema">Enfisema</label>
+                            <label class="form-check-label" for="form_enfisema">Enfisema <span class="cid-badge">J43</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_tuberculose" name="tuberculose" data-cid="A15-A19">
-                            <label class="form-check-label" for="form_tuberculose">Tuberculose</label>
+                            <label class="form-check-label" for="form_tuberculose">Tuberculose <span class="cid-badge">A15-A19</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_desvio_septo" name="desvio_septo" data-cid="J34">
-                            <label class="form-check-label" for="form_desvio_septo">Desvio de Septo</label>
+                            <label class="form-check-label" for="form_desvio_septo">Desvio de Septo <span class="cid-badge">J34</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_adenoide" name="adenoide" data-cid="J35">
-                            <label class="form-check-label" for="form_adenoide">Adenoide</label>
+                            <label class="form-check-label" for="form_adenoide">Adenoide <span class="cid-badge">J35</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_sinusite" name="sinusite" data-cid="J01">
-                            <label class="form-check-label" for="form_sinusite">Sinusite</label>
+                            <label class="form-check-label" for="form_sinusite">Sinusite <span class="cid-badge">J01</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_rinite" name="rinite" data-cid="J30">
-                            <label class="form-check-label" for="form_rinite">Rinite</label>
+                            <label class="form-check-label" for="form_rinite">Rinite <span class="cid-badge">J30</span></label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="form_tabagismo" name="tabagismo">
+                            <label class="form-check-label" for="form_tabagismo">Tabagismo</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_respiratoria" name="outras_respiratoria">
-                            <label class="form-check-label" for="form_outras_respiratoria">Outras</label>
+                            <label class="form-check-label" for="form_outras_respiratoria">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_respiratoria_text" name="outras_respiratoria_text" placeholder="Especifique outras doenças respiratórias">
+                    <input type="text" class="outras-input" id="outras_respiratoria_text" name="outras_respiratoria_text" 
+                           placeholder="Descreva aqui outras doenças respiratórias não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 9: Doenças Auditivas -->
             <div class="category-card">
-                <h3 class="category-title">9. Doenças do Aparelho Auditivo</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_auditiva">
-                    <label class="form-check-label" for="cat_auditiva">
-                        Sofre de alguma doença do aparelho auditivo?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">9</span>
+                    <i class="fas fa-deaf"></i> Doenças do Aparelho Auditivo
+                </h3>
+                <div class="category-toggle" id="toggle_auditiva">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_auditiva">
+                        <label class="form-check-label" for="cat_auditiva">
+                            <strong>Sofre de alguma doença do aparelho auditivo?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_auditiva">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_surdez" name="surdez" data-cid="H90-H91">
-                            <label class="form-check-label" for="form_surdez">Surdez</label>
+                            <label class="form-check-label" for="form_surdez">Surdez <span class="cid-badge">H90-H91</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_otite" name="otite" data-cid="H65-H67">
-                            <label class="form-check-label" for="form_otite">Otite Média</label>
+                            <label class="form-check-label" for="form_otite">Otite Média <span class="cid-badge">H65-H67</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_labirintite" name="labirintite" data-cid="H83">
-                            <label class="form-check-label" for="form_labirintite">Labirintite</label>
+                            <label class="form-check-label" for="form_labirintite">Labirintite <span class="cid-badge">H83</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_auditiva" name="outras_auditiva">
-                            <label class="form-check-label" for="form_outras_auditiva">Outras</label>
+                            <label class="form-check-label" for="form_outras_auditiva">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_auditiva_text" name="outras_auditiva_text" placeholder="Especifique outras doenças auditivas">
+                    <input type="text" class="outras-input" id="outras_auditiva_text" name="outras_auditiva_text" 
+                           placeholder="Descreva aqui outras doenças auditivas não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 10: Doenças Oculares -->
             <div class="category-card">
-                <h3 class="category-title">10. Doenças da Visão</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_ocular">
-                    <label class="form-check-label" for="cat_ocular">
-                        Sofre de alguma doença da visão?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">10</span>
+                    <i class="fas fa-eye"></i> Doenças da Visão
+                </h3>
+                <div class="category-toggle" id="toggle_ocular">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_ocular">
+                        <label class="form-check-label" for="cat_ocular">
+                            <strong>Sofre de alguma doença da visão?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_ocular">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_miopia" name="miopia" data-cid="H52">
-                            <label class="form-check-label" for="form_miopia">Miopia</label>
+                            <label class="form-check-label" for="form_miopia">Miopia <span class="cid-badge">H52</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_estrabismo" name="estrabismo" data-cid="H50">
-                            <label class="form-check-label" for="form_estrabismo">Estrabismo</label>
+                            <label class="form-check-label" for="form_estrabismo">Estrabismo <span class="cid-badge">H50</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_glaucoma" name="glaucoma" data-cid="H40-H42">
-                            <label class="form-check-label" for="form_glaucoma">Glaucoma</label>
+                            <label class="form-check-label" for="form_glaucoma">Glaucoma <span class="cid-badge">H40-H42</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hipermetropia" name="hipermetropia" data-cid="H52">
-                            <label class="form-check-label" for="form_hipermetropia">Hipermetropia</label>
+                            <label class="form-check-label" for="form_hipermetropia">Hipermetropia <span class="cid-badge">H52</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_astigmatismo" name="astigmatismo" data-cid="H52">
-                            <label class="form-check-label" for="form_astigmatismo">Astigmatismo</label>
+                            <label class="form-check-label" for="form_astigmatismo">Astigmatismo <span class="cid-badge">H52</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_catarata" name="catarata" data-cid="H25-H26">
-                            <label class="form-check-label" for="form_catarata">Catarata</label>
+                            <label class="form-check-label" for="form_catarata">Catarata <span class="cid-badge">H25-H26</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_ceratocone" name="ceratocone" data-cid="H18">
-                            <label class="form-check-label" for="form_ceratocone">Ceratocone</label>
+                            <label class="form-check-label" for="form_ceratocone">Ceratocone <span class="cid-badge">H18</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_retinopatia" name="retinopatia" data-cid="H35">
-                            <label class="form-check-label" for="form_retinopatia">Retinopatia</label>
+                            <label class="form-check-label" for="form_retinopatia">Retinopatia <span class="cid-badge">H35</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_cegueira" name="cegueira" data-cid="H54">
-                            <label class="form-check-label" for="form_cegueira">Cegueira</label>
+                            <label class="form-check-label" for="form_cegueira">Cegueira <span class="cid-badge">H54</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_ocular" name="outras_ocular">
-                            <label class="form-check-label" for="form_outras_ocular">Outras</label>
+                            <label class="form-check-label" for="form_outras_ocular">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_ocular_text" name="outras_ocular_text" placeholder="Especifique outras doenças oculares">
+                    <input type="text" class="outras-input" id="outras_ocular_text" name="outras_ocular_text" 
+                           placeholder="Descreva aqui outras doenças oculares não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 11: Doenças Genito-Urinárias -->
             <div class="category-card">
-                <h3 class="category-title">11. Doenças do Aparelho Genito-Urinário</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_genitourinaria">
-                    <label class="form-check-label" for="cat_genitourinaria">
-                        Sofre de alguma doença do aparelho genito-urinário?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">11</span>
+                    <i class="fas fa-procedures"></i> Doenças do Aparelho Genito-Urinário
+                </h3>
+                <div class="category-toggle" id="toggle_genitourinaria">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_genitourinaria">
+                        <label class="form-check-label" for="cat_genitourinaria">
+                            <strong>Sofre de alguma doença do aparelho genito-urinário?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_genitourinaria">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_calculo_renal" name="calculo_renal" data-cid="N20-N23">
-                            <label class="form-check-label" for="form_calculo_renal">Cálculo Renal</label>
+                            <label class="form-check-label" for="form_calculo_renal">Cálculo Renal <span class="cid-badge">N20-N23</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_insuficiencia_renal" name="insuficiencia_renal" data-cid="N18-N19">
-                            <label class="form-check-label" for="form_insuficiencia_renal">Insuficiência Renal Crônica</label>
+                            <label class="form-check-label" for="form_insuficiencia_renal">Insuficiência Renal Crônica <span class="cid-badge">N18-N19</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_doenca_prostata" name="doenca_prostata" data-cid="N40-N42">
-                            <label class="form-check-label" for="form_doenca_prostata">Doenças de Próstata</label>
+                            <label class="form-check-label" for="form_doenca_prostata">Doenças de Próstata <span class="cid-badge">N40-N42</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_tumores_urologicos" name="tumores_urologicos" data-cid="C64-C68">
-                            <label class="form-check-label" for="form_tumores_urologicos">Tumores Urológicos</label>
+                            <label class="form-check-label" for="form_tumores_urologicos">Tumores Urológicos <span class="cid-badge">C64-C68</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_endometriose" name="endometriose" data-cid="N80">
-                            <label class="form-check-label" for="form_endometriose">Endometriose</label>
+                            <label class="form-check-label" for="form_endometriose">Endometriose <span class="cid-badge">N80</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_mioma" name="mioma" data-cid="D25">
-                            <label class="form-check-label" for="form_mioma">Mioma</label>
+                            <label class="form-check-label" for="form_mioma">Mioma <span class="cid-badge">D25</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_cisto_ovario" name="cisto_ovario" data-cid="N83">
-                            <label class="form-check-label" for="form_cisto_ovario">Cisto de Ovário</label>
+                            <label class="form-check-label" for="form_cisto_ovario">Cisto de Ovário <span class="cid-badge">N83</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_infeccao_urinaria" name="infeccao_urinaria" data-cid="N39">
-                            <label class="form-check-label" for="form_infeccao_urinaria">Infecção Urinária</label>
+                            <label class="form-check-label" for="form_infeccao_urinaria">Infecção Urinária <span class="cid-badge">N39</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_doenca_mama" name="doenca_mama" data-cid="N60-N64">
-                            <label class="form-check-label" for="form_doenca_mama">Doenças da Mama</label>
+                            <label class="form-check-label" for="form_doenca_mama">Doenças da Mama <span class="cid-badge">N60-N64</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_genitourinaria" name="outras_genitourinaria">
-                            <label class="form-check-label" for="form_outras_genitourinaria">Outras</label>
+                            <label class="form-check-label" for="form_outras_genitourinaria">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_genitourinaria_text" name="outras_genitourinaria_text" placeholder="Especifique outras doenças genito-urinárias">
+                    <input type="text" class="outras-input" id="outras_genitourinaria_text" name="outras_genitourinaria_text" 
+                           placeholder="Descreva aqui outras doenças genito-urinárias não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 12: Doenças Infecto-Contagiosas -->
             <div class="category-card">
-                <h3 class="category-title">12. Doenças Infecto-Contagiosas</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_infectocontagiosa">
-                    <label class="form-check-label" for="cat_infectocontagiosa">
-                        Sofre de alguma doença infecto-contagiosa?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">12</span>
+                    <i class="fas fa-virus"></i> Doenças Infecto-Contagiosas
+                </h3>
+                <div class="category-toggle" id="toggle_infectocontagiosa">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_infectocontagiosa">
+                        <label class="form-check-label" for="cat_infectocontagiosa">
+                            <strong>Sofre de alguma doença infecto-contagiosa?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_infectocontagiosa">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hiv" name="hiv" data-cid="B20-B24">
-                            <label class="form-check-label" for="form_hiv">HIV/AIDS</label>
+                            <label class="form-check-label" for="form_hiv">HIV/AIDS <span class="cid-badge">B20-B24</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_hpv" name="hpv" data-cid="A63">
-                            <label class="form-check-label" for="form_hpv">HPV</label>
+                            <label class="form-check-label" for="form_hpv">HPV <span class="cid-badge">A63</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_herpes_genital" name="herpes_genital" data-cid="A60">
-                            <label class="form-check-label" for="form_herpes_genital">Herpes Genital</label>
+                            <label class="form-check-label" for="form_herpes_genital">Herpes Genital <span class="cid-badge">A60</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_clamidia" name="clamidia" data-cid="A55-A56">
-                            <label class="form-check-label" for="form_clamidia">Clamídia</label>
+                            <label class="form-check-label" for="form_clamidia">Clamídia <span class="cid-badge">A55-A56</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_gonorreia" name="gonorreia" data-cid="A54">
-                            <label class="form-check-label" for="form_gonorreia">Gonorréia</label>
+                            <label class="form-check-label" for="form_gonorreia">Gonorréia <span class="cid-badge">A54</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_sifilis" name="sifilis" data-cid="A50-A53">
-                            <label class="form-check-label" for="form_sifilis">Sífilis</label>
+                            <label class="form-check-label" for="form_sifilis">Sífilis <span class="cid-badge">A50-A53</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_infectocontagiosa" name="outras_infectocontagiosa">
-                            <label class="form-check-label" for="form_outras_infectocontagiosa">Outras</label>
+                            <label class="form-check-label" for="form_outras_infectocontagiosa">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_infectocontagiosa_text" name="outras_infectocontagiosa_text" placeholder="Especifique outras doenças infecto-contagiosas">
+                    <input type="text" class="outras-input" id="outras_infectocontagiosa_text" name="outras_infectocontagiosa_text" 
+                           placeholder="Descreva aqui outras doenças infecto-contagiosas não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 13: Doenças Psiquiátricas -->
             <div class="category-card">
-                <h3 class="category-title">13. Doenças Psiquiátricas</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_psiquiatrica">
-                    <label class="form-check-label" for="cat_psiquiatrica">
-                        Sofre de alguma doença psiquiátrica?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">13</span>
+                    <i class="fas fa-head-side-virus"></i> Doenças Psiquiátricas
+                </h3>
+                <div class="category-toggle" id="toggle_psiquiatrica">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_psiquiatrica">
+                        <label class="form-check-label" for="cat_psiquiatrica">
+                            <strong>Sofre de alguma doença psiquiátrica?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_psiquiatrica">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_ansiedade" name="ansiedade" data-cid="F41">
-                            <label class="form-check-label" for="form_ansiedade">Ansiedade</label>
+                            <label class="form-check-label" for="form_ansiedade">Ansiedade <span class="cid-badge">F41</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_psicose" name="psicose" data-cid="F20-F29">
-                            <label class="form-check-label" for="form_psicose">Psicose</label>
+                            <label class="form-check-label" for="form_psicose">Psicose <span class="cid-badge">F20-F29</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_depressao" name="depressao" data-cid="F32-F33">
-                            <label class="form-check-label" for="form_depressao">Depressão</label>
+                            <label class="form-check-label" for="form_depressao">Depressão <span class="cid-badge">F32-F33</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_alcoolismo" name="alcoolismo" data-cid="F10">
-                            <label class="form-check-label" for="form_alcoolismo">Alcoolismo</label>
+                            <label class="form-check-label" for="form_alcoolismo">Alcoolismo <span class="cid-badge">F10</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_drogas" name="drogas" data-cid="F11-F19">
-                            <label class="form-check-label" for="form_drogas">Uso de Drogas</label>
+                            <label class="form-check-label" for="form_drogas">Uso de Drogas <span class="cid-badge">F11-F19</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_sindrome_panico" name="sindrome_panico" data-cid="F41">
-                            <label class="form-check-label" for="form_sindrome_panico">Síndrome do Pânico</label>
+                            <label class="form-check-label" for="form_sindrome_panico">Síndrome do Pânico <span class="cid-badge">F41</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_esquizofrenia" name="esquizofrenia" data-cid="F20">
-                            <label class="form-check-label" for="form_esquizofrenia">Esquizofrenia</label>
+                            <label class="form-check-label" for="form_esquizofrenia">Esquizofrenia <span class="cid-badge">F20</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_retardo_mental" name="retardo_mental" data-cid="F70-F79">
-                            <label class="form-check-label" for="form_retardo_mental">Retardo Mental</label>
+                            <label class="form-check-label" for="form_retardo_mental">Retardo Mental <span class="cid-badge">F70-F79</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_autismo" name="autismo" data-cid="F84">
-                            <label class="form-check-label" for="form_autismo">Autismo</label>
+                            <label class="form-check-label" for="form_autismo">Autismo <span class="cid-badge">F84</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_demencia" name="demencia" data-cid="F00-F03">
-                            <label class="form-check-label" for="form_demencia">Demência</label>
+                            <label class="form-check-label" for="form_demencia">Demência <span class="cid-badge">F00-F03</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_psiquiatrica" name="outras_psiquiatrica">
-                            <label class="form-check-label" for="form_outras_psiquiatrica">Outras</label>
+                            <label class="form-check-label" for="form_outras_psiquiatrica">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_psiquiatrica_text" name="outras_psiquiatrica_text" placeholder="Especifique outras doenças psiquiátricas">
+                    <input type="text" class="outras-input" id="outras_psiquiatrica_text" name="outras_psiquiatrica_text" 
+                           placeholder="Descreva aqui outras doenças psiquiátricas não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 14: Câncer -->
             <div class="category-card">
-                <h3 class="category-title">14. Doença Neoplásica (Câncer)</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_cancer">
-                    <label class="form-check-label" for="cat_cancer">
-                        Sofre de Doença Neoplásica (Câncer)?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">14</span>
+                    <i class="fas fa-hospital-user"></i> Doença Neoplásica (Câncer)
+                </h3>
+                <div class="category-toggle" id="toggle_cancer">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_cancer">
+                        <label class="form-check-label" for="cat_cancer">
+                            <strong>Sofre de Doença Neoplásica (Câncer)?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_cancer">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_cancer_especifico" name="cancer_especifico">
-                            <label class="form-check-label" for="form_cancer_especifico">Sim, especifique:</label>
+                            <label class="form-check-label" for="form_cancer_especifico">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Sim, especifique:
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="cancer_text" name="cancer_text" placeholder="Especifique o tipo de câncer">
+                    <input type="text" class="outras-input" id="cancer_text" name="cancer_text" 
+                           placeholder="Descreva aqui o tipo de câncer">
                 </div>
             </div>
 
             <!-- Categoria 15: Doenças de Pele -->
             <div class="category-card">
-                <h3 class="category-title">15. Doenças de Pele</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_pele">
-                    <label class="form-check-label" for="cat_pele">
-                        Sofre de alguma doença de pele?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">15</span>
+                    <i class="fas fa-allergies"></i> Doenças de Pele
+                </h3>
+                <div class="category-toggle" id="toggle_pele">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_pele">
+                        <label class="form-check-label" for="cat_pele">
+                            <strong>Sofre de alguma doença de pele?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_pele">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_alergicas_pele" name="alergicas_pele" data-cid="L20-L30">
-                            <label class="form-check-label" for="form_alergicas_pele">Alérgicas</label>
+                            <label class="form-check-label" for="form_alergicas_pele">Alérgicas <span class="cid-badge">L20-L30</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_cancer_pele" name="cancer_pele" data-cid="C43-C44">
-                            <label class="form-check-label" for="form_cancer_pele">Câncer de Pele</label>
+                            <label class="form-check-label" for="form_cancer_pele">Câncer de Pele <span class="cid-badge">C43-C44</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_psoriase" name="psoriase" data-cid="L40">
-                            <label class="form-check-label" for="form_psoriase">Psoríase</label>
+                            <label class="form-check-label" for="form_psoriase">Psoríase <span class="cid-badge">L40</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_dermatite" name="dermatite" data-cid="L20-L30">
-                            <label class="form-check-label" for="form_dermatite">Dermatite</label>
+                            <label class="form-check-label" for="form_dermatite">Dermatite <span class="cid-badge">L20-L30</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_urticarias" name="urticarias" data-cid="L50">
-                            <label class="form-check-label" for="form_urticarias">Urticárias</label>
+                            <label class="form-check-label" for="form_urticarias">Urticárias <span class="cid-badge">L50</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_verruga" name="verruga" data-cid="B07">
-                            <label class="form-check-label" for="form_verruga">Verruga</label>
+                            <label class="form-check-label" for="form_verruga">Verruga <span class="cid-badge">B07</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_manchas_pele" name="manchas_pele">
@@ -739,21 +1433,30 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_pele" name="outras_pele">
-                            <label class="form-check-label" for="form_outras_pele">Outras</label>
+                            <label class="form-check-label" for="form_outras_pele">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_pele_text" name="outras_pele_text" placeholder="Especifique outras doenças de pele">
+                    <input type="text" class="outras-input" id="outras_pele_text" name="outras_pele_text" 
+                           placeholder="Descreva aqui outras doenças de pele não listadas acima">
                 </div>
             </div>
 
             <!-- Categoria 16: Próteses e Implantes -->
             <div class="category-card">
-                <h3 class="category-title">16. Próteses e Implantes</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_protese">
-                    <label class="form-check-label" for="cat_protese">
-                        Faz uso de próteses ou implantes?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">16</span>
+                    <i class="fas fa-medkit"></i> Próteses e Implantes
+                </h3>
+                <div class="category-toggle" id="toggle_protese">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_protese">
+                        <label class="form-check-label" for="cat_protese">
+                            <strong>Faz uso de próteses ou implantes?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_protese">
                     <div class="checkbox-group">
@@ -787,205 +1490,433 @@
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_protese" name="outras_protese">
-                            <label class="form-check-label" for="form_outras_protese">Outras</label>
+                            <label class="form-check-label" for="form_outras_protese">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_protese_text" name="outras_protese_text" placeholder="Especifique outros implantes">
+                    <input type="text" class="outras-input" id="outras_protese_text" name="outras_protese_text" 
+                           placeholder="Descreva aqui outros implantes não listados acima">
                 </div>
             </div>
 
             <!-- Categoria 17: Outras Doenças -->
             <div class="category-card">
-                <h3 class="category-title">17. Outras Doenças</h3>
-                <div class="form-check">
-                    <input class="form-check-input category-checkbox" type="checkbox" id="cat_outras">
-                    <label class="form-check-label" for="cat_outras">
-                        Sofre de Erisipela ou alguma outra doença não descrita?
-                    </label>
+                <h3 class="category-title">
+                    <span class="category-counter">17</span>
+                    <i class="fas fa-file-medical"></i> Outras Doenças
+                </h3>
+                <div class="category-toggle" id="toggle_outras">
+                    <div class="form-check">
+                        <input class="form-check-input category-checkbox" type="checkbox" id="cat_outras">
+                        <label class="form-check-label" for="cat_outras">
+                            <strong>Sofre de Erisipela ou alguma outra doença não descrita?</strong>
+                        </label>
+                    </div>
+                    <i class="fas fa-chevron-down ms-auto"></i>
                 </div>
                 <div class="sub-question" id="sub_outras">
                     <div class="checkbox-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_erisipela" name="erisipela" data-cid="A46">
-                            <label class="form-check-label" for="form_erisipela">Erisipela</label>
+                            <label class="form-check-label" for="form_erisipela">Erisipela <span class="cid-badge">A46</span></label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="form_outras_doencas" name="outras_doencas">
-                            <label class="form-check-label" for="form_outras_doencas">Outras doenças não descritas</label>
+                            <label class="form-check-label" for="form_outras_doencas">
+                                <i class="fas fa-plus-circle me-2" style="color: #667eea;"></i>Outras doenças não descritas
+                            </label>
                         </div>
                     </div>
-                    <input type="text" class="outras-input" id="outras_doencas_text" name="outras_doencas_text" placeholder="Especifique outras doenças">
+                    <input type="text" class="outras-input" id="outras_doencas_text" name="outras_doencas_text" 
+                           placeholder="Descreva aqui outras doenças não listadas acima">
                 </div>
             </div>
 
             <!-- Botão de Envio -->
             <div class="text-center">
-                <button type="button" class="btn-submit" onclick="enviarFormulario()">Enviar Questionário</button>
+                <button type="button" class="btn-submit" onclick="enviarFormulario()">
+                    <i class="fas fa-paper-plane"></i> Enviar Questionário
+                </button>
             </div>
         </form>
     </div>
+    
+    <!-- Alert flutuante -->
+    <div class="floating-alert" id="floatingAlert"></div>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mostrar/esconder subcategorias
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarProgresso();
+            
+            // Configurar todos os toggles de categoria
+            document.querySelectorAll('.category-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const checkbox = this.querySelector('.category-checkbox');
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                });
+            });
+            
+            // Configurar busca
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    filtrarDoencas(this.value.toLowerCase());
+                });
+            }
+        });
+        
+        // Mostrar/esconder subcategorias com animação
         document.querySelectorAll('.category-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const categoryId = this.id.replace('cat_', '');
                 const subQuestion = document.getElementById('sub_' + categoryId);
+                const toggle = document.getElementById('toggle_' + categoryId);
                 
                 if (this.checked) {
-                    subQuestion.style.display = 'block';
+                    subQuestion.classList.add('show');
+                    toggle.classList.add('active');
+                    setTimeout(() => {
+                        subQuestion.style.overflow = 'visible';
+                    }, 500);
                 } else {
-                    subQuestion.style.display = 'none';
-                    // Desmarcar todos os checkboxes dentro da subcategoria
+                    subQuestion.classList.remove('show');
+                    toggle.classList.remove('active');
+                    subQuestion.style.overflow = 'hidden';
+                    
+                    // Desmarcar todas as opções dentro da subcategoria
                     subQuestion.querySelectorAll('input[type="checkbox"]').forEach(subCheckbox => {
                         subCheckbox.checked = false;
+                        subCheckbox.dispatchEvent(new Event('change'));
                     });
-                    // Esconder campos "outras"
-                    const outrasInput = subQuestion.querySelector('.outras-input');
-                    if (outrasInput) {
-                        outrasInput.style.display = 'none';
-                        outrasInput.value = '';
-                    }
                 }
+                atualizarProgresso();
             });
         });
-
-        // Mostrar campo de texto para "Outras" quando selecionado
-        document.querySelectorAll('input[name^="outras_"]').forEach(checkbox => {
-            if (!checkbox.id.includes('_text')) {
+        
+        // Mostrar/esconder campos de texto para todos os checkboxes "Outras"
+        // Lista de todos os campos "outras_*" e "cancer_especifico"
+        const outrasCheckboxes = [
+            'form_outras_cardiovascular',
+            'form_outras_endocrina',
+            'form_outras_digestivo',
+            'form_outras_sangue',
+            'form_outras_osteomuscular',
+            'form_outras_neurologica',
+            'form_outras_congenita',
+            'form_outras_respiratoria',
+            'form_outras_auditiva',
+            'form_outras_ocular',
+            'form_outras_genitourinaria',
+            'form_outras_infectocontagiosa',
+            'form_outras_psiquiatrica',
+            'form_outras_pele',
+            'form_outras_protese',
+            'form_outras_doencas',
+            'form_cancer_especifico'
+        ];
+        
+        outrasCheckboxes.forEach(checkboxId => {
+            const checkbox = document.getElementById(checkboxId);
+            if (checkbox) {
                 checkbox.addEventListener('change', function() {
-                    const inputId = this.id + '_text';
-                    const inputElement = document.getElementById(inputId);
-                    if (this.checked) {
-                        inputElement.style.display = 'block';
-                        inputElement.focus();
-                    } else {
-                        inputElement.style.display = 'none';
-                        inputElement.value = '';
+                    // Gera o ID do campo de texto (ex: form_outras_cardiovascular -> outras_cardiovascular_text)
+                    const textFieldId = checkboxId.replace('form_', '') + '_text';
+                    const textField = document.getElementById(textFieldId);
+                    
+                    if (textField) {
+                        if (this.checked) {
+                            textField.style.display = 'block';
+                            setTimeout(() => {
+                                textField.focus();
+                            }, 300);
+                        } else {
+                            textField.style.display = 'none';
+                            textField.value = '';
+                        }
                     }
+                    atualizarProgresso();
                 });
             }
         });
-
-        // Mostrar campo de texto para Câncer
-        document.getElementById('form_cancer_especifico').addEventListener('change', function() {
-            const cancerInput = document.getElementById('cancer_text');
-            if (this.checked) {
-                cancerInput.style.display = 'block';
-                cancerInput.focus();
-            } else {
-                cancerInput.style.display = 'none';
-                cancerInput.value = '';
+        
+        // Função para filtrar doenças
+        function filtrarDoencas(termo) {
+            if (!termo) {
+                // Mostrar tudo se não há termo de busca
+                document.querySelectorAll('.category-card').forEach(card => {
+                    card.style.display = 'block';
+                    card.querySelectorAll('.form-check').forEach(item => {
+                        item.style.display = 'block';
+                    });
+                });
+                return;
             }
-        });
-
-        // Função para enviar o formulário
-        function enviarFormulario() {
+            
+            let encontrouResultado = false;
+            
+            document.querySelectorAll('.category-card').forEach(card => {
+                const titulo = card.querySelector('.category-title').textContent.toLowerCase();
+                const itens = card.querySelectorAll('.form-check');
+                let itensVisiveis = 0;
+                
+                // Verificar se o título da categoria contém o termo
+                if (titulo.includes(termo)) {
+                    card.style.display = 'block';
+                    encontrouResultado = true;
+                    // Mostrar todos os itens desta categoria
+                    itens.forEach(item => {
+                        item.style.display = 'block';
+                        itensVisiveis++;
+                    });
+                } else {
+                    // Filtrar itens dentro da categoria
+                    itens.forEach(item => {
+                        const label = item.querySelector('.form-check-label').textContent.toLowerCase();
+                        if (label.includes(termo)) {
+                            item.style.display = 'block';
+                            itensVisiveis++;
+                            encontrouResultado = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    // Mostrar ou esconder a categoria baseado nos itens visíveis
+                    card.style.display = itensVisiveis > 0 ? 'block' : 'none';
+                }
+            });
+            
+            // Feedback visual se não encontrar nada
+            if (!encontrouResultado && termo.length > 2) {
+                mostrarAlerta(`Nenhum resultado encontrado para "${termo}"`, 'warning');
+            }
+        }
+        
+        // Função para atualizar barra de progresso
+        function atualizarProgresso() {
+            const totalCategorias = document.querySelectorAll('.category-checkbox').length;
+            const categoriasPreenchidas = Array.from(document.querySelectorAll('.category-checkbox')).filter(cb => {
+                if (!cb.checked) return false;
+                const categoryId = cb.id.replace('cat_', '');
+                const subQuestion = document.getElementById('sub_' + categoryId);
+                
+                if (!subQuestion) return true;
+                
+                // Verifica se há pelo menos uma doença marcada dentro da categoria
+                const doencasMarcadas = subQuestion.querySelectorAll('input[type="checkbox"]:checked');
+                const doencasReais = Array.from(doencasMarcadas).filter(d => 
+                    !d.name.startsWith('outras_') && d.id !== 'form_cancer_especifico'
+                );
+                
+                const outrasCheckbox = subQuestion.querySelector('input[name^="outras_"]:not([id*="_text"])');
+                const outrasInput = subQuestion.querySelector('.outras-input');
+                
+                // Se "Outras" está marcado, verifica se tem texto
+                if (outrasCheckbox && outrasCheckbox.checked) {
+                    return doencasReais.length > 0 || (outrasInput && outrasInput.value.trim() !== '');
+                }
+                
+                return doencasReais.length > 0;
+            }).length;
+            
+            const progresso = totalCategorias > 0 ? (categoriasPreenchidas / totalCategorias) * 100 : 0;
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressBar.style.width = `${progresso}%`;
+            progressText.textContent = `${Math.round(progresso)}% completado • ${categoriasPreenchidas}/${totalCategorias} categorias`;
+            
+            // Mudar cor da barra conforme progresso
+            if (progresso < 30) {
+                progressBar.style.background = 'linear-gradient(90deg, #ff6b6b 0%, #ff8e8e 100%)';
+            } else if (progresso < 70) {
+                progressBar.style.background = 'linear-gradient(90deg, #ffa726 0%, #ffb74d 100%)';
+            } else {
+                progressBar.style.background = 'linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%)';
+            }
+        }
+        
+        // Função para mostrar alerta flutuante
+        function mostrarAlerta(mensagem, tipo = 'success') {
+            const alert = document.getElementById('floatingAlert');
+            alert.textContent = mensagem;
+            alert.style.background = tipo === 'success' ? '#4CAF50' : 
+                                   tipo === 'warning' ? '#ff9800' : 
+                                   tipo === 'error' ? '#f44336' : '#667eea';
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Função para validar o formulário
+        function validarFormulario() {
+            let erros = [];
+            
+            // Verificar se todas as categorias com "Sim" têm pelo menos uma doença selecionada
+            document.querySelectorAll('.category-checkbox:checked').forEach(cb => {
+                const categoryId = cb.id.replace('cat_', '');
+                const subQuestion = document.getElementById('sub_' + categoryId);
+                
+                if (subQuestion) {
+                    const doencasMarcadas = subQuestion.querySelectorAll('input[type="checkbox"]:checked');
+                    const doencasReais = Array.from(doencasMarcadas).filter(d => 
+                        !d.name.startsWith('outras_') && d.id !== 'form_cancer_especifico'
+                    );
+                    
+                    const outrasCheckbox = subQuestion.querySelector('input[name^="outras_"]:not([id*="_text"])');
+                    const outrasInput = subQuestion.querySelector('.outras-input');
+                    
+                    if (doencasReais.length === 0) {
+                        // Se tem "Outras" marcado, verifica se tem texto
+                        if (!(outrasCheckbox && outrasCheckbox.checked && outrasInput && outrasInput.value.trim() !== '')) {
+                            // Verificar se é a categoria de câncer
+                            if (cb.id === 'cat_cancer') {
+                                const cancerInput = document.getElementById('cancer_text');
+                                if (!cancerInput || cancerInput.value.trim() === '') {
+                                    const categoriaNome = subQuestion.closest('.category-card').querySelector('.category-title').textContent.trim();
+                                    erros.push(`A categoria "${categoriaNome}" está marcada como "Sim" mas nenhuma doença foi especificada.`);
+                                }
+                            } else {
+                                const categoriaNome = subQuestion.closest('.category-card').querySelector('.category-title').textContent.trim();
+                                erros.push(`A categoria "${categoriaNome}" está marcada como "Sim" mas nenhuma doença foi selecionada.`);
+                            }
+                        }
+                    }
+                    
+                    // Verificar se "Outras" está marcado mas sem texto
+                    if (outrasCheckbox && outrasCheckbox.checked) {
+                        if (!outrasInput || outrasInput.value.trim() === '') {
+                            const categoriaNome = subQuestion.closest('.category-card').querySelector('.category-title').textContent.trim();
+                            erros.push(`Na categoria "${categoriaNome}", você marcou "Outras" mas não descreveu a doença.`);
+                        }
+                    }
+                }
+            });
+            
+            // Verificar câncer
+            const cancerCheckbox = document.getElementById('form_cancer_especifico');
+            const cancerInput = document.getElementById('cancer_text');
+            if (cancerCheckbox && cancerCheckbox.checked && (!cancerInput || cancerInput.value.trim() === '')) {
+                erros.push('Você marcou que tem câncer, mas não especificou o tipo.');
+            }
+            
+            return erros;
+        }
+        
+        // Função principal para enviar o formulário
+        async function enviarFormulario() {
+            // Validar formulário
+            const erros = validarFormulario();
+            if (erros.length > 0) {
+                mostrarAlerta('Por favor, corrija os seguintes erros:\n' + erros.join('\n'), 'error');
+                return;
+            }
+            
+            // Coletar dados do formulário
             const formData = {
                 cpf: document.getElementById('cpf').value,
                 proposta_id: document.getElementById('proposta_id').value,
                 tipo_pessoa: document.getElementById('tipo_pessoa').value,
-                patologias: []
+                patologias: [],
+                timestamp: new Date().toISOString()
             };
-
-            // Coletar todas as doenças marcadas
-            const todasDoencas = [
-                // Cardiovascular
-                { nome: 'Hipertensão Arterial', id: 'hipertensao_arterial', cid: 'I10' },
-                { nome: 'Doença Coronariana', id: 'doenca_coronariana', cid: 'I20-I25' },
-                { nome: 'Varizes', id: 'varizes', cid: 'I83' },
-                { nome: 'Problemas Arteriais', id: 'problemas_arteriais', cid: 'I70-I79' },
-                { nome: 'Trombose', id: 'trombose', cid: 'I80-I82' },
-                { nome: 'Valvulopatias', id: 'valvulopatias', cid: 'I05-I08' },
-                { nome: 'Insuficiência Cardíaca', id: 'insuficiencia_cardiaca', cid: 'I50' },
-                { nome: 'Arritmias', id: 'arritmias', cid: 'I47-I49' },
-                { nome: 'Infarto', id: 'infarto', cid: 'I21-I22' },
-                { nome: 'Cicatrizes Torácica', id: 'cicatrizes_toracica', cid: '' },
+            
+            // Para cada categoria marcada como "Sim", coletar as doenças selecionadas
+            document.querySelectorAll('.category-checkbox:checked').forEach(cb => {
+                const categoryId = cb.id.replace('cat_', '');
+                const subQuestion = document.getElementById('sub_' + categoryId);
                 
-                // Endócrina
-                { nome: 'Diabetes', id: 'diabetes', cid: 'E10-E14' },
-                { nome: 'Hipertireoidismo', id: 'hipertireoidismo', cid: 'E05' },
-                { nome: 'Hipotireoidismo', id: 'hipotireoidismo', cid: 'E03' },
-                { nome: 'Colesterol Alto', id: 'colesterol_alto', cid: 'E78' },
-                { nome: 'Triglicérides Alto', id: 'triglicerides_alto', cid: '' },
-                { nome: 'Desnutrição', id: 'desnutricao', cid: 'E40-E46' },
-                { nome: 'Obesidade', id: 'obesidade', cid: 'E66' },
-                
-                // Adicione todas as outras doenças seguindo o mesmo padrão...
-            ];
-
-            // Verificar quais doenças estão marcadas
-            todasDoencas.forEach(doenca => {
-                const checkbox = document.getElementById('form_' + doenca.id);
-                if (checkbox && checkbox.checked) {
-                    formData.patologias.push({
-                        nome: doenca.nome,
-                        cid: doenca.cid,
-                        categoria: getCategoriaPorDoenca(doenca.id)
+                if (subQuestion) {
+                    const categoriaNome = subQuestion.closest('.category-card').querySelector('.category-title').textContent.trim();
+                    
+                    // Coletar doenças específicas
+                    subQuestion.querySelectorAll('input[type="checkbox"]:checked').forEach(doencaCb => {
+                        if (doencaCb.name.startsWith('outras_') || doencaCb.id === 'form_cancer_especifico') {
+                            return; // Será tratado separadamente
+                        }
+                        
+                        const labelElement = doencaCb.nextElementSibling;
+                        const cidElement = labelElement.querySelector('.cid-badge');
+                        const doencaNome = labelElement.childNodes[0].textContent.trim();
+                        const cid = doencaCb.dataset.cid || (cidElement ? cidElement.textContent : '');
+                        
+                        formData.patologias.push({
+                            nome: doencaNome,
+                            cid: cid,
+                            categoria: categoriaNome,
+                            tipo: 'especifica'
+                        });
                     });
+                    
+                    // Coletar doenças "outras"
+                    const outrasCheckbox = subQuestion.querySelector('input[name^="outras_"]:not([id*="_text"])');
+                    const outrasInput = subQuestion.querySelector('.outras-input');
+                    
+                    if (outrasCheckbox && outrasCheckbox.checked && outrasInput && outrasInput.value.trim() !== '') {
+                        formData.patologias.push({
+                            nome: outrasInput.value.trim(),
+                            cid: '',
+                            categoria: categoriaNome,
+                            tipo: 'outra',
+                            observacao: 'Doença informada no campo "Outras"'
+                        });
+                    }
                 }
             });
-
-            // Coletar doenças "outras"
-            document.querySelectorAll('.outras-input').forEach(input => {
-                if (input.value.trim() !== '') {
-                    const doencaId = input.id.replace('_text', '');
-                    const categoria = doencaId.split('_')[1]; // Extrai a categoria do ID
-                    formData.patologias.push({
-                        nome: input.value.trim(),
-                        cid: '',
-                        categoria: categoria,
-                        observacao: 'Doença informada no campo "Outras"'
-                    });
-                }
-            });
-
+            
             // Coletar câncer específico
+            const cancerCheckbox = document.getElementById('form_cancer_especifico');
             const cancerInput = document.getElementById('cancer_text');
-            if (cancerInput.value.trim() !== '') {
+            if (cancerCheckbox && cancerCheckbox.checked && cancerInput && cancerInput.value.trim() !== '') {
                 formData.patologias.push({
                     nome: cancerInput.value.trim(),
                     cid: 'C00-C97',
-                    categoria: 'cancer',
-                    observacao: 'Doença neoplásica informada'
+                    categoria: 'Doença Neoplásica (Câncer)',
+                    tipo: 'cancer'
                 });
             }
-
-            console.log('Dados a serem enviados:', formData);
-
-            // Enviar para o endpoint
-            fetch('/enfermagem/enviar_entrevista', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
+            
+            // Mostrar loading
+            const botao = document.querySelector('.btn-submit');
+            const textoOriginal = botao.innerHTML;
+            botao.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            botao.disabled = true;
+            
+            try {
+                // Enviar para o backend
+                const response = await fetch('/enfermagem/enviar_entrevista', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
                 if (data.success) {
-                    alert('Questionário enviado com sucesso!');
-                    window.location.href = data.redirect || '/';
+                    mostrarAlerta('Questionário enviado com sucesso!', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/';
+                    }, 1500);
                 } else {
-                    alert('Erro ao enviar: ' + data.message);
+                    mostrarAlerta('Erro ao enviar: ' + (data.message || 'Tente novamente'), 'error');
+                    botao.innerHTML = textoOriginal;
+                    botao.disabled = false;
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Erro:', error);
-                alert('Erro ao enviar o questionário. Tente novamente.');
-            });
-        }
-
-        function getCategoriaPorDoenca(doencaId) {
-            // Mapeia IDs de doenças para categorias
-            const mapeamento = {
-                // Cardiovascular
-                'hipertensao_arterial': 'cardiovascular',
-                'doenca_coronariana': 'cardiovascular',
-                'varizes': 'cardiovascular',
-                // ... adicione todos os mapeamentos
-            };
-            return mapeamento[doencaId] || 'outras';
+                mostrarAlerta('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+                botao.innerHTML = textoOriginal;
+                botao.disabled = false;
+            }
         }
     </script>
 </body>
