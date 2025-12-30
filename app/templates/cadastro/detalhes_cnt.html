@@ -142,9 +142,12 @@
                         <td>{{ titular[12] }}</td>
                         {% if venda[6] == 'entrevista agendada' %}
                         <td>
-                            <a class="btn" id="entrevista" href="{{url_for('enfermagem.declaracao', cpf=titular[3])}}">
-                                Entrevistar
-                            </a>
+                            <a class="btn" id="entrevista" 
+   href="{{url_for('enfermagem.gerar_qrcode', cpf=titular[3])}}"
+   target="_blank"
+   rel="noopener noreferrer">
+   Gerar QR Code
+</a>
                         </td>
                         {% elif venda[6] == 'analise de declaração' %}
                         <td>
@@ -175,7 +178,7 @@
                         <th>Data de Nascimento</th>
                         <th>Grau de Parentesco</th>
                         <th>Nome da Mãe</th>
-                        {% if venda[6] == 'entrevista agendada' %}
+                         {% if venda[6] == 'entrevista agendada' or venda[6] == 'analise de declaração' %}
                         <th>Ações</th>
                         {% endif %}
                     </tr>
@@ -190,10 +193,17 @@
                         <td>{{ dependente[6] }}</td>
                         {% if venda[6] == 'entrevista agendada' %}
                         <td>
-                            <a class="btn" href="{{url_for('enfermagem.declaracao', cpf=dependente[3])}}">
+                            <a class="btn" href="{{url_for('enfermagem.gerar_qrcode', cpf=dependente[3])}}">
                                 Entrevistar
                             </a>
                         </td>
+                        {% elif venda[6] == 'analise de declaração' %}
+
+                        <td>
+                            <a class="btn" href="{{url_for('cad.respostas_entrevista', cpf=dependente[3])}}">
+                                Ver Entrevista
+                            </a>
+                        
                         {% endif %}
                     </tr>
                     {% endfor %}
