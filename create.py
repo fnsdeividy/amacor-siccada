@@ -569,4 +569,4 @@ def criar_tabelas_patologias(database_path):
     conn.close()
     print("✅ Tabelas criadas com sucesso!")
 if __name__ == "__main__":
-    criar_planos(db_name)
+    criar_tabelas_patologias(db_name)
