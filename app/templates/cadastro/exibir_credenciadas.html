@@ -1,0 +1,243 @@
+{% extends "base1.html" %}
+{% block title %}Exibir credenciadas{% endblock %}
+{% block content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icone.ico') }}">
+
+<br>
+<br>
+<div style="display: flex; justify-content: flex-start; margin: 10px 20px;">
+    <a href="{{ url_for('auth.fechar') }}" class="btn-home">🏠 </a>
+</div>
+<div class="search-bar-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0;">
+    <!-- Filtro à esquerda -->
+    
+
+    <!-- Busca à direita -->
+    <form method="get" action="{{ url_for('cad.exibir_credenciadas') }}" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
+        <input type="text" name="buscar" placeholder="Buscar por Nome" value="{{ request.args.get('buscar', '') }}" style="padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; min-width: 220px; font-size: 15px; background: #fff; color: #222;">
+        <button class="btn" type="submit">Buscar</button>
+    </form>
+</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        .btn-home {
+    position: center;
+    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
+}
+
+.btn-home:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+        /* Seus estilos permanecem os mesmos */
+        p {
+            position: center;
+            font-family: Arial, sans-serif;
+            color: #ebebeb;
+        }
+        .cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start; /* Garante que cada cartão mantenha sua própria altura */
+        gap: 20px;
+        padding: 20px;
+        margin-top: 30px;
+    }
+
+    .card {
+        width: 280px;
+        border: 1px solid #f8f8f8bd;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 238, 201, 0.493);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .card-atrasado {
+        width: 280px;
+        border: 1px solid rgba(255, 126, 126, 0.493);
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 126, 126, 0.493);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        overflow: hidden;
+
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+    .card-atrasado:hover {
+        transform: scale(1.02);
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+    }
+
+    .card-header {
+        background-color: #8ea7f8;
+        color: #4f4159;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .card-body {
+        padding: 12px;
+        cursor: pointer;
+    }
+
+    .card-body p {
+        margin: 6px 0;
+        font-size: 13px;
+        color: #242424;
+    }
+
+    .card-details {
+        display: none;
+        padding: 12px;
+        border-top: 1px solid #ddd;
+        
+        overflow: hidden;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .card-details-atrasado {
+        display: none;
+        padding: 12px;
+        border-top: 1px solid #ddd;
+        background-color: #f9f9f9;
+    }
+    .card-details p {
+        margin: 6px 0;
+        font-size: 13px;
+        color: #333;
+    }
+        
+        .no-results {
+            text-align: center;
+            margin-top: 50px;
+            color: #ffffff;
+            font-size: 18px;
+        }
+        .status-laranja         { background-color: #ffe5b4; color: #b36b00; }  /* Laranja pastel */
+        .status-amarelo         { background-color: #fff9b0; color: #b3a100; }  /* Amarelo pastel */
+        .status-verde           { background-color: #c6f5e0; color: #259661; }  /* Verde pastel */
+        .status-verde-escuro    { background-color: #a3e4c1; color: #1b5e20; }  /* Verde mais escuro */
+        .status-verde-medio     { background-color: #b2f2d7; color: #218c5a; }  /* Verde médio */
+        .status-azulclaro       { background-color: #cbe7ff; color: #2176ae; }  /* Azul claro pastel */
+        .status-azulescuro      { background-color: #b0c4ff; color: #1a237e; }  /* Azul escuro pastel */
+        .status-vermelho        { background-color: #ffadad; color: #b71c1c; }  /* Vermelho claro pastel */
+        .status-rosa            { background-color: #ffe0f0; color: #ad1457; }  /* Rosa pastel */
+        .status-marrom { background-color: #9b7b66ef; color:rgb(61, 50, 50)} 
+        .status-pendente { background-color: #eea77e; color: #993e2e; }
+        
+    </style>
+</head>
+<body>
+    {% if resultado %}
+        <div class="cards-container">
+            {% for row in resultado %}
+            {% set status_doc = row[19]|string %}
+            {% set status = row[6]|lower %}
+            {% set atraso = row[23]|string %}
+            
+            {# Define a classe do card (fundo vermelho se em atraso) #}
+            {% if atraso == '1' %}
+                {% set card_class = 'card-atrasado' %}
+                
+            {% else %}
+                {% set card_class = 'card' %}
+            {% endif %}
+
+            {# Define a classe de status (cor do cabeçalho) #}
+            {% if 'enviado ao cadastro' in status and status_doc == '0' %}
+                {% set status_class = 'status-laranja' %}
+            
+            {% elif 'aguardando entrevista online' in status %}
+                {% set status_class = 'status-verde' %}
+            {% elif 'entrevista online enviada' in status %}
+                {% set status_class = 'status-verde-escuro' %}
+            {% elif 'analise de declaração' in status %}
+                {% set status_class = 'status-verde-medio' %}
+            {% elif 'entrevista agendada' in status %}
+                {% set status_class = 'status-azulclaro' %}
+            {% elif 'geração de kit' in status %}
+                {% set status_class = 'status-azulescuro' %}
+            {% elif 'contrato finalizado' in status %}
+                {% set status_class = 'status-azulescuro' %}
+            {% elif 'enviado para financeiro' in status %}
+                {% set status_class = 'status-vermelho' %}
+            {% elif 'boleto emitido' in status %}
+                {% set status_class = 'status-rosa' %}
+            {% elif 'venda cancelada' in status %}
+                {% set status_class = 'status-marrom' %}
+            {% elif 'em pendencia' in status %}
+                {% set status_class = 'status-pendente' %}
+            {% elif status_doc == '1' %}
+                {% set status_class = 'status-amarelo' %}
+            {% else %}
+                {% set status_class = '' %}
+            {% endif %}
+            <div class="{{ card_class }}">
+                <div class="card-header {{ status_class }}" onclick="toggleDetails(this)">
+                     {{ row[1] }}
+                </div>
+                <div class="card-body" onclick="toggleDetails(this)">
+                    <h3 style="color: #333;"><strong>Endereço:</strong> {{ row[2] }}</h3>
+                    <p><strong>Status:</strong> {{ row[8] }}</p>
+                                </div>
+                <div class="card-details">
+                    <p><strong>Tel:</strong> {{ row[3] }}</p>
+                    
+                    <a class="btn" href="{{ url_for('cad.alter_credenciada', id=row[0]) }}">Alterar informações</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+   
+    {% endif %}
+
+    <script>
+        function toggleDetails(element) {
+            // Encontra o card pai
+            const card = element.closest(['.card','.card-atrasado']);
+            // Encontra os detalhes deste card específico
+            const details = card.querySelector(['.card-details','.card-details-atrasado']);
+            
+            // Fecha todos os outros cards primeiro
+            document.querySelectorAll('.card-details').forEach(d => {
+                if (d !== details) {
+                    d.style.display = 'none';
+                }
+            });
+            
+            // Alterna o card clicado
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
+
+{% endblock %}

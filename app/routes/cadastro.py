@@ -24,6 +24,18 @@ def home():
 def doc_home():
     return render_template('cadastro/doc_home.html')
 
+    
+
+@cad_bp.route('/exibir_credenciadas')
+def exibir_credenciadas():
+    from ..models.database import get_credenciadas
+    buscar = request.args.get('buscar')
+
+    credenciadas= get_credenciadas(buscar)
+    print(credenciadas)
+    return render_template('cadastro/exibir_credenciadas.html', resultado=credenciadas)
+
+
 @cad_bp.route('cnt-acompanhamento')
 @acesso('vendas', 'cadastro', 'administrativo','financeiro')
 @hierarquia('supervisor','agente','vendedor')

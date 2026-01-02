@@ -1859,3 +1859,19 @@ def alterar_cnt(proposta, database_path=None):
         conn.close()
     except Exception as e:
         print ("erro: ", e)
+
+def get_credenciadas(buscar,database_path= None):
+    conn= get_db_connection(database_path)
+    cur= conn.cursor()
+    if buscar:
+        cur.execute("""
+        SELECT * FROM clinicas
+            WHERE nome LIKE ?
+    """, (f"%{buscar}%",))
+    else:
+        cur.execute("""
+            SELECT * FROM clinicas
+        """)
+    dados= cur.fetchall()
+
+    return dados
