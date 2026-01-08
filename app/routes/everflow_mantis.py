@@ -125,6 +125,7 @@ def card_to_app():
     data_entrada_formatada = datetime.strptime(data_entrada, '%d/%m/%Y')
     if data_hoje - data_entrada_formatada < timedelta(days=20):
         try:
+            print("verificando status do plano")
             info_status= get_data_status_plano_to_app(numero_contrato)
             print("info status",info_status)
             if info_status:
@@ -210,3 +211,79 @@ def post_suspender_contrato():
     return jsonify({'message': 'Contrato suspenso com sucesso'})
 
     
+@mantis_bp.route('/autorizar_token', endpoint= 'autorizar_token', methods= ['POST'])
+def autorizar_token():
+    from ..models.database import post_amatiss_aut
+    data= request.get_json(silent=True)
+    token= request.headers.get('Authorization')
+    token_autorizacao= data.get('token_autorizacao')
+    time_stamp= data.get('time_stamp')
+    geoloc= data.get('geoloc')
+    id_app = data.get('id_app')
+    nome_usuario = data.get('nome_usuario')
+    card_usuario= data.get('card_usuario')
+
+    print(f"dados recebidos: token {token}, token autorizacao {token_autorizacao}, timestamp {time_stamp}, geoloc {geoloc}, id_app {id_app}, nome {nome_usuario}, card {card_usuario}")
+
+    session['session_id'] = token
+    if not token:
+        return jsonify({'error': 'No session started'}), 400
+    crypto_key = generate_shared_key(token)
+    key = bytes.fromhex(crypto_key)
+
+
+    normalized_data={
+        "geoloc": decrypt_data(key, geoloc),
+        "nome_usuario" : decrypt_data(key, nome_usuario),
+        "card_usuario": decrypt_data(key, card_usuario)
+           }
+    
+    # Extrair apenas os valores numéricos de latitude/longitude
+    try:
+        import json
+        geo = normalized_data.get("geoloc")
+        if isinstance(geo, str):
+            geo_obj = json.loads(geo)
+        else:
+            geo_obj = geo
+        latitude = str(geo_obj.get("latitude")) if geo_obj is not None else ""
+        longitude = str(geo_obj.get("longitude")) if geo_obj is not None else ""
+    except Exception:
+        # Fallback: extrai os dois primeiros números (inclui negativos e decimais)
+        import re
+        nums = re.findall(r'-?\d+\.\d+|-?\d+', normalized_data.get("geoloc", ""))
+        latitude = nums[0] if len(nums) > 0 else ""
+        longitude = nums[1] if len(nums) > 1 else ""
+
+    # Limpeza para `nome` e `card`
+    def _clean_text(v):
+        if v is None:
+            return ""
+        if not isinstance(v, str):
+            v = str(v)
+        v = v.strip()
+        if v.startswith('"') and v.endswith('"'):
+            v = v[1:-1]
+        return v
+
+    nome = _clean_text(normalized_data.get("nome_usuario"))
+    card = _clean_text(normalized_data.get("card_usuario"))
+
+    print("dados normalizados: ", normalized_data)
+    print(f"latitude: {latitude}, \nlongitude: {longitude}")
+    print(f"nome: {nome}, card: {card}")
+
+    # Monta payload como dicionário com os nomes esperados por `post_amatiss_aut`
+    payload = {
+        "app_user_id": id_app,
+        "token_auth": token_autorizacao,
+        "time_stamp_auth": time_stamp,
+        "nome_beneficiario": nome,
+        "card_beneficiario": card,
+        "latitude_usuario": latitude,
+        "longitude_usuario": longitude
+    }
+
+    post_amatiss_aut(payload)
+
+    return jsonify({'message': 'Token registrado com sucesso'})

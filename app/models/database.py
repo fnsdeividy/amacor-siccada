@@ -1875,3 +1875,31 @@ def get_credenciadas(buscar,database_path= None):
     dados= cur.fetchall()
 
     return dados
+
+def post_amatiss_aut(data, database_path= None):
+    conn= get_db_connection(database_path)
+    cur= conn.cursor()
+    try:
+        cur.execute("""
+            INSERT INTO autorizacoes (app_user_id, token_auth, time_stamp_auth, nome_beneficiario, card_beneficiario, latitude_usuario, longitude_usuario)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            data.get('app_user_id'),
+            data.get('token_auth'),
+            data.get('time_stamp_auth'),
+            data.get('nome_beneficiario'),
+            data.get('card_beneficiario'),
+            data.get('latitude_usuario'),
+            data.get('longitude_usuario')
+        ))
+        conn.commit()
+    except Exception as e:
+        print(f"Erro ao inserir autorização: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+    return True
+
+def verificar_last_auth(app_user_id, database_path= None):
+    pass

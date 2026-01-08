@@ -66,7 +66,7 @@
     transition: all 0.3s ease;
 }
 
-.sidebar .logout-btn {
+ .logout-btn {
     position: flex; /* Fixa o botão na parte inferior da barra lateral */
     bottom: 20px; /* Espaçamento da parte inferior */
     left: 20px; /* Espaçamento da lateral esquerda */

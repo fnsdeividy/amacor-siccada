@@ -229,9 +229,12 @@ def login_redir():
             return redirect(url_for('generic.home'))
        else:
             return redirect(url_for('gerencial.dashboard_financeiro'))
-    
+    elif tipo_usuario == 'enfermagem':
+        return redirect(url_for('generic.home'))
+    elif tipo_usuario == 'autorizacao':
+        return redirect(url_for('amatiss.home'))
     else:
-        flash('Tipo de usuário inválido.')
+        flash(f'Local de utilização {tipo_usuario}.')
         return redirect(url_for('generic.home'))
     
 @auth_bp.route('/fechar')

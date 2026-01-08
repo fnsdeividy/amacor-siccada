@@ -568,5 +568,45 @@ def criar_tabelas_patologias(database_path):
     conn.commit()
     conn.close()
     print("✅ Tabelas criadas com sucesso!")
+
+def criar_tabela_autorizacoes(database_path=None):
+    """Cria a tabela de autorizações com a estrutura fornecida pelo usuário."""
+    db = database_path or db_name
+    conn = sqlite3.connect(db)
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS autorizacoes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        amatiss_id TEXT,
+        app_user_id TEXT,
+        token_auth TEXT,
+        time_stamp_auth TEXT,
+        nome_beneficiario TEXT,
+        card_beneficiario TEXT,
+        latitude_usuario TEXT,
+        longitude_usuario TEXT,
+        clinica_id TEXT,
+        exame_solicitado TEXT,
+        codigo_tuss TEXT,
+        latitude_clinica TEXT,
+        longitude_clinica TEXT,
+        auth_clinica TEXT,
+        id_aprovacao TEXT,
+        status_aprovacao TEXT,
+        data_transacao TIMESTAMP,
+        motivo_negativa TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    """)
+
+    # Índices úteis
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_autorizacoes_app_user ON autorizacoes(app_user_id);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_autorizacoes_clinica ON autorizacoes(clinica_id);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_autorizacoes_status ON autorizacoes(status_aprovacao);")
+
+    conn.commit()
+    conn.close()
+    print("Tabela 'autorizacoes' criada/atualizada com sucesso no banco:", db)
 if __name__ == "__main__":
-    criar_tabelas_patologias(db_name)
+    criar_tabela_autorizacoes(db_name)

@@ -114,6 +114,8 @@
                 </a>
                 {% endif %}
             {% endif %}
+                <button class="logout-btn" onclick="window.location.href='{{ url_for('auth.logoff') }}'">Sair</button>
+
         </div>
     </div>
 </div>
@@ -168,6 +170,11 @@
             
         </div>
 
+        <a href="#" onclick="toggleSubmenu('autorizacao-submenu')">Autorização 👨‍💼</a>
+        <div class="submenu" id="autorizacao-submenu">
+                       <a href="{{ url_for('amatiss.home') }}">Autorizador Amatiss</a>
+            
+        </div>
         <!-- cobranca e financeiro -->
 
         <a href="#" onclick="toggleSubmenu('financeiro-submenu')">Financeiro 💰</a>
@@ -186,7 +193,6 @@
             
         </div>
 
-        <button class="logout-btn" onclick="window.location.href='{{ url_for('auth.logoff') }}'">Sair</button>
     </div>
 
     <div class="content" id="content">

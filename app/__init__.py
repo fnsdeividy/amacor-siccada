@@ -11,6 +11,7 @@ from .routes.gerencial import gerencial_bp
 from .routes.everflow_mantis import mantis_bp
 from datetime import datetime
 from .routes.enfermagem import enfermagem_bp
+from .routes.amatiss import amatiss_bp
 
 from datetime import timedelta
 import os
@@ -39,6 +40,7 @@ def create_app():
     app.register_blueprint(gerencial_bp, url_prefix='/gerencial')
     app.register_blueprint(mantis_bp, url_prefix='/mantis')
     app.register_blueprint(enfermagem_bp, url_prefix= '/enfermagem')
+    app.register_blueprint(amatiss_bp, url_prefix='/amatiss')
 
     # Verifique se a pasta de upload existe
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -49,7 +51,9 @@ def create_app():
         # Define a duração da sessão como permanente
         rotas_publicas = [
             'auth.login', 'auth.cadastrar', 'static', 'api.teste_suri', 
-            'api.get_boleto', 'auth.esqueci_senha', 'mantis.EverFlow', 'mantis.get_card', 'mantis.get_payment_app', 'mantis.get_especialidades_app', 'mantis.post_suspender_contrato'   # Mantendo a rota pública
+            'api.get_boleto', 'auth.esqueci_senha', 'mantis.EverFlow', 'mantis.get_card', 'mantis.get_payment_app', 'mantis.get_especialidades_app', 'mantis.post_suspender_contrato',
+            'enfermagem.declaracao', 'enfermagem.receber_entrevista', 'enfermagem.entrevista_concluida',
+            'mantis.autorizar_token'   # Mantendo a rota pública
         ]
             
         if 'user_id' not in session and request.endpoint not in rotas_publicas:
