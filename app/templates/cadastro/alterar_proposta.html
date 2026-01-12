@@ -22,7 +22,12 @@
         <a class="btn" href=" {{ url_for('cad.alterar_infos_proposta', proposta=proposta,tp_alt='depenn') }} ">alterar dependentes</a>
         <label for="btn_tilt">Para realizar alterações em dados do dependente (nome, cpf, etc)</label>
         <br><br>
-        <a class="btn" href="{{ url_for('cad.excluir_proposta', proposta=proposta) }}">Excluir venda</a>
+        <a class="btn" href="{{ url_for('cad.excluir_proposta', proposta=proposta, tp_alt='cancelar') }}">Cancelar venda</a>
+        <label for="btn_tilt">Para cancelar a venda, mantendo os dados para futuras consultas</label>
+        <br>
+        <a class="btn" href="{{ url_for('cad.excluir_proposta', proposta=proposta, tp_alt='excluir') }}">Excluir proposta</a>
+        <label for="btn_tilt">Para excluir completamente a proposta e todos os dados associados</label>
+        <br><br>
 </div>
 
 <script>

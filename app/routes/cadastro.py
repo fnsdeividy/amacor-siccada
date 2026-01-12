@@ -24,6 +24,18 @@ def home():
 def doc_home():
     return render_template('cadastro/doc_home.html')
 
+    
+
+@cad_bp.route('/exibir_credenciadas')
+def exibir_credenciadas():
+    from ..models.database import get_credenciadas
+    buscar = request.args.get('buscar')
+
+    credenciadas= get_credenciadas(buscar)
+    print(credenciadas)
+    return render_template('cadastro/exibir_credenciadas.html', resultado=credenciadas)
+
+
 @cad_bp.route('cnt-acompanhamento')
 @acesso('vendas', 'cadastro', 'administrativo','financeiro')
 @hierarquia('supervisor','agente','vendedor')
@@ -153,8 +165,7 @@ def detalhes_cnt():
         data_obj = datetime.strptime(data_str, "%Y-%m-%d")
 
         # Formata o objeto datetime no formato desejado dd/mm/aa
-        data_formatada = data_obj.strftime("%d/%m/%y")
-        print(f"Data formatada: {data_formatada}")
+        
     except ValueError:
         print("Data inválida, formato esperado: yyyy-mm-dd")
     
@@ -197,7 +208,6 @@ def detalhes_cnt():
         dependentes=dependentes,
         complemento= complemento,
         variavel_comp=variavel_comp,
-        data_formatada=data_formatada,
         tipo_usuario= tipo_usuario,
         last_resp=tipo_usuario
     )
@@ -481,25 +491,32 @@ def alterar_infos_proposta():
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
     
     if tp_alt =='excluir':
-        return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta)
+        return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta, tipo_exc= 'excluir')
+    if tp_alt == 'cancelar':
+        return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta, tipo_exc= 'cancelar')
         
 @cad_bp.route('/excluir_proposta', methods=['GET','POST'])
 @acesso('vendas','administrativo')
 @hierarquia('supervisor')
 def excluir_proposta():
-    from ..models.database import get_senha, excluir_proposta
+    from ..models.database import get_senha, cancelar_proposta, excluir_proposta
     proposta = request.args.get('proposta')
     from ..cripto import hash_senha
     last_resp= session.get('tipo_usuario')
+    tp_alt= request.args.get('tp_alt')
+    print(f"Tipo de exclusão: {tp_alt}")
+    print(request.args)
     
     if request.method == 'POST':
-        
+        print(request.args)
+
         print(f"Proposta recebida para exclusão: {proposta}")
         proposta= request.form.get('proposta')
         if not proposta:
             flash('Proposta não informada.','error')
             return redirect(url_for('cad.acompanhar_cnt'))
         
+        motivo= request.form.get('motivo')
         print(f"Proposta recebida: {proposta}")
         senha = request.form.get('senha')
         senha= hash_senha(senha)
@@ -511,9 +528,16 @@ def excluir_proposta():
         if senha.strip() in [s.strip() for s in senha_cancelamento]:
     
             print(f"senha correta: {senha_cancelamento}")
-            excluir_proposta(proposta, last_resp)
-            flash('Proposta excluída com sucesso!', 'success')
-            return redirect(url_for('cad.acompanhar_cnt'))
+            print(f"Tipo de exclusão: {tp_alt}")
+            if tp_alt == 'cancelar':
+                cancelar_proposta(proposta, last_resp)
+                flash('Proposta cancelada com sucesso!', 'success')
+                return redirect(url_for('cad.acompanhar_cnt'))
+            elif tp_alt == 'excluir':
+                excluir_proposta(proposta, motivo)
+                flash('Proposta excluída com sucesso!', 'success')
+                
+                return redirect(url_for('cad.acompanhar_cnt'))
         else:
             print(f"Senha incorreta: {senha}")
             flash('Senha incorreta. A proposta não foi excluída.', 'error')
@@ -522,7 +546,7 @@ def excluir_proposta():
 
             
        
-    return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta)
+    return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta, tp_alt=tp_alt)
 
 @cad_bp.route('/alterar_infos', methods=['POST'])
 @acesso('vendas', 'cadastro', 'administrativo')
