@@ -672,18 +672,19 @@ def get_senha(database_path=None):
     if resultado:
         return [row['senha'] for row in resultado]
     
-def excluir_proposta(proposta, last_resp,database_path=None):
+def cancelar_proposta(proposta_id, last_resp,database_path=None):
     from ..utils import log_atualiza_status
     """
     Exclui uma proposta e todos os seus dados associados do banco de dados.
     """
     try:
+        print("iniciando cancelamento proposta: ", proposta_id)
+
         conn = get_db_connection(database_path)
         conn.execute("PRAGMA foreign_keys = ON;")  # Ativa cascade
         cur = conn.cursor()
 
-        cur.execute("UPDATE venda SET status = 'venda cancelada' WHERE numero_proposta = ?", (proposta,))
-        cur.execute("UPDATE venda SET valor_venda= 0, vidas = 0, valor_tabela = 0 WHERE numero_proposta= ?",(proposta,))
+        cur.execute("UPDATE venda SET status = 'venda cancelada' WHERE numero_proposta = ?", (proposta_id,))
 
         
         conn.commit()
@@ -694,7 +695,34 @@ def excluir_proposta(proposta, last_resp,database_path=None):
         conn.close()
         fase= 'venda cancelada'
         
-        log_atualiza_status(proposta, fase, last_resp)
+        log_atualiza_status(proposta_id, fase, last_resp)
+
+def excluir_proposta(proposta_id, motivo,database_path=None):
+    from ..utils import log_exclusao_proposta
+    """
+    Exclui uma proposta e todos os seus dados associados do banco de dados.
+    """
+    try:
+        dados= get_info_cancelamento(proposta_id)
+        print(dados)
+        print("iniciando exclusao proposta: ", proposta_id)
+        
+        conn = get_db_connection(database_path)
+        conn.execute("PRAGMA foreign_keys = ON;")  # Ativa cascade
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM venda WHERE numero_proposta = ?", (proposta_id,))
+        conn.commit()
+        valor_mensalidade= dados['valor_venda']
+        vidas= dados['vidas']
+        corretor_resp= dados['corretor_resp']
+
+        log_exclusao_proposta(proposta_id, motivo, valor_mensalidade, vidas, corretor_resp)
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
 
 def get_dados_proposta(proposta_id, database_path=None):
     """
@@ -1903,3 +1931,65 @@ def post_amatiss_aut(data, database_path= None):
 
 def verificar_last_auth(app_user_id, database_path= None):
     pass
+
+def get_info_cancelamento(proposta_id, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+            SELECT vidas, corretor_resp, valor_venda FROM venda
+                WHERE numero_proposta= ?
+    """, (proposta_id,))
+
+    dados = cur.fetchone()
+    print("dados recebidos", dados)
+    dados= dict(dados) if dados else None
+    return dados
+
+
+def get_last_proposta(corretor_resp, database_path=None, plano_tipo=None):
+    """Retorna a última `numero_proposta` para um `corretor_resp`,
+    ignorando propostas cujo `numero_proposta` começa com letra.
+
+    A consulta ordena pelo valor numérico de `numero_proposta` (maior primeiro)
+    e retorna o primeiro resultado. Usa `substr` para checar o primeiro
+    caractere e evitar valores que comecem por A-Z ou a-z.
+    """
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    # Monta a query: usa o id mais alto para determinar a última entrada
+    if plano_tipo:
+        query = """
+            SELECT numero_proposta
+            FROM venda
+            WHERE corretor_resp = ?
+              AND NOT (
+                  (substr(numero_proposta, 1, 1) BETWEEN 'A' AND 'Z')
+                  OR (substr(numero_proposta, 1, 1) BETWEEN 'a' AND 'z')
+              )
+              AND LOWER(tipo_produto) LIKE LOWER(?)
+            ORDER BY id DESC
+            LIMIT 1
+        """
+        params = (corretor_resp, f"%{plano_tipo}%")
+    else:
+        query = """
+            SELECT numero_proposta
+            FROM venda
+            WHERE corretor_resp = ?
+              AND NOT (
+                  (substr(numero_proposta, 1, 1) BETWEEN 'A' AND 'Z')
+                  OR (substr(numero_proposta, 1, 1) BETWEEN 'a' AND 'z')
+              )
+            ORDER BY id DESC
+            LIMIT 1
+        """
+        params = (corretor_resp,)
+
+    cur.execute(query, params)
+
+    row = cur.fetchone()
+    conn.close()
+
+    return row['numero_proposta'] if row else None

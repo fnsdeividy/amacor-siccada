@@ -19,12 +19,17 @@
             <div class="close-btn-container">
                     <a class="close-btn" href="javascript:void(0);" onclick="goBack()" class="close-btn"><</a>
                 </div>
-    <h1>Excluindo proposta n°: {{proposta_id}}</h1>
-    <form action="{{ url_for('cad.excluir_proposta', proposta_id=proposta_id) }}" method="POST" enctype="multipart/form-data">
+    <h1>{{ tp_alt }} proposta n°: {{proposta_id}}</h1>
+    <form action="{{ url_for('cad.excluir_proposta', proposta_id=proposta_id, tp_alt=tp_alt) }}" method="POST" enctype="multipart/form-data">
         <p>Para realizar o cancelamento é necessario a senha de um supervisor</p>
         <label for="arquivos">Digite sua senha:</label>
         <input type="password" name="senha" id="senha" required>
         <input type="hidden" name="proposta" value="{{ proposta_id }}">
+        <input type="hidden" name="tp_alt" value="{{ tp_alt }}">
+        {%if tp_alt == 'excluir'%}
+        <p>Motivo de exclusão:</p>
+            <input type="text" name="motivo" id="motivo" required>
+        {% endif %}
         <p>Você tem certeza que deseja excluir a proposta? <br>Essa ação não pode ser desfeita.</p>
         <p></p><br>
         <button class="btn" type="submit">Enviar</button>

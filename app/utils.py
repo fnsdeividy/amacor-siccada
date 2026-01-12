@@ -116,3 +116,11 @@ def get_relative_path_backgrounds(user_id,nome_wallpaper):
     print(f"DEBUG - Caminho para user {user_id}: {pasta_raiz}")
     return pasta_raiz
 
+def log_exclusao_proposta(proposta_id, motivo, valor_mensalidade, vidas, corretor_resp):
+    agora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    nome_usuario= session.get('user_nome')
+    mensagem= f"Proposta {proposta_id} excluída em {agora}, por {nome_usuario} motivo: {motivo}\nvalor mensalidade: {valor_mensalidade}, vidas: {vidas}, corretor_responsavel: {corretor_resp}"
+    linha= f'[{agora}] - {mensagem}\n'
+    with open('log_exclusao_propostas.txt','a')as f:
+        f.write(linha)
+    
