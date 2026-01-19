@@ -714,3 +714,4 @@ def get_profile_photo():
             return jsonify({'foto_url': foto_url})
     
     return jsonify({'foto_url': None})
+
