@@ -75,9 +75,16 @@ def informar_cnt():
 @acesso('vendas','cadastro','administrativo')
 @hierarquia('supervisor','agente','vendedor')
 def nova_venda_pj():
+    from ..models.database import get_last_proposta
+
+    usuario= session.get('user_nome')
     planos= listar_planos()
     vendedor = listar_vendedor()
+    if usuario in vendedor:
+        numero_proposta= get_last_proposta(usuario, plano_tipo='empresarial')
+        print(numero_proposta)
     print("Vendedores:", vendedor)  # Para verificar a lista de vendedores
+    
 
     return render_template('vendas/vendas_form_pj.html', vendedor=vendedor, planos=planos)
 
@@ -777,4 +784,15 @@ def preco_idade(idade,plano):
         "idade": idade,
         "plano": plano,
         "preco" : preco
+    })
+
+@vendas_bp.route('/status_proposta/<string:plano_tipo>/<string:corretor_resp>', methods=['GET', 'POST'])
+def status_proposta(corretor_resp,plano_tipo):
+    from ..models.database import get_last_proposta
+    print(corretor_resp,plano_tipo)
+    last_proposta= get_last_proposta(corretor_resp,plano_tipo)
+
+    return jsonify({
+        "corretor_resp": corretor_resp,
+        "last_proposta": last_proposta,
     })

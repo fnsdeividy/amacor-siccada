@@ -69,6 +69,27 @@ def update_db(query, args=(), database_path=None):
     finally:
         conn.close()
 
+def mudar_senha(email, novasenha, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    usuario = query_db(
+            "SELECT * FROM usuarios WHERE email = ?", 
+            (email,), 
+            one=True
+        )
+
+    if usuario:
+           conn = sqlite3.connect(current_app.config['DATABASE'])
+           cur = conn.cursor()
+           cur.execute(
+               "UPDATE USUARIOS SET senha = ? WHERE email = ?",
+               (novasenha, email),
+           )
+           
+    conn.commit()
+    conn.close()
+
 def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
     from ..api_conex.conections import email_gmail, msg_email
     """
@@ -1947,7 +1968,7 @@ def get_info_cancelamento(proposta_id, database_path=None):
     return dados
 
 
-def get_last_proposta(corretor_resp, database_path=None, plano_tipo=None):
+def get_last_proposta(corretor_resp, plano_tipo, database_path=None):
     """Retorna a última `numero_proposta` para um `corretor_resp`,
     ignorando propostas cujo `numero_proposta` começa com letra.
 
@@ -1957,39 +1978,53 @@ def get_last_proposta(corretor_resp, database_path=None, plano_tipo=None):
     """
     conn = get_db_connection(database_path)
     cur = conn.cursor()
+    print("dados recebidos: ", corretor_resp, plano_tipo)
 
-    # Monta a query: usa o id mais alto para determinar a última entrada
-    if plano_tipo:
-        query = """
-            SELECT numero_proposta
-            FROM venda
-            WHERE corretor_resp = ?
-              AND NOT (
-                  (substr(numero_proposta, 1, 1) BETWEEN 'A' AND 'Z')
-                  OR (substr(numero_proposta, 1, 1) BETWEEN 'a' AND 'z')
-              )
-              AND LOWER(tipo_produto) LIKE LOWER(?)
-            ORDER BY id DESC
-            LIMIT 1
-        """
-        params = (corretor_resp, f"%{plano_tipo}%")
-    else:
-        query = """
-            SELECT numero_proposta
-            FROM venda
-            WHERE corretor_resp = ?
-              AND NOT (
-                  (substr(numero_proposta, 1, 1) BETWEEN 'A' AND 'Z')
-                  OR (substr(numero_proposta, 1, 1) BETWEEN 'a' AND 'z')
-              )
-            ORDER BY id DESC
-            LIMIT 1
-        """
-        params = (corretor_resp,)
-
-    cur.execute(query, params)
-
-    row = cur.fetchone()
-    conn.close()
-
-    return row['numero_proposta'] if row else None
+    try:
+        # Se plano_tipo foi fornecido, filtra por ele
+        if plano_tipo and plano_tipo.strip():
+            query = """
+                SELECT numero_proposta 
+                FROM venda 
+                WHERE 
+                    corretor_resp = ? 
+                    AND tipo_contrato = ?
+                    AND NOT (
+                        (substr(numero_proposta, 1, 1) BETWEEN 'A' AND 'Z')
+                        OR (substr(numero_proposta, 1, 1) BETWEEN 'a' AND 'z')
+                    )
+                ORDER BY CAST(numero_proposta AS INTEGER) DESC
+                LIMIT 1
+            """
+            params = (corretor_resp, plano_tipo,)
+        else:
+            # Sem filtro de plano, busca a última proposta do corretor
+            query = """
+                SELECT numero_proposta
+                FROM venda
+                WHERE corretor_resp = ?
+                  AND NOT (
+                      (substr(numero_proposta, 1, 1) BETWEEN 'A' AND 'Z')
+                      OR (substr(numero_proposta, 1, 1) BETWEEN 'a' AND 'z')
+                  )
+                ORDER BY CAST(numero_proposta AS INTEGER) DESC
+                LIMIT 1
+            """
+            params = (corretor_resp,)
+        
+        cur.execute(query, params)
+        row = cur.fetchone()
+        
+        if row:
+            numero = row['numero_proposta']
+            print(f"✅ Última proposta encontrada: {numero}")
+            return numero
+        else:
+            print(f"⚠️ Nenhuma proposta encontrada para {corretor_resp}")
+            return None
+            
+    except Exception as e:
+        print(f"❌ Erro ao buscar última proposta: {e}")
+        return None
+    finally:
+        conn.close()

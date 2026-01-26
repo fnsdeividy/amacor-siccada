@@ -300,6 +300,58 @@ function buscarCepResponsavel() {
     }
 }
 
+// Função para buscar e preencher o número da proposta
+async function buscarEPreencherNumeroProposta() {
+    console.log('Buscando número da proposta...');
+    
+    const corretorResp = document.getElementById('corretor_resp').value;
+    const tipoContrato = document.getElementById('tipo_contrato').value;
+    
+    console.log('Corretor:', corretorResp, 'Tipo Contrato:', tipoContrato);
+    
+    if (!corretorResp || !tipoContrato) {
+        console.log('Campos obrigatórios não preenchidos');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/vendas/status_proposta/${encodeURIComponent(tipoContrato)}/${encodeURIComponent(corretorResp)}`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        console.log('Status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Dados recebidos:', data);
+        
+        if (data.last_proposta) {
+            // Extrai o número e incrementa
+            const ultimaPropostaNumerica = parseInt(data.last_proposta.replace(/[^\d]/g, ''));
+            const proximaPropostaNumerica = ultimaPropostaNumerica + 1;
+            
+            // Preenche o campo com o próximo número
+            document.getElementById('numero_proposta').value = proximaPropostaNumerica;
+            console.log('Número da proposta preenchido:', proximaPropostaNumerica);
+        } else {
+            // Se não houver proposta anterior, começa com 1
+            const tipoContratoCod = tipoContrato === 'empresarial' ? 'E' : 'I';
+            document.getElementById('numero_proposta').value = '1';
+            console.log('Primeira proposta, preenchida com 1');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao buscar número da proposta:', error);
+        document.getElementById('numero_proposta').value = 'Erro ao carregar';
+    }
+}
+
 // Event listeners quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Página carregada, configurando event listeners...');
@@ -311,11 +363,27 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Event listener do titular configurado');
     }
     
+    // Event listener para corretor responsável
+    const corretorResp = document.getElementById('corretor_resp');
+    if (corretorResp) {
+        corretorResp.addEventListener('change', buscarEPreencherNumeroProposta);
+        console.log('Event listener do corretor configurado');
+    }
+    
+    // Event listener para tipo de contrato
+    const tipoContrato = document.getElementById('tipo_contrato');
+    if (tipoContrato) {
+        tipoContrato.addEventListener('change', buscarEPreencherNumeroProposta);
+        console.log('Event listener do tipo contrato configurado');
+    }
+    
     // Event listener para quando mudar o plano
     const tipoProduto = document.getElementById('tipo_produto');
     if (tipoProduto) {
         tipoProduto.addEventListener('change', function() {
             console.log('Plano alterado para:', this.value);
+            buscarEPreencherNumeroProposta();
+            
             // Recalcular preço do titular se já tiver idade
             const idadeTitular = document.getElementById('idade_beneficiario').value;
             if (idadeTitular) {
