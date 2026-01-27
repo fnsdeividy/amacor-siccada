@@ -252,8 +252,8 @@ def inclusao_form():
             #taxa = venda["taxa_inscricao"]
             valor_sem_taxa = venda['valor_venda']
             mensalidade = round(valor_sem_taxa / 1.05, 2)
-            iss = round(valor_sem_taxa - mensalidade, 2)
-
+            iss = 0
+            
             venda["valor_tabela"] = mensalidade
             venda["iss"] = iss
         elif tipo == 'inclusao individual':
@@ -418,7 +418,7 @@ def venda_form_pj():
             taxa = venda["taxa_inscricao"]
             valor_sem_taxa = venda['valor_venda'] - taxa
             mensalidade = round(valor_sem_taxa * 1.05, 2)
-            iss = round(valor_sem_taxa - mensalidade, 2)
+            iss = round(mensalidade - valor_sem_taxa, 2)
 
             venda["valor_tabela"] = mensalidade
             venda["iss"] = iss
