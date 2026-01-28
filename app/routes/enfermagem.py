@@ -546,9 +546,9 @@ def calcular_risco_por_patologias(patologias, cids):
         elif any(termo in pat_lower for termo in ['diabetes', 'hipertensão', 'hepatite', 'asma', 'epilepsia']):
             pontuacao += 6
         elif any(termo in pat_lower for termo in ['gastrite', 'rinite', 'sinusite', 'miopia', 'artrite']):
-            pontuacao += 3
-        else:
             pontuacao += 1
+        else:
+            pontuacao += 0
     
     # Ajustar por quantidade
     if len(patologias) > 10:

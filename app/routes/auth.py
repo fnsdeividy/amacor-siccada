@@ -131,30 +131,13 @@ def esqueci_senha():
 @auth_bp.route('/mudar_senha', methods=['GET', 'POST'])
 def mudar_senha():
     from ..cripto import hash_senha
+    from ..models.database import mudar_senha
     if request.method == 'POST':
         email = request.form['email']
         novasenha = request.form['novasenha']
         novasenha = hash_senha(novasenha)
         print("senha hasehada: ",novasenha)
-
-        
-        
-        usuario = query_db(
-            "SELECT * FROM usuarios WHERE email = ?", 
-            (email,), 
-            one=True
-        )
-
-        if usuario:
-           conn = sqlite3.connect(current_app.config['DATABASE'])
-           cur = conn.cursor()
-           cur.execute(
-               "UPDATE USUARIOS SET senha = ? WHERE email = ?",
-               (novasenha, email),
-           )
-           
-        conn.commit()
-        conn.close()
+        mudar_senha(email, novasenha)
         
         flash('senha alterada!')
         return redirect(url_for('auth.login_redir'))

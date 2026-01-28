@@ -7,61 +7,15 @@ import os
 from datetime import datetime, timedelta
 from ..models.database import get_carteirinha
 import binascii
-import redis
-
+from ..cripto import generate_shared_key, encrypt_data, decrypt_data
+import json
 
 mantis_bp = Blueprint('mantis', __name__)
 
 
 REDIS_EXPIRE_TIME = 3600  # 1 hora
 
-def generate_shared_key(session_id):
-    # Salt FIXO (usar o mesmo em ambos os sistemas)
-    salt = b'fixedsalt12345678'  # ⚠️ Use exatamente os mesmos 16 bytes!
-    
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=100000,
-        backend=default_backend()
-    )
-    key = kdf.derive(session_id.encode())
-    return key.hex()
 
-
-def encrypt_data(key, data):
-    # Se a chave vier como string hex, converte para bytes
-    if isinstance(key, str):
-        key = binascii.unhexlify(key)
-
-    # Padding
-    padder = padding.PKCS7(128).padder()
-    padded_data = padder.update(data.encode()) + padder.finalize()
-
-    # Criptografia AES
-    cipher = Cipher(algorithms.AES(key), modes.CBC(key[:16]), backend=default_backend())
-    encryptor = cipher.encryptor()
-    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
-    data= binascii.hexlify(encrypted_data).decode('utf-8')
-    print ("dado retornado apos cripto: ",data)
-
-    return data
-
-def decrypt_data(key, encrypted_hex):
-    # Converte de hexadecimal para bytes
-    encrypted_data = binascii.unhexlify(encrypted_hex.encode('utf-8'))
-
-    # Configura o AES CBC com a mesma chave/IV usados na criptografia
-    cipher = Cipher(algorithms.AES(key), modes.CBC(key[:16]), backend=default_backend())
-    decryptor = cipher.decryptor()
-    decrypted_padded = decryptor.update(encrypted_data) + decryptor.finalize()
-
-    # Remove o padding PKCS7
-    unpadder = padding.PKCS7(128).unpadder()
-    decrypted_data = unpadder.update(decrypted_padded) + unpadder.finalize()
-
-    return decrypted_data.decode('utf-8')
 
 @mantis_bp.route('/EverFlow', endpoint='EverFlow')
 def mantis():
@@ -287,3 +241,39 @@ def autorizar_token():
     post_amatiss_aut(payload)
 
     return jsonify({'message': 'Token registrado com sucesso'})
+
+@mantis_bp.route('/autorizar_tiss', endpoint='autorizar_tiss', methods=['POST'])
+def autorizar_tiss():
+    from ..models.database import post_autorizar_tiss
+
+    data= request.get_json(silent=True)
+    session_id= request.headers.get('Authorization')
+    print(data)
+    print("id de sessao", session_id)
+    data= data.get('aut_data')
+
+    print("dados a serem descript: ",data)
+
+    key=generate_shared_key(session_id)
+    # CONVERTE O DICIONÁRIO PARA STRING JSON
+    
+    decrypted_data= decrypt_data(key, data)
+
+    print(decrypted_data)
+
+    success = post_autorizar_tiss(decrypted_data)
+        
+    if success:
+        return jsonify({
+            'success': True,
+            'message': 'Autorização registrada com sucesso',
+            'status': 'PROCESSADO',
+            'timestamp': datetime.now().isoformat()
+        }), 200
+    else:
+        return jsonify({
+            'success': False,
+            'message': 'Falha ao processar autorização',
+            'status': 'ERRO'
+        }), 400
+
