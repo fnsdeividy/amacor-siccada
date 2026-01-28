@@ -23,7 +23,7 @@
             </a>
         </p>
         <p><strong>Corretor Responsável:</strong> {{ venda[5] }}</p>
-        <p><strong>Data:</strong> {{ data_formatada }}</p>
+        <p><strong>Data:</strong> {{ venda[2]|format_date_br }}</p>
         <br>
         <p><strong>Valor total:</strong>{{ venda[8] }}</p>
         <p><strong>Tipo de pagamento:</strong> {{ 'N/A' if venda[21] == 'None' else venda[21] }}</p>

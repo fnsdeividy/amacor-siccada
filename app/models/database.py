@@ -1925,33 +1925,83 @@ def get_credenciadas(buscar,database_path= None):
 
     return dados
 
-def post_amatiss_aut(data, database_path= None):
-    conn= get_db_connection(database_path)
-    cur= conn.cursor()
+def post_amatiss_aut(data, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    app_user_id= data.get('app_user_id')
+    
     try:
-        cur.execute("""
-            INSERT INTO autorizacoes (app_user_id, token_auth, time_stamp_auth, nome_beneficiario, card_beneficiario, latitude_usuario, longitude_usuario)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (
-            data.get('app_user_id'),
-            data.get('token_auth'),
-            data.get('time_stamp_auth'),
-            data.get('nome_beneficiario'),
-            data.get('card_beneficiario'),
-            data.get('latitude_usuario'),
-            data.get('longitude_usuario')
-        ))
+        resultado= verificar_last_auth(app_user_id)
+        
+        if resultado:
+            # UPDATE
+            registro_id = resultado[0]
+            cur.execute("""
+                UPDATE autorizacoes 
+                SET token_auth = ?,
+                    time_stamp_auth = ?,
+                    nome_beneficiario = ?,
+                    card_beneficiario = ?,
+                    latitude_usuario = ?,
+                    longitude_usuario = ?,
+                    updated_at = datetime('now')
+                WHERE id = ?
+            """, (
+                data.get('token_auth'),
+                data.get('time_stamp_auth'),
+                data.get('nome_beneficiario'),
+                data.get('card_beneficiario'),
+                data.get('latitude_usuario'),
+                data.get('longitude_usuario'),
+                registro_id
+            ))
+            print(f"UPDATE realizado no registro ID: {registro_id}")
+        else:
+            # INSERT
+            cur.execute("""
+                INSERT INTO autorizacoes 
+                (app_user_id, token_auth, time_stamp_auth, nome_beneficiario, 
+                 card_beneficiario, latitude_usuario, longitude_usuario)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                data.get('app_user_id'),
+                data.get('token_auth'),
+                data.get('time_stamp_auth'),
+                data.get('nome_beneficiario'),
+                data.get('card_beneficiario'),
+                data.get('latitude_usuario'),
+                data.get('longitude_usuario')
+            ))
+            print("INSERT realizado - novo registro criado")
+        
         conn.commit()
+        return True
+        
     except Exception as e:
-        print(f"Erro ao inserir autorização: {e}")
+        print(f"Erro ao processar autorização: {e}")
         conn.rollback()
         return False
     finally:
         conn.close()
-    return True
 
-def verificar_last_auth(app_user_id, database_path= None):
-    pass
+def verificar_last_auth(app_user_id, database_path=None):
+    """Função apenas para verificação (mantida para compatibilidade)"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT id FROM autorizacoes
+        WHERE app_user_id = ? 
+        AND datetime(created_at) >= datetime('now', '-30 minutes') 
+        AND amatiss_id IS NULL
+        ORDER BY created_at DESC
+        LIMIT 1
+    """, (app_user_id,))
+    
+    resultado = cur.fetchone()
+    conn.close()
+    
+    return resultado  # True se existe, False se não
 
 def get_info_cancelamento(proposta_id, database_path=None):
     conn = get_db_connection(database_path)
@@ -1969,6 +2019,7 @@ def get_info_cancelamento(proposta_id, database_path=None):
 
 
 def get_last_proposta(corretor_resp, plano_tipo, database_path=None):
+
     """Retorna a última `numero_proposta` para um `corretor_resp`,
     ignorando propostas cujo `numero_proposta` começa com letra.
 
@@ -2028,3 +2079,117 @@ def get_last_proposta(corretor_resp, plano_tipo, database_path=None):
         return None
     finally:
         conn.close()
+
+def post_autorizar_tiss(data, database_path=None):
+    """
+    Insere/Atualiza autorização TISS
+    """
+    import json
+    
+    try:
+        # Se data for string, converter para dicionário
+        if isinstance(data, str):
+            print(f"Convertendo string para dict: {data[:100]}...")
+            try:
+                data = json.loads(data)
+            except json.JSONDecodeError as e:
+                print(f"Erro ao decodificar JSON: {e}")
+                # Tenta limpar a string
+                data = data.replace("'", '"')
+                data = json.loads(data)
+        
+        print(f"Dados recebidos (tipo: {type(data)}): {data}")
+        
+        # OS DADOS ESTÃO DENTRO DE 'aut_data'!
+        # Extrair os dados reais
+        aut_data = data.get('aut_data')
+        if not aut_data:
+            print("Erro: Dados não contêm 'aut_data'")
+            return False
+        
+        print(f"Dados da autorização: {aut_data}")
+        
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        # Agora acesse os dados de aut_data
+        token = aut_data.get('user_token')
+        id_clinica = aut_data.get('id_clinica', '')
+        nome_clinica = aut_data.get('nome_clinica', '')
+        
+        # Serviços está dentro de aut_data
+        servicos = aut_data.get('servicos', [])
+        
+        # Pegar código e descrição do primeiro serviço
+        codigo_tuss = ''
+        exame = ''
+        
+        if servicos and len(servicos) > 0:
+            primeiro_servico = servicos[0]
+            codigo_tuss = primeiro_servico.get('codigo', '')
+            exame = primeiro_servico.get('descricao', '')
+        
+        auth_clinica = 'auth'
+        
+        print(f"Token: {token}")
+        print(f"ID Clínica: {id_clinica}")
+        print(f"Nome Clínica: {nome_clinica}")
+        print(f"Código TUSS: {codigo_tuss}")
+        print(f"Exame: {exame}")
+        
+        # Verificar se token existe
+        if not token:
+            print("Erro: Token não encontrado")
+            return False
+        
+        # Primeiro verificar se a autorização já existe
+        autorizacao_existe= verificar_last_auth(token)
+        if autorizacao_existe:
+            # UPDATE
+            print("atualizando tabela")
+            cur.execute("""
+                UPDATE autorizacoes
+                SET amatiss_id = ?, 
+                    clinica_id = ?, 
+                    nome_clinica = ?,
+                    exame_solicitado = ?, 
+                    codigo_tuss = ?,
+                    auth_clinica = ?,
+                    updated_at = datetime('now')
+                WHERE token_auth = ?
+            """, (
+                id_clinica,      # amatiss_id
+                id_clinica,      # clinica_id
+                nome_clinica,    # nome_clinica
+                exame,           # exame_solicitado
+                codigo_tuss,     # codigo_tuss
+                auth_clinica,    # auth_clinica
+                token            # WHERE token_auth
+            ))
+            print(f"Autorização atualizada para token: {token}")
+        else:
+            # INSERT
+            cur.execute("""
+                INSERT INTO autorizacoes (
+                    token_auth, amatiss_id, clinica_id, nome_clinica,
+                    exame_solicitado, codigo_tuss, auth_clinica, status_aprovacao,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDENTE', 
+                         datetime('now'), datetime('now'))
+            """, (
+                token, id_clinica, id_clinica, nome_clinica,
+                exame, codigo_tuss, auth_clinica
+            ))
+            print(f"Nova autorização inserida para token: {token}")
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return True
+        
+    except Exception as e:
+        print(f"Erro em post_autorizar_tiss: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
