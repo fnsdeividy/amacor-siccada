@@ -282,7 +282,7 @@ def render_page_doc():
     return render_template('cadastro/adicionar_documento.html', proposta=proposta)
 
 @cad_bp.route('adicionar_doc', methods=['POST', 'GET'])
-@acesso('vendas', 'cadastro')
+@acesso('vendas', 'cadastro','administrativo')
 @hierarquia('supervisor','agente','vendedor')
 def adicionar_doc():
     classe_usuario = session.get('classe_usuario')
@@ -775,3 +775,78 @@ def respostas_entrevista():
         print(traceback.format_exc())
         flash(f"Erro ao buscar entrevista: {str(e)}", 'error')
         return redirect(url_for('auth.fechar'))  # Redireciona para dashboard ou página inicial
+
+@cad_bp.route('/alterar_credenciada', methods=['GET', 'POST'])
+@acesso('cadastro', 'administrativo')
+@hierarquia('supervisor', 'agente')
+def alterar_credenciada():
+    from ..models.database import (
+        get_clinica_info, get_clinica_especialidades, 
+        get_todas_especialidades, atualizar_clinica,
+        adicionar_especialidade_clinica, remover_especialidade_clinica,
+        listar_clinicas
+    )
+    
+    if request.method == 'GET':
+        clinica_id = request.args.get('clinica_id')
+        
+        if not clinica_id:
+            clinicas = listar_clinicas()
+            return render_template('cadastro/selecionar_clinica.html', clinicas=clinicas)
+        
+        try:
+            clinica = get_clinica_info(clinica_id)
+            if not clinica:
+                flash('Clínica não encontrada.', 'error')
+                return redirect(url_for('cad.alterar_credenciada'))
+            
+            especialidades_clinica = get_clinica_especialidades(clinica_id)
+            especialidades_disponiveis = get_todas_especialidades()
+            
+            return render_template(
+                'cadastro/alterar_credenciada.html',
+                clinica=clinica,
+                especialidades_clinica=especialidades_clinica,
+                especialidades_disponiveis=especialidades_disponiveis
+            )
+        except Exception as e:
+            flash(f'Erro ao buscar clínica: {e}', 'error')
+            return redirect(url_for('cad.alterar_credenciada'))
+    
+    elif request.method == 'POST':
+        clinica_id = request.form.get('clinica_id')
+        acao = request.form.get('acao')
+        
+        try:
+            if acao == 'atualizar_info':
+                dados = {
+                    'nome': request.form.get('nome'),
+                    'endereco': request.form.get('endereco'),
+                    'telefone': request.form.get('telefone'),
+                    'horario_funcionamento': request.form.get('horario_funcionamento'),
+                    'bloco_id': request.form.get('bloco_id'),
+                    'latitude': request.form.get('latitude'),
+                    'logitude': request.form.get('logitude'),
+                    'status': request.form.get('status'),
+                }
+                
+                atualizar_clinica(clinica_id, dados)
+                flash('Informações da clínica atualizadas com sucesso!', 'success')
+            
+            elif acao == 'adicionar_especialidade':
+                especialidade_id = request.form.get('especialidade_id')
+                if adicionar_especialidade_clinica(clinica_id, especialidade_id):
+                    flash('Especialidade adicionada com sucesso!', 'success')
+                else:
+                    flash('Esta especialidade já está associada à clínica.', 'warning')
+            
+            elif acao == 'remover_especialidade':
+                especialidade_id = request.form.get('especialidade_id')
+                remover_especialidade_clinica(clinica_id, especialidade_id)
+                flash('Especialidade removida com sucesso!', 'success')
+            
+            return redirect(url_for('cad.alterar_credenciada', clinica_id=clinica_id))
+        
+        except Exception as e:
+            flash(f'Erro ao processar solicitação: {e}', 'error')
+            return redirect(url_for('cad.alterar_credenciada', clinica_id=clinica_id)) 
