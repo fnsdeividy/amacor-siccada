@@ -273,7 +273,7 @@ def adicionar_cnt():
 
 
 @cad_bp.route('render_doc_get', methods=['POST', 'GET'])
-@acesso('vendas', 'cadastro')
+@acesso('vendas', 'cadastro', 'administrativo')
 @hierarquia('supervisor','agente','vendedor')
 
 def render_page_doc():
