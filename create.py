@@ -609,4 +609,4 @@ def criar_tabela_autorizacoes(database_path=None):
     conn.close()
     print("Tabela 'autorizacoes' criada/atualizada com sucesso no banco:", db)
 if __name__ == "__main__":
-    criar_tabelas_patologias(db_name)
+    registrar_clinicas(db_name, "json/clinicas.json", "json/coordenadas.json")
