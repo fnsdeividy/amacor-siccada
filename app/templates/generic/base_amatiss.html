@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siccada</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icone.ico') }}">
+
+    <style>
+        .alert {
+     position: fixed; /* Fixa o alerta na tela */
+     top: 20px; /* Distância do topo */
+     left: 50%; /* Centraliza horizontalmente */
+     transform: translateX(-50%); /* Ajusta para o centro */
+     padding: 15px;
+     background-color: #4caf50; /* Verde para sucesso */
+     color: white;
+     border-radius: 5px;
+     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     z-index: 1400; /* Garante que fique acima de outros elementos */
+     display: none; /* Oculto por padrão */
+     font-size: 16px;
+     text-align: center;
+     width: 80%; /* Largura do alerta */
+     max-width: 400px; /* Largura máxima */
+     transition: 0.5s;
+ }
+ 
+ .alert.error {
+     background-color: #f44336; /* Vermelho para erro */
+ }
+ 
+ .alert.warning {
+     background-color: #ff9800; /* Laranja para aviso */
+ }
+ 
+ .alert.info {
+     background-color: #2196f3; /* Azul para informação */
+ }
+     </style>
+ </head>
+ <body>
+    <div id="flash-message" class="alert"></div>
+    
+    <!-- Modal de Perfil -->
+<div class="profile-modal" id="profileModal">
+    <div class="profile-content">
+        <div class="profile-header">
+            <button class="profile-close" id="closeProfileModal">✖</button>
+            <div class="profile-header-actions">
+                <button class="personalize-bg-btn" onclick="personalizeBackground()" title="Personalizar papel de parede">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+        <path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/>
+    </svg>
+</button>
+            </div>
+            <div class="profile-avatar">
+    <div class="avatar-circle">
+        <div id="avatar-container">
+            <span class="avatar-initial" id="avatar-initial">
+                {{ session['user_nome'][0] if session['user_nome'] else 'U' }}
+            </span>
+        </div>
+    </div>
+    <!-- 🔥 BOTÃO FORA do avatar-circle -->
+    <button class="edit-avatar-btn" onclick="editProfilePhoto()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+            <path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/>
+        </svg>
+    </button>
+</div>
+            <h2 class="profile-name">{{ session['user_nome'] or 'Usuário' }}</h2>
+            <div class="profile-badge">{{ session.get('classe_usuario', 'Usuário') }}</div>
+        </div>
+        
+        <div class="profile-details">
+            <div class="detail-item">
+                <span class="detail-label">Nome:</span>
+                <span class="detail-value">{{ session['user_nome'] or 'Não informado' }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Tipo:</span>
+                <span class="detail-value">{{ session.get('tipo_usuario', 'Não informado') }}</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Categoria:</span>
+                <span class="detail-value">{{ session.get('classe_usuario', 'Não informada') }}</span>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <a class="profile-btn primary" href="{{ url_for('auth.mudar_senha') }}">
+                <span class="profile-icon">🔒</span>
+                Alterar senha
+            </a>
+            
+            {% if session.get('classe_usuario') == 'supervisor' %}
+                <a class="profile-btn secondary" href="{{ url_for('auth.cadastrar') }}">
+                    <span class="profile-icon">👤</span>
+                    Adicionar usuário
+                </a>
+                
+                {% if session.get('tipo_usuario') == 'financeiro' %}
+                <a class="profile-btn secondary" href="{{ url_for('auth.cadastrar_corretora') }}">
+                    <span class="profile-icon">🏢</span>
+                    Cadastrar Corretoras
+                </a>
+                
+                {% elif session.get('tipo_usuario') == 'vendas' %}
+                <a class="profile-btn secondary" href="{{ url_for('auth.cadastrar_corretora') }}">
+                    <span class="profile-icon">🏢</span>
+                    Cadastrar Corretoras
+                </a>
+                {% endif %}
+            {% endif %}
+                <button class="logout-btn" onclick="window.location.href='{{ url_for('auth.logoff') }}'">Sair</button>
+
+        </div>
+    </div>
+</div>
+
+    <nav class="navbar">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <span class="menu-title">SICCADA: {% block title %}Inicial{% endblock %}</span>
+        <div class="user-info">
+            <span class="user-profile-link" onclick="openProfileModal()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="8" r="4" stroke="#fff" stroke-width="2" fill="#fff"/>
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" stroke="#fff" stroke-width="2" fill="none"/>
+                </svg>
+                {{ session['user_nome'] }}
+            </span>
+        </div>
+    </nav>
+
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" onclick="toggleSidebar()">✖</button>
+        
+        <h1>autorização</h1>
+        
+    <!-- vendas -->
+
+
+        <a href="#" onclick="toggleSubmenu('auditoria-submenu')">Auditoria 📋 </a>
+        <div class="submenu" id="auditoria-submenu">
+            <a href="{{ url_for('vendas.render_tipo_venda') }}">Auditoria app</a>
+            <a href="{{ url_for('vendas.informar_cnt') }}">Alta complexidade</a>        
+            <a href="{{ url_for('vendas.informar_cnt') }}">Manutenção de beneficiarios</a>        </div>
+        <a href="#" onclick="toggleSubmenu('manutencao-submenu')">gerir usuarios 👥 </a>
+        <div class="submenu" id="manutencao-submenu">
+            <a href="{{ url_for('vendas.render_tipo_venda') }}">administrar acesso ao app</a>     </div>
+        <a href="#" onclick="toggleSubmenu('gerencial-submenu')">Gerencial 👨‍💼</a>
+        <div class="submenu" id="gerencial-submenu">
+            <a href="{{(url_for('gerencial.processar_csv_form')) }}">gerar relatorio</a>
+            <a href="{{ url_for('cad.form_atualizar_data') }}">atualizar tabela </a>
+            <a href="{{ url_for('cad.exibir_credenciadas') }}">Editar credenciadas</a>
+            
+        </div>
+    </div>
+
+    <div class="content" id="content">
+    <div id="loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a2f68; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <!-- SVG animado do logo -->
+        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"
+    style= "width: 180px; height: auto; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 2000; stroke-dashoffset: 5000;animation: heartbeat 1s infinite; ; animation: draw 3s linear infinite; margin-bottom: 30px;">
+            <path 
+                d="m61 45.07c3.03-0.04 8.2 0.39 11.5 0.97 3.3 0.58 8.47 2.03 11.5 3.22 3.03 1.19 7.53 3.29 10 4.66 2.47 1.38 11.14 9.04 34 31.58l15.25-15.08c13.12-12.98 16.3-15.58 22.75-18.67 4.13-1.98 9.53-4.17 12-4.87 2.53-0.72 9.53-1.26 16-1.24 8.31 0.03 12.89 0.53 16.5 1.8 2.75 0.97 7.93 3.14 11.5 4.84 4.53 2.14 8.79 5.37 14.07 10.65 5.45 5.45 8.6 9.66 11.27 15.07 2.04 4.13 4.37 9.97 5.17 13 0.81 3.03 1.46 9.55 1.44 14.5-0.01 4.95-0.68 11.7-1.48 15-0.8 3.3-2.75 8.7-4.33 12-1.58 3.3-4.31 7.8-6.06 10-1.76 2.2-19.48 20.36-39.39 40.36-20.74 20.84-38.54 37.88-41.69 39.92-3.03 1.95-8.2 4.55-11.5 5.79-3.3 1.24-9.6 2.74-14 3.34-6.24 0.85-9.98 0.79-17-0.29-4.95-0.76-11.47-2.47-14.5-3.81-3.03-1.34-7.75-3.97-10.5-5.85-2.75-1.88-21.6-20.08-41.89-40.44-20.28-20.36-38.13-38.82-39.66-41.02-1.52-2.2-4.13-7.15-5.79-11-1.88-4.34-3.48-10.42-4.22-16-0.98-7.46-0.93-10.46 0.31-17.5 0.9-5.15 2.9-11.46 5.08-16 1.97-4.12 5.26-9.53 7.31-12 2.06-2.47 6.01-6.46 8.8-8.87 2.78-2.4 8.21-5.89 12.06-7.75 3.85-1.86 9.92-4.02 13.5-4.8 3.57-0.78 8.97-1.46 12-1.51zm-6.5 34.96c-1.65 0.46-5.19 2.34-7.87 4.16-3.24 2.2-5.9 5.15-7.93 8.81-2.66 4.79-3.05 6.46-3.02 13 0.03 5.77 0.57 8.54 2.33 12 1.36 2.69 8.05 10.23 16.63 18.75 7.9 7.84 14.58 14.25 14.86 14.25 0.28 0 2.37-3.49 4.66-7.75 3.2-5.97 6.99-10.62 16.47-20.25 6.78-6.88 12.34-12.95 12.37-13.5 0.03-0.55-5.92-6.87-13.22-14.05-11.63-11.43-13.96-13.26-18.78-14.77-3.03-0.95-7.3-1.67-9.5-1.61-2.2 0.06-5.35 0.49-7 0.96zm132-0.09c-1.65 0.4-4.35 1.43-6 2.28-1.65 0.86-8.4 7.03-15 13.71-6.6 6.68-12 12.79-12 13.56 0 0.78 4.76 6.28 10.59 12.21 5.82 5.94 12.09 13.05 13.94 15.8 1.84 2.75 4.17 6.91 5.16 9.25 1 2.34 2.15 4.26 2.56 4.27 0.41 0.01 7.28-6.51 15.25-14.49 9.82-9.82 15.22-16.05 16.74-19.27 1.59-3.4 2.24-6.62 2.24-11.26 0-4.72-0.64-7.87-2.33-11.5-1.29-2.75-4.21-6.69-6.49-8.75-2.52-2.27-6.24-4.35-9.41-5.26-2.89-0.83-6.82-1.46-8.75-1.4-1.93 0.06-4.85 0.44-6.5 0.85zm-68 64.98c-3.3 1.28-6.7 3.76-10 7.3-2.75 2.95-5.56 7.14-6.23 9.32-0.68 2.18-1.23 6.66-1.23 9.96 0 3.88 0.72 7.59 2.04 10.5 1.12 2.47 3.47 6 5.23 7.84 1.75 1.84 5.44 4.47 8.19 5.86 3.86 1.95 6.48 2.52 11.5 2.49 4.26-0.03 8.05-0.73 11-2.05 2.47-1.1 6.21-3.72 8.3-5.82 2.09-2.1 4.65-5.62 5.68-7.82 1.04-2.2 2.19-6.03 2.56-8.5 0.44-2.93 0.14-6.42-0.85-10-0.84-3.03-3.03-7.48-4.86-9.9-1.88-2.48-5.73-5.72-8.83-7.43-4.01-2.21-7.13-3.12-11.5-3.36-4.2-0.23-7.5 0.25-11 1.61z"
+            />
+        </svg>
+        
+    </div>
+    {% block content %}
+    <!-- Conteúdo específico será inserido aqui -->
+    {% endblock %}
+</div>
+
+<style>
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.15);
+  }
+  20% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.12);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+</style>
+
+   <script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    function toggleSubmenu(id) {
+        const submenu = document.getElementById(id);
+        submenu.classList.toggle('show');
+    }
+    
+    // Funções para o modal de perfil
+    function openProfileModal() {
+        document.getElementById('profileModal').classList.add('active');
+    }
+    
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('active');
+    }
+    
+    document.addEventListener("DOMContentLoaded", function () {
+        const img = new Image();
+        
+        img.onload = function () {
+            document.body.style.backgroundImage = `url('${img.src}')`;
+        };
+        
+        // Configurar eventos do modal de perfil
+        // Fechar modal ao clicar no botão de fechar
+        document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+        
+        // Fechar modal ao clicar fora do conteúdo
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProfileModal();
+            }
+        });
+        
+        // Fechar modal com a tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeProfileModal();
+            }
+        });
+    });
+
+    window.addEventListener("load", function () {
+        document.getElementById("loader").style.display = "none";
+    });
+     // Capturar mensagens flash do Flask
+         const flashMessages = {{ get_flashed_messages() | tojson }};
+         const flashContainer = document.getElementById('flash-message');
+ 
+         if (flashMessages.length > 0) {
+             // Exibir a primeira mensagem flash
+             flashContainer.textContent = flashMessages[0];
+             flashContainer.style.display = 'block';
+ 
+             // Ocultar o alerta após 5 segundos
+             setTimeout(() => {
+                 flashContainer.style.display = 'none';
+             }, 5000);
+         }
+
+    function editProfilePhoto() {
+    // Aqui você pode implementar a lógica para editar a foto
+    // Por exemplo, abrir um seletor de arquivos ou outro modal
+    window.location.href = "{{ url_for('generic.render_definir_perfil') }}";
+    // Exemplo de implementação:
+    // const input = document.createElement('input');
+    // input.type = 'file';
+    // input.accept = 'image/*';
+    // input.onchange = handleProfilePhotoUpload;
+    // input.click();
+}
+
+function handleProfilePhotoUpload(event) {
+    // Lógica para upload da foto
+    const file = event.target.files[0];
+    if (file) {
+        // Aqui você faria o upload para o servidor
+        console.log('Foto selecionada:', file.name);
+    }
+}
+async function loadProfilePhoto() {
+    try {
+        const response = await fetch('/generic/api/user/profile-photo');
+        const data = await response.json();
+
+        const avatarContainer = document.getElementById('avatar-container');
+        const avatarInitial = document.getElementById('avatar-initial');
+
+        // 🔥 Remove qualquer imagem antiga existente
+        const oldImg = avatarContainer.querySelector('.avatar-image');
+        if (oldImg) {
+            oldImg.remove();
+        }
+
+        if (data.foto_url) {
+            // Esconde a inicial e adiciona a imagem
+            avatarInitial.style.display = 'none';
+
+            const img = document.createElement('img');
+            img.src = encodeURI(data.foto_url);
+            img.alt = 'Foto de perfil';
+            img.className = 'avatar-image';
+            img.onerror = function() {
+                console.error('Erro ao carregar imagem:', data.foto_url);
+                img.remove(); // remove a imagem quebrada
+                avatarInitial.style.display = 'flex';
+            };
+
+            avatarContainer.appendChild(img);
+        } else {
+            // Se não há foto, mostra a inicial normalmente
+            avatarInitial.style.display = 'flex';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar foto do perfil:', error);
+    }
+}
+function personalizeBackground() {
+    // Redireciona para a página de personalização de background
+    window.location.href = "{{ url_for('generic.escolher_wllpp') }}";
+}
+
+// Chama quando o modal é aberto
+function openProfileModal() {
+    document.getElementById('profileModal').classList.add('active');
+    loadProfilePhoto(); // Carrega a foto quando abre o modal
+}
+async function loadUserBackground() {
+    try {
+        // Tenta carregar do localStorage primeiro (mais rápido)
+        const cachedBackground = localStorage.getItem('userBackground');
+        if (cachedBackground) {
+            applyBackground(cachedBackground);
+        }
+        
+        // Busca a preferência atualizada do servidor
+        const response = await fetch('/generic/api/user/background');
+        const data = await response.json();
+        
+        if (data.background_url) {
+            // Atualiza cache e aplica
+            localStorage.setItem('userBackground', data.background_url);
+            applyBackground(data.background_url);
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar background:', error);
+        // Fallback padrão
+        applyBackground('/static/image/726999-windows-xp-desktop-backgrounds-1920x1200-for-4k-monitor.jpg');
+    }
+}
+
+// Função para aplicar background no CSS
+function applyBackground(fullImageUrl) {
+    const img = new Image();
+    img.src = fullImageUrl;
+    img.onload = function () {
+        // 🔥 MUDA O CSS DINAMICAMENTE
+        document.body.style.backgroundImage = `url('${fullImageUrl}')`;
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        
+        console.log('✅ Background aplicado:', fullImageUrl);
+    };
+    img.onerror = function () {
+        console.error('❌ Erro ao carregar background:', fullImageUrl);
+    };
+}
+
+// Carrega o background quando a página inicia
+document.addEventListener('DOMContentLoaded', function() {
+    loadUserBackground();
+});
+</script>
+</body>
+</html>

@@ -211,7 +211,7 @@
                 <div class="card-details">
                     <p><strong>Tel:</strong> {{ row[3] }}</p>
                     
-                    <a class="btn" href="{{ url_for('cad.alter_credenciada', id=row[0]) }}">Alterar informações</a>
+                    <a class="btn" href="{{ url_for('cad.alterar_credenciada', clinica_id=row[0]) }}">Alterar informações</a>
                 </div>
             </div>
             {% endfor %}
