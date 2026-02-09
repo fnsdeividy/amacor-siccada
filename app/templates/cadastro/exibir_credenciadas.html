@@ -201,19 +201,31 @@
                 {% set status_class = '' %}
             {% endif %}
             <div class="{{ card_class }}">
-                <div class="card-header {{ status_class }}" onclick="toggleDetails(this)">
-                     {{ row[0] }}
-                </div>
-                <div class="card-body" onclick="toggleDetails(this)">
-                    <h3 style="color: #333;"><strong>Endereço:</strong> {{ row[1] }}</h3>
-                    <p><strong>Status:</strong> {{ row[7] }}</p>
-                                </div>
-                <div class="card-details">
-                    <p><strong>Tel:</strong> {{ row[2] }}</p>
-                    
-                    <a class="btn" href="{{ url_for('cad.alterar_credenciada', clinica_id=row[0]) }}">Alterar informações</a>
-                </div>
-            </div>
+    <div class="card-header {{ status_class }}" onclick="toggleDetails(this)">
+         {{ row['nome'] }}  <!-- nome -->
+    </div>
+
+    <div class="card-body" onclick="toggleDetails(this)">
+        <h3 style="color: #333;">
+            <strong>Endereço:</strong> {{ row['endereco'] }}
+        </h3>
+
+        <p>
+            <strong>Status:</strong> {{ row['status'] }}
+        </p>
+    </div>
+
+    <div class="card-details">
+        <p>
+            <strong>Tel:</strong> {{ row['telefone'] }}
+        </p>
+
+        <a class="btn"
+           href="{{ url_for('cad.alterar_credenciada', clinica_id=row[0]) }}">
+            Alterar informações
+        </a>
+    </div>
+</div>
             {% endfor %}
         </div>
    
