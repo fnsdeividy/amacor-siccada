@@ -17,25 +17,6 @@ REDIS_EXPIRE_TIME = 3600  # 1 hora
 
 
 
-@mantis_bp.route('/EverFlow', endpoint='EverFlow')
-def mantis():
-    session_id = request.args.get('data', '')
-    session['session_id'] = session_id
-    
-    if not session_id:
-        return jsonify({'error': 'No session_id provided'}), 400
-
-    # Gerar a chave criptografada
-    crypto_key = generate_shared_key(session_id)
-    
-    # Armazenar no Redis
-    
-    
-    # Retorna a resposta similar ao inigate
-    return jsonify({
-        'message': 'Chave obtida com sucesso',
-        'session_id': session_id
-    })
 
 @mantis_bp.route('/get_card', endpoint='get_card', methods=['POST'])
 def card_to_app():
@@ -245,35 +226,116 @@ def autorizar_token():
 @mantis_bp.route('/autorizar_tiss', endpoint='autorizar_tiss', methods=['POST'])
 def autorizar_tiss():
     from ..models.database import post_autorizar_tiss
+    from ..verifix import verificar_long_lat_comp
+    import json
 
-    data= request.get_json(silent=True)
-    session_id= request.headers.get('Authorization')
-    print(data)
-    print("id de sessao", session_id)
-    data= data.get('aut_data')
-
-    print("dados a serem descript: ",data)
-
-    key=generate_shared_key(session_id)
-    # CONVERTE O DICIONÁRIO PARA STRING JSON
+    # 1. Obter dados da requisição
+    request_data = request.get_json(silent=True)
+    session_id = request.headers.get('Authorization')
     
-    decrypted_data= decrypt_data(key, data)
-
-    print(decrypted_data)
-
-    success = post_autorizar_tiss(decrypted_data)
+    print("📦 Dados recebidos:", request_data)
+    print("🔑 ID de sessão:", session_id)
+    
+    if not request_data:
+        return jsonify({'error': 'Nenhum dado recebido'}), 400
+    
+    # 2. Extrair dados criptografados (PRIMEIRA camada 'aut_data')
+    encrypted_data = request_data.get('aut_data')
+    
+    if not encrypted_data:
+        return jsonify({'error': 'Campo aut_data não encontrado'}), 400
+    
+    print("🔐 Dados criptografados:", encrypted_data[:50], "...")
+    
+    # 3. Gerar chave e descriptografar
+    key = generate_shared_key(session_id)
+    
+    try:
+        # Descriptografar
+        decrypted_string = decrypt_data(key, encrypted_data)
         
-    if success:
-        return jsonify({
-            'success': True,
-            'message': 'Autorização registrada com sucesso',
-            'status': 'PROCESSADO',
-            'timestamp': datetime.now().isoformat()
-        }), 200
-    else:
-        return jsonify({
-            'success': False,
-            'message': 'Falha ao processar autorização',
-            'status': 'ERRO'
-        }), 400
-
+        print("📄 Dados descriptografados (string):", decrypted_string[:100], "..." if len(decrypted_string) > 100 else "")
+        print("📊 Tipo:", type(decrypted_string))
+        
+        # 4. Converter string JSON para dicionário Python
+        if isinstance(decrypted_string, str):
+            outer_dict = json.loads(decrypted_string)  # Primeiro dicionário
+        else:
+            outer_dict = decrypted_string
+        
+        print("📊 Dados convertidos para dict:", outer_dict)
+        
+        # 5. Acessar a SEGUNDA camada 'aut_data' dentro do JSON descriptografado
+        if 'aut_data' not in outer_dict:
+            return jsonify({'error': 'Estrutura inválida: aut_data não encontrado após descriptografia'}), 400
+        
+        # Este é o dicionário real com os dados da autorização
+        autorizacao_data = outer_dict['aut_data']
+        
+        print("🎯 Dados da autorização:", autorizacao_data)
+        
+        # 6. Extrair campos do dicionário de autorização
+        user_token = autorizacao_data.get('user_token')
+        id_amatiss = autorizacao_data.get('id_clinica')
+        id_autorizacao = autorizacao_data.get('id_autorizacao')
+        nome_clinica = autorizacao_data.get('nome_clinica')
+        servicos = autorizacao_data.get('servicos', [])
+        
+        print("🎫 User token:", user_token)
+        print("🏥 ID Clínica:", id_amatiss)
+        print("📋 ID Autorização:", id_autorizacao)
+        print("🏢 Nome Clínica:", nome_clinica)
+        print("🩺 Serviços:", servicos)
+        
+        if not user_token or not id_amatiss:
+            return jsonify({
+                'error': 'Campos obrigatórios não encontrados',
+                'campos_faltando': [
+                    'user_token' if not user_token else None,
+                    'id_clinica' if not id_amatiss else None
+                ]
+            }), 400
+        
+        # 7. Verificar localização
+        print("📍 Verificando localização para clínica:", id_amatiss)
+        loc_permitida = verificar_long_lat_comp(id_amatiss, user_token)
+        print("📍 Resultado verificação localização:", loc_permitida)
+        
+        # 8. Processar autorização
+        if loc_permitida and loc_permitida.get('autorizado', False):
+            # Salvar no banco
+            resultado = post_autorizar_tiss(autorizacao_data)
+            
+            print("💾 Resultado do banco:", resultado)
+            
+            return jsonify({
+                'success': True,
+                'autorizado': True,
+                'codigo_autorizacao': id_autorizacao,
+                'nome_clinica': nome_clinica,
+                'servicos': servicos,
+                'localizacao': loc_permitida,
+                'mensagem': '✅ Autorização TISS concedida com sucesso'
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+                'autorizado': False,
+                'codigo_autorizacao': id_autorizacao,
+                'mensagem': loc_permitida.get('mensagem', '❌ Localização não autorizada, usuario fora do alcance da clinica'),
+                'distancia': loc_permitida.get('distancia_metros'),
+                'raio_maximo': loc_permitida.get('raio_maximo')
+            }), 403
+            
+    except json.JSONDecodeError as e:
+        print(f"❌ ERRO JSON: {e}")
+        print(f"String problemática: {decrypted_string[:200]}")
+        return jsonify({'error': 'Dados descriptografados não são JSON válido'}), 400
+    except KeyError as e:
+        print(f"❌ ERRO CHAVE: Campo {e} não encontrado")
+        return jsonify({'error': f'Campo {e} não encontrado na estrutura de dados'}), 400
+    except Exception as e:
+        print(f"❌ ERRO GERAL: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Erro interno: {str(e)}'}), 500
