@@ -1,8 +1,8 @@
-{% extends "generic/base.html" %}
+{% extends "generic/base1.html" %}
 
 {% block content %}
-<div class="container">
-    <div class="form-container">
+
+    <div class="container-tab-pix">
         <div class="header">
             <h1>Alterar Clínica: {{ clinica.nome }}</h1>
             <a href="{{ url_for('cad.alterar_credenciada') }}" class="btn-voltar">← Voltar</a>
@@ -133,20 +133,17 @@
 </div>
 
 <style>
-    .container {
-        max-width: 900px;
-        margin: 30px auto;
-        padding: 20px;
-    }
+   
 
     .form-container {
         background: white;
+
         border-radius: 8px;
         overflow: hidden;
     }
 
     .header {
-        background: #0a2f68;
+        background: #0a30688e;
         color: white;
         padding: 25px;
         display: flex;
@@ -182,7 +179,7 @@
     }
 
     .card h2 {
-        color: #0a2f68;
+        color: #d0d5dc;
         margin-top: 0;
         margin-bottom: 20px;
         border-bottom: 2px solid #0a2f68;
@@ -190,7 +187,7 @@
     }
 
     .card h3 {
-        color: #333;
+        color: #c0c0c0;
         margin-top: 20px;
         margin-bottom: 15px;
     }
@@ -202,7 +199,7 @@
     .form-group label {
         display: block;
         margin-bottom: 5px;
-        color: #333;
+        color: #d0d0d0;
         font-weight: 500;
     }
 
