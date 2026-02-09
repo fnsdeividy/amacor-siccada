@@ -1,0 +1,337 @@
+{% extends "generic/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <div class="header">
+            <h1>Alterar Clínica: {{ clinica.nome }}</h1>
+            <a href="{{ url_for('cad.alterar_credenciada') }}" class="btn-voltar">← Voltar</a>
+        </div>
+
+        <!-- Formulário de Informações Gerais -->
+        <div class="card">
+            <h2>Informações Gerais</h2>
+            <form method="POST" id="form-clinica">
+                <input type="hidden" name="clinica_id" value="{{ clinica.id }}">
+                <input type="hidden" name="acao" value="atualizar_info">
+
+                <div class="form-group">
+                    <label for="nome">Nome da Clínica:</label>
+                    <input type="text" id="nome" name="nome" value="{{ clinica.nome }}" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telefone">Telefone:</label>
+                        <input type="tel" id="telefone" name="telefone" value="{{ clinica.telefone }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="bloco_id">Bloco ID:</label>
+                        <input type="text" id="bloco_id" name="bloco_id" value="{{ clinica.bloco_id or '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="endereco">Endereço:</label>
+                    <textarea id="endereco" name="endereco" rows="3">{{ clinica.endereco }}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="latitude">Latitude:</label>
+                        <input type="text" id="latitude" name="latitude" value="{{ clinica.latitude or '' }}" placeholder="Ex: -23.5505">
+                    </div>
+                    <div class="form-group">
+                        <label for="logitude">Longitude:</label>
+                        <input type="text" id="logitude" name="logitude" value="{{ clinica.logitude or '' }}" placeholder="Ex: -46.6333">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="horario_funcionamento">Horário de Funcionamento:</label>
+                        <input type="text" id="horario_funcionamento" name="horario_funcionamento" 
+                               value="{{ clinica.horario_funcionamento or '' }}" 
+                               placeholder="Ex: Seg-Sex 08:00-18:00">
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status">
+                            <option value="credenciada" {% if clinica.status == 'credenciada' %}selected{% endif %}>Credenciada</option>
+                            <option value="descredenciada" {% if clinica.status == 'descredenciada' %}selected{% endif %}>Descredenciada</option>
+                            <option value="pendente" {% if clinica.status == 'pendente' %}selected{% endif %}>Pendente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Salvar Informações</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Gerenciamento de Especialidades -->
+        <div class="card">
+            <h2>Especialidades</h2>
+
+            <!-- Especialidades Atuais -->
+            <div class="especialidades-section">
+                <h3>Especialidades Atuais</h3>
+                {% if especialidades_clinica %}
+                    <div class="especialidades-list">
+                        {% for esp in especialidades_clinica %}
+                            <div class="especialidade-item">
+                                <span>{{ esp.nome }}</span>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="clinica_id" value="{{ clinica.id }}">
+                                    <input type="hidden" name="acao" value="remover_especialidade">
+                                    <input type="hidden" name="especialidade_id" value="{{ esp.id }}">
+                                    <button type="submit" class="btn-remove" title="Remover">✕</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Nenhuma especialidade associada ainda.</p>
+                {% endif %}
+            </div>
+
+            <!-- Adicionar Nova Especialidade -->
+            <div class="especialidades-section">
+                <h3>Adicionar Especialidade</h3>
+                <form method="POST" id="form-especialidade">
+                    <input type="hidden" name="clinica_id" value="{{ clinica.id }}">
+                    <input type="hidden" name="acao" value="adicionar_especialidade">
+
+                    <div class="form-group">
+                        <label for="especialidade_id">Selecione uma especialidade:</label>
+                        <select id="especialidade_id" name="especialidade_id" required>
+                            <option value="">-- Selecione --</option>
+                            {% for esp in especialidades_disponiveis %}
+                                {# Verifica se a especialidade já está associada #}
+                                {% set ja_tem = false %}
+                                {% for esp_clinica in especialidades_clinica %}
+                                    {% if esp.id == esp_clinica.id %}
+                                        {% set ja_tem = true %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if not ja_tem %}
+                                    <option value="{{ esp.id }}">{{ esp.nome }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">Adicionar Especialidade</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .header {
+        background: #0a2f68;
+        color: white;
+        padding: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header h1 {
+        margin: 0;
+        font-size: 24px;
+    }
+
+    .btn-voltar {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background 0.3s;
+    }
+
+    .btn-voltar:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .card {
+        padding: 25px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .card:last-child {
+        border-bottom: none;
+    }
+
+    .card h2 {
+        color: #0a2f68;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #0a2f68;
+        padding-bottom: 10px;
+    }
+
+    .card h3 {
+        color: #333;
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #0a2f68;
+        box-shadow: 0 0 5px rgba(10, 47, 104, 0.2);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: #0a2f68;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #082249;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(10, 47, 104, 0.3);
+    }
+
+    .btn-success {
+        background: #4caf50;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .especialidades-section {
+        margin-bottom: 25px;
+    }
+
+    .especialidades-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 10px;
+    }
+
+    .especialidade-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f0f0f0;
+        border-radius: 5px;
+        border-left: 4px solid #0a2f68;
+    }
+
+    .especialidade-item span {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .btn-remove {
+        background: #f44336;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+        padding: 0;
+    }
+
+    .btn-remove:hover {
+        background: #da190b;
+    }
+
+    .text-muted {
+        color: #999;
+        font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+        .header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .especialidades-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
