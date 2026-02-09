@@ -275,7 +275,13 @@ def get_acompanhar_cnt(tipo_consulta, valor_espex, database_path= None):
 
     return result
     
-    
+def get_info_clinica(id_clinica, database_path=None):
+    conn = get_db_connection(database_path)
+    cur=conn.cursor()
+
+    cur.execute("""
+        SELECT
+    """)
 
 
     
@@ -1991,7 +1997,7 @@ def verificar_last_auth(app_user_id, database_path=None):
     
     cur.execute("""
         SELECT id FROM autorizacoes
-        WHERE app_user_id = ? 
+        WHERE app_user_id = ?
         AND datetime(created_at) >= datetime('now', '-30 minutes') 
         AND amatiss_id IS NULL
         ORDER BY created_at DESC
@@ -2002,6 +2008,26 @@ def verificar_last_auth(app_user_id, database_path=None):
     conn.close()
     
     return resultado  # True se existe, False se não
+
+def verificar_last_auth_by_token(token_auth, database_path=None):
+    """Função apenas para verificação (mantida para compatibilidade)"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT id FROM autorizacoes
+        WHERE token_auth = ?
+        AND datetime(created_at) >= datetime('now', '-30 minutes') 
+        AND amatiss_id IS NULL
+        ORDER BY created_at DESC
+        LIMIT 1
+    """, (token_auth,))
+    
+    resultado = cur.fetchone()
+    conn.close()
+    
+    return resultado  # True se existe, False se não
+
 
 def get_info_cancelamento(proposta_id, database_path=None):
     conn = get_db_connection(database_path)
@@ -2100,9 +2126,10 @@ def post_autorizar_tiss(data, database_path=None):
         
         print(f"Dados recebidos (tipo: {type(data)}): {data}")
         
+        print(data)
         # OS DADOS ESTÃO DENTRO DE 'aut_data'!
         # Extrair os dados reais
-        aut_data = data.get('aut_data')
+        aut_data = data
         if not aut_data:
             print("Erro: Dados não contêm 'aut_data'")
             return False
@@ -2143,7 +2170,7 @@ def post_autorizar_tiss(data, database_path=None):
             return False
         
         # Primeiro verificar se a autorização já existe
-        autorizacao_existe= verificar_last_auth(token)
+        autorizacao_existe= verificar_last_auth_by_token(token)
         if autorizacao_existe:
             # UPDATE
             print("atualizando tabela")
@@ -2167,20 +2194,6 @@ def post_autorizar_tiss(data, database_path=None):
                 token            # WHERE token_auth
             ))
             print(f"Autorização atualizada para token: {token}")
-        else:
-            # INSERT
-            cur.execute("""
-                INSERT INTO autorizacoes (
-                    token_auth, amatiss_id, clinica_id, nome_clinica,
-                    exame_solicitado, codigo_tuss, auth_clinica, status_aprovacao,
-                    created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDENTE', 
-                         datetime('now'), datetime('now'))
-            """, (
-                token, id_clinica, id_clinica, nome_clinica,
-                exame, codigo_tuss, auth_clinica
-            ))
-            print(f"Nova autorização inserida para token: {token}")
         
         conn.commit()
         cur.close()
@@ -2193,3 +2206,168 @@ def post_autorizar_tiss(data, database_path=None):
         import traceback
         traceback.print_exc()
         raise
+
+def get_loc_clinica(id_amatiss, database_path= None):
+    conn= get_db_connection(database_path)
+    cur= conn.cursor()
+
+    cur.execute("""
+        SELECT latitude, logitude FROM clinicas 
+                WHERE id_amatiss = ?
+    """, (id_amatiss,))
+
+    resultado= cur.fetchone()
+    return dict(resultado) if resultado else None
+
+def get_geoloc_by_token(token, database_path= None):
+    conn= get_db_connection(database_path)
+    cur= conn.cursor()
+
+    cur.execute("""
+        SELECT latitude_usuario,longitude_usuario FROM autorizacoes
+                WHERE token_auth = ?
+    """, (token,))
+
+    resultado= cur.fetchone()
+    return dict(resultado) if resultado else None
+
+
+def get_clinica_info(clinica_id, database_path=None):
+    """Busca informações completas de uma clínica"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT * FROM clinicas WHERE id = ?
+    """, (clinica_id,))
+    
+    clinica = cur.fetchone()
+    conn.close()
+    return dict(clinica) if clinica else None
+
+
+def get_clinica_especialidades(clinica_id, database_path=None):
+    """Busca as especialidades de uma clínica"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    cur.execute("""
+        SELECT e.id, e.nome 
+        FROM especialidades e
+        INNER JOIN clinica_especialidade ce ON e.id = ce.especialidade_id
+        WHERE ce.clinica_id = ?
+        ORDER BY e.nome
+    """, (clinica_id,))
+    
+    especialidades = cur.fetchall()
+    conn.close()
+    return [dict(row) for row in especialidades] if especialidades else []
+
+
+def get_todas_especialidades(database_path=None):
+    """Busca todas as especialidades disponíveis"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    cur.execute("SELECT id, nome FROM especialidades ORDER BY nome")
+    
+    especialidades = cur.fetchall()
+    conn.close()
+    return [dict(row) for row in especialidades] if especialidades else []
+
+
+def atualizar_clinica(clinica_id, dados, database_path=None):
+    """Atualiza informações da clínica"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("""
+            UPDATE clinicas 
+            SET nome = ?, endereco = ?, telefone = ?, 
+                horario_funcionamento = ?, bloco_id = ?, 
+                latitude = ?, logitude = ?, status = ?
+            WHERE id = ?
+        """, (
+            dados.get('nome'),
+            dados.get('endereco'),
+            dados.get('telefone'),
+            dados.get('horario_funcionamento'),
+            dados.get('bloco_id'),
+            dados.get('latitude'),
+            dados.get('logitude'),
+            dados.get('status'),
+            clinica_id
+        ))
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        print(f"Erro ao atualizar clínica: {e}")
+        raise
+
+
+def adicionar_especialidade_clinica(clinica_id, especialidade_id, database_path=None):
+    """Adiciona uma especialidade à clínica"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    try:
+        # Verificar se já existe
+        cur.execute("""
+            SELECT id FROM clinica_especialidade 
+            WHERE clinica_id = ? AND especialidade_id = ?
+        """, (clinica_id, especialidade_id))
+        
+        if cur.fetchone():
+            conn.close()
+            return False  # Já existe
+        
+        cur.execute("""
+            INSERT INTO clinica_especialidade (clinica_id, especialidade_id)
+            VALUES (?, ?)
+        """, (clinica_id, especialidade_id))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        print(f"Erro ao adicionar especialidade: {e}")
+        raise
+
+
+def remover_especialidade_clinica(clinica_id, especialidade_id, database_path=None):
+    """Remove uma especialidade da clínica"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    try:
+        cur.execute("""
+            DELETE FROM clinica_especialidade 
+            WHERE clinica_id = ? AND especialidade_id = ?
+        """, (clinica_id, especialidade_id))
+        
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        print(f"Erro ao remover especialidade: {e}")
+        raise
+
+
+def listar_clinicas(database_path=None):
+    """Lista todas as clínicas"""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    
+    cur.execute("SELECT id, nome, status FROM clinicas ORDER BY nome")
+    
+    clinicas = cur.fetchall()
+    conn.close()
+    return [dict(row) for row in clinicas] if clinicas else []

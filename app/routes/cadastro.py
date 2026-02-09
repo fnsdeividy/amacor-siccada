@@ -107,7 +107,13 @@ def acompanhar_cnt():
 
     elif resp is None:
 
-        
+        if classe_usuario == 'vendedor':
+            resp = session.get('user_nome')
+            print(f"Responsável: {resp}")
+            query = "SELECT * FROM venda WHERE corretor_resp = ? ORDER BY data_venda DESC"
+            result = query_db(query, (resp,))
+            print(area, tipo_usuario)
+            return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario, classe_usuario=classe_usuario)
         if tipo_usuario == 'vendas':
             print(f"Tipo de usuário: {tipo_usuario}")
             query = "SELECT * FROM venda WHERE status <>'contrato finalizado' ORDER BY data_venda DESC"
