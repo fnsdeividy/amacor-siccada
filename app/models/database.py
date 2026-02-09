@@ -2317,7 +2317,7 @@ def adicionar_especialidade_clinica(clinica_id, especialidade_id, database_path=
     try:
         # Verificar se já existe
         cur.execute("""
-            SELECT id FROM clinica_especialidade 
+            SELECT clinica_id FROM clinica_especialidade 
             WHERE clinica_id = ? AND especialidade_id = ?
         """, (clinica_id, especialidade_id))
         
