@@ -558,7 +558,7 @@ def get_especialidade_to_app(especialidade, database_path= None):
         FROM clinicas c
         INNER JOIN clinica_especialidade ce ON c.id = ce.clinica_id
         INNER JOIN especialidades e ON ce.especialidade_id = e.id
-        WHERE LOWER(e.nome) LIKE LOWER(?);
+        WHERE LOWER(e.nome) LIKE LOWER(?) AND status = 'credenciada';
     """,(especialidade,))
 
     resultado = cur.fetchall()
