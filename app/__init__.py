@@ -53,7 +53,7 @@ def create_app():
             'auth.login', 'auth.cadastrar', 'static', 'api.teste_suri', 
             'api.get_boleto', 'auth.esqueci_senha', 'mantis.EverFlow', 'mantis.get_card', 'mantis.get_payment_app', 'mantis.get_especialidades_app', 'mantis.post_suspender_contrato',
             'enfermagem.declaracao', 'enfermagem.receber_entrevista', 'enfermagem.entrevista_concluida',
-            'mantis.autorizar_token', 'mantis.autorizar_tiss'  # Mantendo a rota pública
+            'mantis.autorizar_token', 'mantis.autorizar_tiss', 'mantis.registrar_cpx',  # Mantendo a rota pública
         ]
             
         if 'user_id' not in session and request.endpoint not in rotas_publicas:
