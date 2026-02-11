@@ -396,12 +396,21 @@ def registrar_cpx():
     token= request.headers.get('Authorization')
     data = request.get_json(silent=True) or {}
     print("[registrar_cpx] token:", token)
-    print("[registrar_cpx] payload bruto:", data)
+    
+    # Criar cópia dos dados para log sem documento completo
+    data_log = data.copy()
+    if isinstance(data_log.get('aut_data'), dict) and 'documento' in data_log['aut_data']:
+        doc_len = len(str(data_log['aut_data']['documento']))
+        data_log['aut_data'] = {**data_log['aut_data'], 'documento': f'<{doc_len} chars>'}
+    print("[registrar_cpx] payload bruto:", data_log)
+    
     key = generate_shared_key(token)
     print("[registrar_cpx] key gerada (hex):", key)
     if not key:
         return jsonify({'error': 'Invalid or expired session'}), 400
+    
     try:
+        # Verificar se há payload criptografado como um todo
         encrypted_payload = (
             data.get('payload')
             or data.get('data')
@@ -409,17 +418,9 @@ def registrar_cpx():
             or data.get('encrypted')
         )
 
-        print("[registrar_cpx] encrypted_payload encontrado:", bool(encrypted_payload))
         if encrypted_payload:
-            print("[registrar_cpx] tipo encrypted_payload:", type(encrypted_payload))
-            if isinstance(encrypted_payload, str):
-                print("[registrar_cpx] encrypted_payload preview:", encrypted_payload[:120])
-
-        if encrypted_payload:
+            print("[registrar_cpx] Descriptografando payload completo...")
             decrypted_data_str = decrypt_data(key, encrypted_payload)
-            print("[registrar_cpx] decrypted_data_str tipo:", type(decrypted_data_str))
-            if isinstance(decrypted_data_str, str):
-                print("[registrar_cpx] decrypted_data_str preview:", decrypted_data_str[:200])
             if isinstance(decrypted_data_str, str):
                 decrypted_data = json.loads(decrypted_data_str)
             else:
@@ -429,7 +430,32 @@ def registrar_cpx():
                 data = decrypted_data
                 if isinstance(data.get('data'), dict):
                     data = data.get('data')
-            print("[registrar_cpx] data após decrypt:", data)
+        
+        # Descriptografar campos individuais dentro de aut_data
+        if isinstance(data.get('aut_data'), dict):
+            aut_data = data['aut_data']
+            print("[registrar_cpx] Descriptografando campos individuais...")
+            
+            # Campos que precisam ser descriptografados
+            encrypted_fields = ['id_app', 'card', 'nome', 'documento']
+            
+            for field in encrypted_fields:
+                if field in aut_data and aut_data[field]:
+                    try:
+                        decrypted_value = decrypt_data(key, aut_data[field])
+                        aut_data[field] = decrypted_value
+                        
+                        # Log do campo descriptografado (sem mostrar documento completo)
+                        if field == 'documento':
+                            print(f"[registrar_cpx] {field} descriptografado: <{len(decrypted_value)} chars>")
+                        else:
+                            print(f"[registrar_cpx] {field} descriptografado: {decrypted_value}")
+                    except Exception as e:
+                        print(f"[registrar_cpx] Erro ao descriptografar {field}: {str(e)}")
+                        # Continua com o próximo campo
+            
+            # Atualizar data com aut_data descriptografado
+            data['aut_data'] = aut_data
         
     except json.JSONDecodeError as e:
         print("[registrar_cpx] erro json decode:", str(e))
@@ -438,14 +464,28 @@ def registrar_cpx():
         print("[registrar_cpx] erro ao descriptografar:", str(e))
         return jsonify({'error': f'Erro ao descriptografar payload: {str(e)}'}), 400
 
+    # Extrair dados para salvar imagem
+    aut_data = data.get('aut_data', {})
+    
     image_base64 = (
-        data.get('imagem_base64')
-        or data.get('image_base64')
-        or data.get('base64')
-        or data.get('imagem')
+        aut_data.get('documento') or
+        data.get('imagem_base64') or
+        data.get('image_base64') or
+        data.get('base64') or
+        data.get('imagem')
     )
-    filename = data.get('nome_arquivo') or data.get('filename')
-    subdir = data.get('pasta') or data.get('subdir')
+    
+    filename = (
+        aut_data.get('nome_arquivo') or
+        data.get('nome_arquivo') or
+        data.get('filename')
+    )
+    
+    subdir = (
+        aut_data.get('pasta') or
+        data.get('pasta') or
+        data.get('subdir')
+    )
 
     print("[registrar_cpx] image_base64 encontrado:", bool(image_base64))
     print("[registrar_cpx] filename:", filename)
@@ -460,10 +500,12 @@ def registrar_cpx():
             filename=filename,
             subdir=subdir,
         )
-        return jsonify({
-            'success': True,
-            'file_path': file_path,
-            'relative_path': relative_path
-        }), 200
+        
+        print(f"[registrar_cpx] Imagem salva: {relative_path}")
+        
+        return jsonify({'success': True}), 200
     except Exception as e:
+        print(f"[registrar_cpx] Erro ao salvar imagem: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': f'Erro ao salvar imagem: {str(e)}'}), 500
