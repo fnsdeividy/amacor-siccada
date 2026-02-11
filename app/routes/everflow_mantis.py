@@ -4,6 +4,10 @@ from cryptography.hazmat.primitives import hashes, padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 import os
+import base64
+import mimetypes
+import re
+import uuid
 from datetime import datetime, timedelta
 from ..models.database import get_carteirinha
 import binascii
@@ -14,6 +18,53 @@ mantis_bp = Blueprint('mantis', __name__)
 
 
 REDIS_EXPIRE_TIME = 3600  # 1 hora
+
+
+def save_base64_image(base64_str, filename=None, subdir=None):
+    if not base64_str:
+        raise ValueError("Base64 vazio")
+
+    mime_type = None
+    if base64_str.startswith("data:"):
+        header, base64_payload = base64_str.split(",", 1)
+        mime_match = re.match(r"data:([^;]+);base64", header)
+        mime_type = mime_match.group(1) if mime_match else None
+    else:
+        base64_payload = base64_str
+
+    base64_payload = base64_payload.strip()
+    padding_needed = (-len(base64_payload)) % 4
+    if padding_needed:
+        base64_payload += "=" * padding_needed
+
+    image_bytes = base64.b64decode(base64_payload, validate=False)
+
+    extension = None
+    if mime_type:
+        extension = mimetypes.guess_extension(mime_type)
+    if not extension:
+        extension = ".png"
+
+    if filename:
+        filename = os.path.basename(filename)
+        name, ext = os.path.splitext(filename)
+        filename = f"{name}{ext or extension}"
+    else:
+        filename = f"img_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}{extension}"
+
+    base_static_dir = os.path.abspath(os.path.join(current_app.root_path, '..', 'static'))
+    target_dir = base_static_dir
+    if subdir:
+        target_dir = os.path.join(base_static_dir, subdir)
+
+    os.makedirs(target_dir, exist_ok=True)
+
+    file_path = os.path.join(target_dir, filename)
+    with open(file_path, "wb") as image_file:
+        image_file.write(image_bytes)
+
+    relative_path = os.path.relpath(file_path, base_static_dir)
+    return file_path, relative_path
 
 
 
@@ -339,3 +390,80 @@ def autorizar_tiss():
         import traceback
         traceback.print_exc()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
+    
+@mantis_bp.route('/registrar_cpx', endpoint= 'registrar_cpx', methods= ['POST'])
+def registrar_cpx():
+    token= request.headers.get('Authorization')
+    data = request.get_json(silent=True) or {}
+    print("[registrar_cpx] token:", token)
+    print("[registrar_cpx] payload bruto:", data)
+    key = generate_shared_key(token)
+    print("[registrar_cpx] key gerada (hex):", key)
+    if not key:
+        return jsonify({'error': 'Invalid or expired session'}), 400
+    try:
+        encrypted_payload = (
+            data.get('payload')
+            or data.get('data')
+            or data.get('encrypted_data')
+            or data.get('encrypted')
+        )
+
+        print("[registrar_cpx] encrypted_payload encontrado:", bool(encrypted_payload))
+        if encrypted_payload:
+            print("[registrar_cpx] tipo encrypted_payload:", type(encrypted_payload))
+            if isinstance(encrypted_payload, str):
+                print("[registrar_cpx] encrypted_payload preview:", encrypted_payload[:120])
+
+        if encrypted_payload:
+            decrypted_data_str = decrypt_data(key, encrypted_payload)
+            print("[registrar_cpx] decrypted_data_str tipo:", type(decrypted_data_str))
+            if isinstance(decrypted_data_str, str):
+                print("[registrar_cpx] decrypted_data_str preview:", decrypted_data_str[:200])
+            if isinstance(decrypted_data_str, str):
+                decrypted_data = json.loads(decrypted_data_str)
+            else:
+                decrypted_data = decrypted_data_str
+
+            if isinstance(decrypted_data, dict):
+                data = decrypted_data
+                if isinstance(data.get('data'), dict):
+                    data = data.get('data')
+            print("[registrar_cpx] data após decrypt:", data)
+        
+    except json.JSONDecodeError as e:
+        print("[registrar_cpx] erro json decode:", str(e))
+        return jsonify({'error': f'Dados descriptografados não são JSON válido: {str(e)}'}), 400
+    except Exception as e:
+        print("[registrar_cpx] erro ao descriptografar:", str(e))
+        return jsonify({'error': f'Erro ao descriptografar payload: {str(e)}'}), 400
+
+    image_base64 = (
+        data.get('imagem_base64')
+        or data.get('image_base64')
+        or data.get('base64')
+        or data.get('imagem')
+    )
+    filename = data.get('nome_arquivo') or data.get('filename')
+    subdir = data.get('pasta') or data.get('subdir')
+
+    print("[registrar_cpx] image_base64 encontrado:", bool(image_base64))
+    print("[registrar_cpx] filename:", filename)
+    print("[registrar_cpx] subdir:", subdir)
+
+    if not image_base64:
+        return jsonify({'error': 'Imagem base64 não enviada'}), 400
+
+    try:
+        file_path, relative_path = save_base64_image(
+            image_base64,
+            filename=filename,
+            subdir=subdir,
+        )
+        return jsonify({
+            'success': True,
+            'file_path': file_path,
+            'relative_path': relative_path
+        }), 200
+    except Exception as e:
+        return jsonify({'error': f'Erro ao salvar imagem: {str(e)}'}), 500
