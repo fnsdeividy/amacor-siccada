@@ -2371,3 +2371,147 @@ def listar_clinicas(database_path=None):
     clinicas = cur.fetchall()
     conn.close()
     return [dict(row) for row in clinicas] if clinicas else []
+
+
+def get_autorizacoes_by_card(card_beneficiario, database_path=None):
+    """
+    Busca todas as autorizações de exames de um beneficiário pelo número da carteirinha.
+    
+    Args:
+        card_beneficiario: Número da carteirinha do beneficiário
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        list: Lista de dicionários com as autorizações ou lista vazia
+    """
+    print(f"[get_autorizacoes_by_card] Buscando autorizações para card: {card_beneficiario}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT 
+                id,
+                id_app,
+                card_beneficiario,
+                nome_beneficiario,
+                nome_exame,
+                timestamp_solicitacao,
+                data_hora_registro,
+                status,
+                motivo_rejeicao
+            FROM autorizacoes_exames
+            WHERE card_beneficiario = ?
+            ORDER BY data_hora_registro DESC
+        """, (card_beneficiario,))
+        
+        resultados = cur.fetchall()
+        conn.close()
+        
+        if not resultados:
+            print(f"[get_autorizacoes_by_card] Nenhuma autorização encontrada para card: {card_beneficiario}")
+            return []
+        
+        # Converter para lista de dicionários
+        autorizacoes = [dict(row) for row in resultados]
+        
+        print(f"[get_autorizacoes_by_card] ✅ Encontradas {len(autorizacoes)} autorizações")
+        
+        return autorizacoes
+        
+    except sqlite3.Error as e:
+        print(f"[get_autorizacoes_by_card] ❌ Erro ao buscar autorizações: {e}")
+        return []
+    except Exception as e:
+        print(f"[get_autorizacoes_by_card] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+def post_registrar_cpx(data, ip_origem, database_path=None):
+    """
+    Registra uma solicitação de autorização de exame no banco de dados.
+    
+    Args:
+        data: Dicionário contendo os dados da autorização
+        ip_origem: IP de origem da requisição
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        dict: {'success': True, 'id': id_inserido} ou {'success': False, 'error': mensagem}
+    """
+    print("[post_registrar_cpx] Iniciando registro de autorização de exame")
+    print(f"[post_registrar_cpx] Dados recebidos: id_app={data.get('id_app')}, card={data.get('card')}, nome={data.get('nome')}, exame={data.get('nomeExame')}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        # Extrair dados do dicionário
+        id_app = data.get('id_app')
+        card_beneficiario = data.get('card')
+        nome_beneficiario = data.get('nome')
+        nome_exame = data.get('nomeExame') or 'Não especificado'
+        documento_path = data.get('documento_path', '')
+        timestamp_solicitacao = data.get('timestamp')
+        session_token = data.get('session_token', '')
+        
+        # Validar campos obrigatórios
+        if not all([id_app, card_beneficiario, nome_beneficiario]):
+            return {
+                'success': False, 
+                'error': 'Campos obrigatórios faltando: id_app, card, nome'
+            }
+        
+        # Inserir no banco de dados
+        cur.execute("""
+            INSERT INTO autorizacoes_exames (
+                id_app,
+                card_beneficiario,
+                nome_beneficiario,
+                nome_exame,
+                documento_path,
+                timestamp_solicitacao,
+                ip_origem,
+                session_token,
+                status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente')
+        """, (
+            id_app,
+            card_beneficiario,
+            nome_beneficiario,
+            nome_exame,
+            documento_path,
+            timestamp_solicitacao,
+            ip_origem,
+            session_token
+        ))
+        
+        conn.commit()
+        id_inserido = cur.lastrowid
+        
+        print(f"[post_registrar_cpx] ✅ Autorização registrada com sucesso. ID: {id_inserido}")
+        
+        conn.close()
+        
+        return {
+            'success': True,
+            'id': id_inserido,
+            'message': 'Autorização de exame registrada com sucesso'
+        }
+        
+    except sqlite3.Error as e:
+        print(f"[post_registrar_cpx] ❌ Erro ao registrar autorização: {e}")
+        return {
+            'success': False,
+            'error': f'Erro ao registrar no banco de dados: {str(e)}'
+        }
+    except Exception as e:
+        print(f"[post_registrar_cpx] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': f'Erro inesperado: {str(e)}'
+        }

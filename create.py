@@ -608,5 +608,48 @@ def criar_tabela_autorizacoes(database_path=None):
     conn.commit()
     conn.close()
     print("Tabela 'autorizacoes' criada/atualizada com sucesso no banco:", db)
+
+def criar_tabela_autorizacoes_exames():
+    """Cria a tabela para registrar solicitações de autorização de exames via app"""
+    conn = sqlite3.connect(db_name)
+    cur = conn.cursor()
+    
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS autorizacoes_exames (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        
+        -- Identificação do usuário/beneficiário
+        id_app TEXT NOT NULL,
+        card_beneficiario TEXT NOT NULL,
+        nome_beneficiario TEXT NOT NULL,
+        
+        -- Dados do exame
+        nome_exame TEXT NOT NULL,
+        documento_path TEXT NOT NULL,
+        
+        -- Metadados da solicitação
+        timestamp_solicitacao INTEGER NOT NULL,
+        data_hora_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+        
+        -- Controle de status
+        status TEXT DEFAULT 'pendente' CHECK(status IN ('pendente', 'aprovado', 'rejeitado', 'cancelado')),
+        motivo_rejeicao TEXT,
+        
+        -- Auditoria
+        ip_origem TEXT,
+        session_token TEXT
+    );
+    """)
+    
+    # Índices para melhorar performance
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_autorizacoes_exames_card ON autorizacoes_exames(card_beneficiario);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_autorizacoes_exames_id_app ON autorizacoes_exames(id_app);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_autorizacoes_exames_status ON autorizacoes_exames(status);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_autorizacoes_exames_data ON autorizacoes_exames(data_hora_registro);")
+    
+    conn.commit()
+    conn.close()
+    print("Tabela 'autorizacoes_exames' criada com sucesso!")
+
 if __name__ == "__main__":
-    registrar_clinicas(db_name, "json/clinicas.json", "json/coordenadas.json")
+    criar_tabela_autorizacoes_exames()
