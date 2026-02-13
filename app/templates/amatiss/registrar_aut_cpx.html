@@ -1,0 +1,730 @@
+{% extends "generic/base_amatiss.html" %}
+
+{% block title %}Autorizações de Alta Complexidade{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+
+<br>
+<br>
+<div style="display: flex; justify-content: flex-start; margin: 10px 20px;">
+    <a href="{{ url_for('auth.fechar') }}" class="btn-home">🏠</a>
+</div>
+
+<div class="search-bar-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin: 30px 20px;">
+    <!-- Filtro à esquerda -->
+    <form method="get" action="{{ url_for('amatiss.render_aut_cpx') }}" id="autoSubmitForm" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
+        <select id="filtrar" name="filtrar" onchange="document.getElementById('autoSubmitForm').submit();" style="height: 40px; padding: 0 12px; border-radius: 6px;">
+            <option value="" {% if not filtrar %}selected{% endif %}>Todas as autorizações</option>
+            <option value="pendente" {% if filtrar == 'pendente' %}selected{% endif %}>Pendentes</option>
+            <option value="aprovado" {% if filtrar == 'aprovado' %}selected{% endif %}>Aprovadas</option>
+            <option value="rejeitado" {% if filtrar == 'rejeitado' %}selected{% endif %}>Rejeitadas</option>
+            <option value="em analise" {% if filtrar == 'em analise' %}selected{% endif %}>Em Análise</option>
+            <option value="cancelado" {% if filtrar == 'cancelado' %}selected{% endif %}>Canceladas</option>
+        </select>
+    </form>
+
+    <!-- Informação central -->
+    <div style="flex: 1; text-align: center;">
+        <h2 style="position:right; color: #ebebeb; margin: 0;">Autorizações de Alta Complexidade</h2>
+        <p style="color: #bbb; margin: 5px 0;">
+            <i class="fas fa-list"></i> {{ total_pendentes }} autorizações
+        </p>
+    </div>
+
+    <!-- Busca à direita -->
+    <form method="get" action="{{ url_for('amatiss.render_aut_cpx') }}" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
+        <input type="text" name="buscar" placeholder="Buscar por nome, carteirinha..." value="{{ request.args.get('buscar', '') }}" style="padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px; min-width: 220px; font-size: 15px; background: #fff; color: #222;">
+        <button class="btn" type="submit">Buscar</button>
+    </form>
+</div>
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .btn-home {
+            position: center;
+            background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            transition: all 0.3s ease;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        p {
+            position: center;
+            font-family: Arial, sans-serif;
+            color: #ebebeb;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .card {
+            width: 280px;
+            border: 1px solid #f8f8f8bd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 238, 201, 0.493);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .card-header {
+            background-color: #c596bf;
+            color: #4f4159;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .card-body {
+            padding: 12px;
+            cursor: pointer;
+        }
+
+        .card-body p {
+            margin: 6px 0;
+            font-size: 13px;
+            color: #242424;
+        }
+
+        .card-body h3 {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .card-details {
+            display: none;
+            padding: 12px;
+            border-top: 1px solid #ddd;
+            
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card-details p {
+            margin: 6px 0;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .btn-acao {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn-aprovar {
+            background-color: #c6f5e0;
+            color: #259661;
+            border: 1px solid #259661;
+        }
+
+        .btn-aprovar:hover {
+            background-color: #a3e4c1;
+            color: #1b5e20;
+            transform: scale(1.05);
+        }
+
+        .btn-rejeitar {
+            background-color: #ffadad;
+            color: #b71c1c;
+            border: 1px solid #b71c1c;
+        }
+
+        .btn-rejeitar:hover {
+            background-color: #ff8787;
+            color: #8b0000;
+            transform: scale(1.05);
+        }
+
+        .btn-detalhes {
+            background-color: #cbe7ff;
+            color: #2176ae;
+            border: 1px solid #2176ae;
+        }
+
+        .btn-detalhes:hover {
+            background-color: #b0c4ff;
+            color: #1a237e;
+            transform: scale(1.05);
+        }
+
+        .no-results {
+            text-align: center;
+            margin-top: 50px;
+            color: #ffffff;
+            font-size: 18px;
+        }
+
+        .status-pendente {
+            background-color: #fff9b0;
+            color: #b3a100;
+        }
+
+        .status-aprovado {
+            background-color: #c6f5e0;
+            color: #259661;
+        }
+
+        .status-rejeitado {
+            background-color: #ffadad;
+            color: #b71c1c;
+        }
+
+        .status-em-analise {
+            background-color: #cbe7ff;
+            color: #2176ae;
+        }
+
+        .status-cancelado {
+            background-color: #9b7b66ef;
+            color: rgb(61, 50, 50);
+        }
+
+        .btn-responsavel:hover {
+            background-color: #f5ed8e !important;
+            color: #8a7900 !important;
+            transform: scale(1.05);
+        }
+
+        .btn-analisar {
+            background-color: #c596bf;
+            color: #fff;
+            border: 1px solid #4f4159;
+        }
+
+        .btn-analisar:hover {
+            background-color: #a67ea6;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: #3549674a;
+                backdrop-filter: blur(20px);
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .modal-body {
+            padding: 10px 0;
+        }
+
+        .modal-footer {
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .bg-success {
+            background-color: #c6f5e0 !important;
+            color: #259661;
+        }
+
+        .bg-danger {
+            background-color: #ffadad !important;
+            color: #b71c1c;
+        }
+
+        .bg-info {
+            background-color: #cbe7ff !important;
+            color: #2176ae;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    {% if autorizacoes %}
+        <div class="cards-container">
+            {% for aut in autorizacoes %}
+            {% set status = aut.status|lower %}
+            
+            {# Define a classe de status (cor do cabeçalho) #}
+            {% if 'pendente' in status %}
+                {% set status_class = 'status-pendente' %}
+            {% elif 'aprovado' in status %}
+                {% set status_class = 'status-aprovado' %}
+            {% elif 'rejeitado' in status %}
+                {% set status_class = 'status-rejeitado' %}
+            {% elif 'em analise' in status or 'em análise' in status %}
+                {% set status_class = 'status-em-analise' %}
+            {% elif 'cancelado' in status %}
+                {% set status_class = 'status-cancelado' %}
+            {% else %}
+                {% set status_class = 'status-pendente' %}
+            {% endif %}
+            
+            <div class="card">
+                <div class="card-header {{ status_class }}" onclick="toggleDetails(this)">
+                    Autorização #{{ aut.id }}
+                </div>
+                <div class="card-body" onclick="toggleDetails(this)">
+                    <h3><strong>Beneficiário:</strong> {{ aut.nome_beneficiario }}</h3>
+                    <p><strong>Carteirinha:</strong> {{ aut.card_beneficiario }}</p>
+                    <p><strong>Exame:</strong> {{ aut.nome_exame }}</p>
+                    <p><strong>Status:</strong> <span style="text-transform: capitalize;">{{ aut.status }}</span></p>
+                    <p><strong>Data:</strong> 
+                        {% if aut.created_at %}
+                            {{ aut.created_at }}
+                        {% else %}
+                            {{ aut.timestamp_solicitacao or 'N/D' }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="card-details">
+                    <p><strong>ID App:</strong> {{ aut.id_app }}</p>
+                    <p><strong>IP Origem:</strong> {{ aut.ip_origem or 'N/D' }}</p>
+                    {% if aut.audit_resp %}
+                        <p><strong>Responsável:</strong> <span style="color: #007bff;">{{ aut.audit_resp }}</span></p>
+                    {% else %}
+                        <p><strong>Responsável:</strong> <span style="color: #999;">Não atribuído</span></p>
+                    {% endif %}
+                    {% if aut.motivo_rejeicao %}
+                        <p><strong>Motivo Rejeição:</strong> {{ aut.motivo_rejeicao }}</p>
+                    {% endif %}
+                    {% if aut.documento_path %}
+                        <p><strong>Documento:</strong> 
+                            <a href="{{ url_for('amatiss.servir_documento', filename=aut.documento_path) }}" 
+                               target="_blank" 
+                               style="color: #007bff;">
+                                📄 Ver Documento
+                            </a>
+                        </p>
+                    {% else %}
+                        <p><strong>Documento:</strong> Não enviado</p>
+                    {% endif %}
+                    <br>
+                    <div style="text-align: center;">
+                        {% if aut.status == 'pendente' %}
+                        <button class="btn-acao btn-aprovar" onclick="aprovarAutorizacao({{ aut.id }})">
+                            ✓ Aprovar
+                        </button>
+                        <button class="btn-acao btn-rejeitar" onclick="recusarAutorizacao({{ aut.id }})">
+                            ✗ Rejeitar
+                        </button>
+                        {% endif %}
+                        {% if not aut.audit_resp or aut.audit_resp == user_nome %}
+                        <button class="btn-acao btn-responsavel" onclick="assumirResponsabilidade({{ aut.id }})" style="background-color: #fff9b0; color: #b3a100; border: 1px solid #b3a100;">
+                            👤 Assumir Responsabilidade
+                        </button>
+                        {% endif %}
+                        {% if aut.audit_resp == user_nome or tipo_usuario == 'administrativo' %}
+                        <a href="{{ url_for('amatiss.analisar_autorizacao', autorizacao_id=aut.id) }}" class="btn-acao" style="background-color: #c596bf; color: #fff; border: 1px solid #4f4159; text-decoration: none;">
+                            🔍 Analisar em Detalhes
+                        </a>
+                        {% endif %}
+                        <button class="btn-acao btn-detalhes" onclick="verDetalhes({{ aut.id }})">
+                            👁 Detalhes
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-results">Não há autorizações{% if filtrar %} com status "{{ filtrar }}"{% endif %} no momento.</p>
+    {% endif %}
+
+    <!-- Modal de Detalhes -->
+    <div id="modalDetalhes" class="modal">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h3 style="margin: 0; color: white;">Detalhes da Autorização</h3>
+                <span class="close" onclick="fecharModal('modalDetalhes')">&times;</span>
+            </div>
+            <div class="modal-body" id="modalDetalhesBody">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="fecharModal('modalDetalhes')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="modalConfirmacao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalConfirmacaoHeader">
+                <h3 style="margin: 0;" id="modalConfirmacaoTitulo"></h3>
+                <span class="close" onclick="fecharModal('modalConfirmacao')">&times;</span>
+            </div>
+            <div class="modal-body" id="modalConfirmacaoBody">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="fecharModal('modalConfirmacao')">Cancelar</button>
+                <button type="button" class="btn-primary" id="btnConfirmarAcao">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDetails(element) {
+            const card = element.closest('.card');
+            const details = card.querySelector('.card-details');
+            
+            // Fecha todos os outros cards primeiro
+            document.querySelectorAll('.card-details').forEach(d => {
+                if (d !== details) {
+                    d.style.display = 'none';
+                }
+            });
+            
+            // Alterna o card clicado
+            details.style.display = details.style.display === 'none' || details.style.display === '' ? 'block' : 'none';
+        }
+
+        function abrirModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Fecha modal ao clicar fora dele
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        function aprovarAutorizacao(id) {
+            const headerEl = document.getElementById('modalConfirmacaoHeader');
+            headerEl.className = 'modal-header bg-success';
+            document.getElementById('modalConfirmacaoTitulo').textContent = 'Aprovar Autorização';
+            document.getElementById('modalConfirmacaoBody').innerHTML = 
+                '<p>Tem certeza que deseja <strong>aprovar</strong> esta autorização?</p>' +
+                '<div class="mb-3">' +
+                '<label for="observacaoAprovacao" class="form-label">Observações (opcional):</label>' +
+                '<textarea class="form-control" id="observacaoAprovacao" rows="3"></textarea>' +
+                '</div>';
+            
+            document.getElementById('btnConfirmarAcao').onclick = function() {
+                processarAutorizacao(id, 'aprovado', document.getElementById('observacaoAprovacao').value);
+                fecharModal('modalConfirmacao');
+            };
+            
+            abrirModal('modalConfirmacao');
+        }
+
+        function recusarAutorizacao(id) {
+            const headerEl = document.getElementById('modalConfirmacaoHeader');
+            headerEl.className = 'modal-header bg-danger';
+            document.getElementById('modalConfirmacaoTitulo').textContent = 'Rejeitar Autorização';
+            document.getElementById('modalConfirmacaoBody').innerHTML = 
+                '<p>Tem certeza que deseja <strong>rejeitar</strong> esta autorização?</p>' +
+                '<div class="mb-3">' +
+                '<label for="observacaoRecusa" class="form-label">Motivo da rejeição <span class="text-danger">*</span>:</label>' +
+                '<textarea class="form-control" id="observacaoRecusa" rows="3" required></textarea>' +
+                '</div>';
+            
+            document.getElementById('btnConfirmarAcao').onclick = function() {
+                const motivo = document.getElementById('observacaoRecusa').value;
+                if (!motivo.trim()) {
+                    alert('Por favor, informe o motivo da rejeição.');
+                    return;
+                }
+                processarAutorizacao(id, 'rejeitado', motivo);
+                fecharModal('modalConfirmacao');
+            };
+            
+            abrirModal('modalConfirmacao');
+        }
+
+        function verDetalhes(id) {
+            // Buscar detalhes via AJAX
+            fetch(`/amatiss/detalhes_autorizacao/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Definir cor do badge baseado no status
+                    let statusColor = '#fff9b0'; // amarelo pastel (pendente)
+                    let statusTextColor = '#b3a100';
+                    
+                    if (data.status === 'aprovado') {
+                        statusColor = '#c6f5e0';
+                        statusTextColor = '#259661';
+                    } else if (data.status === 'rejeitado') {
+                        statusColor = '#ffadad';
+                        statusTextColor = '#b71c1c';
+                    } else if (data.status === 'em analise' || data.status === 'em análise') {
+                        statusColor = '#cbe7ff';
+                        statusTextColor = '#2176ae';
+                    } else if (data.status === 'cancelado') {
+                        statusColor = '#9b7b66ef';
+                        statusTextColor = 'rgb(61, 50, 50)';
+                    }
+                    
+                    const detalhesHtml = `
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">ID da Solicitação:</th>
+                                <td style="padding: 8px;">${data.id}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">ID do App:</th>
+                                <td style="padding: 8px;">${data.id_app}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Carteirinha:</th>
+                                <td style="padding: 8px;">${data.card_beneficiario}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Beneficiário:</th>
+                                <td style="padding: 8px;">${data.nome_beneficiario}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Exame:</th>
+                                <td style="padding: 8px;">${data.nome_exame}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Data/Hora:</th>
+                                <td style="padding: 8px;">${data.created_at || data.timestamp_solicitacao}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Responsável:</th>
+                                <td style="padding: 8px;">${data.audit_resp_nome || 'Não atribuído'}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">IP Origem:</th>
+                                <td style="padding: 8px;">${data.ip_origem || 'N/D'}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Session Token:</th>
+                                <td style="padding: 8px; word-break: break-all; font-size: 11px;">${data.session_token || 'N/D'}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Status:</th>
+                                <td style="padding: 8px;"><span style="background-color: ${statusColor}; color: ${statusTextColor}; padding: 2px 8px; border-radius: 4px; text-transform: capitalize;">${data.status}</span></td>
+                            </tr>
+                            ${data.documento_path ? `
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <th style="padding: 8px; text-align: left;">Documento:</th>
+                                <td style="padding: 8px;">
+                                    <a href="/amatiss/documento/${data.documento_path}" target="_blank" style="color: #007bff;">
+                                        📄 Ver Documento
+                                    </a>
+                                </td>
+                            </tr>
+                            ` : ''}
+                        </table>
+                        ${data.documento_path ? `
+                        <div style="margin-top: 20px; text-align: center;">
+                            <h4 style="margin-bottom: 10px;">Pré-visualização do Documento:</h4>
+                            <img src="/amatiss/documento/${data.documento_path}" 
+                                 style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display: none; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+                                <p style="color: #666;">⚠️ Não foi possível pré-visualizar o documento.</p>
+                                <a href="/amatiss/documento/${data.documento_path}" target="_blank" style="color: #007bff; text-decoration: underline;">
+                                    Clique aqui para abrir em nova aba
+                                </a>
+                            </div>
+                        </div>
+                        ` : ''}
+                    `;
+                    document.getElementById('modalDetalhesBody').innerHTML = detalhesHtml;
+                    abrirModal('modalDetalhes');
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar detalhes:', error);
+                    alert('Erro ao carregar detalhes da autorização.');
+                });
+        }
+
+        function processarAutorizacao(id, status, observacao) {
+            // Enviar requisição para processar a autorização
+            fetch('/amatiss/processar_autorizacao', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: id,
+                    status: status,
+                    observacao: observacao
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Autorização ${status} com sucesso!`);
+                    location.reload();
+                } else {
+                    alert('Erro ao processar autorização: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao processar autorização.');
+            });
+        }
+
+        function assumirResponsabilidade(id) {
+            if (confirm('Deseja assumir a responsabilidade por esta autorização?')) {
+                fetch('/amatiss/atribuir_responsavel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao assumir responsabilidade.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+
+{% endblock %}
