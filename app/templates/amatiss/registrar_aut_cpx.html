@@ -432,7 +432,7 @@
                     {% endif %}
                     <br>
                     <div style="text-align: center;">
-                        {% if aut.status == 'pendente' %}
+                        {% if aut.audit_resp != 'None' %}
                         <button class="btn-acao btn-aprovar" onclick="aprovarAutorizacao({{ aut.id }})">
                             ✓ Aprovar
                         </button>
