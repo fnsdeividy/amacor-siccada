@@ -1,0 +1,441 @@
+{% extends "generic/base_amatiss.html" %}
+
+{% block title %}Analisar Autorização #{{ autorizacao.id }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+
+<style>
+    .analise-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    .btn-voltar {
+        background: linear-gradient(145deg, #1a2a6c, #36a2eb);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-block;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+        transition: all 0.3s ease;
+    }
+
+    .btn-voltar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    .autorizacao-info {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        margin-bottom: 30px;
+    }
+
+    .info-header {
+        border-bottom: 3px solid #c596bf;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .info-header h2 {
+        color: #4f4159;
+        margin: 0;
+        font-size: 26px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .info-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #c596bf;
+    }
+
+    .info-label {
+        font-weight: bold;
+        color: #4f4159;
+        font-size: 14px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        color: #333;
+        font-size: 16px;
+        word-wrap: break-word;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: capitalize;
+        font-size: 14px;
+    }
+
+    .status-pendente {
+        background-color: #fff9b0;
+        color: #b3a100;
+    }
+
+    .status-em-analise {
+        background-color: #cbe7ff;
+        color: #2176ae;
+    }
+
+    .status-aprovado {
+        background-color: #c6f5e0;
+        color: #259661;
+    }
+
+    .status-rejeitado {
+        background-color: #ffadad;
+        color: #b71c1c;
+    }
+
+    .documento-preview {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .documento-preview img {
+        max-width: 100%;
+        max-height: 600px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .documento-preview img:hover {
+        transform: scale(1.02);
+    }
+
+    .acoes-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .acoes-header {
+        border-bottom: 3px solid #c596bf;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+
+    .acoes-header h3 {
+        color: #4f4159;
+        margin: 0;
+        font-size: 22px;
+    }
+
+    .btn-acao {
+        padding: 12px 30px;
+        margin: 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .btn-aprovar {
+        background-color: #c6f5e0;
+        color: #259661;
+        border: 2px solid #259661;
+    }
+
+    .btn-aprovar:hover {
+        background-color: #a3e4c1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(37, 150, 97, 0.3);
+    }
+
+    .btn-rejeitar {
+        background-color: #ffadad;
+        color: #b71c1c;
+        border: 2px solid #b71c1c;
+    }
+
+    .btn-rejeitar:hover {
+        background-color: #ff8787;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(183, 28, 28, 0.3);
+    }
+
+    .observacoes-box {
+        margin-top: 20px;
+    }
+
+    .observacoes-box label {
+        display: block;
+        font-weight: bold;
+        color: #4f4159;
+        margin-bottom: 8px;
+        font-size: 16px;
+    }
+
+    .observacoes-box textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        font-family: Arial, sans-serif;
+        resize: vertical;
+        transition: border-color 0.3s ease;
+    }
+
+    .observacoes-box textarea:focus {
+        outline: none;
+        border-color: #c596bf;
+    }
+
+    .alert-info {
+        background-color: #cbe7ff;
+        color: #2176ae;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2176ae;
+    }
+</style>
+
+<div class="analise-container">
+    <a href="{{ url_for('amatiss.render_aut_cpx') }}" class="btn-voltar">⬅ Voltar para Lista</a>
+
+    <div class="autorizacao-info">
+        <div class="info-header">
+            <h2>📋 Autorização #{{ autorizacao.id }}</h2>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Beneficiário</div>
+                <div class="info-value">{{ autorizacao.nome_beneficiario }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Carteirinha</div>
+                <div class="info-value">{{ autorizacao.card_beneficiario }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Exame Solicitado</div>
+                <div class="info-value">{{ autorizacao.nome_exame }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">ID do App</div>
+                <div class="info-value">{{ autorizacao.id_app }}</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Data/Hora da Solicitação</div>
+                <div class="info-value">
+                    {% if autorizacao.created_at %}
+                        {{ autorizacao.created_at }}
+                    {% else %}
+                        {{ autorizacao.timestamp_solicitacao or 'N/D' }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Status Atual</div>
+                <div class="info-value">
+                    {% set status = autorizacao.status|lower %}
+                    {% if 'pendente' in status %}
+                        <span class="status-badge status-pendente">{{ autorizacao.status }}</span>
+                    {% elif 'em analise' in status or 'em análise' in status %}
+                        <span class="status-badge status-em-analise">{{ autorizacao.status }}</span>
+                    {% elif 'aprovado' in status %}
+                        <span class="status-badge status-aprovado">{{ autorizacao.status }}</span>
+                    {% elif 'rejeitado' in status %}
+                        <span class="status-badge status-rejeitado">{{ autorizacao.status }}</span>
+                    {% else %}
+                        <span class="status-badge">{{ autorizacao.status }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Responsável pela Análise</div>
+                <div class="info-value">
+                    {% if autorizacao.audit_resp %}
+                        <strong style="color: #007bff;">{{ autorizacao.audit_resp }}</strong>
+                    {% else %}
+                        <span style="color: #999;">Não atribuído</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">IP de Origem</div>
+                <div class="info-value">{{ autorizacao.ip_origem or 'N/D' }}</div>
+            </div>
+        </div>
+
+        {% if autorizacao.motivo_rejeicao %}
+        <div class="alert-info">
+            <strong>⚠️ Motivo de Rejeição:</strong> {{ autorizacao.motivo_rejeicao }}
+        </div>
+        {% endif %}
+
+        {% if autorizacao.documento_path %}
+        <div class="documento-preview">
+            <h3 style="color: #4f4159; margin-bottom: 15px;">📄 Documento Anexado</h3>
+            
+            <!-- Info de debug -->
+            <div style="background: #f0f0f0; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 12px; color: #666;">
+                <strong>Caminho do arquivo:</strong> {{ autorizacao.documento_path }}<br>
+                <strong>URL completa:</strong> {{ url_for('amatiss.servir_documento', filename=autorizacao.documento_path) }}
+            </div>
+
+            <!-- Tentar renderizar como imagem primeiro -->
+            <div id="imagemContainer" style="margin-bottom: 15px;">
+                <img id="documentoImagem" 
+                     src="{{ url_for('amatiss.servir_documento', filename=autorizacao.documento_path) }}" 
+                     alt="Documento da Autorização"
+                     style="max-width: 100%; max-height: 600px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"
+                     onerror="mostrarAlternativas()">
+            </div>
+
+            <!-- Container alternativo para PDF ou outros formatos -->
+            <div id="alternativaContainer" style="display: none;">
+                <iframe id="documentoPdf" 
+                        src="{{ url_for('amatiss.servir_documento', filename=autorizacao.documento_path) }}"
+                        style="width: 100%; height: 600px; border: 2px solid #ddd; border-radius: 8px;"
+                        onerror="mostrarBotaoDownload()">
+                </iframe>
+            </div>
+
+            <!-- Botão de download como última opção -->
+            <div id="downloadContainer" style="display: none; text-align: center; margin-top: 15px;">
+                <p style="color: #666; margin-bottom: 15px;">⚠️ Não foi possível visualizar o documento no navegador.</p>
+                <a href="{{ url_for('amatiss.servir_documento', filename=autorizacao.documento_path) }}" 
+                   target="_blank" 
+                   class="btn-acao"
+                   style="background-color: #007bff; color: white; border: 2px solid #0056b3;">
+                    📥 Abrir/Baixar Documento
+                </a>
+            </div>
+
+            <script>
+                function mostrarAlternativas() {
+                    console.log('Imagem falhou, tentando PDF...');
+                    document.getElementById('imagemContainer').style.display = 'none';
+                    document.getElementById('alternativaContainer').style.display = 'block';
+                }
+
+                function mostrarBotaoDownload() {
+                    console.log('PDF falhou, mostrando botão de download...');
+                    document.getElementById('alternativaContainer').style.display = 'none';
+                    document.getElementById('downloadContainer').style.display = 'block';
+                }
+            </script>
+        </div>
+        {% else %}
+        <div class="alert-info">
+            ⚠️ Nenhum documento foi anexado a esta autorização.
+        </div>
+        {% endif %}
+    </div>
+
+    {% if autorizacao.status == 'em analise' or autorizacao.status == 'pendente' %}
+    <div class="acoes-container">
+        <div class="acoes-header">
+            <h3>🔍 Decisão sobre a Autorização</h3>
+        </div>
+
+        <div class="observacoes-box">
+            <label for="observacao">Observações da Análise:</label>
+            <textarea id="observacao" placeholder="Digite suas observações sobre a análise (opcional para aprovar, obrigatório para rejeitar)..."></textarea>
+        </div>
+
+        <div style="text-align: center; margin-top: 25px;">
+            <button class="btn-acao btn-aprovar" onclick="processarDecisao('aprovado')">
+                ✓ Aprovar Autorização
+            </button>
+            <button class="btn-acao btn-rejeitar" onclick="processarDecisao('rejeitado')">
+                ✗ Rejeitar Autorização
+            </button>
+        </div>
+    </div>
+    {% else %}
+    <div class="acoes-container">
+        <div class="alert-info">
+            Esta autorização já foi processada e está com status: <strong>{{ autorizacao.status }}</strong>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function processarDecisao(status) {
+    const observacao = document.getElementById('observacao').value;
+    
+    // Validar se tem observação quando for rejeitar
+    if (status === 'rejeitado' && !observacao.trim()) {
+        alert('Por favor, informe o motivo da rejeição.');
+        return;
+    }
+    
+    // Confirmar decisão
+    const mensagem = status === 'aprovado' ? 
+        'Tem certeza que deseja APROVAR esta autorização?' : 
+        'Tem certeza que deseja REJEITAR esta autorização?';
+    
+    if (!confirm(mensagem)) {
+        return;
+    }
+    
+    // Enviar requisição
+    fetch('/amatiss/processar_autorizacao', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            id: {{ autorizacao.id }},
+            status: status,
+            observacao: observacao
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Autorização ${status} com sucesso!`);
+            window.location.href = '{{ url_for("amatiss.render_aut_cpx") }}';
+        } else {
+            alert('Erro ao processar autorização: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao processar autorização.');
+    });
+}
+</script>
+
+{% endblock %}

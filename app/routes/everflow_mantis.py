@@ -52,7 +52,7 @@ def save_base64_image(base64_str, filename=None, subdir=None):
     else:
         filename = f"img_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}{extension}"
 
-    base_static_dir = os.path.abspath(os.path.join(current_app.root_path, '..', 'static'))
+    base_static_dir = os.path.abspath(os.path.join(current_app.root_path, '..',  'static', 'documentos_autorizacao'))
     target_dir = base_static_dir
     if subdir:
         target_dir = os.path.join(base_static_dir, subdir)
@@ -391,8 +391,55 @@ def autorizar_tiss():
         traceback.print_exc()
         return jsonify({'error': f'Erro interno: {str(e)}'}), 500
     
+@mantis_bp.route('/get_autorizacoes', endpoint='get_autorizacoes', methods=['POST'])
+def get_autorizacoes():
+    from ..models.database import get_autorizacoes_by_card
+    
+    token = request.headers.get('Authorization')
+    data = request.get_json(silent=True) or {}
+    
+    print("[get_autorizacoes] token:", token)
+    print("[get_autorizacoes] payload bruto:", data)
+    
+    # Gerar chave de criptografia
+    key = generate_shared_key(token)
+    if not key:
+        return jsonify({'error': 'Invalid or expired session'}), 400
+    
+    try:
+        # Extrair e descriptografar o card
+        card_encrypted = data.get('card')
+        if not card_encrypted:
+            return jsonify({'error': 'Card do beneficiário não enviado'}), 400
+        
+        # Descriptografar o card
+        card_beneficiario = decrypt_data(key, card_encrypted)
+        print(f"[get_autorizacoes] Card descriptografado: {card_beneficiario}")
+        
+        # Buscar autorizações no banco de dados
+        autorizacoes = get_autorizacoes_by_card(card_beneficiario)
+        
+        if not autorizacoes:
+            # Retornar lista vazia criptografada
+            resultado_criptografado = encrypt_data(key, str([]))
+            return jsonify(resultado_criptografado), 200
+        
+        print(f"[get_autorizacoes] Encontradas {len(autorizacoes)} autorizações")
+        
+        # Criptografar resultado
+        resultado_criptografado = encrypt_data(key, str(autorizacoes))
+        
+        return jsonify(resultado_criptografado), 200
+        
+    except Exception as e:
+        print(f"[get_autorizacoes] Erro: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Erro ao buscar autorizações: {str(e)}'}), 500
+
 @mantis_bp.route('/registrar_cpx', endpoint= 'registrar_cpx', methods= ['POST'])
 def registrar_cpx():
+    from ..models.database import post_registrar_cpx
     token= request.headers.get('Authorization')
     data = request.get_json(silent=True) or {}
     print("[registrar_cpx] token:", token)
@@ -475,11 +522,16 @@ def registrar_cpx():
         data.get('imagem')
     )
     
-    filename = (
-        aut_data.get('nome_arquivo') or
-        data.get('nome_arquivo') or
-        data.get('filename')
-    )
+    # Construir nome do arquivo personalizado: {id_app[:10]}_{nome_exame}_{data_hora}
+    id_app = aut_data.get('id_app', '')
+    nome_exame = aut_data.get('nomeExame', 'exame')
+    data_hora = datetime.now().strftime('%Y%m%d_%H%M%S')
+    
+    # Limpar nome do exame (remover caracteres especiais)
+    nome_exame_limpo = re.sub(r'[^a-zA-Z0-9_-]', '_', nome_exame)
+    
+    # Nome do arquivo: primeiros 10 dígitos do id_app + nome exame + data/hora
+    filename = f"{id_app[:10]}_{nome_exame_limpo}_{data_hora}"
     
     subdir = (
         aut_data.get('pasta') or
@@ -502,6 +554,26 @@ def registrar_cpx():
         )
         
         print(f"[registrar_cpx] Imagem salva: {relative_path}")
+        
+        # Preparar dados para salvar no banco
+        dados_registro = {
+            'id_app': aut_data.get('id_app'),
+            'card': aut_data.get('card'),
+            'nome': aut_data.get('nome'),
+            'nomeExame': aut_data.get('nomeExame'),
+            'documento_path': relative_path,
+            'timestamp': aut_data.get('timestamp'),
+            'session_token': token
+        }
+        
+        # Registrar no banco de dados
+        ip_origem = request.remote_addr
+        resultado_db = post_registrar_cpx(dados_registro, ip_origem)
+        
+        if not resultado_db.get('success'):
+            print(f"[registrar_cpx] ⚠️ Aviso: Falha ao registrar no banco: {resultado_db.get('error')}")
+        else:
+            print(f"[registrar_cpx] ✅ Registrado no banco com ID: {resultado_db.get('id')}")
         
         return jsonify({'success': True}), 200
     except Exception as e:

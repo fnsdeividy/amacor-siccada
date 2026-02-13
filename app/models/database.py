@@ -2371,3 +2371,457 @@ def listar_clinicas(database_path=None):
     clinicas = cur.fetchall()
     conn.close()
     return [dict(row) for row in clinicas] if clinicas else []
+
+
+def get_autorizacoes_by_card(card_beneficiario, database_path=None):
+    """
+    Busca todas as autorizações de exames de um beneficiário pelo número da carteirinha.
+    
+    Args:
+        card_beneficiario: Número da carteirinha do beneficiário
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        list: Lista de dicionários com as autorizações ou lista vazia
+    """
+    print(f"[get_autorizacoes_by_card] Buscando autorizações para card: {card_beneficiario}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT 
+                id,
+                id_app,
+                card_beneficiario,
+                nome_beneficiario,
+                nome_exame,
+                timestamp_solicitacao,
+                data_hora_registro,
+                status,
+                motivo_rejeicao
+            FROM autorizacoes_exames
+            WHERE card_beneficiario = ?
+            ORDER BY data_hora_registro DESC
+        """, (card_beneficiario,))
+        
+        resultados = cur.fetchall()
+        conn.close()
+        
+        if not resultados:
+            print(f"[get_autorizacoes_by_card] Nenhuma autorização encontrada para card: {card_beneficiario}")
+            return []
+        
+        # Converter para lista de dicionários
+        autorizacoes = [dict(row) for row in resultados]
+        
+        print(f"[get_autorizacoes_by_card] ✅ Encontradas {len(autorizacoes)} autorizações")
+        
+        return autorizacoes
+        
+    except sqlite3.Error as e:
+        print(f"[get_autorizacoes_by_card] ❌ Erro ao buscar autorizações: {e}")
+        return []
+    except Exception as e:
+        print(f"[get_autorizacoes_by_card] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+def post_registrar_cpx(data, ip_origem, database_path=None):
+    """
+    Registra uma solicitação de autorização de exame no banco de dados.
+    
+    Args:
+        data: Dicionário contendo os dados da autorização
+        ip_origem: IP de origem da requisição
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        dict: {'success': True, 'id': id_inserido} ou {'success': False, 'error': mensagem}
+    """
+    print("[post_registrar_cpx] Iniciando registro de autorização de exame")
+    print(f"[post_registrar_cpx] Dados recebidos: id_app={data.get('id_app')}, card={data.get('card')}, nome={data.get('nome')}, exame={data.get('nomeExame')}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        # Extrair dados do dicionário
+        id_app = data.get('id_app')
+        card_beneficiario = data.get('card')
+        nome_beneficiario = data.get('nome')
+        nome_exame = data.get('nomeExame') or 'Não especificado'
+        documento_path = data.get('documento_path', '')
+        timestamp_solicitacao = data.get('timestamp')
+        session_token = data.get('session_token', '')
+        
+        # Validar campos obrigatórios
+        if not all([id_app, card_beneficiario, nome_beneficiario]):
+            return {
+                'success': False, 
+                'error': 'Campos obrigatórios faltando: id_app, card, nome'
+            }
+        
+        # Inserir no banco de dados
+        cur.execute("""
+            INSERT INTO autorizacoes_exames (
+                id_app,
+                card_beneficiario,
+                nome_beneficiario,
+                nome_exame,
+                documento_path,
+                timestamp_solicitacao,
+                ip_origem,
+                session_token,
+                status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pendente')
+        """, (
+            id_app,
+            card_beneficiario,
+            nome_beneficiario,
+            nome_exame,
+            documento_path,
+            timestamp_solicitacao,
+            ip_origem,
+            session_token
+        ))
+        
+        conn.commit()
+        id_inserido = cur.lastrowid
+        
+        print(f"[post_registrar_cpx] ✅ Autorização registrada com sucesso. ID: {id_inserido}")
+        
+        conn.close()
+        
+        return {
+            'success': True,
+            'id': id_inserido,
+            'message': 'Autorização de exame registrada com sucesso'
+        }
+        
+    except sqlite3.Error as e:
+        print(f"[post_registrar_cpx] ❌ Erro ao registrar autorização: {e}")
+        return {
+            'success': False,
+            'error': f'Erro ao registrar no banco de dados: {str(e)}'
+        }
+    except Exception as e:
+        print(f"[post_registrar_cpx] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': f'Erro inesperado: {str(e)}'
+        }
+
+
+def get_autorizacoes_pendentes_cpx(status_filtro=None, user_id=None, tipo_usuario=None, database_path=None):
+    """
+    Busca autorizações de alta complexidade, opcionalmente filtradas por status.
+    Retorna apenas autorizações sem auditor responsável OU que sejam do próprio usuário.
+    
+    Args:
+        status_filtro: Status específico para filtrar (opcional, se None retorna todas)
+        user_id: ID do usuário logado (opcional) - NÃO USADO, mantido por compatibilidade
+        tipo_usuario: Tipo do usuário logado (opcional, ex: 'agente', 'autorizacao', 'administrativo')
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        list: Lista de dicionários contendo as autorizações
+    """
+    from flask import session
+    
+    if status_filtro:
+        print(f"[get_autorizacoes_pendentes_cpx] Buscando autorizações com status: {status_filtro}")
+    else:
+        print("[get_autorizacoes_pendentes_cpx] Buscando todas as autorizações")
+    
+    user_nome = session.get('user_nome')  # Pegar o nome do usuário da sessão
+    
+    if user_nome:
+        print(f"[get_autorizacoes_pendentes_cpx] Filtrando para usuário: {user_nome}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        # Construir query base
+        base_query = """
+            SELECT 
+                id,
+                id_app,
+                card_beneficiario,
+                nome_beneficiario,
+                nome_exame,
+                documento_path,
+                timestamp_solicitacao,
+                ip_origem,
+                session_token,
+                status,
+                data_hora_registro,
+                motivo_rejeicao,
+                audit_resp
+            FROM autorizacoes_exames
+        """
+        
+        where_clauses = []
+        params = []
+        
+        # Filtro por status
+        if status_filtro:
+            where_clauses.append("status = ?")
+            params.append(status_filtro)
+        
+        # Filtro por auditor responsável - PARA TODOS OS USUÁRIOS
+        # Mostra apenas autorizações sem responsável OU que sejam do próprio usuário
+        if user_nome:
+            where_clauses.append("(audit_resp IS NULL OR audit_resp = ?)")
+            params.append(user_nome)
+        
+        # Montar query final
+        if where_clauses:
+            query = base_query + " WHERE " + " AND ".join(where_clauses)
+        else:
+            query = base_query
+        
+        query += " ORDER BY data_hora_registro DESC"
+        
+        cur.execute(query, params)
+        resultado = cur.fetchall()
+        conn.close()
+        
+        # Converter sqlite3.Row para dicionários
+        autorizacoes = []
+        for row in resultado:
+            autorizacoes.append({
+                'id': row['id'],
+                'id_app': row['id_app'],
+                'card_beneficiario': row['card_beneficiario'],
+                'nome_beneficiario': row['nome_beneficiario'],
+                'nome_exame': row['nome_exame'],
+                'documento_path': row['documento_path'],
+                'timestamp_solicitacao': row['timestamp_solicitacao'],
+                'ip_origem': row['ip_origem'],
+                'session_token': row['session_token'],
+                'status': row['status'],
+                'created_at': row['data_hora_registro'],
+                'motivo_rejeicao': row['motivo_rejeicao'],
+                'audit_resp': row['audit_resp']
+            })
+        
+        print(f"[get_autorizacoes_pendentes_cpx] Total de autorizações: {len(autorizacoes)}")
+        return autorizacoes
+        
+    except sqlite3.Error as e:
+        print(f"[get_autorizacoes_pendentes_cpx] ❌ Erro ao buscar autorizações: {e}")
+        return []
+    except Exception as e:
+        print(f"[get_autorizacoes_pendentes_cpx] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
+
+
+def get_autorizacao_cpx_by_id(autorizacao_id, database_path=None):
+    """
+    Busca uma autorização específica por ID.
+    
+    Args:
+        autorizacao_id: ID da autorização
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        dict: Dicionário com os dados da autorização ou None
+    """
+    print(f"[get_autorizacao_cpx_by_id] Buscando autorização ID: {autorizacao_id}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT 
+                id,
+                id_app,
+                card_beneficiario,
+                nome_beneficiario,
+                nome_exame,
+                documento_path,
+                timestamp_solicitacao,
+                ip_origem,
+                session_token,
+                status,
+                data_hora_registro,
+                motivo_rejeicao,
+                audit_resp
+            FROM autorizacoes_exames
+            WHERE id = ?
+        """, (autorizacao_id,))
+        
+        row = cur.fetchone()
+        conn.close()
+        
+        if row:
+            return {
+                'id': row['id'],
+                'id_app': row['id_app'],
+                'card_beneficiario': row['card_beneficiario'],
+                'nome_beneficiario': row['nome_beneficiario'],
+                'nome_exame': row['nome_exame'],
+                'documento_path': row['documento_path'],
+                'timestamp_solicitacao': row['timestamp_solicitacao'],
+                'ip_origem': row['ip_origem'],
+                'session_token': row['session_token'],
+                'status': row['status'],
+                'created_at': row['data_hora_registro'],
+                'motivo_rejeicao': row['motivo_rejeicao'],
+                'audit_resp': row['audit_resp'],
+                'audit_resp_nome': row['audit_resp'] or 'Não atribuído'
+            }
+        
+        return None
+        
+    except sqlite3.Error as e:
+        print(f"[get_autorizacao_cpx_by_id] ❌ Erro ao buscar autorização: {e}")
+        return None
+    except Exception as e:
+        print(f"[get_autorizacao_cpx_by_id] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+def atualizar_status_autorizacao_cpx(autorizacao_id, novo_status, observacao=None, usuario_id=None, database_path=None):
+    """
+    Atualiza o status de uma autorização de alta complexidade.
+    
+    Args:
+        autorizacao_id: ID da autorização
+        novo_status: Novo status ('aprovado', 'rejeitado', 'pendente', 'em analise', 'cancelado')
+        observacao: Observação sobre a decisão (opcional) - armazenado em motivo_rejeicao
+        usuario_id: ID do usuário que processou (opcional) - não armazenado por falta de coluna
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        dict: {'success': True/False, 'message': mensagem}
+    """
+    print(f"[atualizar_status_autorizacao_cpx] ID: {autorizacao_id}, Status: {novo_status}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        # Verificar se a autorização existe
+        cur.execute("SELECT id FROM autorizacoes_exames WHERE id = ?", (autorizacao_id,))
+        if not cur.fetchone():
+            conn.close()
+            return {
+                'success': False,
+                'message': 'Autorização não encontrada'
+            }
+        
+        # Atualizar o status e motivo_rejeicao (se fornecido)
+        cur.execute("""
+            UPDATE autorizacoes_exames
+            SET status = ?,
+                motivo_rejeicao = ?
+            WHERE id = ?
+        """, (novo_status, observacao, autorizacao_id))
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"[atualizar_status_autorizacao_cpx] ✅ Status atualizado com sucesso")
+        
+        return {
+            'success': True,
+            'message': f'Autorização {novo_status} com sucesso'
+        }
+        
+    except sqlite3.Error as e:
+        print(f"[atualizar_status_autorizacao_cpx] ❌ Erro ao atualizar: {e}")
+        return {
+            'success': False,
+            'message': f'Erro ao atualizar status: {str(e)}'
+        }
+    except Exception as e:
+        print(f"[atualizar_status_autorizacao_cpx] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'message': f'Erro inesperado: {str(e)}'
+        }
+
+
+def atribuir_auditor_responsavel(autorizacao_id, usuario_nome, database_path=None):
+    """
+    Atribui um auditor responsável a uma autorização de alta complexidade.
+    
+    Args:
+        autorizacao_id: ID da autorização
+        usuario_nome: Nome do usuário que será responsável
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        dict: {'success': True/False, 'message': mensagem}
+    """
+    print(f"[atribuir_auditor_responsavel] ID Autorização: {autorizacao_id}, Usuário: {usuario_nome}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        # Verificar se a autorização existe
+        cur.execute("SELECT id, audit_resp FROM autorizacoes_exames WHERE id = ?", (autorizacao_id,))
+        result = cur.fetchone()
+        
+        if not result:
+            conn.close()
+            return {
+                'success': False,
+                'message': 'Autorização não encontrada'
+            }
+        
+        # Verificar se já tem responsável
+        if result['audit_resp'] and result['audit_resp'] != usuario_nome:
+            conn.close()
+            return {
+                'success': False,
+                'message': 'Esta autorização já possui um auditor responsável'
+            }
+        
+        # Atribuir responsável e mudar status para 'em analise'
+        cur.execute("""
+            UPDATE autorizacoes_exames
+            SET audit_resp = ?,
+                status = 'em analise'
+            WHERE id = ?
+        """, (usuario_nome, autorizacao_id))
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"[atribuir_auditor_responsavel] ✅ Auditor atribuído e status alterado para 'em analise'")
+        
+        return {
+            'success': True,
+            'message': 'Você agora é responsável por esta autorização e ela está em análise'
+        }
+        
+    except sqlite3.Error as e:
+        print(f"[atribuir_auditor_responsavel] ❌ Erro ao atribuir auditor: {e}")
+        return {
+            'success': False,
+            'message': f'Erro ao atribuir responsável: {str(e)}'
+        }
+    except Exception as e:
+        print(f"[atribuir_auditor_responsavel] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'message': f'Erro inesperado: {str(e)}'
+        }
