@@ -619,6 +619,103 @@ def post_suspender_cnt_to_app(contrato, motivo, database_path=None):
         conn.close()
 
 
+def buscar_beneficiarios(termo, database_path=None):
+    termo = (termo or '').strip()
+    if not termo:
+        return []
+
+    like = f"%{termo}%"
+    query = """
+        SELECT * FROM beneficiarios
+        WHERE sNumeroCNT LIKE ?
+           OR sCodigoUSR LIKE ?
+           OR sCpfUSR LIKE ?
+           OR sCpfCgcResp LIKE ?
+           OR sNomeUSR LIKE ?
+           OR sNomeResp LIKE ?
+        ORDER BY sNomeUSR
+        LIMIT 200
+    """
+    resultado = query_db(query, (like, like, like, like, like, like), database_path=database_path)
+    return [dict(row) for row in resultado] if resultado else []
+
+
+def get_beneficiario(identificador, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT * FROM beneficiarios
+        WHERE sCodigoUSR = ?
+           OR sCpfUSR = ?
+           OR sNumeroCNT = ?
+        LIMIT 1
+    """, (identificador, identificador, identificador))
+
+    resultado = cur.fetchone()
+    conn.close()
+    return dict(resultado) if resultado else None
+
+
+def update_beneficiario(codigo_usr, dados, database_path=None):
+    campos_permitidos = {
+        'sNomeUSR',
+        'sCpfUSR',
+        'sNomeResp',
+        'sCpfCgcResp',
+        'Fone_CNT',
+        'sTipoUsuario',
+        'dNascimento',
+        'sNumeroCNT'
+    }
+
+    sets = []
+    valores = []
+    for campo, valor in (dados or {}).items():
+        if campo in campos_permitidos and valor is not None:
+            sets.append(f"{campo} = ?")
+            valores.append(valor)
+
+    if not sets:
+        return False
+
+    query = f"UPDATE beneficiarios SET {', '.join(sets)} WHERE sCodigoUSR = ?"
+    valores.append(codigo_usr)
+    update_db(query, valores, database_path=database_path)
+    return True
+
+
+def suspender_beneficiario(codigo_usr, motivo, database_path=None):
+    update_db(
+        "UPDATE beneficiarios SET motivo_suspensao = ?, suspenso = 1 WHERE sCodigoUSR = ?",
+        (motivo, codigo_usr),
+        database_path=database_path
+    )
+
+
+def reativar_beneficiario(codigo_usr, database_path=None):
+    update_db(
+        "UPDATE beneficiarios SET motivo_suspensao = NULL, suspenso = 0 WHERE sCodigoUSR = ?",
+        (codigo_usr,),
+        database_path=database_path
+    )
+
+
+def cancelar_beneficiario(codigo_usr, motivo, descricao, data_exclusao, database_path=None):
+    update_db(
+        """
+        UPDATE beneficiarios
+        SET dExclusaoUSR = ?,
+            sMotivoCancelamentoTIT = ?,
+            sDescricaoCancTit = ?,
+            suspenso = 0
+        WHERE sCodigoUSR = ?
+        """,
+        (data_exclusao, motivo, descricao, codigo_usr),
+        database_path=database_path
+    )
+
+
 def get_data_relatorio(data_inicial, data_final, database_path=None):
     print(f"dados recebidos: data inicial:{data_inicial} data final: {data_final}")
 

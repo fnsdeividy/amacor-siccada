@@ -1,0 +1,65 @@
+{% extends 'base1.html' %}
+
+{% block title %}Manutenção de Beneficiários{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tabpix.css') }}">
+
+<div class="container-tab-pix">
+    <div class="filter-tab-pix2">
+        <a class="close-btn" href="{{ url_for('auth.fechar') }}">✖</a>
+    </div>
+
+    <h1 class="table-title-tab-pix">Manutenção de Beneficiários</h1>
+
+    <form method="post" action="{{ url_for('cad.render_menu_manutencao_beneficiarios') }}" class="filter-tab-pix" style="gap: 12px; align-items: center;">
+        <input type="text" name="buscar" value="{{ buscar or '' }}" placeholder="Buscar por nome, CPF, contrato ou carteirinha" style="min-width: 320px;">
+        <button class="btn" type="submit">Buscar</button>
+    </form>
+
+    {% if resultados is not none %}
+        {% if resultados %}
+        <div class="table-container-tab-pix">
+            <table class="table-tab-pix">
+                <thead>
+                    <tr>
+                        <th>Carteirinha</th>
+                        <th>Contrato</th>
+                        <th>Beneficiário</th>
+                        <th>CPF</th>
+                        <th>Responsável</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row in resultados %}
+                    <tr>
+                        <td>{{ row['sCodigoUSR'] }}</td>
+                        <td>{{ row['sNumeroCNT'] }}</td>
+                        <td>{{ row['sNomeUSR'] }}</td>
+                        <td>{{ row['sCpfUSR'] }}</td>
+                        <td>{{ row['sNomeResp'] }}</td>
+                        <td>
+                            {% if row['dExclusaoUSR'] %}
+                                Cancelado
+                            {% elif row['suspenso'] == 1 %}
+                                Suspenso
+                            {% else %}
+                                Ativo
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn" href="{{ url_for('cad.detalhes_beneficiario', codigo_usr=row['sCodigoUSR']) }}">Detalhes</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p style="text-align:center; margin-top: 20px;">Nenhum beneficiário encontrado.</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

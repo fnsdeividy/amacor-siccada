@@ -856,3 +856,130 @@ def alterar_credenciada():
         except Exception as e:
             flash(f'Erro ao processar solicitação: {e}', 'error')
             return redirect(url_for('cad.alterar_credenciada', clinica_id=clinica_id)) 
+
+@cad_bp.route('/manutencao_beneficiarios', methods=['GET', 'POST'])
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente')
+def render_menu_manutencao_beneficiarios():
+    from ..models.database import buscar_beneficiarios
+
+    buscar = (request.form.get('buscar') or request.args.get('buscar') or '').strip()
+    resultados = None
+
+    if buscar:
+        resultados = buscar_beneficiarios(buscar)
+        if not resultados:
+            flash('Nenhum beneficiário encontrado.', 'warning')
+
+    return render_template(
+        'cadastro/manutencao_beneficiarios.html',
+        resultados=resultados,
+        buscar=buscar
+    )
+
+
+@cad_bp.route('/beneficiario', methods=['GET'])
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente')
+def detalhes_beneficiario():
+    from ..models.database import get_beneficiario
+
+    codigo_usr = request.args.get('codigo_usr')
+    cpf = request.args.get('cpf')
+    contrato = request.args.get('contrato')
+
+    identificador = codigo_usr or cpf or contrato
+    if not identificador:
+        flash('Informe um beneficiário para visualizar.', 'error')
+        return redirect(url_for('cad.render_menu_manutencao_beneficiarios'))
+
+    beneficiario = get_beneficiario(identificador)
+    if not beneficiario:
+        flash('Beneficiário não encontrado.', 'error')
+        return redirect(url_for('cad.render_menu_manutencao_beneficiarios'))
+
+    return render_template('cadastro/beneficiario_detalhes.html', beneficiario=beneficiario)
+
+
+@cad_bp.route('/beneficiario/atualizar', methods=['POST'])
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente')
+def atualizar_beneficiario():
+    from ..models.database import update_beneficiario
+
+    codigo_usr = request.form.get('codigo_usr')
+    if not codigo_usr:
+        flash('Carteirinha não informada.', 'error')
+        return redirect(url_for('cad.render_menu_manutencao_beneficiarios'))
+
+    dados = {
+        'sNomeUSR': request.form.get('sNomeUSR'),
+        'sCpfUSR': request.form.get('sCpfUSR'),
+        'sNomeResp': request.form.get('sNomeResp'),
+        'sCpfCgcResp': request.form.get('sCpfCgcResp'),
+        'Fone_CNT': request.form.get('Fone_CNT'),
+        'sTipoUsuario': request.form.get('sTipoUsuario'),
+        'dNascimento': request.form.get('dNascimento'),
+        'sNumeroCNT': request.form.get('sNumeroCNT')
+    }
+
+    atualizado = update_beneficiario(codigo_usr, dados)
+    if atualizado:
+        flash('Dados do beneficiário atualizados com sucesso.', 'success')
+    else:
+        flash('Nenhuma alteração realizada.', 'warning')
+
+    return redirect(url_for('cad.detalhes_beneficiario', codigo_usr=codigo_usr))
+
+
+@cad_bp.route('/beneficiario/suspender', methods=['POST'])
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente')
+def suspender_beneficiario():
+    from ..models.database import suspender_beneficiario
+
+    codigo_usr = request.form.get('codigo_usr')
+    motivo = request.form.get('motivo_suspensao')
+    if not codigo_usr:
+        flash('Carteirinha não informada.', 'error')
+        return redirect(url_for('cad.render_menu_manutencao_beneficiarios'))
+
+    suspender_beneficiario(codigo_usr, motivo)
+    flash('Beneficiário suspenso com sucesso.', 'success')
+    return redirect(url_for('cad.detalhes_beneficiario', codigo_usr=codigo_usr))
+
+
+@cad_bp.route('/beneficiario/reativar', methods=['POST'])
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente')
+def reativar_beneficiario():
+    from ..models.database import reativar_beneficiario
+
+    codigo_usr = request.form.get('codigo_usr')
+    if not codigo_usr:
+        flash('Carteirinha não informada.', 'error')
+        return redirect(url_for('cad.render_menu_manutencao_beneficiarios'))
+
+    reativar_beneficiario(codigo_usr)
+    flash('Beneficiário reativado com sucesso.', 'success')
+    return redirect(url_for('cad.detalhes_beneficiario', codigo_usr=codigo_usr))
+
+
+@cad_bp.route('/beneficiario/cancelar', methods=['POST'])
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente')
+def cancelar_beneficiario():
+    from ..models.database import cancelar_beneficiario
+
+    codigo_usr = request.form.get('codigo_usr')
+    motivo = request.form.get('motivo_cancelamento')
+    descricao = request.form.get('descricao_cancelamento')
+    data_exclusao = request.form.get('data_exclusao') or datetime.now().strftime('%Y-%m-%d')
+
+    if not codigo_usr:
+        flash('Carteirinha não informada.', 'error')
+        return redirect(url_for('cad.render_menu_manutencao_beneficiarios'))
+
+    cancelar_beneficiario(codigo_usr, motivo, descricao, data_exclusao)
+    flash('Beneficiário cancelado com sucesso.', 'success')
+    return redirect(url_for('cad.detalhes_beneficiario', codigo_usr=codigo_usr))
