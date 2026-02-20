@@ -1,0 +1,110 @@
+{% extends 'base1.html' %}
+
+{% block title %}Detalhes do Beneficiário{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tabpix.css') }}">
+
+<div class="container-tab-pix">
+    <div class="filter-tab-pix2">
+        <a class="close-btn" href="{{ url_for('cad.render_menu_manutencao_beneficiarios') }}">✖</a>
+    </div>
+
+    <h1 class="table-title-tab-pix">Detalhes do Beneficiário</h1>
+
+    <div style="margin: 16px 0;">
+        <strong>Status:</strong>
+        {% if beneficiario['dExclusaoUSR'] %}
+            <span style="color:#e74c3c;">Cancelado</span>
+        {% elif beneficiario['suspenso'] == 1 %}
+            <span style="color:#f39c12;">Suspenso</span>
+        {% else %}
+            <span style="color:#2ecc71;">Ativo</span>
+        {% endif %}
+    </div>
+
+    <form method="post" action="{{ url_for('cad.atualizar_beneficiario') }}" class="divisoria2">
+        <input type="hidden" name="codigo_usr" value="{{ beneficiario['sCodigoUSR'] }}">
+
+        <div class="form-row">
+            <label>Carteirinha</label>
+            <input type="text" value="{{ beneficiario['sCodigoUSR'] }}" disabled>
+        </div>
+        <div class="form-row">
+            <label>Contrato</label>
+            <input type="text" name="sNumeroCNT" value="{{ beneficiario['sNumeroCNT'] }}">
+        </div>
+        <div class="form-row">
+            <label>Nome do Beneficiário</label>
+            <input type="text" name="sNomeUSR" value="{{ beneficiario['sNomeUSR'] }}">
+        </div>
+        <div class="form-row">
+            <label>CPF do Beneficiário</label>
+            <input type="text" name="sCpfUSR" value="{{ beneficiario['sCpfUSR'] }}">
+        </div>
+        <div class="form-row">
+            <label>Responsável</label>
+            <input type="text" name="sNomeResp" value="{{ beneficiario['sNomeResp'] }}">
+        </div>
+        <div class="form-row">
+            <label>CPF/CNPJ Responsável</label>
+            <input type="text" name="sCpfCgcResp" value="{{ beneficiario['sCpfCgcResp'] }}">
+        </div>
+        <div class="form-row">
+            <label>Telefone</label>
+            <input type="text" name="Fone_CNT" value="{{ beneficiario['Fone_CNT'] }}">
+        </div>
+        <div class="form-row">
+            <label>Tipo de Usuário</label>
+            <input type="text" name="sTipoUsuario" value="{{ beneficiario['sTipoUsuario'] }}">
+        </div>
+        <div class="form-row">
+            <label>Data de Nascimento</label>
+            <input type="text" name="dNascimento" value="{{ beneficiario['dNascimento'] }}">
+        </div>
+
+        <button class="btn" type="submit">Salvar alterações</button>
+    </form>
+
+    <hr style="margin: 24px 0;">
+
+    <div class="divisoria2">
+        <h2 style="margin-bottom: 12px;">Suspender / Reativar</h2>
+        {% if beneficiario['suspenso'] == 1 %}
+            <form method="post" action="{{ url_for('cad.reativar_beneficiario') }}">
+                <input type="hidden" name="codigo_usr" value="{{ beneficiario['sCodigoUSR'] }}">
+                <button class="btn" type="submit">Reativar beneficiário</button>
+            </form>
+        {% else %}
+            <form method="post" action="{{ url_for('cad.suspender_beneficiario') }}">
+                <input type="hidden" name="codigo_usr" value="{{ beneficiario['sCodigoUSR'] }}">
+                <label>Motivo da suspensão</label>
+                <textarea name="motivo_suspensao" rows="3" placeholder="Descreva o motivo"></textarea>
+                <button class="btn" type="submit">Suspender beneficiário</button>
+            </form>
+        {% endif %}
+    </div>
+
+    <hr style="margin: 24px 0;">
+
+    <div class="divisoria2">
+        <h2 style="margin-bottom: 12px;">Cancelar beneficiário</h2>
+        <form method="post" action="{{ url_for('cad.cancelar_beneficiario') }}">
+            <input type="hidden" name="codigo_usr" value="{{ beneficiario['sCodigoUSR'] }}">
+            <div class="form-row">
+                <label>Data de exclusão</label>
+                <input type="date" name="data_exclusao" value="{{ beneficiario['dExclusaoUSR'] }}">
+            </div>
+            <div class="form-row">
+                <label>Motivo (código)</label>
+                <input type="text" name="motivo_cancelamento" value="{{ beneficiario['sMotivoCancelamentoTIT'] }}" placeholder="Ex: 4.0">
+            </div>
+            <div class="form-row">
+                <label>Descrição do cancelamento</label>
+                <textarea name="descricao_cancelamento" rows="3">{{ beneficiario['sDescricaoCancTit'] }}</textarea>
+            </div>
+            <button class="btn" type="submit">Cancelar beneficiário</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
