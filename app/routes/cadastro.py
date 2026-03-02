@@ -983,3 +983,52 @@ def cancelar_beneficiario():
     cancelar_beneficiario(codigo_usr, motivo, descricao, data_exclusao)
     flash('Beneficiário cancelado com sucesso.', 'success')
     return redirect(url_for('cad.detalhes_beneficiario', codigo_usr=codigo_usr))
+
+@cad_bp.route('d3-beneficiarios', methods= ['GET','POST'])
+@acesso ('cadastro', 'cobranca')
+def d3_beneficiarios():
+    
+
+    if request.method == 'POST':
+        data_inicio_str = request.form.get('data_inicio')
+        data_final_str = request.form.get('data_final')
+        valor_pago_str = request.form.get('valor_pago')
+        valor_gasto_str = request.form.get('valor_gasto')
+
+        try:
+            data_inicio = datetime.strptime(data_inicio_str, "%Y-%m-%d").date()
+            data_final = datetime.strptime(data_final_str, "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            flash('Datas inválidas. Use o formato correto.', 'error')
+            return redirect(url_for('cad.d3_beneficiarios'))
+
+        try:
+            valor_pago = float(valor_pago_str.replace(',', '.'))
+            valor_gasto = float(valor_gasto_str.replace(',', '.'))
+        except (AttributeError, ValueError):
+            flash('Valores inválidos. Informe números válidos.', 'error')
+            return redirect(url_for('cad.d3_beneficiarios'))
+
+        if data_final < data_inicio:
+            data_inicio, data_final = data_final, data_inicio
+
+        tempo_meses = (data_final.year - data_inicio.year) * 12 + (data_final.month - data_inicio.month)
+        if data_final.day < data_inicio.day:
+            tempo_meses -= 1
+        tempo_meses = max(tempo_meses, 1)
+
+        sinistralidade = valor_gasto / valor_pago if valor_pago else 0
+        ticket_medio = valor_pago / tempo_meses if tempo_meses else 0
+
+        print("dados recebidos: ", data_inicio, data_final)
+
+        return render_template('cadastro/resultado_d3.html',
+                               sinistralidade=sinistralidade,
+                               ticket_medio=ticket_medio,
+                               valor_gasto=valor_gasto,
+                               valor_pago=valor_pago,
+                               tempo=tempo_meses,
+                               data_inicio=data_inicio,
+                               data_final=data_final)
+
+    return render_template('cadastro/render_d3.html')
