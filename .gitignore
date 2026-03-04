@@ -9,7 +9,7 @@ app/routes/uploads/*
 __pycache__/
 *.sqlite3
 *.db
-
+MHV_DB.*
 # ----------------------------------------
 # Ambientes virtuais
 # ----------------------------------------
@@ -46,6 +46,7 @@ static/kit_format/resultado_docx/
 static/kit_format/resultado_pdf/
 static/kit_format/upload_kit/
 app/paths.py
+static/comprovantes/
 # ----------------------------------------
 # Arquivos sensíveis e de configuração
 # ----------------------------------------
