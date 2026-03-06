@@ -2587,6 +2587,107 @@ def listar_clinicas(database_path=None):
     return [dict(row) for row in clinicas] if clinicas else []
 
 
+def get_proximo_bloco_id(database_path=None):
+    """Retorna o próximo bloco_id numérico disponível."""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT MAX(CAST(bloco_id AS INTEGER))
+        FROM clinicas
+        WHERE bloco_id GLOB '[0-9]*'
+    """)
+
+    row = cur.fetchone()
+    conn.close()
+
+    try:
+        max_id = int(row[0]) if row and row[0] is not None else 0
+    except (ValueError, TypeError):
+        max_id = 0
+
+    return str(max_id + 1)
+
+
+def adicionar_clinica(dados, especialidades_ids=None, especialidades_novas=None, database_path=None):
+    """Adiciona uma clínica e associa especialidades."""
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    try:
+        cur.execute("PRAGMA table_info(clinicas)")
+        colunas_existentes = {row[1] for row in cur.fetchall()}
+
+        campos = {
+            'nome': dados.get('nome'),
+            'endereco': dados.get('endereco'),
+            'telefone': dados.get('telefone'),
+            'horario_funcionamento': dados.get('horario_funcionamento'),
+            'bloco_id': dados.get('bloco_id'),
+            'latitude': dados.get('latitude'),
+            'logitude': dados.get('logitude'),
+            'status': dados.get('status'),
+        }
+
+        colunas = [col for col in campos.keys() if col in colunas_existentes]
+        valores = [campos[col] for col in colunas]
+
+        if not colunas:
+            raise RuntimeError("Tabela clinicas sem colunas esperadas.")
+
+        placeholders = ", ".join(["?"] * len(colunas))
+        colunas_sql = ", ".join(colunas)
+
+        cur.execute(
+            f"INSERT INTO clinicas ({colunas_sql}) VALUES ({placeholders})",
+            valores
+        )
+        clinica_id = cur.lastrowid
+
+        if not clinica_id:
+            raise RuntimeError("Falha ao inserir clínica.")
+
+        especialidades_ids = especialidades_ids or []
+        especialidades_novas = especialidades_novas or []
+
+        for especialidade_id in especialidades_ids:
+            cur.execute(
+                """
+                INSERT OR IGNORE INTO clinica_especialidade (clinica_id, especialidade_id)
+                VALUES (?, ?)
+                """,
+                (clinica_id, especialidade_id)
+            )
+
+        for nome in especialidades_novas:
+            nome_limpo = (nome or '').strip()
+            if not nome_limpo:
+                continue
+            cur.execute(
+                "INSERT OR IGNORE INTO especialidades (nome) VALUES (?)",
+                (nome_limpo,)
+            )
+            cur.execute("SELECT id FROM especialidades WHERE nome = ?", (nome_limpo,))
+            row = cur.fetchone()
+            if row:
+                cur.execute(
+                    """
+                    INSERT OR IGNORE INTO clinica_especialidade (clinica_id, especialidade_id)
+                    VALUES (?, ?)
+                    """,
+                    (clinica_id, row[0])
+                )
+
+        conn.commit()
+        conn.close()
+        return clinica_id
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        print(f"Erro ao adicionar clínica: {e}")
+        raise
+
+
 def get_autorizacoes_by_card(card_beneficiario, database_path=None):
     """
     Busca todas as autorizações de exames de um beneficiário pelo número da carteirinha.
