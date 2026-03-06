@@ -104,23 +104,29 @@
                     <input type="hidden" name="acao" value="adicionar_especialidade">
 
                     <div class="form-group">
-                        <label for="especialidade_id">Selecione uma especialidade:</label>
-                        <select id="especialidade_id" name="especialidade_id" required>
-                            <option value="">-- Selecione --</option>
-                            {% for esp in especialidades_disponiveis %}
-                                {# Verifica se a especialidade já está associada #}
-                                {% set ja_tem = false %}
-                                {% for esp_clinica in especialidades_clinica %}
-                                    {% if esp.id == esp_clinica.id %}
-                                        {% set ja_tem = true %}
+                        <label>Selecione especialidades:</label>
+                        {% if especialidades_disponiveis %}
+                            <div class="especialidades-grid">
+                                {% for esp in especialidades_disponiveis %}
+                                    {# Verifica se a especialidade já está associada #}
+                                    {% set ja_tem = false %}
+                                    {% for esp_clinica in especialidades_clinica %}
+                                        {% if esp.id == esp_clinica.id %}
+                                            {% set ja_tem = true %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if not ja_tem %}
+                                        <label class="especialidade-checkbox">
+                                            <input type="checkbox" name="especialidades" value="{{ esp.id }}">
+                                            <span>{{ esp.nome }}</span>
+                                        </label>
                                     {% endif %}
                                 {% endfor %}
-                                
-                                {% if not ja_tem %}
-                                    <option value="{{ esp.id }}">{{ esp.nome }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Nenhuma especialidade cadastrada.</p>
+                        {% endif %}
                     </div>
 
                     <div class="form-actions">
@@ -275,19 +281,46 @@
         gap: 10px;
     }
 
+    .especialidades-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 10px;
+    }
+
+    .especialidade-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        background: #1e293b98;
+        backdrop-filter: blur(5px);
+        border-radius: 6px;
+        border-left: 4px solid #38bdf8;
+        font-weight: 500;
+        color: #e2e8f0;
+    }
+
+    .especialidade-checkbox input {
+        width: auto;
+        margin: 0;
+    }
+
     .especialidade-item {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 12px;
-        background: #f0f0f0;
-        border-radius: 5px;
-        border-left: 4px solid #0a2f68;
+        gap: 10px;
+        padding: 10px 12px;
+        background: #1e293b98;
+        backdrop-filter: blur(5px);
+        border-radius: 6px;
+        border-left: 4px solid #38bdf8;
+        font-weight: 500;
+        color: #e2e8f0;
     }
 
     .especialidade-item span {
         font-weight: 500;
-        color: #333;
+        color: #e2e8f0;
     }
 
     .btn-remove {

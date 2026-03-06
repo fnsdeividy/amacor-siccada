@@ -840,11 +840,18 @@ def alterar_credenciada():
                 flash('Informações da clínica atualizadas com sucesso!', 'success')
             
             elif acao == 'adicionar_especialidade':
-                especialidade_id = request.form.get('especialidade_id')
-                if adicionar_especialidade_clinica(clinica_id, especialidade_id):
-                    flash('Especialidade adicionada com sucesso!', 'success')
+                especialidades_ids = request.form.getlist('especialidades')
+                if not especialidades_ids:
+                    flash('Selecione pelo menos uma especialidade.', 'warning')
                 else:
-                    flash('Esta especialidade já está associada à clínica.', 'warning')
+                    adicionadas = 0
+                    for especialidade_id in especialidades_ids:
+                        if adicionar_especialidade_clinica(clinica_id, especialidade_id):
+                            adicionadas += 1
+                    if adicionadas:
+                        flash('Especialidades adicionadas com sucesso!', 'success')
+                    else:
+                        flash('As especialidades selecionadas já estavam associadas.', 'warning')
             
             elif acao == 'remover_especialidade':
                 especialidade_id = request.form.get('especialidade_id')
@@ -856,6 +863,75 @@ def alterar_credenciada():
         except Exception as e:
             flash(f'Erro ao processar solicitação: {e}', 'error')
             return redirect(url_for('cad.alterar_credenciada', clinica_id=clinica_id)) 
+
+
+@cad_bp.route('/adicionar_credenciada', methods=['GET', 'POST'])
+@acesso('cadastro', 'administrativo')
+@hierarquia('supervisor', 'agente')
+def adicionar_credenciada():
+    from ..models.database import get_todas_especialidades, adicionar_clinica, get_proximo_bloco_id
+
+    if request.method == 'GET':
+        especialidades_disponiveis = get_todas_especialidades()
+        proximo_bloco_id = get_proximo_bloco_id()
+        return render_template(
+            'cadastro/adicionar_credenciada.html',
+            especialidades_disponiveis=especialidades_disponiveis,
+            proximo_bloco_id=proximo_bloco_id
+        )
+
+    def limpar(valor):
+        valor = (valor or '').strip()
+        return valor if valor else None
+
+    dados = {
+        'nome': (request.form.get('nome') or '').strip(),
+        'endereco': limpar(request.form.get('endereco')),
+        'telefone': limpar(request.form.get('telefone')),
+        'horario_funcionamento': limpar(request.form.get('horario_funcionamento')),
+        'bloco_id': limpar(request.form.get('bloco_id')),
+        'latitude': limpar(request.form.get('latitude')),
+        'logitude': limpar(request.form.get('logitude')),
+        'status': (request.form.get('status') or 'credenciada').strip(),
+    }
+
+    if not dados['nome']:
+        flash('Nome da clínica é obrigatório.', 'error')
+        return redirect(url_for('cad.adicionar_credenciada'))
+
+    especialidades_ids = request.form.getlist('especialidades')
+    novas_especialidades_raw = request.form.get('novas_especialidades', '')
+    novas_especialidades = [
+        item.strip()
+        for item in novas_especialidades_raw.split(',')
+        if item.strip()
+    ]
+
+    proximo_bloco_id = get_proximo_bloco_id()
+    try:
+        max_bloco_id = int(proximo_bloco_id) - 1
+    except (ValueError, TypeError):
+        max_bloco_id = 0
+
+    bloco_id_informado = dados.get('bloco_id')
+    if not bloco_id_informado or not bloco_id_informado.isdigit():
+        dados['bloco_id'] = proximo_bloco_id
+    else:
+        if int(bloco_id_informado) <= max_bloco_id:
+            dados['bloco_id'] = proximo_bloco_id
+            flash(f'Bloco ID ajustado para {proximo_bloco_id}.', 'warning')
+
+    try:
+        clinica_id = adicionar_clinica(
+            dados,
+            especialidades_ids=especialidades_ids,
+            especialidades_novas=novas_especialidades
+        )
+        flash('Clínica cadastrada com sucesso!', 'success')
+        return redirect(url_for('cad.alterar_credenciada', clinica_id=clinica_id))
+    except Exception as e:
+        flash(f'Erro ao cadastrar clínica: {e}', 'error')
+        return redirect(url_for('cad.adicionar_credenciada'))
 
 @cad_bp.route('/manutencao_beneficiarios', methods=['GET', 'POST'])
 @acesso('vendas', 'cadastro', 'administrativo', 'financeiro')

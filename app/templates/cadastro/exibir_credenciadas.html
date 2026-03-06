@@ -11,7 +11,9 @@
 </div>
 <div class="search-bar-wrapper" style="display: flex; justify-content: space-between; align-items: center; margin: 30px 0;">
     <!-- Filtro à esquerda -->
-    
+    <div>
+        <a href="{{ url_for('cad.adicionar_credenciada') }}" class="btn">+ Nova credenciada</a>
+    </div>
 
     <!-- Busca à direita -->
     <form method="get" action="{{ url_for('cad.exibir_credenciadas') }}" style="display: flex; gap: 8px; background: #23272f00; padding: 12px 24px; border-radius: 8px;">
