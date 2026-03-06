@@ -15,7 +15,7 @@
         <select id="filtrar" name="filtrar" required onchange="document.getElementById('autoSubmitForm').submit();" style="height: 40px; padding: 0 12px; border-radius: 6px;">
             <option value="" disabled selected>Filtrar fase:</option>
             
-            {% if classe_usuario == 'supervisor'  %}
+            {% if classe_usuario == 'supervisor' or area == 'dev'  %}
                 <option value="Aguardando entrevista">Aguardando entrevista</option>
                 <option value="Enviado ao cadastro">enviado ao cadastro</option>
                 <option value="entrevista online enviada">entrevista online enviada</option>
@@ -28,7 +28,7 @@
                 <option value="venda cancelada"> venda cancelada</option>
                 <option value="em pendencia"> em pendencia</option>
                 <option value="kit enviado"> kit enviado</option>
-                
+            
                 
             {% elif area == 'financeiro' %}
                 <option value="boleto emitido">boleto emitido</option>
