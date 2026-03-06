@@ -9,7 +9,7 @@ import mimetypes
 import re
 import uuid
 from datetime import datetime, timedelta
-from ..models.database import get_carteirinha
+from ..models.database import get_carteirinha, post_app_id
 import binascii
 from ..cripto import generate_shared_key, encrypt_data, decrypt_data
 import json
@@ -77,7 +77,7 @@ def card_to_app():
     data = request.get_json(silent=True)
     token = request.headers.get('Authorization')
     print(f"dados recebidos: {data} e token {token}")
-    
+    app_id= data.get('app_id')
 
     session_id= token    
     session['session_id'] = session_id
@@ -105,6 +105,9 @@ def card_to_app():
     data_entrada= dados_carteirinha.get('dMatricula')
     numero_contrato= dados_carteirinha.get('sNumeroCNT')
     print("data entrada",data_entrada)
+    #introduzir informação do id do app no banco de beneficiarios
+
+    post_app_id(app_id, cpf)
     
     data_hoje= datetime.now()
     print(data_hoje)
@@ -463,6 +466,7 @@ def registrar_cpx():
             or data.get('data')
             or data.get('encrypted_data')
             or data.get('encrypted')
+            or data.get('push_data')
         )
 
         if encrypted_payload:
@@ -581,3 +585,109 @@ def registrar_cpx():
         import traceback
         traceback.print_exc()
         return jsonify({'error': f'Erro ao salvar imagem: {str(e)}'}), 500
+
+@mantis_bp.route('/registrar_push', endpoint='registrar_push', methods=['POST'])
+def post_push_notification():
+    from ..models.database import post_registrar_push
+    token = request.headers.get('Authorization')
+    data = request.get_json(silent=True) or {}
+
+    print("[registrar_push] token:", token)
+    print("[registrar_push] payload bruto:", data)
+
+    if not token:
+        return jsonify({'error': 'No session started'}), 400
+
+    crypto_key = generate_shared_key(token)
+    if not crypto_key:
+        return jsonify({'error': 'Invalid or expired session'}), 400
+
+    key = bytes.fromhex(crypto_key)
+
+    try:
+        encrypted_payload = (
+            data.get('payload')
+            or data.get('data')
+            or data.get('encrypted_data')
+            or data.get('encrypted')
+            or data.get('push_data')
+        )
+
+        print("[registrar_push] encrypted_payload type:", type(encrypted_payload))
+        print("[registrar_push] encrypted_payload raw:", encrypted_payload)
+
+        payload_decrypted = False
+
+        if encrypted_payload:
+            print("[registrar_push] Descriptografando payload completo...")
+            decrypted_data_str = decrypt_data(key, encrypted_payload)
+            if isinstance(decrypted_data_str, str):
+                decrypted_data = json.loads(decrypted_data_str)
+            else:
+                decrypted_data = decrypted_data_str
+
+            if isinstance(decrypted_data, dict):
+                data = decrypted_data
+                if isinstance(data.get('data'), dict):
+                    data = data.get('data')
+                payload_decrypted = True
+                print("[registrar_push] payload_decrypted keys:", list(data.keys()))
+
+        # Descriptografar campos individuais somente se não houve payload completo
+        encrypted_fields = [
+            'pushToken', 'push_token', 'platform', 'deviceModel', 'device_model',
+            'deviceBrand', 'device_brand', 'appVersion', 'app_version',
+            'buildNumber', 'build_number', 'userAppId', 'user_app_id'
+        ]
+        if not payload_decrypted:
+            for field in encrypted_fields:
+                if field in data and data[field]:
+                    try:
+                        data[field] = decrypt_data(key, data[field])
+                    except Exception as e:
+                        print(f"[registrar_push] Erro ao descriptografar {field}: {str(e)}")
+    except json.JSONDecodeError as e:
+        print("[registrar_push] erro json decode:", str(e))
+        return jsonify({'error': f'Dados descriptografados não são JSON válido: {str(e)}'}), 400
+    except Exception as e:
+        print("[registrar_push] erro ao descriptografar:", str(e))
+        return jsonify({'error': f'Erro ao descriptografar payload: {str(e)}'}), 400
+
+    print("[registrar_push] payload final (post-decrypt):", data)
+    print("[registrar_push] user_app_id raw:", data.get('userAppId'), "|", data.get('user_app_id'))
+
+    push_token = data.get('pushToken') or data.get('push_token')
+    platform = data.get('platform')
+    device_model = data.get('deviceModel') or data.get('device_model')
+    device_brand = data.get('deviceBrand') or data.get('device_brand')
+    app_version = data.get('appVersion') or data.get('app_version')
+    build_number = data.get('buildNumber') or data.get('build_number')
+    user_app_id = data.get('userAppId') or data.get('user_app_id')
+
+    print("[registrar_push] user_app_id normalized:", user_app_id)
+
+    if not push_token:
+        return jsonify({'error': 'pushToken não enviado'}), 400
+
+    dados_registro = {
+        'push_token': push_token,
+        'user_app_id': user_app_id,
+        'platform': platform,
+        'device_model': device_model,
+        'device_brand': device_brand,
+        'app_version': app_version,
+        'build_number': build_number,
+        'session_token': token
+    }
+
+    print("[registrar_push] dados_registro:", dados_registro)
+
+    ip_origem = request.remote_addr
+    resultado_db = post_registrar_push(dados_registro, ip_origem)
+
+    if not resultado_db.get('success'):
+        print(f"[registrar_push] ⚠️ Falha ao registrar no banco: {resultado_db.get('error')}")
+        return jsonify({'success': False, 'error': resultado_db.get('error')}), 500
+
+    return jsonify({'success': True, 'id': resultado_db.get('id'), 'action': resultado_db.get('action')}), 200
+    

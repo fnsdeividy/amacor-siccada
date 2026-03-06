@@ -1,0 +1,67 @@
+{% extends 'base1.html' %}
+
+{% block title %}Relatório D3{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="divisoria2">
+    <div class="close-btn-container">
+      <a href="{{ url_for('auth.fechar') }}" class="close-btn">✖</a>
+    </div>
+    
+    <h2>Relatório D3</h2>
+    <p style="margin-top: 6px; color: #bec6d5;">Informe o período e os valores para calcular o D3.</p>
+
+    <form id="form-gerar-kit" action="{{ url_for('cad.d3_beneficiarios') }}" method="POST" style="margin-top: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <div>
+          <label for="valor_gasto">Valor gasto no período</label>
+          <input type="text" inputmode="decimal" id="valor_gasto" name="valor_gasto" class="money" placeholder="0,00" required>
+        </div>
+        <div>
+          <label for="valor_pago">Valor pago no período</label>
+          <input type="text" inputmode="decimal" id="valor_pago" name="valor_pago" class="money" placeholder="0,00" required>
+        </div>
+        <div>
+          <label for="data_inicio">Data de início</label>
+          <input type="date" id="data_inicio" name="data_inicio" required>
+        </div>
+        <div>
+          <label for="data_final">Data final</label>
+          <input type="date" id="data_final" name="data_final" required>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; align-items: center; margin-top: 20px;">
+        <button class="btn" type="submit">Calcular D3</button>
+        <span style="font-size: 12px; color: #6b7280;">Use vírgula para centavos.</span>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function formatMoney(value) {
+  const cleaned = value.replace(/\D/g, '');
+  if (!cleaned) return '';
+  const number = parseInt(cleaned, 10);
+  const cents = (number % 100).toString().padStart(2, '0');
+  const integer = Math.floor(number / 100).toString();
+  const withSeparators = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return withSeparators + ',' + cents;
+}
+
+document.querySelectorAll('.money').forEach((input) => {
+  input.addEventListener('input', (e) => {
+    const cursorAtEnd = e.target.selectionStart === e.target.value.length;
+    e.target.value = formatMoney(e.target.value);
+    if (cursorAtEnd) {
+      e.target.selectionStart = e.target.selectionEnd = e.target.value.length;
+    }
+  });
+});
+
+document.getElementById('form-gerar-kit').addEventListener('submit', function() {
+  const loader = document.getElementById('loader');
+  if (loader) loader.style.display = 'flex';
+});
+</script>
+{% endblock %}

@@ -2329,6 +2329,123 @@ def get_geoloc_by_token(token, database_path= None):
     return dict(resultado) if resultado else None
 
 
+def post_registrar_push(data, ip_origem, database_path=None):
+    """
+    Registra/atualiza o push token do app.
+
+    Args:
+        data: dict com push_token, platform, device_model, device_brand, app_version, build_number, session_token, user_app_id
+        ip_origem: IP de origem da requisição
+        database_path: Caminho do banco de dados (opcional)
+
+    Returns:
+        dict: {'success': True, 'id': id_registro, 'action': 'insert'|'update'} ou {'success': False, 'error': mensagem}
+    """
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+
+        # Garantir tabela
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS push_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                push_token TEXT UNIQUE,
+                user_app_id TEXT,
+                platform TEXT,
+                device_model TEXT,
+                device_brand TEXT,
+                app_version TEXT,
+                build_number TEXT,
+                session_token TEXT,
+                ip_origem TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME
+            )
+        """)
+
+        # Garantir coluna user_app_id em bancos já existentes
+        cur.execute("PRAGMA table_info(push_tokens)")
+        colunas = {row['name'] for row in cur.fetchall()}
+        if 'user_app_id' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN user_app_id TEXT")
+
+        push_token = data.get('push_token')
+        if not push_token:
+            conn.close()
+            return {'success': False, 'error': 'push_token não informado'}
+
+        cur.execute("SELECT id FROM push_tokens WHERE push_token = ?", (push_token,))
+        existente = cur.fetchone()
+
+        if existente:
+            registro_id = existente['id']
+            cur.execute("""
+                UPDATE push_tokens
+                SET user_app_id = ?,
+                    platform = ?,
+                    device_model = ?,
+                    device_brand = ?,
+                    app_version = ?,
+                    build_number = ?,
+                    session_token = ?,
+                    ip_origem = ?,
+                    updated_at = datetime('now')
+                WHERE id = ?
+            """, (
+                data.get('user_app_id'),
+                data.get('platform'),
+                data.get('device_model'),
+                data.get('device_brand'),
+                data.get('app_version'),
+                data.get('build_number'),
+                data.get('session_token'),
+                ip_origem,
+                registro_id
+            ))
+            action = 'update'
+        else:
+            cur.execute("""
+                INSERT INTO push_tokens (
+                    push_token,
+                    user_app_id,
+                    platform,
+                    device_model,
+                    device_brand,
+                    app_version,
+                    build_number,
+                    session_token,
+                    ip_origem,
+                    created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """, (
+                push_token,
+                data.get('user_app_id'),
+                data.get('platform'),
+                data.get('device_model'),
+                data.get('device_brand'),
+                data.get('app_version'),
+                data.get('build_number'),
+                data.get('session_token'),
+                ip_origem
+            ))
+            registro_id = cur.lastrowid
+            action = 'insert'
+
+        conn.commit()
+        conn.close()
+
+        return {'success': True, 'id': registro_id, 'action': action}
+
+    except sqlite3.Error as e:
+        print(f"[post_registrar_push] ❌ Erro SQLite: {e}")
+        return {'success': False, 'error': f'Erro no banco de dados: {str(e)}'}
+    except Exception as e:
+        print(f"[post_registrar_push] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return {'success': False, 'error': f'Erro inesperado: {str(e)}'}
+
+
 def get_clinica_info(clinica_id, database_path=None):
     """Busca informações completas de uma clínica"""
     conn = get_db_connection(database_path)
@@ -2922,3 +3039,62 @@ def atribuir_auditor_responsavel(autorizacao_id, usuario_nome, database_path=Non
             'success': False,
             'message': f'Erro inesperado: {str(e)}'
         }
+    
+def post_app_id(app_id, cpf, database_path=None):
+    """
+    Associa o app_id do aplicativo com o CPF do beneficiário na tabela de beneficiários.
+    
+    Args:
+        app_id: ID do aplicativo (string)
+        cpf: CPF do beneficiário (string)
+        database_path: Caminho do banco de dados (opcional)
+    
+    Returns:
+        bool: True se a associação foi feita com sucesso, False caso contrário
+    """
+    print(f"[post_app_id] Associando app_id: {app_id} com CPF: {cpf}")
+    
+    try:
+        conn = get_db_connection(database_path)
+        cur = conn.cursor()
+        
+        # Verificar se o beneficiário existe (colunas existentes no legado)
+        cur.execute(
+            """
+            SELECT sCpfUSR, sCpfCgcResp
+            FROM beneficiarios
+            WHERE sCpfUSR = ? OR sCpfCgcResp = ?
+            """,
+            (cpf, cpf),
+        )
+        result = cur.fetchone()
+        
+        if not result:
+            print(f"[post_app_id] ❌ Beneficiário com CPF {cpf} não encontrado")
+            conn.close()
+            return False
+        
+        # Atualizar o app_id do beneficiário
+        cur.execute(
+            """
+            UPDATE beneficiarios
+            SET app_id = ?
+            WHERE sCpfUSR = ? OR sCpfCgcResp = ?
+            """,
+            (app_id, cpf, cpf),
+        )
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"[post_app_id] ✅ app_id associado com sucesso ao beneficiário")
+        return True
+        
+    except sqlite3.Error as e:
+        print(f"[post_app_id] ❌ Erro ao associar app_id: {e}")
+        return False
+    except Exception as e:
+        print(f"[post_app_id] ❌ Erro inesperado: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
