@@ -162,7 +162,7 @@ def redir_atent():
             resp= None
             print(resp)
             return redirect(url_for('cad.acompanhar_cnt',resp=resp))
-    elif tipo_usuario == 'cadastro':
+    elif tipo_usuario == 'cadastro' or tipo_usuario == 'dev':
         resp= None
         print(resp)
         return redirect(url_for('cad.acompanhar_cnt',resp=resp))
