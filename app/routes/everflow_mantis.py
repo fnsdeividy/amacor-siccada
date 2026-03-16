@@ -637,7 +637,9 @@ def post_push_notification():
         encrypted_fields = [
             'pushToken', 'push_token', 'platform', 'deviceModel', 'device_model',
             'deviceBrand', 'device_brand', 'appVersion', 'app_version',
-            'buildNumber', 'build_number', 'userAppId', 'user_app_id'
+            'buildNumber', 'build_number', 'userAppId', 'user_app_id',
+            'androidId', 'uniqueId', 'deviceId', 'phoneId', 'installationId',
+            'flow', 'idSource', 'osVersion'
         ]
         if not payload_decrypted:
             for field in encrypted_fields:
@@ -663,11 +665,31 @@ def post_push_notification():
     app_version = data.get('appVersion') or data.get('app_version')
     build_number = data.get('buildNumber') or data.get('build_number')
     user_app_id = data.get('userAppId') or data.get('user_app_id')
+    android_id = data.get('androidId') or data.get('android_id')
+    unique_id = data.get('uniqueId') or data.get('unique_id')
+    device_id = data.get('deviceId') or data.get('device_id')
+    phone_id = data.get('phoneId') or data.get('phone_id')
+    installation_id = data.get('installationId') or data.get('installation_id')
+    flow = data.get('flow')
+    id_source = data.get('idSource') or data.get('id_source')
+    os_version = data.get('osVersion') or data.get('os_version')
+
+    # Usa o melhor identificador disponível para amarrar 1 usuário -> 1 dispositivo.
+    device_identifier = (
+        android_id
+        or unique_id
+        or installation_id
+        or device_id
+        or phone_id
+    )
 
     print("[registrar_push] user_app_id normalized:", user_app_id)
 
-    if not push_token:
-        return jsonify({'error': 'pushToken não enviado'}), 400
+    if not user_app_id:
+        return jsonify({'error': 'user_app_id não enviado'}), 400
+
+    if not device_identifier:
+        return jsonify({'error': 'Nenhum identificador de dispositivo enviado'}), 400
 
     dados_registro = {
         'push_token': push_token,
@@ -675,6 +697,15 @@ def post_push_notification():
         'platform': platform,
         'device_model': device_model,
         'device_brand': device_brand,
+        'device_identifier': device_identifier,
+        'android_id': android_id,
+        'unique_id': unique_id,
+        'device_id': device_id,
+        'phone_id': phone_id,
+        'installation_id': installation_id,
+        'flow': flow,
+        'id_source': id_source,
+        'os_version': os_version,
         'app_version': app_version,
         'build_number': build_number,
         'session_token': token
@@ -688,6 +719,20 @@ def post_push_notification():
     if not resultado_db.get('success'):
         print(f"[registrar_push] ⚠️ Falha ao registrar no banco: {resultado_db.get('error')}")
         return jsonify({'success': False, 'error': resultado_db.get('error')}), 500
+
+    if resultado_db.get('action') == 'device_conflict':
+        return jsonify({
+            'success': False,
+            'can_login': False,
+            'already_registered_other_device': True,
+            'action': 'device_conflict',
+            'user_app_id': user_app_id,
+            'current_device_id': device_identifier,
+            'registered_device_id': resultado_db.get('registered_device_id'),
+            'registered_device_model': resultado_db.get('registered_device_model'),
+            'registered_platform': resultado_db.get('registered_platform'),
+            'message': 'Acesso negado: usuario ja possui cadastro em outro dispositivo'
+        }), 403
 
     return jsonify({'success': True, 'id': resultado_db.get('id'), 'action': resultado_db.get('action')}), 200
     

@@ -2331,15 +2331,16 @@ def get_geoloc_by_token(token, database_path= None):
 
 def post_registrar_push(data, ip_origem, database_path=None):
     """
-    Registra/atualiza o push token do app.
+    Registra o dispositivo do app.
 
     Args:
-        data: dict com push_token, platform, device_model, device_brand, app_version, build_number, session_token, user_app_id
+        data: dict com push_token, user_app_id, device_identifier e metadados do dispositivo
         ip_origem: IP de origem da requisição
         database_path: Caminho do banco de dados (opcional)
 
     Returns:
-        dict: {'success': True, 'id': id_registro, 'action': 'insert'|'update'} ou {'success': False, 'error': mensagem}
+          dict: {'success': True, 'id': id_registro, 'action': 'insert'|'exists_same_device'|'device_conflict'}
+              ou {'success': False, 'error': mensagem}
     """
     try:
         conn = get_db_connection(database_path)
@@ -2354,6 +2355,15 @@ def post_registrar_push(data, ip_origem, database_path=None):
                 platform TEXT,
                 device_model TEXT,
                 device_brand TEXT,
+                device_identifier TEXT,
+                android_id TEXT,
+                unique_id TEXT,
+                device_id TEXT,
+                phone_id TEXT,
+                installation_id TEXT,
+                flow TEXT,
+                id_source TEXT,
+                os_version TEXT,
                 app_version TEXT,
                 build_number TEXT,
                 session_token TEXT,
@@ -2368,41 +2378,78 @@ def post_registrar_push(data, ip_origem, database_path=None):
         colunas = {row['name'] for row in cur.fetchall()}
         if 'user_app_id' not in colunas:
             cur.execute("ALTER TABLE push_tokens ADD COLUMN user_app_id TEXT")
+        if 'device_identifier' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN device_identifier TEXT")
+        if 'android_id' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN android_id TEXT")
+        if 'unique_id' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN unique_id TEXT")
+        if 'device_id' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN device_id TEXT")
+        if 'phone_id' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN phone_id TEXT")
+        if 'installation_id' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN installation_id TEXT")
+        if 'flow' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN flow TEXT")
+        if 'id_source' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN id_source TEXT")
+        if 'os_version' not in colunas:
+            cur.execute("ALTER TABLE push_tokens ADD COLUMN os_version TEXT")
 
         push_token = data.get('push_token')
-        if not push_token:
-            conn.close()
-            return {'success': False, 'error': 'push_token não informado'}
+        user_app_id = data.get('user_app_id')
+        device_identifier = data.get('device_identifier')
 
-        cur.execute("SELECT id FROM push_tokens WHERE push_token = ?", (push_token,))
-        existente = cur.fetchone()
+        if not user_app_id:
+            conn.close()
+            return {'success': False, 'error': 'user_app_id não informado'}
+
+        if not device_identifier:
+            conn.close()
+            return {'success': False, 'error': 'device_identifier não informado'}
+
+        # Regra de negócio: o usuário já possui outro dispositivo registrado.
+        cur.execute("""
+            SELECT id, device_identifier, device_model, platform
+            FROM push_tokens
+            WHERE user_app_id = ?
+              AND device_identifier IS NOT NULL
+              AND device_identifier <> ?
+            ORDER BY COALESCE(updated_at, created_at) DESC
+            LIMIT 1
+        """, (user_app_id, device_identifier))
+        conflito_dispositivo = cur.fetchone()
+
+        if conflito_dispositivo:
+            conn.close()
+            return {
+                'success': True,
+                'action': 'device_conflict',
+                'registered_device_id': conflito_dispositivo['device_identifier'],
+                'registered_device_model': conflito_dispositivo['device_model'],
+                'registered_platform': conflito_dispositivo['platform']
+            }
+
+        existente = None
+        if push_token:
+            cur.execute("SELECT id FROM push_tokens WHERE push_token = ?", (push_token,))
+            existente = cur.fetchone()
+
+        # Se não houver push token (ex: pré-login), tenta localizar pelo par usuário+dispositivo.
+        if not existente:
+            cur.execute("""
+                SELECT id
+                FROM push_tokens
+                WHERE user_app_id = ?
+                  AND device_identifier = ?
+                LIMIT 1
+            """, (user_app_id, device_identifier))
+            existente = cur.fetchone()
 
         if existente:
             registro_id = existente['id']
-            cur.execute("""
-                UPDATE push_tokens
-                SET user_app_id = ?,
-                    platform = ?,
-                    device_model = ?,
-                    device_brand = ?,
-                    app_version = ?,
-                    build_number = ?,
-                    session_token = ?,
-                    ip_origem = ?,
-                    updated_at = datetime('now')
-                WHERE id = ?
-            """, (
-                data.get('user_app_id'),
-                data.get('platform'),
-                data.get('device_model'),
-                data.get('device_brand'),
-                data.get('app_version'),
-                data.get('build_number'),
-                data.get('session_token'),
-                ip_origem,
-                registro_id
-            ))
-            action = 'update'
+            action = 'exists_same_device'
         else:
             cur.execute("""
                 INSERT INTO push_tokens (
@@ -2411,18 +2458,36 @@ def post_registrar_push(data, ip_origem, database_path=None):
                     platform,
                     device_model,
                     device_brand,
+                    device_identifier,
+                    android_id,
+                    unique_id,
+                    device_id,
+                    phone_id,
+                    installation_id,
+                    flow,
+                    id_source,
+                    os_version,
                     app_version,
                     build_number,
                     session_token,
                     ip_origem,
                     created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
             """, (
                 push_token,
-                data.get('user_app_id'),
+                user_app_id,
                 data.get('platform'),
                 data.get('device_model'),
                 data.get('device_brand'),
+                device_identifier,
+                data.get('android_id'),
+                data.get('unique_id'),
+                data.get('device_id'),
+                data.get('phone_id'),
+                data.get('installation_id'),
+                data.get('flow'),
+                data.get('id_source'),
+                data.get('os_version'),
                 data.get('app_version'),
                 data.get('build_number'),
                 data.get('session_token'),
@@ -3179,7 +3244,7 @@ def post_app_id(app_id, cpf, database_path=None):
         cur.execute(
             """
             UPDATE beneficiarios
-            SET app_id = ?
+            SET id_app = ?
             WHERE sCpfUSR = ? OR sCpfCgcResp = ?
             """,
             (app_id, cpf, cpf),
