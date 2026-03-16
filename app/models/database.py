@@ -3227,11 +3227,11 @@ def post_app_id(app_id, cpf, database_path=None):
         # Verificar se o beneficiário existe (colunas existentes no legado)
         cur.execute(
             """
-            SELECT sCpfUSR, sCpfCgcResp
+            SELECT sCpfUSR
             FROM beneficiarios
             WHERE sCpfUSR = ?
             """,
-            (cpf, cpf),
+            (cpf,),
         )
         result = cur.fetchone()
         
@@ -3245,9 +3245,9 @@ def post_app_id(app_id, cpf, database_path=None):
             """
             UPDATE beneficiarios
             SET id_app = ?
-            WHERE sCpfUSR = ? OR sCpfCgcResp = ?
+            WHERE sCpfUSR = ?
             """,
-            (app_id, cpf, cpf),
+            (app_id, cpf),
         )
         
         conn.commit()
