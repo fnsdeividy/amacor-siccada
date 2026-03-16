@@ -3229,7 +3229,7 @@ def post_app_id(app_id, cpf, database_path=None):
             """
             SELECT sCpfUSR, sCpfCgcResp
             FROM beneficiarios
-            WHERE sCpfUSR = ? OR sCpfCgcResp = ?
+            WHERE sCpfUSR = ?
             """,
             (cpf, cpf),
         )
