@@ -3224,15 +3224,36 @@ def post_app_id(app_id, cpf, database_path=None):
         conn = get_db_connection(database_path)
         cur = conn.cursor()
         
-        # Verificar se o beneficiário existe (colunas existentes no legado)
-        cur.execute(
-            """
-            SELECT sCpfUSR
-            FROM beneficiarios
-            WHERE sCpfUSR = ?
-            """,
-            (cpf,),
-        )
+        # Garantir que a coluna id_app exista (bancos legados podem nao ter)
+        cur.execute("PRAGMA table_info(beneficiarios)")
+        colunas = {row[1] for row in cur.fetchall()}
+        if 'id_app' not in colunas:
+            cur.execute("ALTER TABLE beneficiarios ADD COLUMN id_app TEXT")
+
+        # Normalizar CPF (manter apenas digitos) para evitar falha por formato
+        import re
+        cpf_raw = (cpf or '').strip()
+        cpf_digits = re.sub(r"\D", "", cpf_raw)
+
+        # Verificar se o beneficiario existe
+        if cpf_digits and cpf_digits != cpf_raw:
+            cur.execute(
+                """
+                SELECT sCpfUSR
+                FROM beneficiarios
+                WHERE sCpfUSR = ? OR sCpfUSR = ?
+                """,
+                (cpf_raw, cpf_digits),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT sCpfUSR
+                FROM beneficiarios
+                WHERE sCpfUSR = ?
+                """,
+                (cpf_raw,),
+            )
         result = cur.fetchone()
         
         if not result:
@@ -3241,14 +3262,27 @@ def post_app_id(app_id, cpf, database_path=None):
             return False
         
         # Atualizar o app_id do beneficiário
-        cur.execute(
-            """
-            UPDATE beneficiarios
-            SET id_app = ?
-            WHERE sCpfUSR = ?
-            """,
-            (app_id, cpf),
-        )
+        if cpf_digits and cpf_digits != cpf_raw:
+            cur.execute(
+                """
+                UPDATE beneficiarios
+                SET id_app = ?
+                WHERE sCpfUSR = ? OR sCpfUSR = ?
+                """,
+                (app_id, cpf_raw, cpf_digits),
+            )
+        else:
+            cur.execute(
+                """
+                UPDATE beneficiarios
+                SET id_app = ?
+                WHERE sCpfUSR = ?
+                """,
+                (app_id, cpf_raw),
+            )
+
+        if cur.rowcount == 0:
+            print("[post_app_id] Nenhuma linha atualizada - CPF nao encontrado")
         
         conn.commit()
         conn.close()
