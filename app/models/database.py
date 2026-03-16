@@ -3267,7 +3267,8 @@ def post_app_id(app_id, cpf, database_path=None):
                 """
                 UPDATE beneficiarios
                 SET id_app = ?
-                WHERE sCpfUSR = ? OR sCpfUSR = ?
+                WHERE (sCpfUSR = ? OR sCpfUSR = ?)
+                  AND sMotivoCancelamentoUSR IS NULL
                 """,
                 (app_id, cpf_raw, cpf_digits),
             )
@@ -3277,6 +3278,7 @@ def post_app_id(app_id, cpf, database_path=None):
                 UPDATE beneficiarios
                 SET id_app = ?
                 WHERE sCpfUSR = ?
+                  AND sMotivoCancelamentoUSR IS NULL
                 """,
                 (app_id, cpf_raw),
             )
