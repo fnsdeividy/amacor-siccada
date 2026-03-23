@@ -209,6 +209,8 @@ def gerar_documentos():
             plano_nome = 'Amacor Exclusivo I'
         elif plano_nome == 'Amacor Exclusivo 2':
             plano_nome = 'Amacor Exclusivo II'
+        elif plano_nome == 'AMACOR CLASSICO EMP':
+            plano_nome = 'Amacor Classico Empresarial'
 
         print('request.form:', request.form)
         print('data_contrato:', data_contrato)
