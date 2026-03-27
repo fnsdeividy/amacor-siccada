@@ -34,6 +34,8 @@ env/
 Thumbs.db
 ehthumbs.db
 *.log
+log_atualiza_status.txt
+
 
 # ----------------------------------------
 # Pasta de uploads do seu projeto
