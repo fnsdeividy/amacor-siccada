@@ -82,3 +82,28 @@ dist/
 build/
 *.egg-info/
 *.txt
+
+# uploads
+static/uploads/
+app/static/uploads/
+
+# arquivos gerados
+static/docx_edit/saida/
+static/docx_edit/saida_pdf/
+
+# banco temporário
+*.db-wal
+*.db-shm
+
+# imagens temporárias
+static/*.png
+
+# arquivos gerados diversos
+*.pdf
+static/docx_edit/dox_template/propostas/saida/*
+dados_clinicas.json
+geocodificacao_parcial.json
+paths.py
+static/uploads_geren_docgen/
+static/documentos_autorizacao/
+
