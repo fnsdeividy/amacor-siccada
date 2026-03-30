@@ -261,232 +261,35 @@ def msg_email(status, proposta, complemento):
         </div>
         """
     
-    if status == 'entrevista online enviada':
-        assunto = f'{nome} sua Declaração de saúde Online foi Enviada'
-        mensagem = f"""
-<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
     
-    <p style="font-size: 16px;">Sua Declaração de saúde online foi enviada e está disponível para ser realizada no link abaixo:</p>
-    
-    <div style="text-align: center; margin: 25px 0;">
-        <a href="{complemento}" 
-           style="display: inline-block; background-color: #0a2f68; color: white; 
-                  padding: 12px 25px; text-decoration: none; border-radius: 4px; 
-                  font-weight: bold; font-size: 16px;">
-            Acessar Declaração de saúde Online
-        </a>
-    </div>
-    
-    <p style="font-size: 14px; color: #666; text-align: center; margin-bottom: 30px;">
-        <strong>Prazo para realização:</strong> 48 horas após o recebimento deste e-mail
-    </p>
-    
-    <!-- Linha do tempo de progresso CORRIGIDA -->
-    <div style="margin: 40px 0; position: relative;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
-            <tr>
-                <td width="25%" align="center">
-                    {criar_etapa("1", "Cadastro", "", concluido=True)}
-                </td>
-                <td width="25%" align="center">
-                    {criar_etapa("2", "Declaração", "", ativo=True)}
-                </td>
-                <td width="25%" align="center">
-                    {criar_etapa("3", "Análise", "", ativo=False)}
-                </td>
-                <td width="25%" align="center">
-                    {criar_etapa("4", "Finalização", "", ativo=False)}
-                </td>
-            </tr>
-        </table>
-        
-        <!-- Barra de progresso -->
-        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 50%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
-        </div>
-    </div>
-    
-    <p style="font-size: 14px; color: #666; margin-top: 30px;">
-        Após concluir a Declaração de saúde, nosso time dará continuidade ao processo de análise.
-        Você receberá atualizações por e-mail.
-    </p>
-</div>
-"""
-        return assunto, mensagem, complemento
-    
-    elif status == 'analise de declaração':
-        assunto= f'{nome} sua Declaração de saúde foi enviada para análise'
-        mensagem = f"""
-<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
-    
-    <p style="font-size: 16px;">Sua Declaração de saúde online foi enviada para análise interna.</p>
-    
-    <p style="font-size: 16px;">Durante essa análise verificaremos as patologias declaradas na entrevista de acolhimento.</p>
-
-    <!-- Linha do tempo de progresso CORRIGIDA -->
-    <div style="margin: 40px 0; position: relative;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
-            <tr>
-                <td width="20%" align="center">
-                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("2", "Análise", "Declaração", ativo=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("3", "Cadastro", "", ativo=False)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("4", "Geração", "Kit", ativo=False)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("5", "Contrato", "Finalizado", ativo=False)}
-            </tr>
-        </table>
-        
-        <!-- Barra de progresso -->
-        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 30%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
-        </div>
-    </div>
-    
-    <p style="font-size: 14px; color: #666; margin-top: 30px;">
-        Você receberá uma atualização por e-mail ou Whatsapp assim que a análise for concluída, 
-        informando os próximos passos do processo.
-    </p>
-    
-    <p style="font-size: 14px; color: #666; margin-top: 20px;">
-        <strong>Prazo estimado:</strong> 2-3 dias úteis
-    </p>
-</div>
-"""
-        return assunto, mensagem, complemento
-    
-    elif status == 'entrevista agendada':
+    if status == 'entrevista agendada':
         assunto = f'{nome} sua entrevista está agendada'
         mensagem = f"""
 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
-    
-    <p style="font-size: 16px; margin-bottom: 20px;">Sua entrevista presencial foi agendada para:</p>
-    
-    <div style="background-color: #f5f9ff; border-left: 4px solid #0a2f68; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0;">
-        <p style="font-size: 18px; color: #0a2f68; font-weight: bold; margin: 0; text-align: center;">
-            {complemento}
-        </p>
-    </div>
-    
-    <p style="font-size: 16px; margin-bottom: 30px;">
-        <strong>Recomendações:</strong><br>
-        • Chegue 5 minutos antes do horário marcado<br>
-        • Traga seu documento de identificação com foto<br>
-        • Use máscara (caso necessário)<br>
-        • Local: Clínica Amacor
-    </p>
-
-    <!-- Linha do tempo de progresso CORRIGIDA -->
-    <div style="margin: 40px 0; position: relative;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
-            <tr>
-                 <td width="20%" align="center">
-                    {criar_etapa("1", "Entrevista", "Presencial", ativo=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("2", "Análise", "Declaração", ativo=False)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("3", "Cadastro", "", ativo=False)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("4", "Geração", "Kit", ativo=False)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("5", "Contrato", "Finalizado", ativo=False)}
-            </tr>
-        </table>
-        
-        <!-- Barra de progresso -->
-        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 5%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
-        </div>
-    </div>
-    
-    <p style="font-size: 14px; color: #666; margin-top: 30px;">
-        Caso precise reagendar ou tenha alguma dúvida, entre em contato pelo WhatsApp:
-        <a href="https://wa.me/5521978914749" style="color: #0a2f68; text-decoration: none; font-weight: bold;">
-            (21) 97891-4749
-        </a>
-    </p>
-</div>
-"""
-        return assunto, mensagem, complemento
-    
-    elif status == 'geração de kit':
-        assunto = f'{nome} seu contrato está pronto para ser entregue!'
-        mensagem = f"""
-<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-    
-    <div style="background-color: #f0f8ff; border: 1px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
-        <p style="font-size: 18px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
-        {nome}, seu contrato está sendo prepadado para ser entregue!
+    <div style="background-color: #f0f8ff; border: 2px solid #0a2f68; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
+        <p style="font-size: 20px; color: #0a2f68; font-weight: bold; margin: 0 0 10px 0;">
+            Olá {nome}, sua entrevista foi agendada com sucesso!
         </p>
         <p style="font-size: 16px; margin: 0;">
-            O kit contratual será gerado e enviado em breve.
+            Horário da entrevista: <strong>{complemento}</strong>
         </p>
     </div>
 
-    <!-- Linha do tempo de progresso CORRIGIDA -->
-    <div style="margin: 40px 0; position: relative;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
-            <tr>
-                 <td width="20%" align="center">
-                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("2", "Análise", "Declaração", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("3", "Cadastro", "", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("4", "Geração", "Kit", ativo=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("5", "Contrato", "Finalizado", ativo=False)}
-            </tr>
-        </table>
-        
-        <!-- Barra de progresso -->
-        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 90%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
-        </div>
-    </div>
-    
-    <p style="font-size: 16px; margin: 25px 0;">
-        <strong>O que acontece agora?</strong><br>
-        • Seu kit contratual está sendo preparado<br>
-        • Você receberá um e-mail com os documentos para assinatura digital<br>
-        • Após a assinatura, sua carteirinha será emitida
-    </p>
-    
-    <p style="font-size: 14px; color: #666; margin-top: 30px;">
-        <strong>Prazo estimado para recebimento:</strong> 2-3 dias úteis
-    </p>
-    
-    <div style="text-align: center; margin: 30px 0;">
-        <a href="https://wa.me/5521978914749" 
-           style="display: inline-block; background-color: #0a2f68; color: white; 
-                  padding: 12px 25px; text-decoration: none; border-radius: 4px; 
-                  font-weight: bold; font-size: 16px;">
-            Falar com Atendente
-        </a>
+
+    <div style="background-color: #f8f9fa; border-radius: 8px; padding: 15px; margin: 25px 0;">
+        <p style="font-size: 16px; margin-top: 0; font-weight: bold;">Recomendações:</p>
+        <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li style="margin-bottom: 8px;">Chegue 5 minutos antes do horário marcado</li>
+            <li style="margin-bottom: 8px;">Leve um documento de identificação com foto</li>
+            <li style="margin-bottom: 8px;">Use máscara, caso necessário</li>
+            <li>Local: Clínica Amacor (Rua Augusto de Vasconcelos, 544 - Rio de Janeiro, RJ)</li>
+        </ul>
     </div>
 </div>
 """
         return assunto, mensagem, complemento
     
+
     elif status == 'contrato finalizado':
         assunto = f'{nome} o processo de contratação está Finalizado'
         mensagem = f"""
@@ -500,36 +303,9 @@ def msg_email(status, proposta, complemento):
             Sua carteirinha está pronta para ser enviada.
         </p>
     </div>
-
-    <!-- Linha do tempo de progresso COMPLETA CORRIGIDA -->
-    <div style="margin: 40px 0; position: relative;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
-            <tr>
-                <td width="20%" align="center">
-                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("2", "Análise", "Declaração", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("3", "Cadastro", "", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("4", "Geração", "Kit", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("5", "Contrato", "Finalizado", concluido=True)}
-            </tr>
-        </table>
-        
-        <!-- Barra de progresso -->
-        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 100%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
-        </div>
-    </div>
     
     <div style="text-align: center; margin: 30px 0;">
-        <a href="https://wa.me/5521978914749?text=Olá,%20gostaria%20de%20solicitar%20a%20carteirinha" 
+        <a href="https://wa.me/552134059466?text=Olá,%20gostaria%20de%20solicitar%20a%20carteirinha" 
            style="display: inline-block; background-color: #0a2f68; color: white; 
                   padding: 15px 30px; text-decoration: none; border-radius: 4px; 
                   font-weight: bold; font-size: 18px; box-shadow: 0 4px 8px rgba(10, 47, 104, 0.2);">
@@ -617,59 +393,12 @@ def msg_email(status, proposta, complemento):
     </div>
     
     <div style="text-align: center; margin: 30px 0;">
-        <a href="https://wa.me/5521978914749" 
+        <a href="https://wa.me/552134059466" 
            style="display: inline-block; background-color: #0a2f68; color: white; 
                   padding: 12px 25px; text-decoration: none; border-radius: 4px; 
                   font-weight: bold; font-size: 16px;">
             Precisa de ajuda? Fale conosco
         </a>
-    </div>
-</div>
-"""
-        return assunto, mensagem, complemento
-    
-    elif status == 'Enviado ao cadastro' or 'Aguardando entrevista':
-        assunto = f'{nome} seu processo de cadastro foi iniciado'
-        mensagem = f"""
-<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
-
-    <p style="font-size: 16px;">Nosso setor de cadastro recebeu a sua documentação e estamos incluindo seus dados aos nossos sistemas.</p>
-    <p style="font-size: 16px;">Dentro dos próximos 05 dias entraremos em contato para prosseguir com o processo de adesão ao plano.</p>
-
-    <!-- Linha do tempo de progresso CORRIGIDA -->
-    <div style="margin: 40px 0; position: relative;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
-            <tr>
-                <td width="20%" align="center">
-                    {criar_etapa("1", "Entrevista", "Presencial", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("2", "Análise", "Declaração", concluido=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("3", "Cadastro", "", ativo=True)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("4", "Geração", "Kit", ativo=False)}
-                </td>
-                <td width="20%" align="center">
-                    {criar_etapa("5", "Contrato", "Finalizado", ativo=False)}
-                </td>
-            </tr>
-        </table>
-
-        <!-- Barra de progresso -->
-        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
-            <div style="width: 55%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
-        </div>
-    </div>
-
-    <div style="background-color: #fff8e6; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 0 4px 4px 0;">
-        <p style="margin: 0; color: #856404; font-weight: 500;">
-            ⏱️ <strong>Todo esse processo deverá ser realizado em até 30 dias corridos</strong> a partir da data de pagamento da adesão.
-            Caso não cumpra o prazo o plano será suspenso e após 10 dias de suspensão seu plano será <strong>cancelado.</strong>
-        </p>
     </div>
 </div>
 """

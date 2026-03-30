@@ -1,8 +1,11 @@
 import os
+import shutil
+import zipfile
 from functools import wraps
 from flask import session, redirect, url_for, flash
 from functools import wraps
 from datetime import datetime
+from werkzeug.utils import secure_filename
 def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -127,4 +130,53 @@ def log_exclusao_proposta(proposta_id, motivo, valor_mensalidade, vidas, correto
     linha= f'[{agora}] - {mensagem}\n'
     with open('log_exclusao_propostas.txt','a')as f:
         f.write(linha)
+
+
+def allowed_document_file(filename, allowed_extensions=None):
+    if allowed_extensions is None:
+        allowed_extensions = {'rar', 'zip', 'pdf'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+
+def get_unique_filename(dest_folder, original_name):
+    safe_name = secure_filename(original_name)
+    if not safe_name:
+        return None
+
+    nome_base, ext = os.path.splitext(safe_name)
+    candidato = safe_name
+    indice = 1
+
+    while os.path.exists(os.path.join(dest_folder, candidato)):
+        candidato = f"{nome_base}_{indice}{ext}"
+        indice += 1
+
+    return candidato
+
+
+def extract_zip_merge(zip_path, dest_folder):
+    extraidos = 0
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        for membro in zip_ref.infolist():
+            if membro.is_dir():
+                continue
+
+            nome_interno = os.path.basename(membro.filename.replace('\\', '/'))
+            if not nome_interno:
+                continue
+
+            nome_seguro = secure_filename(nome_interno)
+            if not nome_seguro:
+                continue
+
+            destino_nome = get_unique_filename(dest_folder, nome_seguro)
+            if not destino_nome:
+                continue
+
+            destino_arquivo = os.path.join(dest_folder, destino_nome)
+            with zip_ref.open(membro, 'r') as origem, open(destino_arquivo, 'wb') as destino:
+                shutil.copyfileobj(origem, destino)
+            extraidos += 1
+
+    return extraidos
     

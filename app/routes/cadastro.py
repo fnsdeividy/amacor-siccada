@@ -1,10 +1,12 @@
 from flask import Flask, Blueprint, request, render_template, redirect, send_file, url_for,session, current_app, flash, send_from_directory
+import io
 import os
+import zipfile
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfMerger
 #from pdf2image import convert_from_path
-from app.utils import acesso, hierarquia
+from app.utils import acesso, hierarquia, allowed_document_file, get_unique_filename, extract_zip_merge
 from ..models.database import query_db, update_db, get_email, get_nome, get_status
 import sqlite3
 import re
@@ -295,15 +297,9 @@ def adicionar_doc():
     print(f"Tipo de usuário: {classe_usuario}")
     if classe_usuario == 'vendedor':
         resp = session.get('user_nome')
-    import os
-    from werkzeug.utils import secure_filename
-    from flask import request, redirect, url_for, flash, render_template
-    ALLOWED_EXTENSIONS = {'rar', 'zip','.pdf'}
+
     proposta = request.args.get('proposta')
     print(f"Proposta recebida: {proposta}")
-
-    def allowed_file(filename):
-        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     if request.method == 'POST':
         if 'arquivos' not in request.files:
@@ -318,20 +314,159 @@ def adicionar_doc():
             return redirect(request.url)
         proposta_folder = os.path.join(base_folder, str(proposta))
         os.makedirs(proposta_folder, exist_ok=True)
+        total_salvos = 0
+        total_extraidos = 0
+
         for arquivo in arquivos:
-            if arquivo and allowed_file(arquivo.filename):
-                ext = arquivo.filename.rsplit('.', 1)[1].lower()
-                filename = f"proposta {proposta}.{ext}"
-                arquivo.save(os.path.join(proposta_folder, filename))
-                update_db("""
-                    UPDATE venda SET documento_enviado = 1 WHERE numero_proposta = ?
-                """, (proposta,))
-            else:
+            if not arquivo or not allowed_document_file(arquivo.filename):
                 flash('Tipo de arquivo não permitido.')
                 return redirect(request.url)
-        flash('Arquivos enviados com sucesso!')
-        return redirect(url_for('auth.redir_atent'))
+
+            nome_original = secure_filename(arquivo.filename)
+            if not nome_original:
+                flash('Nome de arquivo inválido.')
+                return redirect(request.url)
+
+            ext = nome_original.rsplit('.', 1)[1].lower()
+            nome_unico = get_unique_filename(proposta_folder, nome_original)
+            if not nome_unico:
+                flash('Não foi possível processar o nome do arquivo.')
+                return redirect(request.url)
+
+            caminho_salvo = os.path.join(proposta_folder, nome_unico)
+            arquivo.save(caminho_salvo)
+
+            if ext == 'zip':
+                try:
+                    total_extraidos += extract_zip_merge(caminho_salvo, proposta_folder)
+                    os.remove(caminho_salvo)
+                except zipfile.BadZipFile:
+                    flash(f'Arquivo ZIP inválido: {nome_original}', 'error')
+                    return redirect(request.url)
+            elif ext == 'rar':
+                # Mantém o .rar salvo para consulta/download; extração pode depender de biblioteca externa.
+                total_salvos += 1
+            else:
+                total_salvos += 1
+
+        update_db("""
+            UPDATE venda SET documento_enviado = 1 WHERE numero_proposta = ?
+        """, (proposta,))
+
+        if total_extraidos:
+            flash(
+                f'Upload concluído! {total_salvos} arquivo(s) salvo(s) e {total_extraidos} arquivo(s) extraído(s) do ZIP.',
+                'success'
+            )
+        else:
+            flash(f'Upload concluído! {total_salvos} arquivo(s) salvo(s).', 'success')
+
+        return redirect(url_for('cad.listar_documentos_contrato', proposta=proposta))
     return redirect(url_for('auth.redir_atent'))
+
+
+@cad_bp.route('/documentos_contrato/<proposta>/listar')
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente', 'vendedor')
+def listar_documentos_contrato(proposta):
+    base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
+    base_folder = os.path.abspath(base_folder)
+    proposta_folder = os.path.join(base_folder, str(proposta))
+    image_exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+
+    if not os.path.exists(proposta_folder):
+        flash('Nenhum documento encontrado para esta proposta.', 'warning')
+        return redirect(url_for('cad.render_page_doc', proposta=proposta))
+
+    arquivos = []
+    for nome in os.listdir(proposta_folder):
+        caminho = os.path.join(proposta_folder, nome)
+        if os.path.isfile(caminho):
+            modificado_ts = os.path.getmtime(caminho)
+            ext = os.path.splitext(nome)[1].lower()
+            arquivos.append({
+                'nome': nome,
+                'tamanho_kb': round(os.path.getsize(caminho) / 1024, 2),
+                'modificado_em': datetime.fromtimestamp(modificado_ts).strftime('%d/%m/%Y %H:%M'),
+                'modificado_ts': modificado_ts,
+                'is_image': ext in image_exts
+            })
+
+    arquivos.sort(key=lambda item: item['modificado_ts'], reverse=True)
+
+    return render_template('cadastro/listar_documentos.html', proposta=proposta, arquivos=arquivos)
+
+
+@cad_bp.route('/documentos_contrato/<proposta>/arquivo/<path:nome_arquivo>')
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente', 'vendedor')
+def baixar_documento_contrato(proposta, nome_arquivo):
+    from flask import abort
+
+    base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
+    base_folder = os.path.abspath(base_folder)
+    proposta_folder = os.path.join(base_folder, str(proposta))
+    caminho_arquivo = os.path.abspath(os.path.join(proposta_folder, nome_arquivo))
+
+    if not caminho_arquivo.startswith(os.path.abspath(proposta_folder) + os.sep):
+        return abort(403, description='Acesso negado ao arquivo.')
+
+    if not os.path.isfile(caminho_arquivo):
+        return abort(404, description='Arquivo não encontrado.')
+
+    return send_from_directory(proposta_folder, nome_arquivo, as_attachment=True)
+
+
+@cad_bp.route('/documentos_contrato/<proposta>/preview/<path:nome_arquivo>')
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente', 'vendedor')
+def preview_documento_contrato(proposta, nome_arquivo):
+    from flask import abort
+
+    base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
+    base_folder = os.path.abspath(base_folder)
+    proposta_folder = os.path.join(base_folder, str(proposta))
+    caminho_arquivo = os.path.abspath(os.path.join(proposta_folder, nome_arquivo))
+
+    if not caminho_arquivo.startswith(os.path.abspath(proposta_folder) + os.sep):
+        return abort(403, description='Acesso negado ao arquivo.')
+
+    if not os.path.isfile(caminho_arquivo):
+        return abort(404, description='Arquivo não encontrado.')
+
+    return send_from_directory(proposta_folder, nome_arquivo, as_attachment=False)
+
+
+@cad_bp.route('/documentos_contrato/<proposta>/baixar_todos')
+@acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
+@hierarquia('supervisor', 'agente', 'vendedor')
+def baixar_todos_documentos_contrato(proposta):
+    from flask import abort
+
+    base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
+    base_folder = os.path.abspath(base_folder)
+    proposta_folder = os.path.join(base_folder, str(proposta))
+
+    if not os.path.exists(proposta_folder):
+        return abort(404, description='Pasta da proposta não encontrada.')
+
+    nomes_arquivos = [n for n in os.listdir(proposta_folder) if os.path.isfile(os.path.join(proposta_folder, n))]
+    if not nomes_arquivos:
+        return abort(404, description='Nenhum arquivo encontrado para esta proposta.')
+
+    buffer_zip = io.BytesIO()
+    with zipfile.ZipFile(buffer_zip, 'w', zipfile.ZIP_DEFLATED) as zip_out:
+        for nome in nomes_arquivos:
+            caminho = os.path.join(proposta_folder, nome)
+            zip_out.write(caminho, arcname=nome)
+
+    buffer_zip.seek(0)
+    return send_file(
+        buffer_zip,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name=f'documentos_proposta_{proposta}.zip'
+    )
 
 @cad_bp.route('gravar_alteracao', methods=['POST'])
 @acesso('vendas', 'cadastro', 'administrativo', 'financeiro')
@@ -382,7 +517,7 @@ def gravar_alteracao():
                 
                 print (status, proposta)
                 
-                if status == 'enviado para financeiro' or status == 'boleto emitido':
+                if status not in ('entrevista agendada', 'contrato finalizado'):
                     print('agora em redirecionamento direto sem email')
                     return redirect(url_for('cad.acompanhar_cnt'))
                 else:
@@ -428,7 +563,7 @@ def gravar_alteracao():
                 
             print (status, proposta)
                 
-            if status == 'enviado para financeiro' or status == 'boleto emitido' or status == 'em pendencia':
+            if status not in ('entrevista agendada', 'contrato finalizado'):
                 print('agora em redirecionamento direto sem email')
                 return redirect(url_for('cad.acompanhar_cnt'))
             else:
@@ -654,20 +789,7 @@ def alterar_infos():
 
 @cad_bp.route('/documentos_contrato/<proposta>')
 def documento_contrato(proposta):
-    import os
-    from flask import send_from_directory, abort
-    base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas' )
-    base_folder = os.path.abspath(base_folder)
-    proposta_folder = os.path.join(base_folder, str(proposta))
-    if not os.path.exists(proposta_folder):
-        return abort(404, description='Pasta da proposta não encontrada.')
-    arquivos = os.listdir(proposta_folder)
-    if not arquivos:
-        return abort(404, description='Nenhum arquivo encontrado para esta proposta.')
-    # Sempre pega o primeiro arquivo da pasta
-    filename = arquivos[0]
-    print(f"Proposta recebida: {proposta}, Nome do arquivo: {filename}")
-    return send_from_directory(proposta_folder, filename, as_attachment=True)
+    return redirect(url_for('cad.listar_documentos_contrato', proposta=proposta))
 
 
 @cad_bp.route('/form_atualizar_data')

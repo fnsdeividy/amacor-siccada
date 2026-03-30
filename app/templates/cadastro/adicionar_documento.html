@@ -9,6 +9,9 @@
         <input type="file" name="arquivos" id="arquivos" multiple required>
         <button type="submit">Enviar</button>
     </form>
+    <p style="margin-top: 12px;">
+        <a href="{{ url_for('cad.listar_documentos_contrato', proposta=proposta) }}">Visualizar arquivos enviados desta proposta</a>
+    </p>
 </body>
 </html>
 </div>
