@@ -1,4 +1,5 @@
 import os
+import io
 import shutil
 import zipfile
 from functools import wraps
@@ -179,4 +180,121 @@ def extract_zip_merge(zip_path, dest_folder):
             extraidos += 1
 
     return extraidos
+
+
+def get_proposta_zip_path(proposta_folder, zip_name='documentos_proposta.zip'):
+    return os.path.join(proposta_folder, zip_name)
+
+
+def _safe_member_name(original_name):
+    nome = os.path.basename((original_name or '').replace('\\', '/'))
+    return secure_filename(nome)
+
+
+def _get_unique_zip_member_name(zip_path, original_name):
+    safe_name = _safe_member_name(original_name)
+    if not safe_name:
+        return None
+
+    existentes = set()
+    if os.path.exists(zip_path):
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            existentes = {info.filename for info in zip_ref.infolist() if not info.is_dir()}
+
+    nome_base, ext = os.path.splitext(safe_name)
+    candidato = safe_name
+    indice = 1
+    while candidato in existentes:
+        candidato = f"{nome_base}_{indice}{ext}"
+        indice += 1
+
+    return candidato
+
+
+def append_file_to_proposta_zip(zip_path, original_name, file_bytes):
+    member_name = _get_unique_zip_member_name(zip_path, original_name)
+    if not member_name:
+        return None
+
+    with zipfile.ZipFile(zip_path, 'a', zipfile.ZIP_DEFLATED) as zip_ref:
+        zip_ref.writestr(member_name, file_bytes)
+
+    return member_name
+
+
+def merge_zip_bytes_into_proposta_zip(zip_bytes, zip_path):
+    extraidos = 0
+    with zipfile.ZipFile(io.BytesIO(zip_bytes), 'r') as zip_src:
+        for info in zip_src.infolist():
+            if info.is_dir():
+                continue
+
+            nome_interno = _safe_member_name(info.filename)
+            if not nome_interno:
+                continue
+
+            conteudo = zip_src.read(info.filename)
+            if append_file_to_proposta_zip(zip_path, nome_interno, conteudo):
+                extraidos += 1
+
+    return extraidos
+
+
+def migrate_folder_files_to_proposta_zip(proposta_folder, zip_path):
+    migrados = 0
+    nome_zip = os.path.basename(zip_path)
+
+    for nome in os.listdir(proposta_folder):
+        caminho = os.path.join(proposta_folder, nome)
+        if not os.path.isfile(caminho):
+            continue
+        if nome == nome_zip:
+            continue
+
+        with open(caminho, 'rb') as f:
+            conteudo = f.read()
+        if append_file_to_proposta_zip(zip_path, nome, conteudo):
+            migrados += 1
+
+    return migrados
+
+
+def list_proposta_zip_members(zip_path):
+    if not os.path.exists(zip_path):
+        return []
+
+    image_exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    arquivos = []
+
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        for info in zip_ref.infolist():
+            if info.is_dir():
+                continue
+
+            dt_obj = datetime(*info.date_time)
+            ext = os.path.splitext(info.filename)[1].lower()
+            arquivos.append({
+                'nome': info.filename,
+                'tamanho_kb': round(info.file_size / 1024, 2),
+                'modificado_em': dt_obj.strftime('%d/%m/%Y %H:%M'),
+                'modificado_ts': dt_obj.timestamp(),
+                'is_image': ext in image_exts
+            })
+
+    arquivos.sort(key=lambda item: item['modificado_ts'], reverse=True)
+    return arquivos
+
+
+def read_proposta_zip_member(zip_path, member_name):
+    member_name = (member_name or '').replace('\\', '/')
+    if not member_name or member_name.startswith('/') or '..' in member_name:
+        return None
+
+    if not os.path.exists(zip_path):
+        return None
+
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        if member_name not in zip_ref.namelist():
+            return None
+        return zip_ref.read(member_name)
     

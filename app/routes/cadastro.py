@@ -2,11 +2,22 @@ from flask import Flask, Blueprint, request, render_template, redirect, send_fil
 import io
 import os
 import zipfile
+import mimetypes
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfMerger
 #from pdf2image import convert_from_path
-from app.utils import acesso, hierarquia, allowed_document_file, get_unique_filename, extract_zip_merge
+from app.utils import (
+    acesso,
+    hierarquia,
+    allowed_document_file,
+    get_proposta_zip_path,
+    append_file_to_proposta_zip,
+    merge_zip_bytes_into_proposta_zip,
+    migrate_folder_files_to_proposta_zip,
+    list_proposta_zip_members,
+    read_proposta_zip_member,
+)
 from ..models.database import query_db, update_db, get_email, get_nome, get_status
 import sqlite3
 import re
@@ -305,15 +316,19 @@ def adicionar_doc():
         if 'arquivos' not in request.files:
             flash('Nenhum arquivo selecionado.')
             return redirect(request.url)
+
         arquivos = request.files.getlist('arquivos')
-        # Salva na pasta static/Documentos_contrato de forma dinâmica
-        base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas' )
+        base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
         base_folder = os.path.abspath(base_folder)
+
         if not proposta:
             flash('Proposta não informada.')
             return redirect(request.url)
+
         proposta_folder = os.path.join(base_folder, str(proposta))
         os.makedirs(proposta_folder, exist_ok=True)
+        zip_path = get_proposta_zip_path(proposta_folder)
+
         total_salvos = 0
         total_extraidos = 0
 
@@ -328,26 +343,27 @@ def adicionar_doc():
                 return redirect(request.url)
 
             ext = nome_original.rsplit('.', 1)[1].lower()
-            nome_unico = get_unique_filename(proposta_folder, nome_original)
-            if not nome_unico:
-                flash('Não foi possível processar o nome do arquivo.')
+            conteudo_arquivo = arquivo.read()
+            if not conteudo_arquivo:
+                flash('Arquivo vazio ou inválido.')
                 return redirect(request.url)
-
-            caminho_salvo = os.path.join(proposta_folder, nome_unico)
-            arquivo.save(caminho_salvo)
 
             if ext == 'zip':
                 try:
-                    total_extraidos += extract_zip_merge(caminho_salvo, proposta_folder)
-                    os.remove(caminho_salvo)
+                    total_extraidos += merge_zip_bytes_into_proposta_zip(conteudo_arquivo, zip_path)
                 except zipfile.BadZipFile:
                     flash(f'Arquivo ZIP inválido: {nome_original}', 'error')
                     return redirect(request.url)
-            elif ext == 'rar':
-                # Mantém o .rar salvo para consulta/download; extração pode depender de biblioteca externa.
-                total_salvos += 1
             else:
+                nome_gravado = append_file_to_proposta_zip(zip_path, nome_original, conteudo_arquivo)
+                if not nome_gravado:
+                    flash('Não foi possível processar o nome do arquivo.')
+                    return redirect(request.url)
                 total_salvos += 1
+
+        if total_salvos == 0 and total_extraidos == 0:
+            flash('Nenhum arquivo válido foi processado.', 'warning')
+            return redirect(request.url)
 
         update_db("""
             UPDATE venda SET documento_enviado = 1 WHERE numero_proposta = ?
@@ -355,13 +371,14 @@ def adicionar_doc():
 
         if total_extraidos:
             flash(
-                f'Upload concluído! {total_salvos} arquivo(s) salvo(s) e {total_extraidos} arquivo(s) extraído(s) do ZIP.',
+                f'Upload concluído! {total_salvos} arquivo(s) salvo(s) e {total_extraidos} arquivo(s) incorporado(s) do ZIP.',
                 'success'
             )
         else:
             flash(f'Upload concluído! {total_salvos} arquivo(s) salvo(s).', 'success')
 
         return redirect(url_for('cad.listar_documentos_contrato', proposta=proposta))
+
     return redirect(url_for('auth.redir_atent'))
 
 
@@ -372,27 +389,16 @@ def listar_documentos_contrato(proposta):
     base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
     base_folder = os.path.abspath(base_folder)
     proposta_folder = os.path.join(base_folder, str(proposta))
-    image_exts = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    zip_path = get_proposta_zip_path(proposta_folder)
 
     if not os.path.exists(proposta_folder):
         flash('Nenhum documento encontrado para esta proposta.', 'warning')
         return redirect(url_for('cad.render_page_doc', proposta=proposta))
 
-    arquivos = []
-    for nome in os.listdir(proposta_folder):
-        caminho = os.path.join(proposta_folder, nome)
-        if os.path.isfile(caminho):
-            modificado_ts = os.path.getmtime(caminho)
-            ext = os.path.splitext(nome)[1].lower()
-            arquivos.append({
-                'nome': nome,
-                'tamanho_kb': round(os.path.getsize(caminho) / 1024, 2),
-                'modificado_em': datetime.fromtimestamp(modificado_ts).strftime('%d/%m/%Y %H:%M'),
-                'modificado_ts': modificado_ts,
-                'is_image': ext in image_exts
-            })
+    if not os.path.exists(zip_path):
+        migrate_folder_files_to_proposta_zip(proposta_folder, zip_path)
 
-    arquivos.sort(key=lambda item: item['modificado_ts'], reverse=True)
+    arquivos = list_proposta_zip_members(zip_path)
 
     return render_template('cadastro/listar_documentos.html', proposta=proposta, arquivos=arquivos)
 
@@ -406,15 +412,15 @@ def baixar_documento_contrato(proposta, nome_arquivo):
     base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
     base_folder = os.path.abspath(base_folder)
     proposta_folder = os.path.join(base_folder, str(proposta))
-    caminho_arquivo = os.path.abspath(os.path.join(proposta_folder, nome_arquivo))
+    zip_path = get_proposta_zip_path(proposta_folder)
 
-    if not caminho_arquivo.startswith(os.path.abspath(proposta_folder) + os.sep):
-        return abort(403, description='Acesso negado ao arquivo.')
-
-    if not os.path.isfile(caminho_arquivo):
+    conteudo = read_proposta_zip_member(zip_path, nome_arquivo)
+    if conteudo is None:
         return abort(404, description='Arquivo não encontrado.')
 
-    return send_from_directory(proposta_folder, nome_arquivo, as_attachment=True)
+    buffer_arquivo = io.BytesIO(conteudo)
+    buffer_arquivo.seek(0)
+    return send_file(buffer_arquivo, as_attachment=True, download_name=nome_arquivo)
 
 
 @cad_bp.route('/documentos_contrato/<proposta>/preview/<path:nome_arquivo>')
@@ -426,15 +432,16 @@ def preview_documento_contrato(proposta, nome_arquivo):
     base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
     base_folder = os.path.abspath(base_folder)
     proposta_folder = os.path.join(base_folder, str(proposta))
-    caminho_arquivo = os.path.abspath(os.path.join(proposta_folder, nome_arquivo))
+    zip_path = get_proposta_zip_path(proposta_folder)
 
-    if not caminho_arquivo.startswith(os.path.abspath(proposta_folder) + os.sep):
-        return abort(403, description='Acesso negado ao arquivo.')
-
-    if not os.path.isfile(caminho_arquivo):
+    conteudo = read_proposta_zip_member(zip_path, nome_arquivo)
+    if conteudo is None:
         return abort(404, description='Arquivo não encontrado.')
 
-    return send_from_directory(proposta_folder, nome_arquivo, as_attachment=False)
+    mimetype, _ = mimetypes.guess_type(nome_arquivo)
+    buffer_arquivo = io.BytesIO(conteudo)
+    buffer_arquivo.seek(0)
+    return send_file(buffer_arquivo, mimetype=mimetype or 'application/octet-stream', as_attachment=False)
 
 
 @cad_bp.route('/documentos_contrato/<proposta>/baixar_todos')
@@ -446,23 +453,19 @@ def baixar_todos_documentos_contrato(proposta):
     base_folder = os.path.join(os.getcwd(), 'static', 'Documento_propostas')
     base_folder = os.path.abspath(base_folder)
     proposta_folder = os.path.join(base_folder, str(proposta))
+    zip_path = get_proposta_zip_path(proposta_folder)
 
     if not os.path.exists(proposta_folder):
         return abort(404, description='Pasta da proposta não encontrada.')
 
-    nomes_arquivos = [n for n in os.listdir(proposta_folder) if os.path.isfile(os.path.join(proposta_folder, n))]
-    if not nomes_arquivos:
+    if not os.path.exists(zip_path):
+        migrate_folder_files_to_proposta_zip(proposta_folder, zip_path)
+
+    if not os.path.exists(zip_path):
         return abort(404, description='Nenhum arquivo encontrado para esta proposta.')
 
-    buffer_zip = io.BytesIO()
-    with zipfile.ZipFile(buffer_zip, 'w', zipfile.ZIP_DEFLATED) as zip_out:
-        for nome in nomes_arquivos:
-            caminho = os.path.join(proposta_folder, nome)
-            zip_out.write(caminho, arcname=nome)
-
-    buffer_zip.seek(0)
     return send_file(
-        buffer_zip,
+        zip_path,
         mimetype='application/zip',
         as_attachment=True,
         download_name=f'documentos_proposta_{proposta}.zip'
@@ -510,13 +513,9 @@ def gravar_alteracao():
                 cur.close()
                 conn.close()
                 flash('Alteração realizada com sucesso!', 'success')
-                
-                
-                
-                
-                
+
                 print (status, proposta)
-                
+
                 if status not in ('entrevista agendada', 'contrato finalizado'):
                     print('agora em redirecionamento direto sem email')
                     return redirect(url_for('cad.acompanhar_cnt'))
@@ -526,14 +525,13 @@ def gravar_alteracao():
                         if len(status)<10:
                             status=get_status(proposta)
                             print (status)
-                            
-                        
+
                         print('agora em envio de email')
                         assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
                         print(f"Enviando e-mail para {email} com assunto '{assunto}'")
-                        
+
                         email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
-                    
+
                         return redirect(url_for('cad.acompanhar_cnt'))
             else:
                 flash('Alteração não realizada, verifique o numero do contrato', 'error')
@@ -558,11 +556,9 @@ def gravar_alteracao():
             conn.close()
             flash('Alteração realizada com sucesso!', 'success')
             log_atualiza_status(proposta, status, tipo_usuario)
-                
-                
-                
+
             print (status, proposta)
-                
+
             if status not in ('entrevista agendada', 'contrato finalizado'):
                 print('agora em redirecionamento direto sem email')
                 return redirect(url_for('cad.acompanhar_cnt'))
@@ -572,20 +568,17 @@ def gravar_alteracao():
                     if len(status)<10:
                         status=get_status(proposta)
                         print (status)
-                            
-                        
+
                     print('agora em envio de email')
                     assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
                     print(f"Enviando e-mail para {email} com assunto '{assunto}'")
-                        
+
                     email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
-                    
+
                     return redirect(url_for('cad.acompanhar_cnt'))
 
-
     return redirect(url_for('cad.acompanhar_cnt'))
-                
-        
+
 
 @cad_bp.route('/alterar_infos_prpopsta', methods=['GET'])
 @acesso('vendas', 'cadastro', 'administrativo')
@@ -598,7 +591,7 @@ def alterar_infos_proposta():
     if not proposta:
         flash('Proposta não informada.','error')
         return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
-    
+
     if tp_alt =='venda':
         try:
             dados = query_db("SELECT * FROM venda WHERE numero_proposta = ?", (proposta,), one=True)
@@ -606,7 +599,7 @@ def alterar_infos_proposta():
         except sqlite3.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
-    
+
     if tp_alt =='respp':
         try:
             dados = query_db("SELECT * FROM responsavel WHERE proposta_id = ?", (proposta,), one=True)
@@ -614,7 +607,7 @@ def alterar_infos_proposta():
         except sqlite3.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
-    
+
     if tp_alt =='titular':
         try:
             dados = query_db("SELECT * FROM titulares WHERE proposta_id = ?", (proposta,), one=True)
@@ -622,7 +615,7 @@ def alterar_infos_proposta():
         except sqlite3.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
-    
+
     if tp_alt =='depenn':
         try:
             dados = query_db("SELECT * FROM dependentes WHERE proposta_id = ?", (proposta,), one=True)
@@ -630,12 +623,13 @@ def alterar_infos_proposta():
         except sqlite3.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
-    
+
     if tp_alt =='excluir':
         return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta, tipo_exc= 'excluir')
     if tp_alt == 'cancelar':
         return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta, tipo_exc= 'cancelar')
-        
+
+
 @cad_bp.route('/excluir_proposta', methods=['GET','POST'])
 @acesso('vendas','administrativo')
 @hierarquia('supervisor')
@@ -647,7 +641,7 @@ def excluir_proposta():
     tp_alt= request.args.get('tp_alt')
     print(f"Tipo de exclusão: {tp_alt}")
     print(request.args)
-    
+
     if request.method == 'POST':
         print(request.args)
 
@@ -656,7 +650,7 @@ def excluir_proposta():
         if not proposta:
             flash('Proposta não informada.','error')
             return redirect(url_for('cad.acompanhar_cnt'))
-        
+
         motivo= request.form.get('motivo')
         print(f"Proposta recebida: {proposta}")
         senha = request.form.get('senha')
@@ -667,7 +661,7 @@ def excluir_proposta():
         print(f"Senha no banco: {repr(senha_cancelamento)}")
 
         if senha.strip() in [s.strip() for s in senha_cancelamento]:
-    
+
             print(f"senha correta: {senha_cancelamento}")
             print(f"Tipo de exclusão: {tp_alt}")
             if tp_alt == 'cancelar':
@@ -677,16 +671,13 @@ def excluir_proposta():
             elif tp_alt == 'excluir':
                 excluir_proposta(proposta, motivo)
                 flash('Proposta excluída com sucesso!', 'success')
-                
+
                 return redirect(url_for('cad.acompanhar_cnt'))
         else:
             print(f"Senha incorreta: {senha}")
             flash('Senha incorreta. A proposta não foi excluída.', 'error')
             return redirect(url_for('cad.acompanhar_cnt'))
 
-
-            
-       
     return render_template('cadastro/alterar_infos/excluir_proposta.html', proposta_id=proposta, tp_alt=tp_alt)
 
 @cad_bp.route('/alterar_infos', methods=['POST'])
