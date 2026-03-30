@@ -674,7 +674,25 @@ def documento_contrato(proposta):
 @acesso('vendas', 'cadastro', 'administrativo')
 @hierarquia('supervisor','agente')
 def form_atualizar_data():
-    return render_template('cadastro/atualizar_data.html')
+    ultima_atualizacao = None
+    log_path = os.path.join(os.getcwd(), 'log_atualizacoa_banco.txt')
+
+    try:
+        with open(log_path, 'r', encoding='utf-8') as arquivo_log:
+            linhas = [linha.strip() for linha in arquivo_log if linha.strip()]
+            if linhas:
+                ultima_linha = linhas[-1]
+                match_data = re.search(r'\[(\d{4}-\d{2}-\d{2})\s', ultima_linha)
+                if match_data:
+                    ultima_atualizacao = match_data.group(1)
+                else:
+                    ultima_atualizacao = 'Data da atualização não identificada.'
+    except FileNotFoundError:
+        ultima_atualizacao = 'Nenhuma atualização registrada ainda.'
+    except Exception:
+        ultima_atualizacao = 'Não foi possível ler o histórico de atualização.'
+
+    return render_template('cadastro/atualizar_data.html', ultima_atualizacao=ultima_atualizacao)
 
 
 @cad_bp.route('/atualizar_data', methods=['GET','POST'])

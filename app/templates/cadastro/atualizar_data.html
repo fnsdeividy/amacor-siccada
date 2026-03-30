@@ -25,6 +25,10 @@
         <input type="file" name="csv_banco" id="csv_banco" multiple required>
         <button type="submit">Enviar</button>
     </form>
+
+    {% if ultima_atualizacao %}
+    <p style="margin-top: 16px;"><strong>Última atualização registrada:</strong> {{ ultima_atualizacao }}</p>
+    {% endif %}
 </body>
 </html>
 </div>
