@@ -1,0 +1,53 @@
+{% extends "window.html" %}
+
+{% block window_content %}
+<h1>Documentos da proposta {{ proposta }}</h1>
+
+<div style="margin-top: 12px; margin-bottom: 10px;">
+    <a href="{{ url_for('cad.baixar_todos_documentos_contrato', proposta=proposta) }}">Baixar todos (ZIP)</a>
+</div>
+
+{% if arquivos %}
+<table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+    <thead>
+        <tr>
+            <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Prévia</th>
+            <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Arquivo</th>
+            <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Tamanho</th>
+            <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Atualizado em</th>
+            <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for arquivo in arquivos %}
+        <tr>
+            <td style="border-bottom: 1px solid #eee; padding: 8px;">
+                {% if arquivo.is_image %}
+                    <a href="{{ url_for('cad.preview_documento_contrato', proposta=proposta, nome_arquivo=arquivo.nome) }}" target="_blank" rel="noopener noreferrer">
+                        <img src="{{ url_for('cad.preview_documento_contrato', proposta=proposta, nome_arquivo=arquivo.nome) }}"
+                             alt="Miniatura de {{ arquivo.nome }}"
+                             style="width: 56px; height: 56px; object-fit: cover; border: 1px solid #ddd; border-radius: 6px;">
+                    </a>
+                {% else %}
+                    <span style="color: #777;">Sem prévia</span>
+                {% endif %}
+            </td>
+            <td style="border-bottom: 1px solid #eee; padding: 8px;">{{ arquivo.nome }}</td>
+            <td style="border-bottom: 1px solid #eee; padding: 8px;">{{ arquivo.tamanho_kb }} KB</td>
+            <td style="border-bottom: 1px solid #eee; padding: 8px;">{{ arquivo.modificado_em }}</td>
+            <td style="border-bottom: 1px solid #eee; padding: 8px;">
+                <a href="{{ url_for('cad.baixar_documento_contrato', proposta=proposta, nome_arquivo=arquivo.nome) }}">Baixar</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Nenhum arquivo encontrado para esta proposta.</p>
+{% endif %}
+
+<div style="margin-top: 20px; display: flex; gap: 12px;">
+    <a href="{{ url_for('cad.render_page_doc', proposta=proposta) }}">Adicionar mais documentos</a>
+    <a href="{{ url_for('auth.redir_atent') }}">Voltar</a>
+</div>
+{% endblock %}
