@@ -628,19 +628,16 @@ def msg_email(status, proposta, complemento):
 """
         return assunto, mensagem, complemento
     
-    elif status == 'Enviado ao cadastro':
+    elif status == 'Enviado ao cadastro' or 'Aguardando entrevista':
         assunto = f'{nome} seu processo de cadastro foi iniciado'
-        mensagem = f'''
+        mensagem = f"""
 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
-    <p>Olá {nome},</p>
-    <p>Nosso setor de cadastro recebeu a sua documentação e estamos incluindo seus dados aos nossos sitemas.</p>
-    <p>Dentro dos próximos 05 dias entraremos em contato para prosseguir com o processo de adesão ao plano.</p>
-    
-    <h3 style="color: #0a2f68; border-bottom: 2px solid #0a2f68; padding-bottom: 5px; display: inline-block;">
-        Próximas etapas do seu plano:
-    </h3>
-    
-    <!-- Etapas usando a função criar_etapa -->
+    <p style="font-size: 16px; margin-bottom: 20px;">Olá {nome},</p>
+
+    <p style="font-size: 16px;">Nosso setor de cadastro recebeu a sua documentação e estamos incluindo seus dados aos nossos sistemas.</p>
+    <p style="font-size: 16px;">Dentro dos próximos 05 dias entraremos em contato para prosseguir com o processo de adesão ao plano.</p>
+
+    <!-- Linha do tempo de progresso CORRIGIDA -->
     <div style="margin: 40px 0; position: relative;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px;">
             <tr>
@@ -661,21 +658,21 @@ def msg_email(status, proposta, complemento):
                 </td>
             </tr>
         </table>
-    </div>
 
-    <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
+        <!-- Barra de progresso -->
+        <div style="height: 4px; background-color: #e0e0e0; position: relative; margin: 0 12%;">
             <div style="width: 55%; height: 100%; background-color: #0a2f68; position: absolute;"></div>
         </div>
     </div>
-    
+
     <div style="background-color: #fff8e6; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 0 4px 4px 0;">
         <p style="margin: 0; color: #856404; font-weight: 500;">
-            ⏱️ <strong>Todo esse processo deverá ser realizado em até 30 dias corridos</strong> a partir da data de pagamento da adesão. 
+            ⏱️ <strong>Todo esse processo deverá ser realizado em até 30 dias corridos</strong> a partir da data de pagamento da adesão.
             Caso não cumpra o prazo o plano será suspenso e após 10 dias de suspensão seu plano será <strong>cancelado.</strong>
         </p>
     </div>
 </div>
-'''
+"""
         return assunto, mensagem, complemento
     
     else:

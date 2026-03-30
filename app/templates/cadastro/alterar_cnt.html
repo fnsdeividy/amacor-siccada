@@ -37,7 +37,7 @@
                         <option value="" disabled selected>selecione</option>
                         
 
-                        {% if area == 'administrativo' and classe_usuario == 'supervisor' %}
+                        {% if area == 'administrativo' or area == 'dev' and classe_usuario == 'supervisor' or classe_usuario == 'dev' %}
                         <option value="Enviado ao cadastro">Enviar para cadastro</option>
                         <option value="entrevista online enviada">entrevista online enviada</option>
                         <option value="enviado para financeiro">Enviar para financeiro</option>
