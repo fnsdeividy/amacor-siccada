@@ -297,6 +297,33 @@ def get_status(proposta_id, database_path=None):
     print('status: ', status)
     return status['status'] if status else None
 
+def atualizar_status_documentos_proposta(proposta_id, nota_inclusa=False, database_path=None):
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+
+    try:
+        cur.execute(
+            "UPDATE venda SET documento_enviado = 1 WHERE numero_proposta = ?",
+            (proposta_id,)
+        )
+
+        if nota_inclusa:
+            cur.execute(
+                "UPDATE venda SET nota_inclusa = 1 WHERE numero_proposta = ?",
+                (proposta_id,)
+            )
+            cur.execute(
+                "UPDATE venda SET status = 'nota emitida' WHERE numero_proposta = ?",
+                (proposta_id,)
+            )
+
+        conn.commit()
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
 def senha_aleatoria(tamanho,email):
     import random
     import string
@@ -1422,7 +1449,7 @@ def atualiza_atrasos(database_path=None):
         'analise de declaração': 2,
         'geração de kit': 1,
         'em pendencia': 10,
-        'boleto emitido': 1,
+        'nota emitida': 1,
     }
 
     cur.execute("""

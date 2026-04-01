@@ -1,6 +1,7 @@
 import os
 import io
 import shutil
+import unicodedata
 import zipfile
 from functools import wraps
 from flask import session, redirect, url_for, flash
@@ -137,6 +138,55 @@ def allowed_document_file(filename, allowed_extensions=None):
     if allowed_extensions is None:
         allowed_extensions = {'rar', 'zip', 'pdf'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+
+NOTA_FISCAL_KEYWORDS = {
+    'nf',
+    'nfe',
+    'nota',
+    'nota_fiscal',
+    'nota fiscal',
+    'notafiscal',
+    'nota-fiscal',
+    'danfe',
+}
+
+
+def _normalize_document_name(filename):
+    nome = os.path.splitext(os.path.basename(filename or ''))[0]
+    nome = unicodedata.normalize('NFKD', nome)
+    nome = ''.join(char for char in nome if not unicodedata.combining(char))
+    return nome.lower()
+
+
+def is_nota_fiscal_filename(filename, keywords=None):
+    keywords = keywords or NOTA_FISCAL_KEYWORDS
+    nome_normalizado = _normalize_document_name(filename)
+    nome_variantes = {
+        nome_normalizado,
+        nome_normalizado.replace('_', ' '),
+        nome_normalizado.replace('-', ' '),
+        nome_normalizado.replace('_', ''),
+        nome_normalizado.replace('-', ''),
+    }
+
+    for keyword in keywords:
+        keyword_normalizada = _normalize_document_name(keyword)
+        for variante in nome_variantes:
+            if keyword_normalizada and keyword_normalizada in variante:
+                return True
+
+    return False
+
+
+def zip_bytes_contains_nota_fiscal(zip_bytes, keywords=None):
+    with zipfile.ZipFile(io.BytesIO(zip_bytes), 'r') as zip_src:
+        for info in zip_src.infolist():
+            if info.is_dir():
+                continue
+            if is_nota_fiscal_filename(info.filename, keywords=keywords):
+                return True
+    return False
 
 
 def get_unique_filename(dest_folder, original_name):
@@ -297,4 +347,43 @@ def read_proposta_zip_member(zip_path, member_name):
         if member_name not in zip_ref.namelist():
             return None
         return zip_ref.read(member_name)
+
+
+def get_proposta_nota_fiscal_attachment(proposta_folder):
+    zip_path = get_proposta_zip_path(proposta_folder)
+
+    if os.path.exists(zip_path):
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            for info in reversed(zip_ref.infolist()):
+                if info.is_dir():
+                    continue
+                if is_nota_fiscal_filename(info.filename):
+                    return {
+                        'filename': os.path.basename(info.filename),
+                        'content': zip_ref.read(info.filename),
+                    }
+
+    if not os.path.isdir(proposta_folder):
+        return None
+
+    arquivos = []
+    for nome in os.listdir(proposta_folder):
+        caminho = os.path.join(proposta_folder, nome)
+        if not os.path.isfile(caminho):
+            continue
+        if nome == os.path.basename(zip_path):
+            continue
+        if not is_nota_fiscal_filename(nome):
+            continue
+        arquivos.append((os.path.getmtime(caminho), nome, caminho))
+
+    if not arquivos:
+        return None
+
+    _, nome_arquivo, caminho_arquivo = max(arquivos, key=lambda item: item[0])
+    with open(caminho_arquivo, 'rb') as arquivo:
+        return {
+            'filename': nome_arquivo,
+            'content': arquivo.read(),
+        }
     
