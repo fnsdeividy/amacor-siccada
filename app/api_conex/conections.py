@@ -1,3 +1,4 @@
+import mimetypes
 import requests
 from flask import session, jsonify, url_for
 import os
@@ -125,8 +126,10 @@ def siccada_kommo():
 
 
 
-def email_gmail(destinatario, assunto, mensagem,complemento):
+def email_gmail(destinatario, assunto, mensagem,complemento, anexos=None):
     import smtplib
+    from email import encoders
+    from email.mime.base import MIMEBase
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     from email.mime.image import MIMEImage
@@ -217,6 +220,24 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
         else:
             msg.attach(MIMEText(html1, 'html'))
 
+    for anexo in anexos or []:
+        nome_arquivo = anexo.get('filename')
+        conteudo = anexo.get('content')
+        if not nome_arquivo or conteudo is None:
+            continue
+
+        mimetype, _ = mimetypes.guess_type(nome_arquivo)
+        if mimetype:
+            tipo_principal, subtipo = mimetype.split('/', 1)
+        else:
+            tipo_principal, subtipo = 'application', 'octet-stream'
+
+        parte = MIMEBase(tipo_principal, subtipo)
+        parte.set_payload(conteudo)
+        encoders.encode_base64(parte)
+        parte.add_header('Content-Disposition', f'attachment; filename="{nome_arquivo}"')
+        msg.attach(parte)
+
         
 
 
@@ -229,7 +250,7 @@ def email_gmail(destinatario, assunto, mensagem,complemento):
     except Exception as e:
         print("❌ Erro ao enviar e-mail:", str(e))
 
-def msg_email(status, proposta, complemento):
+def msg_email(status, proposta, complemento, nota_fiscal_anexada=False):
     nome = get_nome(proposta)
     
     # Template para os círculos de progresso (reutilizável)
@@ -292,6 +313,15 @@ def msg_email(status, proposta, complemento):
 
     elif status == 'contrato finalizado':
         assunto = f'{nome} o processo de contratação está Finalizado'
+        mensagem_nota_fiscal = ''
+        if nota_fiscal_anexada:
+            mensagem_nota_fiscal = """
+    <div style="background-color: #eef8ee; border: 2px solid #2f7d32; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+        <p style="font-size: 16px; color: #2f7d32; font-weight: bold; margin: 0;">
+            Sua nota fiscal segue anexada neste e-mail.
+        </p>
+    </div>
+"""
         mensagem = f"""
 <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
     
@@ -309,13 +339,15 @@ def msg_email(status, proposta, complemento):
            style="display: inline-block; background-color: #0a2f68; color: white; 
                   padding: 15px 30px; text-decoration: none; border-radius: 4px; 
                   font-weight: bold; font-size: 18px; box-shadow: 0 4px 8px rgba(10, 47, 104, 0.2);">
-            📲 Solicitar Carteirinha Agora
+            Solicitar Carteirinha Agora
         </a>
     </div>
     
     <p style="font-size: 14px; color: #666; text-align: center; margin-bottom: 30px;">
         <strong>Prazo de entrega:</strong> até 1 hora após a solicitação
     </p>
+
+    {mensagem_nota_fiscal}
     
     <div style="background-color: #f8f9fa; border-radius: 8px; padding: 15px; margin: 25px 0;">
         <p style="font-size: 16px; margin-top: 0; font-weight: bold;">Informações importantes:</p>

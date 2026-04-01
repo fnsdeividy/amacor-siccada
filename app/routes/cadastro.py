@@ -17,8 +17,18 @@ from app.utils import (
     migrate_folder_files_to_proposta_zip,
     list_proposta_zip_members,
     read_proposta_zip_member,
+    is_nota_fiscal_filename,
+    zip_bytes_contains_nota_fiscal,
+    get_proposta_nota_fiscal_attachment,
 )
-from ..models.database import query_db, update_db, get_email, get_nome, get_status
+from ..models.database import (
+    query_db,
+    update_db,
+    get_email,
+    get_nome,
+    get_status,
+    atualizar_status_documentos_proposta,
+)
 import sqlite3
 import re
 import glob
@@ -143,7 +153,7 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'financeiro':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'Enviado ao cadastro' OR status = 'boleto emitido ORDER BY data_venda DESC'"
+            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'Enviado ao cadastro' OR status = 'nota emitida' ORDER BY data_venda DESC'"
             result = query_db(query)
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
@@ -331,6 +341,7 @@ def adicionar_doc():
 
         total_salvos = 0
         total_extraidos = 0
+        nota_inclusa_detectada = False
 
         for arquivo in arquivos:
             if not arquivo or not allowed_document_file(arquivo.filename):
@@ -350,11 +361,15 @@ def adicionar_doc():
 
             if ext == 'zip':
                 try:
+                    if zip_bytes_contains_nota_fiscal(conteudo_arquivo):
+                        nota_inclusa_detectada = True
                     total_extraidos += merge_zip_bytes_into_proposta_zip(conteudo_arquivo, zip_path)
                 except zipfile.BadZipFile:
                     flash(f'Arquivo ZIP inválido: {nome_original}', 'error')
                     return redirect(request.url)
             else:
+                if is_nota_fiscal_filename(nome_original):
+                    nota_inclusa_detectada = True
                 nome_gravado = append_file_to_proposta_zip(zip_path, nome_original, conteudo_arquivo)
                 if not nome_gravado:
                     flash('Não foi possível processar o nome do arquivo.')
@@ -365,9 +380,10 @@ def adicionar_doc():
             flash('Nenhum arquivo válido foi processado.', 'warning')
             return redirect(request.url)
 
-        update_db("""
-            UPDATE venda SET documento_enviado = 1 WHERE numero_proposta = ?
-        """, (proposta,))
+        atualizar_status_documentos_proposta(
+            proposta,
+            nota_inclusa=nota_inclusa_detectada,
+        )
 
         if total_extraidos:
             flash(
@@ -522,15 +538,38 @@ def gravar_alteracao():
                 else:
                     print(status)
                     if email:
+                        anexos_email = None
+                        nota_fiscal_anexada = False
                         if len(status)<10:
                             status=get_status(proposta)
                             print (status)
 
+                        if status == 'contrato finalizado':
+                            base_folder = os.path.abspath(os.path.join(os.getcwd(), 'static', 'Documento_propostas'))
+                            proposta_folder = os.path.join(base_folder, str(proposta))
+                            nota_fiscal = get_proposta_nota_fiscal_attachment(proposta_folder)
+                            if nota_fiscal:
+                                anexos_email = [nota_fiscal]
+                                nota_fiscal_anexada = True
+                            else:
+                                flash('Contrato finalizado, mas nenhuma nota fiscal foi encontrada para anexar ao e-mail.', 'warning')
+
                         print('agora em envio de email')
-                        assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
+                        assunto,mensagem,complemento = msg_email(
+                            status=status,
+                            proposta=proposta,
+                            complemento=complemento,
+                            nota_fiscal_anexada=nota_fiscal_anexada,
+                        )
                         print(f"Enviando e-mail para {email} com assunto '{assunto}'")
 
-                        email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
+                        email_gmail(
+                            destinatario=email,
+                            assunto=assunto,
+                            mensagem=mensagem,
+                            complemento=complemento,
+                            anexos=anexos_email,
+                        )
 
                         return redirect(url_for('cad.acompanhar_cnt'))
             else:
@@ -565,15 +604,38 @@ def gravar_alteracao():
             else:
                 print(status)
                 if email:
+                    anexos_email = None
+                    nota_fiscal_anexada = False
                     if len(status)<10:
                         status=get_status(proposta)
                         print (status)
 
+                    if status == 'contrato finalizado':
+                        base_folder = os.path.abspath(os.path.join(os.getcwd(), 'static', 'Documento_propostas'))
+                        proposta_folder = os.path.join(base_folder, str(proposta))
+                        nota_fiscal = get_proposta_nota_fiscal_attachment(proposta_folder)
+                        if nota_fiscal:
+                            anexos_email = [nota_fiscal]
+                            nota_fiscal_anexada = True
+                        else:
+                            flash('Contrato finalizado, mas nenhuma nota fiscal foi encontrada para anexar ao e-mail.', 'warning')
+
                     print('agora em envio de email')
-                    assunto,mensagem,complemento = msg_email(status=status, proposta=proposta,complemento=complemento)
+                    assunto,mensagem,complemento = msg_email(
+                        status=status,
+                        proposta=proposta,
+                        complemento=complemento,
+                        nota_fiscal_anexada=nota_fiscal_anexada,
+                    )
                     print(f"Enviando e-mail para {email} com assunto '{assunto}'")
 
-                    email_gmail(destinatario=email, assunto=assunto, mensagem=mensagem, complemento=complemento)
+                    email_gmail(
+                        destinatario=email,
+                        assunto=assunto,
+                        mensagem=mensagem,
+                        complemento=complemento,
+                        anexos=anexos_email,
+                    )
 
                     return redirect(url_for('cad.acompanhar_cnt'))
 
