@@ -145,7 +145,7 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'cadastro' or tipo_usuario == 'dev':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status = 'Enviado ao cadastro' OR status = 'Aguardando entrevista' OR status = 'entrevista online enviada ORDER BY data_venda DESC'" 
+            query = "SELECT * FROM venda WHERE status = 'Enviado ao cadastro' OR status = 'Aguardando entrevista' OR status = 'entrevista online enviada' ORDER BY data_venda DESC"
             result = query_db(query)
             if result is None:
                return render_template('cadastro/sem_registro.html ', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
@@ -153,7 +153,7 @@ def acompanhar_cnt():
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'financeiro':
             print(f"Tipo de usuário: {tipo_usuario}")
-            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'Enviado ao cadastro' OR status = 'nota emitida' ORDER BY data_venda DESC'"
+            query = "SELECT * FROM venda WHERE status ='enviado para financeiro' OR status = 'Enviado ao cadastro' OR status = 'nota emitida' ORDER BY data_venda DESC"
             result = query_db(query)
             return render_template('cadastro/acompanhar_cnt.html', result=result, resp=resp, area=tipo_usuario,classe_usuario=classe_usuario)
         elif tipo_usuario == 'administrativo':
