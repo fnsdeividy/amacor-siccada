@@ -2807,7 +2807,8 @@ def get_autorizacoes_by_card(card_beneficiario, database_path=None):
                 timestamp_solicitacao,
                 data_hora_registro,
                 status,
-                motivo_rejeicao
+                motivo_rejeicao,
+                protocolo_sig
             FROM autorizacoes_exames
             WHERE card_beneficiario = ?
             ORDER BY data_hora_registro DESC
