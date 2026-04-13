@@ -151,6 +151,13 @@ NOTA_FISCAL_KEYWORDS = {
     'danfe',
 }
 
+NOTA_FISCAL_PREFIXES = (
+    'nf',
+    'nota_fiscal',
+    'nota-fiscal',
+    'nota fiscal',
+)
+
 
 def _normalize_document_name(filename):
     nome = os.path.splitext(os.path.basename(filename or ''))[0]
@@ -176,6 +183,16 @@ def is_nota_fiscal_filename(filename, keywords=None):
             if keyword_normalizada and keyword_normalizada in variante:
                 return True
 
+    return False
+
+
+def is_prefixed_nota_fiscal_filename(filename, prefixes=None):
+    prefixes = prefixes or NOTA_FISCAL_PREFIXES
+    nome_normalizado = _normalize_document_name(filename)
+    for prefix in prefixes:
+        prefixo_normalizado = _normalize_document_name(prefix)
+        if prefixo_normalizado and nome_normalizado.startswith(prefixo_normalizado):
+            return True
     return False
 
 
@@ -241,8 +258,27 @@ def _safe_member_name(original_name):
     return secure_filename(nome)
 
 
-def _get_unique_zip_member_name(zip_path, original_name):
+def _prefix_document_name(original_name, prefix=None):
     safe_name = _safe_member_name(original_name)
+    if not safe_name:
+        return None
+
+    safe_prefix = secure_filename((prefix or '').strip())
+    if not safe_prefix:
+        return safe_name
+
+    nome_base, ext = os.path.splitext(safe_name)
+    nome_base_normalizado = _normalize_document_name(nome_base)
+    prefixo_normalizado = _normalize_document_name(safe_prefix)
+
+    if nome_base_normalizado.startswith(prefixo_normalizado):
+        return safe_name
+
+    return f"{safe_prefix}_{nome_base}{ext}"
+
+
+def _get_unique_zip_member_name(zip_path, original_name, prefix=None):
+    safe_name = _prefix_document_name(original_name, prefix=prefix)
     if not safe_name:
         return None
 
@@ -261,8 +297,8 @@ def _get_unique_zip_member_name(zip_path, original_name):
     return candidato
 
 
-def append_file_to_proposta_zip(zip_path, original_name, file_bytes):
-    member_name = _get_unique_zip_member_name(zip_path, original_name)
+def append_file_to_proposta_zip(zip_path, original_name, file_bytes, prefix=None):
+    member_name = _get_unique_zip_member_name(zip_path, original_name, prefix=prefix)
     if not member_name:
         return None
 
@@ -272,7 +308,7 @@ def append_file_to_proposta_zip(zip_path, original_name, file_bytes):
     return member_name
 
 
-def merge_zip_bytes_into_proposta_zip(zip_bytes, zip_path):
+def merge_zip_bytes_into_proposta_zip(zip_bytes, zip_path, prefix=None):
     extraidos = 0
     with zipfile.ZipFile(io.BytesIO(zip_bytes), 'r') as zip_src:
         for info in zip_src.infolist():
@@ -284,7 +320,7 @@ def merge_zip_bytes_into_proposta_zip(zip_bytes, zip_path):
                 continue
 
             conteudo = zip_src.read(info.filename)
-            if append_file_to_proposta_zip(zip_path, nome_interno, conteudo):
+            if append_file_to_proposta_zip(zip_path, nome_interno, conteudo, prefix=prefix):
                 extraidos += 1
 
     return extraidos
@@ -354,14 +390,27 @@ def get_proposta_nota_fiscal_attachment(proposta_folder):
 
     if os.path.exists(zip_path):
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            for info in reversed(zip_ref.infolist()):
+            candidatos_preferenciais = []
+            candidatos_gerais = []
+            for indice, info in enumerate(zip_ref.infolist()):
                 if info.is_dir():
                     continue
-                if is_nota_fiscal_filename(info.filename):
-                    return {
-                        'filename': os.path.basename(info.filename),
-                        'content': zip_ref.read(info.filename),
-                    }
+                if not is_nota_fiscal_filename(info.filename):
+                    continue
+
+                candidato = (indice, info)
+                if is_prefixed_nota_fiscal_filename(info.filename):
+                    candidatos_preferenciais.append(candidato)
+                else:
+                    candidatos_gerais.append(candidato)
+
+            candidatos = candidatos_preferenciais or candidatos_gerais
+            if candidatos:
+                _, info = candidatos[-1]
+                return {
+                    'filename': os.path.basename(info.filename),
+                    'content': zip_ref.read(info.filename),
+                }
 
     if not os.path.isdir(proposta_folder):
         return None
@@ -375,12 +424,17 @@ def get_proposta_nota_fiscal_attachment(proposta_folder):
             continue
         if not is_nota_fiscal_filename(nome):
             continue
-        arquivos.append((os.path.getmtime(caminho), nome, caminho))
+        arquivos.append((
+            1 if is_prefixed_nota_fiscal_filename(nome) else 0,
+            os.path.getmtime(caminho),
+            nome,
+            caminho,
+        ))
 
     if not arquivos:
         return None
 
-    _, nome_arquivo, caminho_arquivo = max(arquivos, key=lambda item: item[0])
+    _, _, nome_arquivo, caminho_arquivo = max(arquivos, key=lambda item: (item[0], item[1]))
     with open(caminho_arquivo, 'rb') as arquivo:
         return {
             'filename': nome_arquivo,
