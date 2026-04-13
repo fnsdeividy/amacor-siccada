@@ -302,7 +302,7 @@ def adicionar_cnt():
 
 
 @cad_bp.route('render_doc_get', methods=['POST', 'GET'])
-@acesso('vendas', 'cadastro', 'administrativo')
+@acesso('financeiro','vendas', 'cadastro', 'administrativo')
 @hierarquia('supervisor','agente','vendedor')
 
 def render_page_doc():
@@ -311,7 +311,7 @@ def render_page_doc():
     return render_template('cadastro/adicionar_documento.html', proposta=proposta)
 
 @cad_bp.route('adicionar_doc', methods=['POST', 'GET'])
-@acesso('vendas', 'cadastro','administrativo')
+@acesso('financeiro','vendas', 'cadastro','administrativo')
 @hierarquia('supervisor','agente','vendedor')
 def adicionar_doc():
     classe_usuario = session.get('classe_usuario')
