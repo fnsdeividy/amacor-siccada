@@ -46,11 +46,18 @@ input[type="number"] {
     box-sizing: border-box;
 }
 
+.divisoria2 {
+    width: 100%;
+    max-width: 1100px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    position: relative;
+}
+
 .divisoria2 h1 {
     font-size: 24px;
     color: #e6e6e6;
     margin-bottom: 20px;
-    
 }
 
 .cpf-form {
@@ -126,12 +133,12 @@ a.btn:hover {
 .container {
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh; /* Centraliza o formulário verticalmente */
-    padding: 5px; /* Remove qualquer padding extra */
-    margin: 5px; /* Remove qualquer margem extra */
-    background: none; /* Remove qualquer fundo adicional */
-    margin-top: 50px;
+    align-items: flex-start;
+    min-height: calc(100vh - 60px);
+    padding: 20px;
+    margin-top: 60px;
+    background: none;
+    box-sizing: border-box;
 }
 
 
