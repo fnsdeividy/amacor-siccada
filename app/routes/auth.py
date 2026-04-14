@@ -1,7 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, current_app, flash, url_for, session
-import sqlite3
-from app.models.database import query_db
+from flask import Blueprint, render_template, request, redirect, flash, url_for, session
+from app.models.database import (
+    get_usuario_por_email_senha,
+    usuario_existe_por_email,
+    cadastrar_usuario,
+    corretora_existe_por_cnpj,
+)
 from app.utils import login_required, hierarquia
+from ..verifix import verificar_injection
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -12,6 +17,10 @@ def login():
         email = request.form['email']
         senha = request.form['senha']
 
+        if verificar_injection([email, senha]):
+            flash('Entrada inválida detectada.')
+            return redirect(url_for('auth.login'))
+
         senha = hash_senha(senha)  
         print("senha hasehada: ",senha)
 
@@ -21,11 +30,7 @@ def login():
             return redirect(url_for('auth.login'))
 
         # Consulta ao banco de dados
-        usuario = query_db(
-            "SELECT * FROM usuarios WHERE email = ? AND senha = ?", 
-            (email, senha), 
-            one=True
-        )
+        usuario = get_usuario_por_email_senha(email, senha)
         
 
 
@@ -63,12 +68,17 @@ def cadastrar():
         cpf= request.form['cpf']
         email = request.form['email']
         senha = request.form['senha']
-        senha_hashed = hash_senha(senha)
-        senha=senha_hashed
         tipo_usuario = request.form['tipo_usuario']
         classe_usuario = request.form['classe_usuario']
 
-        exist = query_db("SELECT * FROM usuarios WHERE email = ?", (email,))
+        if verificar_injection([nome, cpf, email, senha, tipo_usuario, classe_usuario]):
+            flash('Entrada inválida detectada.')
+            return redirect(request.url)
+
+        senha_hashed = hash_senha(senha)
+        senha=senha_hashed
+
+        exist = usuario_existe_por_email(email)
    
 
         if exist:
@@ -77,15 +87,10 @@ def cadastrar():
         else:
 
            
-            # Insere o novo usuário no banco de dados
-            conn = sqlite3.connect(current_app.config['DATABASE'])
-            cur = conn.cursor()
-            cur.execute(
-                "INSERT INTO usuarios (nome, cpf, email, senha, tipo_usuario, classe_usuario) VALUES (?, ?, ?, ?, ?, ?)",
-                (nome,cpf, email, senha, tipo_usuario, classe_usuario)
-            )
-            conn.commit()
-            conn.close()
+            cadastro_ok = cadastrar_usuario(nome, cpf, email, senha, tipo_usuario, classe_usuario)
+            if not cadastro_ok:
+                flash('Não foi possível cadastrar usuário. Verifique os dados informados.')
+                return redirect(request.url)
 
             flash('Usuário cadastrado com sucesso! Faça login.')
             return redirect(url_for('auth.login'))
@@ -111,6 +116,10 @@ def esqueci_senha():
     from ..api_conex.conections import redefinir_senha
     if request.method == 'POST':
         email = request.form['email']
+        if verificar_injection(email):
+            flash('Entrada inválida detectada.')
+            return redirect(url_for('auth.esqueci_senha'))
+
         confirmar_email= get_email_user(email)
         if email == confirmar_email:
             # Gera um token de redefinição de senha
@@ -131,13 +140,21 @@ def esqueci_senha():
 @auth_bp.route('/mudar_senha', methods=['GET', 'POST'])
 def mudar_senha():
     from ..cripto import hash_senha
-    from ..models.database import mudar_senha
+    from ..models.database import mudar_senha as db_mudar_senha
     if request.method == 'POST':
         email = request.form['email']
         novasenha = request.form['novasenha']
+
+        if verificar_injection([email, novasenha]):
+            flash('Entrada inválida detectada.')
+            return redirect(url_for('auth.mudar_senha'))
+
         novasenha = hash_senha(novasenha)
         print("senha hasehada: ",novasenha)
-        mudar_senha(email, novasenha)
+        troca_ok = db_mudar_senha(email, novasenha)
+        if not troca_ok:
+            flash('Não foi possível alterar a senha. Verifique os dados informados.')
+            return redirect(url_for('auth.mudar_senha'))
         
         flash('senha alterada!')
         return redirect(url_for('auth.login_redir'))
@@ -230,12 +247,17 @@ def cadastrar_corretora():
     if request.method=='POST':
         nome = request.form['nome']
         nome_format = nome.strip()  # Remove espaços em branco extras
+        nome = nome_format
         
         cnpj= request.form['cnpj']
         parcela1= request.form['taxa1']
         parcela2= request.form['taxa2']
         parcela3= request.form['taxa3']
         vitalicia = request.form['taxa4']
+
+        if verificar_injection([nome, cnpj, parcela1, parcela2, parcela3, vitalicia]):
+            flash('Entrada inválida detectada.')
+            return redirect(request.url)
 
         dados= {
             'nome': nome,
@@ -246,7 +268,7 @@ def cadastrar_corretora():
             'vitalicia': vitalicia
         }
 
-        exist = query_db("SELECT * FROM corretora_ext WHERE cnpj = ?", (cnpj,))
+        exist = corretora_existe_por_cnpj(cnpj)
    
 
         if exist:
@@ -255,7 +277,10 @@ def cadastrar_corretora():
 
         else:
             
-            cadastrar_corretora(dados)
+            cadastro_corretora_ok = cadastrar_corretora(dados)
+            if not cadastro_corretora_ok:
+                flash('Não foi possível cadastrar corretora. Verifique os dados informados.')
+                return redirect(request.url)
 
             flash('Corretora cadastrada com sucesso!')
             return redirect(url_for('auth.fechar'))

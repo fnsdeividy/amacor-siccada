@@ -70,6 +70,10 @@ def update_db(query, args=(), database_path=None):
         conn.close()
 
 def mudar_senha(email, novasenha, database_path=None):
+    from ..verifix import verificar_injection
+    if verificar_injection([email, novasenha]):
+        return False
+
     conn = get_db_connection(database_path)
     cur = conn.cursor()
 
@@ -89,6 +93,7 @@ def mudar_senha(email, novasenha, database_path=None):
            
     conn.commit()
     conn.close()
+    return True
 
 def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
     from ..api_conex.conections import email_gmail, msg_email
@@ -449,6 +454,10 @@ def get_carteirinha(cpf, database_path=None):
     return resultado['sNomeResp'] if resultado else None
 
 def get_carteirinha_to_app(cpf, database_path=None):
+    from ..verifix import verificar_injection
+    if verificar_injection(cpf):
+        return None
+
     print(f"dados recebidos: {cpf}") 
     conn = get_db_connection(database_path)
     cur = conn.cursor()
@@ -474,6 +483,10 @@ def get_carteirinha_to_app(cpf, database_path=None):
     return None
 
 def get_payment_to_app(data, database_path=None):
+    from ..verifix import verificar_injection
+    if verificar_injection(data):
+        return None
+
     print(f"dados recebidos: {data}")
     ncontrato= data
     print(f"dados recebidos: {ncontrato}") 
@@ -498,6 +511,10 @@ def get_payment_to_app(data, database_path=None):
     return None
 
 def get_especialidade_to_app(especialidade, database_path= None):
+    from ..verifix import verificar_injection
+    if verificar_injection(especialidade):
+        return None
+
     print('dados recebidos:', especialidade)
     conn = get_db_connection(database_path)
     cur = conn.cursor()
@@ -519,6 +536,10 @@ def get_especialidade_to_app(especialidade, database_path= None):
     return None
 
 def get_data_status_plano_to_app(contrato, database_path=None):
+    from ..verifix import verificar_injection
+    if verificar_injection(contrato):
+        return None
+
     print(f"dados recebidos: {contrato}")
     conn = get_db_connection(database_path)
     cur = conn.cursor()
@@ -541,6 +562,10 @@ def get_data_status_plano_to_app(contrato, database_path=None):
     return None
 
 def post_suspender_cnt_to_app(contrato, motivo, database_path=None):
+    from ..verifix import verificar_injection
+    if verificar_injection([contrato, motivo]):
+        return False
+
     print(f"dados recebidos: {contrato}, motivo: {motivo}")
     conn = get_db_connection(database_path)
     cur = conn.cursor()
@@ -566,6 +591,8 @@ def post_suspender_cnt_to_app(contrato, motivo, database_path=None):
         
     finally:
         conn.close()
+
+    return True
 
 
 def buscar_beneficiarios(termo, database_path=None):
@@ -845,6 +872,10 @@ def get_email_user(email, database_path=None):
     """
     Obtém o email de um usuário específico.
     """
+    from ..verifix import verificar_injection
+    if verificar_injection(email):
+        return None
+
     conn = get_db_connection(database_path)
     cur = conn.cursor()
 
@@ -857,6 +888,76 @@ def get_email_user(email, database_path=None):
     conn.close()
 
     return resultado['email'] if resultado else None
+
+
+def get_usuario_por_email_senha(email, senha, database_path=None):
+    """Retorna o usuário autenticado por email e senha, ou None."""
+    from ..verifix import verificar_injection
+    if verificar_injection([email, senha]):
+        return None
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM usuarios WHERE email = ? AND senha = ?",
+        (email, senha)
+    )
+    usuario = cur.fetchone()
+    conn.close()
+    return usuario
+
+
+def usuario_existe_por_email(email, database_path=None):
+    """Retorna True quando já existe usuário com o email informado."""
+    from ..verifix import verificar_injection
+    if verificar_injection(email):
+        return False
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM usuarios WHERE email = ? LIMIT 1", (email,))
+    existe = cur.fetchone() is not None
+    conn.close()
+    return existe
+
+
+def cadastrar_usuario(nome, cpf, email, senha, tipo_usuario, classe_usuario, database_path=None):
+    """Cadastra um novo usuário na tabela usuarios."""
+    from ..verifix import verificar_injection
+    if verificar_injection([nome, cpf, email, senha, tipo_usuario, classe_usuario]):
+        return False
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            INSERT INTO usuarios (nome, cpf, email, senha, tipo_usuario, classe_usuario)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (nome, cpf, email, senha, tipo_usuario, classe_usuario)
+        )
+        conn.commit()
+        return True
+    except sqlite3.Error as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
+
+def corretora_existe_por_cnpj(cnpj, database_path=None):
+    """Retorna True quando já existe corretora cadastrada com o CNPJ informado."""
+    from ..verifix import verificar_injection
+    if verificar_injection(cnpj):
+        return False
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM corretora_ext WHERE cnpj = ? LIMIT 1", (cnpj,))
+    existe = cur.fetchone() is not None
+    conn.close()
+    return existe
 
 def get_propostas(database_path=None):
 
@@ -1541,6 +1642,7 @@ def get_extend_corretoras_ext(corretora, database_path=None):
 
 def cadastrar_corretora(dados, database_path=None):
     print(dados)
+    from ..verifix import verificar_injection
     from datetime import datetime
     nome= dados.get('nome')
     cnpj= dados.get('cnpj')
@@ -1553,6 +1655,9 @@ def cadastrar_corretora(dados, database_path=None):
     #data_cadastro = dados.get('data_cadastro')
     
     print(f"nome:{nome},cnpj{cnpj},data:{data_cadastro}")
+
+    if verificar_injection([nome, cnpj, parcela1, parcela2, parcela3, vitalicia]):
+        return False
 
     if data_cadastro:
             from datetime import datetime
@@ -1978,6 +2083,10 @@ def get_credenciadas(buscar,database_path= None):
     return dados
 
 def post_amatiss_aut(data, database_path=None):
+    from ..verifix import verificar_injection
+    if verificar_injection(data):
+        return False
+
     conn = get_db_connection(database_path)
     cur = conn.cursor()
     app_user_id= data.get('app_user_id')
@@ -2038,6 +2147,10 @@ def post_amatiss_aut(data, database_path=None):
 
 def verificar_last_auth(app_user_id, database_path=None):
     """Função apenas para verificação (mantida para compatibilidade)"""
+    from ..verifix import verificar_injection
+    if verificar_injection(app_user_id):
+        return None
+
     conn = get_db_connection(database_path)
     cur = conn.cursor()
     
@@ -2057,6 +2170,10 @@ def verificar_last_auth(app_user_id, database_path=None):
 
 def verificar_last_auth_by_token(token_auth, database_path=None):
     """Função apenas para verificação (mantida para compatibilidade)"""
+    from ..verifix import verificar_injection
+    if verificar_injection(token_auth):
+        return None
+
     conn = get_db_connection(database_path)
     cur = conn.cursor()
     
@@ -2157,6 +2274,7 @@ def post_autorizar_tiss(data, database_path=None):
     Insere/Atualiza autorização TISS
     """
     import json
+    from ..verifix import verificar_injection
     
     try:
         # Se data for string, converter para dicionário
@@ -2181,6 +2299,10 @@ def post_autorizar_tiss(data, database_path=None):
             return False
         
         print(f"Dados da autorização: {aut_data}")
+
+        if verificar_injection(aut_data):
+            print("Entrada suspeita detectada em post_autorizar_tiss")
+            return False
         
         conn = get_db_connection(database_path)
         cur = conn.cursor()
@@ -2254,6 +2376,10 @@ def post_autorizar_tiss(data, database_path=None):
         raise
 
 def get_loc_clinica(id_amatiss, database_path= None):
+    from ..verifix import verificar_injection
+    if verificar_injection(id_amatiss):
+        return None
+
     conn= get_db_connection(database_path)
     cur= conn.cursor()
 
@@ -2266,6 +2392,10 @@ def get_loc_clinica(id_amatiss, database_path= None):
     return dict(resultado) if resultado else None
 
 def get_geoloc_by_token(token, database_path= None):
+    from ..verifix import verificar_injection
+    if verificar_injection(token):
+        return None
+
     conn= get_db_connection(database_path)
     cur= conn.cursor()
 
@@ -2291,6 +2421,10 @@ def post_registrar_push(data, ip_origem, database_path=None):
           dict: {'success': True, 'id': id_registro, 'action': 'insert'|'exists_same_device'|'device_conflict'}
               ou {'success': False, 'error': mensagem}
     """
+    from ..verifix import verificar_injection
+    if verificar_injection([data, ip_origem]):
+        return {'success': False, 'error': 'Entrada inválida detectada'}
+
     try:
         conn = get_db_connection(database_path)
         cur = conn.cursor()
@@ -2713,6 +2847,10 @@ def get_autorizacoes_by_card(card_beneficiario, database_path=None):
     Returns:
         list: Lista de dicionários com as autorizações ou lista vazia
     """
+    from ..verifix import verificar_injection
+    if verificar_injection(card_beneficiario):
+        return []
+
     print(f"[get_autorizacoes_by_card] Buscando autorizações para card: {card_beneficiario}")
     
     try:
@@ -2771,6 +2909,10 @@ def post_registrar_cpx(data, ip_origem, database_path=None):
     Returns:
         dict: {'success': True, 'id': id_inserido} ou {'success': False, 'error': mensagem}
     """
+    from ..verifix import verificar_injection
+    if verificar_injection([data, ip_origem]):
+        return {'success': False, 'error': 'Entrada inválida detectada'}
+
     print("[post_registrar_cpx] Iniciando registro de autorização de exame")
     print(f"[post_registrar_cpx] Dados recebidos: id_app={data.get('id_app')}, card={data.get('card')}, nome={data.get('nome')}, exame={data.get('nomeExame')}")
     
@@ -3168,6 +3310,10 @@ def post_app_id(app_id, cpf, database_path=None):
     Returns:
         bool: True se a associação foi feita com sucesso, False caso contrário
     """
+    from ..verifix import verificar_injection
+    if verificar_injection([app_id, cpf]):
+        return False
+
     print(f"[post_app_id] Associando app_id: {app_id} com CPF: {cpf}")
     
     try:

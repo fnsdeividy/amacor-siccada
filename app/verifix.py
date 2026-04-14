@@ -5,7 +5,53 @@ def verificar_cnt(cnt):
         return erro
     if len(cnt)== 7:
         return cnt
+    
+    
+def verificar_injection(data):
+    """
+    Retorna True se encontrar padrão suspeito de SQL injection.
+    Retorna False quando o conteúdo parece seguro.
+    """
+    import re
 
+    # Padrões comuns de tentativa de SQL injection.
+    padroes = [
+        r"(--|#)",
+        r"/\*|\*/",
+        r";\s*(drop|delete|truncate|alter|create|insert|update|select|union)\b",
+        r"\bunion\b\s+\bselect\b",
+        r"\bor\b\s+\d+\s*=\s*\d+",
+        r"\band\b\s+\d+\s*=\s*\d+",
+        r"\b(or|and)\b\s+['\"]?\w+['\"]?\s*=\s*['\"]?\w+['\"]?",
+        r"\bexec(ute)?\b",
+        r"\binformation_schema\b",
+        r"\bsleep\s*\(",
+        r"\bbenchmark\s*\(",
+        r"\bwaitfor\b\s+\bdelay\b",
+    ]
+
+    def _tem_injection(valor):
+        if valor is None:
+            return False
+
+        if isinstance(valor, dict):
+            for chave, conteudo in valor.items():
+                if _tem_injection(chave) or _tem_injection(conteudo):
+                    return True
+            return False
+
+        if isinstance(valor, (list, tuple, set)):
+            return any(_tem_injection(item) for item in valor)
+
+        texto = str(valor).strip().lower()
+
+        for padrao in padroes:
+            if re.search(padrao, texto, re.IGNORECASE):
+                return True
+
+        return False
+
+    return _tem_injection(data)
 import math
 
 def calcular_distancia_metros(lat1, lon1, lat2, lon2):

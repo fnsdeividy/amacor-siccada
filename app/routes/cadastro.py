@@ -315,6 +315,7 @@ def render_page_doc():
 @hierarquia('supervisor','agente','vendedor')
 def adicionar_doc():
     classe_usuario = session.get('classe_usuario')
+    tipo_usuario = session.get('tipo_usuario')
     print(f"Tipo de usuário: {classe_usuario}")
     if classe_usuario == 'vendedor':
         resp = session.get('user_nome')
@@ -338,6 +339,7 @@ def adicionar_doc():
         proposta_folder = os.path.join(base_folder, str(proposta))
         os.makedirs(proposta_folder, exist_ok=True)
         zip_path = get_proposta_zip_path(proposta_folder)
+        prefixo_documento = 'nf' if tipo_usuario == 'financeiro' else None
 
         total_salvos = 0
         total_extraidos = 0
@@ -361,16 +363,25 @@ def adicionar_doc():
 
             if ext == 'zip':
                 try:
-                    if zip_bytes_contains_nota_fiscal(conteudo_arquivo):
+                    if prefixo_documento or zip_bytes_contains_nota_fiscal(conteudo_arquivo):
                         nota_inclusa_detectada = True
-                    total_extraidos += merge_zip_bytes_into_proposta_zip(conteudo_arquivo, zip_path)
+                    total_extraidos += merge_zip_bytes_into_proposta_zip(
+                        conteudo_arquivo,
+                        zip_path,
+                        prefix=prefixo_documento,
+                    )
                 except zipfile.BadZipFile:
                     flash(f'Arquivo ZIP inválido: {nome_original}', 'error')
                     return redirect(request.url)
             else:
-                if is_nota_fiscal_filename(nome_original):
+                if prefixo_documento or is_nota_fiscal_filename(nome_original):
                     nota_inclusa_detectada = True
-                nome_gravado = append_file_to_proposta_zip(zip_path, nome_original, conteudo_arquivo)
+                nome_gravado = append_file_to_proposta_zip(
+                    zip_path,
+                    nome_original,
+                    conteudo_arquivo,
+                    prefix=prefixo_documento,
+                )
                 if not nome_gravado:
                     flash('Não foi possível processar o nome do arquivo.')
                     return redirect(request.url)
