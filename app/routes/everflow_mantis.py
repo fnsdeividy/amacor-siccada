@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from ..models.database import get_carteirinha, post_app_id
 import binascii
 from ..cripto import generate_shared_key, encrypt_data, decrypt_data
+from ..verifix import verificar_injection
 import json
 
 mantis_bp = Blueprint('mantis', __name__)
@@ -74,7 +75,7 @@ def card_to_app():
     from ..models.database import get_carteirinha_to_app
     from ..models.database import get_data_status_plano_to_app
     
-    data = request.get_json(silent=True)
+    data = request.get_json(silent=True) or {}
     token = request.headers.get('Authorization')
     print(f"dados recebidos: {data} e token {token}")
     app_id= data.get('app_id')
@@ -101,7 +102,13 @@ def card_to_app():
     key = bytes.fromhex(crypto_key)
     cpf = decrypt_data(key, hashed_cpf)
 
+    if verificar_injection([cpf, app_id]):
+        return jsonify({'error': 'Entrada inválida detectada'}), 400
+
     dados_carteirinha = get_carteirinha_to_app(cpf)
+    if not dados_carteirinha:
+        return jsonify({'error': 'Beneficiário não encontrado'}), 404
+
     data_entrada= dados_carteirinha.get('dMatricula')
     numero_contrato= dados_carteirinha.get('sNumeroCNT')
     print("data entrada",data_entrada)
@@ -135,10 +142,13 @@ def get_payment_app():
     numero_contrato= request.args.get('contrato')
     from ..models.database import get_payment_to_app
     
-    data = request.get_json(silent=True)
+    data = request.get_json(silent=True) or {}
     session_id = request.headers.get('Authorization')
     
     numero_contrato= data.get('contrato')
+
+    if verificar_injection(numero_contrato):
+        return jsonify({'error': 'Entrada inválida detectada'}), 400
 
     session['session_id'] = session_id
     print("id de sessao",session_id)
@@ -161,9 +171,12 @@ def get_payment_app():
 @mantis_bp.route('get_especialidades_app', endpoint='get_especialidades_app', methods= ['POST'])
 def get_especialidades_app():
     from ..models.database import get_especialidade_to_app
-    data= request.get_json(silent=True)
+    data= request.get_json(silent=True) or {}
     session_id= request.headers.get('Authorization')
     especialidade= data.get('especialidade')
+
+    if verificar_injection(especialidade):
+        return jsonify({'error': 'Entrada inválida detectada'}), 400
 
     session['session_id'] = session_id  
     
@@ -183,11 +196,14 @@ def get_especialidades_app():
 @mantis_bp.route('/post_suspender_contrato', endpoint='post_suspender_contrato', methods=['POST'])
 def post_suspender_contrato():
     from ..models.database import post_suspender_cnt_to_app
-    data= request.get_json(silent=True)
+    data= request.get_json(silent=True) or {}
     session_id= request.headers.get('Authorization')
     contrato= data.get('contrato')
     session['session_id'] = session_id
     motivo= 'assinatura pendente'
+
+    if verificar_injection([contrato, motivo]):
+        return jsonify({'error': 'Entrada inválida detectada'}), 400
 
     if not session_id:
         return jsonify({'error': 'No session started'}), 400
@@ -203,7 +219,7 @@ def post_suspender_contrato():
 @mantis_bp.route('/autorizar_token', endpoint= 'autorizar_token', methods= ['POST'])
 def autorizar_token():
     from ..models.database import post_amatiss_aut
-    data= request.get_json(silent=True)
+    data= request.get_json(silent=True) or {}
     token= request.headers.get('Authorization')
     token_autorizacao= data.get('token_autorizacao')
     time_stamp= data.get('time_stamp')
@@ -273,6 +289,9 @@ def autorizar_token():
         "longitude_usuario": longitude
     }
 
+    if verificar_injection(payload):
+        return jsonify({'error': 'Entrada inválida detectada'}), 400
+
     post_amatiss_aut(payload)
 
     return jsonify({'message': 'Token registrado com sucesso'})
@@ -325,6 +344,9 @@ def autorizar_tiss():
         
         # Este é o dicionário real com os dados da autorização
         autorizacao_data = outer_dict['aut_data']
+
+        if verificar_injection(autorizacao_data):
+            return jsonify({'error': 'Entrada inválida detectada'}), 400
         
         print("🎯 Dados da autorização:", autorizacao_data)
         
@@ -417,6 +439,9 @@ def get_autorizacoes():
         
         # Descriptografar o card
         card_beneficiario = decrypt_data(key, card_encrypted)
+        if verificar_injection(card_beneficiario):
+            return jsonify({'error': 'Entrada inválida detectada'}), 400
+
         print(f"[get_autorizacoes] Card descriptografado: {card_beneficiario}")
         
         # Buscar autorizações no banco de dados
@@ -517,6 +542,17 @@ def registrar_cpx():
 
     # Extrair dados para salvar imagem
     aut_data = data.get('aut_data', {})
+
+    if verificar_injection([
+        aut_data.get('id_app'),
+        aut_data.get('card'),
+        aut_data.get('nome'),
+        aut_data.get('nomeExame'),
+        aut_data.get('timestamp'),
+        data.get('pasta'),
+        data.get('subdir')
+    ]):
+        return jsonify({'error': 'Entrada inválida detectada'}), 400
     
     image_base64 = (
         aut_data.get('documento') or
@@ -657,6 +693,9 @@ def post_push_notification():
 
     print("[registrar_push] payload final (post-decrypt):", data)
     print("[registrar_push] user_app_id raw:", data.get('userAppId'), "|", data.get('user_app_id'))
+
+    if verificar_injection(data):
+        return jsonify({'error': 'Entrada inválida detectada'}), 400
 
     push_token = data.get('pushToken') or data.get('push_token')
     platform = data.get('platform')
