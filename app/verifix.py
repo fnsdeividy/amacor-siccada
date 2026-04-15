@@ -16,7 +16,6 @@ def verificar_injection(data):
 
     # Padrões comuns de tentativa de SQL injection.
     padroes = [
-        r"(--|#)",
         r"/\*|\*/",
         r";\s*(drop|delete|truncate|alter|create|insert|update|select|union)\b",
         r"\bunion\b\s+\bselect\b",
