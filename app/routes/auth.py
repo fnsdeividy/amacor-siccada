@@ -171,7 +171,7 @@ def redir_atent():
     classe_usuario= session.get('classe_usuario')
 
     if tipo_usuario == 'vendas':
-        if classe_usuario == 'vendedor' or classe_usuario == 'agente':
+        if classe_usuario == 'vendedor':
             corretor_resp= session.get('user_nome')
             print(corretor_resp)
             return redirect(url_for('cad.acompanhar_cnt',resp=corretor_resp))
@@ -203,7 +203,7 @@ def login_redir():
     tipo_usuario = session.get('tipo_usuario')
     classe_usuario= session.get("classe_usuario")
     if tipo_usuario == 'vendas':
-        if classe_usuario == 'vendedor' or classe_usuario == 'agente':
+        if classe_usuario == 'vendedor':
             return redirect(url_for('generic.home_corretor'))
         elif classe_usuario == 'supervisor':
             return redirect(url_for('gerencial.dashboard'))
