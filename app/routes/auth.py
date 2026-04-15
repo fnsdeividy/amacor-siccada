@@ -171,7 +171,7 @@ def redir_atent():
     classe_usuario= session.get('classe_usuario')
 
     if tipo_usuario == 'vendas':
-        if classe_usuario == 'vendedor':
+        if classe_usuario == 'vendedor' or classe_usuario == 'agente':
             corretor_resp= session.get('user_nome')
             print(corretor_resp)
             return redirect(url_for('cad.acompanhar_cnt',resp=corretor_resp))
