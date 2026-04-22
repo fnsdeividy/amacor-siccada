@@ -97,11 +97,35 @@ def mudar_senha(email, novasenha, database_path=None):
 
 def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
     from ..api_conex.conections import email_gmail, msg_email
+    from ..verifix import validar_data_introduzida
     """
     Salva os dados da venda, responsável, titular e dependentes no banco de dados.
     Agora usa apenas proposta_id (TEXT) como referência, sem venda_id.
     """
     try:
+        def _validar_data_campo(valor_data, nome_campo, ano_minimo=1900, permitir_hoje=True):
+            resultado = validar_data_introduzida(
+                valor_data,
+                ano_minimo=ano_minimo,
+                permitir_hoje=permitir_hoje,
+            )
+            if not resultado.get('valida'):
+                raise ValueError(f"Data invalida em {nome_campo}: {resultado.get('mensagem')}")
+
+        # Validacoes de data antes de qualquer INSERT
+        _validar_data_campo(venda.get('data_venda'), 'data_venda', ano_minimo=2000, permitir_hoje=True)
+        _validar_data_campo(responsavel.get('data_nascimento'), 'responsavel.data_nascimento', ano_minimo=1900, permitir_hoje=True)
+        _validar_data_campo(titular.get('data_nascimento'), 'titular.data_nascimento', ano_minimo=1900, permitir_hoje=True)
+
+        if dependentes:
+            for i, dependente in enumerate(dependentes, start=1):
+                _validar_data_campo(
+                    dependente.get('data_nascimento'),
+                    f'dependente[{i}].data_nascimento',
+                    ano_minimo=1900,
+                    permitir_hoje=True,
+                )
+
         conn = get_db_connection(database_path)
         cur = conn.cursor()
 
@@ -921,21 +945,66 @@ def usuario_existe_por_email(email, database_path=None):
     return existe
 
 
-def cadastrar_usuario(nome, cpf, email, senha, tipo_usuario, classe_usuario, database_path=None):
+def cadastrar_usuario(
+    nome,
+    cpf,
+    email,
+    senha,
+    tipo_usuario,
+    classe_usuario,
+    identificador_proposta_pf=None,
+    identificador_proposta_pj=None,
+    database_path=None,
+):
     """Cadastra um novo usuário na tabela usuarios."""
     from ..verifix import verificar_injection
-    if verificar_injection([nome, cpf, email, senha, tipo_usuario, classe_usuario]):
+    if verificar_injection([
+        nome,
+        cpf,
+        email,
+        senha,
+        tipo_usuario,
+        classe_usuario,
+        identificador_proposta_pf,
+        identificador_proposta_pj,
+    ]):
         return False
 
     conn = get_db_connection(database_path)
     cur = conn.cursor()
     try:
+        # Compatibilidade com bancos já existentes.
+        cur.execute("PRAGMA table_info(usuarios)")
+        colunas = {row['name'] if hasattr(row, 'keys') else row[1] for row in cur.fetchall()}
+        if 'identificador_proposta_pf' not in colunas:
+            cur.execute("ALTER TABLE usuarios ADD COLUMN identificador_proposta_pf TEXT")
+        if 'identificador_proposta_pj' not in colunas:
+            cur.execute("ALTER TABLE usuarios ADD COLUMN identificador_proposta_pj TEXT")
+
         cur.execute(
             """
-            INSERT INTO usuarios (nome, cpf, email, senha, tipo_usuario, classe_usuario)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO usuarios (
+                nome,
+                cpf,
+                email,
+                senha,
+                tipo_usuario,
+                classe_usuario,
+                identificador_proposta_pf,
+                identificador_proposta_pj
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (nome, cpf, email, senha, tipo_usuario, classe_usuario)
+            (
+                nome,
+                cpf,
+                email,
+                senha,
+                tipo_usuario,
+                classe_usuario,
+                identificador_proposta_pf,
+                identificador_proposta_pj,
+            )
         )
         conn.commit()
         return True
@@ -3395,4 +3464,36 @@ def post_app_id(app_id, cpf, database_path=None):
         print(f"[post_app_id] ❌ Erro inesperado: {e}")
         import traceback
         traceback.print_exc()
-        return False
+
+
+def get_proposta_corretor(corretor_resp, tipo_contrato, database_path=None):
+    """
+    Retorna o último número de proposta do corretor (apenas propostas com número puramente numérico)
+    e o próximo número sugerido.
+    """
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            """
+            SELECT numero_proposta FROM venda
+                        WHERE corretor_resp = ?
+                            AND tipo_contrato = ?
+              AND numero_proposta GLOB '[0-9]*'
+            ORDER BY data_venda DESC
+            LIMIT 1
+            """,
+                        (corretor_resp, tipo_contrato)
+        )
+        row = cur.fetchone()
+        if row is None:
+            return None
+        ultimo = int(row[0])
+        return {
+            'corretor': corretor_resp,
+                        'tipo_contrato': tipo_contrato,
+            'ultimo_numero': str(ultimo),
+            'proximo_numero': str(ultimo + 1)
+        }
+    finally:
+        conn.close()

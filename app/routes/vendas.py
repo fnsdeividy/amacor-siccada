@@ -80,13 +80,20 @@ def nova_venda_pj():
     usuario= session.get('user_nome')
     planos= listar_planos()
     vendedor = listar_vendedor()
+    corretoras= get_corretoras_ext()
+    usuario_sessao = session.get('user_nome', '')
     if usuario in vendedor:
         numero_proposta= get_last_proposta(usuario, plano_tipo='empresarial')
         print(numero_proposta)
     print("Vendedores:", vendedor)  # Para verificar a lista de vendedores
     
-
-    return render_template('vendas/vendas_form_pj.html', vendedor=vendedor, planos=planos)
+    return render_template(
+        'vendas/vendas_form_pj.html',
+        vendedor=vendedor,
+        corretora=corretoras,
+        planos=planos,
+        usuario_sessao=usuario_sessao,
+    )
 
 
 @vendas_bp.route('/nova_venda')
@@ -96,10 +103,11 @@ def nova_venda():
     planos= listar_planos()
     vendedor = listar_vendedor()
     corretoras= get_corretoras_ext()
+    usuario_sessao = session.get('user_nome', '')
     print('corretora exibida no vendas:',corretoras)
     print("Vendedores:", vendedor)  # Para verificar a lista de vendedores
 
-    return render_template('vendas/vendas_form.html', vendedor=vendedor, corretora=corretoras,planos=planos)
+    return render_template('vendas/vendas_form.html', vendedor=vendedor, corretora=corretoras, planos=planos, usuario_sessao=usuario_sessao)
 
 @vendas_bp.route('/saldobenef')
 @acesso('vendas','cadastro')
@@ -796,3 +804,22 @@ def status_proposta(corretor_resp,plano_tipo):
         "corretor_resp": corretor_resp,
         "last_proposta": last_proposta,
     })
+
+@vendas_bp.route('/proximo_numero_proposta', methods=['GET'])
+@login_required
+def proximo_numero_proposta():
+    from ..verifix import verificar_proposta_corretor
+    corretor = request.args.get('corretor', '').strip()
+    tipo_contrato = request.args.get('tipo_contrato', '').strip().lower()
+
+    if not corretor or not tipo_contrato:
+        return jsonify({
+            'corretor': corretor,
+            'tipo_contrato': tipo_contrato,
+            'ultimo_numero': None,
+            'proximo_numero': None,
+            'mensagem': 'Informe corretor e tipo_contrato'
+        }), 400
+
+    resultado = verificar_proposta_corretor(corretor, tipo_contrato)
+    return jsonify(resultado)

@@ -224,3 +224,96 @@ def verificar_long_lat_comp_simples(id_amatiss, user_token):
     """
     resultado = verificar_long_lat_comp(id_amatiss, user_token, raio_maximo=50)
     return resultado.get('autorizado', False)
+
+def verificar_proposta_corretor(corretor_resp, tipo_contrato):
+    from .models.database import get_proposta_corretor
+    resultado = get_proposta_corretor(corretor_resp, tipo_contrato)
+    if resultado is None:
+        return {
+            'corretor': corretor_resp,
+            'tipo_contrato': tipo_contrato,
+            'ultimo_numero': None,
+            'proximo_numero': None,
+            'mensagem': 'Nenhuma proposta numerica encontrada para este corretor e tipo de contrato'
+        }
+    return resultado
+
+def validar_data_introduzida(data_introduzida, ano_minimo=1900, permitir_hoje=True):
+    """
+    Valida se uma data pode ser introduzida no sistema.
+
+    Regras:
+    - A data precisa existir no calendario.
+    - O ano precisa estar entre `ano_minimo` e o ano atual.
+    - A data nao pode estar no futuro.
+
+    Formatos aceitos para string:
+    - YYYY-MM-DD
+    - DD/MM/YYYY
+    - DD-MM-YYYY
+    """
+    from datetime import datetime, date
+
+    if data_introduzida is None:
+        return {
+            'valida': False,
+            'mensagem': 'Data nao informada',
+            'data_normalizada': None
+        }
+
+    # Aceita date/datetime diretamente.
+    if isinstance(data_introduzida, datetime):
+        data_valida = data_introduzida.date()
+    elif isinstance(data_introduzida, date):
+        data_valida = data_introduzida
+    else:
+        texto = str(data_introduzida).strip()
+        if not texto:
+            return {
+                'valida': False,
+                'mensagem': 'Data vazia',
+                'data_normalizada': None
+            }
+
+        formatos = ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y")
+        data_valida = None
+        for fmt in formatos:
+            try:
+                data_valida = datetime.strptime(texto, fmt).date()
+                break
+            except ValueError:
+                continue
+
+        if data_valida is None:
+            return {
+                'valida': False,
+                'mensagem': 'Formato de data invalido ou data inexistente',
+                'data_normalizada': None
+            }
+
+    hoje = date.today()
+
+    if data_valida.year < ano_minimo or data_valida.year > hoje.year:
+        return {
+            'valida': False,
+            'mensagem': f'Ano invalido. Informe um ano entre {ano_minimo} e {hoje.year}',
+            'data_normalizada': data_valida.strftime('%Y-%m-%d')
+        }
+
+    if permitir_hoje:
+        data_no_passado = data_valida <= hoje
+    else:
+        data_no_passado = data_valida < hoje
+
+    if not data_no_passado:
+        return {
+            'valida': False,
+            'mensagem': 'Data futura nao permitida',
+            'data_normalizada': data_valida.strftime('%Y-%m-%d')
+        }
+
+    return {
+        'valida': True,
+        'mensagem': 'Data valida',
+        'data_normalizada': data_valida.strftime('%Y-%m-%d')
+    }

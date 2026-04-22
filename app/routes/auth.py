@@ -70,8 +70,23 @@ def cadastrar():
         senha = request.form['senha']
         tipo_usuario = request.form['tipo_usuario']
         classe_usuario = request.form['classe_usuario']
+        identificador_proposta_pf = request.form.get('identificador_proposta_PF', '').strip() or None
+        identificador_proposta_pj = request.form.get('identificador_proposta_PJ', '').strip() or None
 
-        if verificar_injection([nome, cpf, email, senha, tipo_usuario, classe_usuario]):
+        if classe_usuario != 'vendedor':
+            identificador_proposta_pf = None
+            identificador_proposta_pj = None
+
+        if verificar_injection([
+            nome,
+            cpf,
+            email,
+            senha,
+            tipo_usuario,
+            classe_usuario,
+            identificador_proposta_pf,
+            identificador_proposta_pj,
+        ]):
             flash('Entrada inválida detectada.')
             return redirect(request.url)
 
@@ -87,13 +102,22 @@ def cadastrar():
         else:
 
            
-            cadastro_ok = cadastrar_usuario(nome, cpf, email, senha, tipo_usuario, classe_usuario)
+            cadastro_ok = cadastrar_usuario(
+                nome,
+                cpf,
+                email,
+                senha,
+                tipo_usuario,
+                classe_usuario,
+                identificador_proposta_pf=identificador_proposta_pf,
+                identificador_proposta_pj=identificador_proposta_pj,
+            )
             if not cadastro_ok:
                 flash('Não foi possível cadastrar usuário. Verifique os dados informados.')
                 return redirect(request.url)
 
             flash('Usuário cadastrado com sucesso! Faça login.')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.fechar'))
 
     return render_template('cadastrar.html')
     

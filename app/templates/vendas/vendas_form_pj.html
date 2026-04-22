@@ -285,7 +285,7 @@ function buscarCepResponsavel() {
     const cepInput = document.getElementById('cep_responsavel');
     const cep = cepInput.value.replace(/\D/g, '');
     if (cep.length === 8) {
-        fetch('{{ url_for('vendas.buscar_endereco_cep') }}', {
+        fetch("{{ url_for('vendas.buscar_endereco_cep') }}", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cep: cep })
@@ -300,55 +300,46 @@ function buscarCepResponsavel() {
     }
 }
 
-// Função para buscar e preencher o número da proposta
-async function buscarEPreencherNumeroProposta() {
-    console.log('Buscando número da proposta...');
-    
-    const corretorResp = document.getElementById('corretor_resp').value;
-    const tipoContrato = document.getElementById('tipo_contrato').value;
-    
-    console.log('Corretor:', corretorResp, 'Tipo Contrato:', tipoContrato);
-    
-    if (!corretorResp || !tipoContrato) {
-        console.log('Campos obrigatórios não preenchidos');
+const URL_PROXIMO_NUMERO = "{{ url_for('vendas.proximo_numero_proposta') }}";
+
+async function buscarProximoNumeroProposta(corretor, tipoContrato) {
+    if (!corretor || !tipoContrato) {
+        document.getElementById('numero_proposta').value = '';
         return;
     }
-    
     try {
-        const response = await fetch(`/vendas/status_proposta/${encodeURIComponent(tipoContrato)}/${encodeURIComponent(corretorResp)}`, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            }
+        const params = new URLSearchParams({
+            corretor: corretor,
+            tipo_contrato: tipoContrato
         });
-        
-        console.log('Status:', response.status);
-        
+        const url = `${URL_PROXIMO_NUMERO}?${params.toString()}`;
+        const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
+            console.error('Erro HTTP ao buscar proposta:', response.status);
+            return;
         }
-        
         const data = await response.json();
-        console.log('Dados recebidos:', data);
-        
-        if (data.last_proposta) {
-            // Extrai o número e incrementa
-            const ultimaPropostaNumerica = parseInt(data.last_proposta.replace(/[^\d]/g, ''));
-            const proximaPropostaNumerica = ultimaPropostaNumerica + 1;
-            
-            // Preenche o campo com o próximo número
-            document.getElementById('numero_proposta').value = proximaPropostaNumerica;
-            console.log('Número da proposta preenchido:', proximaPropostaNumerica);
-        } else {
-            // Se não houver proposta anterior, começa com 1
-            const tipoContratoCod = tipoContrato === 'empresarial' ? 'E' : 'I';
-            document.getElementById('numero_proposta').value = '1';
-            console.log('Primeira proposta, preenchida com 1');
+        if (data.proximo_numero) {
+            document.getElementById('numero_proposta').value = data.proximo_numero;
         }
-        
     } catch (error) {
         console.error('Erro ao buscar número da proposta:', error);
-        document.getElementById('numero_proposta').value = 'Erro ao carregar';
+    }
+}
+
+function toggleUsarSessaoCorretor() {
+    const checkbox = document.getElementById('usar_sessao_corretor');
+    const select = document.getElementById('corretor_resp');
+    const tipoContrato = document.getElementById('tipo_contrato').value;
+    if (checkbox && checkbox.checked) {
+        const opcaoSessao = select.querySelector('[data-sessao="true"]');
+        if (opcaoSessao) {
+            select.value = opcaoSessao.value;
+            buscarProximoNumeroProposta(opcaoSessao.value, tipoContrato);
+        }
+    } else {
+        select.value = '';
+        document.getElementById('numero_proposta').value = '';
     }
 }
 
@@ -365,15 +356,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listener para corretor responsável
     const corretorResp = document.getElementById('corretor_resp');
+    const tipoContrato = document.getElementById('tipo_contrato');
+
+    function atualizarNumeroProposta() {
+        if (!corretorResp || !tipoContrato) return;
+        buscarProximoNumeroProposta(corretorResp.value, tipoContrato.value);
+    }
+
     if (corretorResp) {
-        corretorResp.addEventListener('change', buscarEPreencherNumeroProposta);
+        corretorResp.addEventListener('change', function() {
+            atualizarNumeroProposta();
+            const checkbox = document.getElementById('usar_sessao_corretor');
+            if (checkbox) {
+                const opcaoSessao = corretorResp.querySelector('[data-sessao="true"]');
+                checkbox.checked = !!(opcaoSessao && this.value === opcaoSessao.value);
+            }
+        });
         console.log('Event listener do corretor configurado');
     }
     
     // Event listener para tipo de contrato
-    const tipoContrato = document.getElementById('tipo_contrato');
     if (tipoContrato) {
-        tipoContrato.addEventListener('change', buscarEPreencherNumeroProposta);
+        tipoContrato.addEventListener('change', atualizarNumeroProposta);
         console.log('Event listener do tipo contrato configurado');
     }
     
@@ -382,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tipoProduto) {
         tipoProduto.addEventListener('change', function() {
             console.log('Plano alterado para:', this.value);
-            buscarEPreencherNumeroProposta();
+            atualizarNumeroProposta();
             
             // Recalcular preço do titular se já tiver idade
             const idadeTitular = document.getElementById('idade_beneficiario').value;
@@ -463,8 +467,55 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     
                     <div class="form-field">
-                    <label for="numero_proposta">Número da Proposta:</label>
-                    <input type="text" id="numero_proposta" name="numero_proposta" required>
+                        <label for="tipo_contrato">Tipo de Contrato:</label>
+                        <select id="tipo_contrato" name="tipo_contrato" required>
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="individual">Individual</option>
+                            <option value="empresarial">Empresarial</option>
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="corretor_resp">Corretor Responsável:</label>
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <select id="corretor_resp" name="corretor_resp" required style="flex: 1;">
+                                <option value="" disabled selected>Selecione</option>
+                                {% if vendedor %}
+                                    {% for v in vendedor %}
+                                        <option value="{{ v.nome }}" {% if v.nome == usuario_sessao %}data-sessao="true"{% endif %}>{{ v.nome }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if corretora %}
+                                    {% for c in corretora %}
+                                        <option value="{{ c.nome_corretora }}">{{ c.nome_corretora }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                                <option value="administrativo">Administrativo</option>
+                            </select>
+                            {% if usuario_sessao %}
+                            <label style="display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.9em;">
+                                <input type="checkbox" id="usar_sessao_corretor" onchange="toggleUsarSessaoCorretor()">
+                                Usar meu nome ({{ usuario_sessao }})
+                            </label>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="tipo_produto">Tipo de Produto:</label>
+                        <select id="tipo_produto" name="tipo_produto" required>
+                            <option value="" disabled selected>Selecione</option>
+                            {% if planos %}
+                                {% for p in planos %}
+                                    <option value="{{ p.nome_plano }}">{{ p.nome_plano }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="numero_proposta">Número da Proposta:</label>
+                        <input type="text" id="numero_proposta" name="numero_proposta" required placeholder="Preenchido automaticamente ao selecionar o corretor">
                     </div>
                     <div class="form-field">
                         <label for="nome_responsavel">Nome da empresa:</label>
@@ -488,45 +539,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <input type="date" id="dt_nascimento_responsavel" name="dt_nascimento_responsavel" required>
                     </div>
                     
-                    <div class="form-field">
-                    <label for="tipo_contrato">Tipo de Contrato:</label>
-                    <select id="tipo_contrato" name="tipo_contrato" required>
-                        <option value="" disabled selected>Selecione</option>
-                        <option value="individual">Individual</option>
-                        <option value="empresarial">Empresarial</option>
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label for="tipo_produto">Tipo de Produto:</label>
-                    <select id="tipo_produto" name="tipo_produto" required>
-                        <option value="" disabled selected>Selecione</option>
-                        {% if planos %}
-                            {% for p in planos %}
-                                <option value="{{ p.nome_plano }}">{{ p.nome_plano }}</option>
-                            {% endfor %}
-                        {% endif %}
-                        
-                    </select>
-                </div>
-                <div class="form-field">
-                    <label for="corretor_resp">Corretor Responsável:</label>
-                    <select id="corretor_resp" name="corretor_resp" required>
-                        <option value="" disabled selected>Selecione</option>
-                        {% if vendedor %}
-                            {% for v in vendedor %}
-                                <option value="{{ v.nome }}">{{ v.nome }}</option>
-                            {% endfor %}
-                        {% endif %}
-                        {% if corretora %}
-                            {% for c in corretora %}
-                                <option value="{{ c.nome_corretora }}">{{ c.nome_corretora }}</option>
-                            {% endfor %}
-                        {% endif %}
-                                                
-                        <option value="administrativo">Administrativo</option>
-                    </select>
-                </div>
-
                 <div class="form-field">
                     <label for="data_venda">Data da Venda:</label>
                     <input type="date" id="data_venda" name="data_venda" required>
