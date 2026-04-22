@@ -49,6 +49,7 @@ static/kit_format/resultado_pdf/
 static/kit_format/upload_kit/
 app/paths.py
 static/comprovantes/
+static/qrcode/
 # ----------------------------------------
 # Arquivos sensíveis e de configuração
 # ----------------------------------------
