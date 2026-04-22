@@ -34,8 +34,13 @@ env/
 Thumbs.db
 ehthumbs.db
 *.log
+
 log_atualiza_status.txt
 
+
+
+static/docx_edit/dox_template/
+static/docx_edit/dox_template/propostas/saida
 
 # ----------------------------------------
 # Pasta de uploads do seu projeto
@@ -50,6 +55,8 @@ static/kit_format/upload_kit/
 app/paths.py
 static/comprovantes/
 static/qrcode/
+log_*.*
+static/docx_edit/dox_template
 # ----------------------------------------
 # Arquivos sensíveis e de configuração
 # ----------------------------------------
