@@ -9,7 +9,7 @@ app/routes/uploads/*
 __pycache__/
 *.sqlite3
 *.db
-MHV_DB.*
+
 # ----------------------------------------
 # Ambientes virtuais
 # ----------------------------------------

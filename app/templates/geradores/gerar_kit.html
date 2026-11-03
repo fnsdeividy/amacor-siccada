@@ -12,7 +12,7 @@
     <div>
       <form id="form-gerar-kit" action="{{ url_for('doc_gen.gerar_documentos') }}" method="POST">
         <label for="numero_contrato">Número do Contrato:</label>
-        <input type="text" id="numero_contrato" name="numero_contrato" value="{{ dados.numero_contrato }}"required readonly>
+        <input type="text" id="numero_contrato" name="numero_contrato" value="{{ dados.numero_contrato }}"required >
         <label for="nome_responsavel">Nome do Responsável:</label>
         <input type="text" id="nome_responsavel" name="nome_responsavel" value="{{ dados.nome_responsavel }}"required>
         <label for="plano_nome">Nome do plano</label>
