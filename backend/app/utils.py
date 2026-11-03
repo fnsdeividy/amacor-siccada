@@ -50,7 +50,7 @@ def hierarquia(*classes_requeridas):
     return decorator
 
 def atualiza_db_atrasos():
-    from models.database import atualiza_atrasos
+    from app.models.database import atualiza_atrasos
     print(f'iniciando atualização de atrasos em {datetime.now()}')
 
     atualiza_atrasos()

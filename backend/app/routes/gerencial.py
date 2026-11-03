@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, session,redirect,url_for,
 from ..models.database import query_db
 from datetime import datetime
 import re
-import sqlite3
+from app import db
 import csv
 import io
 from flask import Response, request

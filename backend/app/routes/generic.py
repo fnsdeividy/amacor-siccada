@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, session, redirect, url_for, reques
 from ..models.database import data_dashboard_corretor
 from ..utils import get_relative_path_img, get_relative_path_backgrounds
 import re
-import sqlite3
+from app import db
 import csv
 import io
 from flask import Response, request

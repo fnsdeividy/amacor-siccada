@@ -5,7 +5,7 @@ from app.utils import acesso
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfMerger
 #from pdf2image import convert_from_path
-import sqlite3
+from app import db
 import re
 import glob
 

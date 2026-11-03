@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, session,redirect,url_for,
 from ..models.database import query_db, get_pagamento
 from datetime import datetime
 import re
-import sqlite3
+from app import db
 import csv
 import io
 from flask import Response, request
@@ -55,7 +55,7 @@ def pix():
 
         
 
-        conn=sqlite3.connect(current_app.config['DATABASE'])
+        conn=db.connect(current_app.config['DATABASE'])
         cur=conn.cursor()
         print(f"id {id_usuario}, contrato {ncontrato}, nome{nresponsavel}, valor {valor}, data {data_pagamento},metodo {metodo_pg}, {descricao}, sataus{status},{nome_usuario}")
         cur.execute(
@@ -79,7 +79,7 @@ def pix():
 @finan_bp.route('/tab_pix', methods=['GET', 'POST'])
 @acesso('financeiro', 'cadastro', 'cobranca')
 def tab():
-    conn = sqlite3.connect(current_app.config['DATABASE'])
+    conn = db.connect(current_app.config['DATABASE'])
     tipo_usuario = session.get('tipo_usuario')
     data_inicial = request.args.get('data_inicial', '').strip()
     data_fim = request.args.get('data_fim', '').strip()
@@ -222,7 +222,7 @@ def receber_comprovante():
 
             # Atualiza o status do comprovante no banco
             try:
-                conn = sqlite3.connect(current_app.config['DATABASE'])
+                conn = db.connect(current_app.config['DATABASE'])
                 cur = conn.cursor()
                 cur.execute("UPDATE pagamentos SET status_comprovante = 1 WHERE id = ?", (pagamento_id,))
                 conn.commit()
@@ -241,7 +241,7 @@ def receber_comprovante():
 
 @finan_bp.route('/definir_tabela', methods=['GET','POST'])
 def definir():
-    conn=sqlite3.connect(current_app.config['DATABASE'])    
+    conn=db.connect(current_app.config['DATABASE'])    
     cur=conn.cursor()
     tipo_usuario= session.get('classe_usuario')
     print(tipo_usuario)
@@ -306,7 +306,7 @@ def alt_page(pagamento_id):
     from ..utils import log_atualiza_pagamentos
     
     print(pagamento_id)
-    conn = sqlite3.connect(current_app.config['DATABASE'])
+    conn = db.connect(current_app.config['DATABASE'])
     tipo_usuario = session.get('tipo_usuario')
     try:
         if request.method == 'POST':
@@ -345,7 +345,7 @@ def return_():
 @acesso('financeiro')
 
 def exportar_csv():
-    conn= sqlite3.connect(current_app.config['DATABASE'])
+    conn= db.connect(current_app.config['DATABASE'])
     try:
         cur= conn.cursor()
         

@@ -1,0 +1,15 @@
+# Banco e arquivos com dados pessoais nunca entram na imagem
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+MHV_DB.*
+
+# Binários do Windows, não usados pelo código (o container é Linux)
+app/poppler-24.08.0/
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env

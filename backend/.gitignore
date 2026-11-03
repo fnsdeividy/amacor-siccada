@@ -1,0 +1,109 @@
+app/routes/uploads/*
+
+# ----------------------------------------
+# Arquivos Python
+# ----------------------------------------
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+MHV_DB.*
+# ----------------------------------------
+# Ambientes virtuais
+# ----------------------------------------
+venv/
+env/
+.venv/
+.env/
+.Python
+
+# ----------------------------------------
+# Configurações de IDEs/editores
+# ----------------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ----------------------------------------
+# Arquivos do sistema
+# ----------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.log
+
+log_atualiza_status.txt
+
+
+
+static/docx_edit/dox_template/
+static/docx_edit/dox_template/propostas/saida
+
+# ----------------------------------------
+# Pasta de uploads do seu projeto
+# ----------------------------------------
+app/routes/uploads/*
+!app/routes/uploads/.gitkeep
+static/uploads_gen_arch/*
+static/uploads_gen_arch/**/*
+static/kit_format/resultado_docx/
+static/kit_format/resultado_pdf/
+static/kit_format/upload_kit/
+app/paths.py
+static/comprovantes/
+static/qrcode/
+log_*.*
+static/docx_edit/dox_template
+# ----------------------------------------
+# Arquivos sensíveis e de configuração
+# ----------------------------------------
+.env
+*.secret
+*.key
+*.pem
+*.crt
+
+# ----------------------------------------
+# Arquivos temporários e caches
+# ----------------------------------------
+*.bak
+*.swp
+*.tmp
+*.~backup
+*.tar.gz
+*.zip
+*.rar
+.cache/
+coverage/
+dist/
+build/
+*.egg-info/
+*.txt
+
+# uploads
+static/uploads/
+app/static/uploads/
+
+# arquivos gerados
+static/docx_edit/saida/
+static/docx_edit/saida_pdf/
+
+# banco temporário
+*.db-wal
+*.db-shm
+
+# imagens temporárias
+static/*.png
+
+# arquivos gerados diversos
+*.pdf
+static/docx_edit/dox_template/propostas/saida/*
+dados_clinicas.json
+geocodificacao_parcial.json
+paths.py
+static/uploads_geren_docgen/
+static/documentos_autorizacao/
+

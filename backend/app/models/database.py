@@ -1,4 +1,4 @@
-import sqlite3
+from app import db
 from flask import current_app
 import os
 from datetime import timedelta, datetime
@@ -12,8 +12,8 @@ def get_db_connection(database_path=None):
     db_path = database_path or current_app.config['DATABASE']
     print(f"Conectando ao banco: {db_path}")  # Adicione este print
     print("Banco usado:", os.path.abspath(current_app.config['DATABASE']))
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
+    conn = db.connect(db_path)
+    conn.row_factory = db.Row
     return conn
 
 def query_db_doc(query, one=False, database_path=None):
@@ -48,7 +48,7 @@ def alter_db(query, args=(), database_path=None):
     try:
         cur.execute(query, args)
         conn.commit()
-    except sqlite3.Error as e:
+    except db.Error as e:
         conn.rollback()
         raise e
     finally:
@@ -63,7 +63,7 @@ def update_db(query, args=(), database_path=None):
     try:
         cur.execute(query, args)
         conn.commit()
-    except sqlite3.Error as e:
+    except db.Error as e:
         conn.rollback()
         raise e
     finally:
@@ -84,7 +84,7 @@ def mudar_senha(email, novasenha, database_path=None):
         )
 
     if usuario:
-           conn = sqlite3.connect(current_app.config['DATABASE'])
+           conn = db.connect(current_app.config['DATABASE'])
            cur = conn.cursor()
            cur.execute(
                "UPDATE USUARIOS SET senha = ? WHERE email = ?",
@@ -269,7 +269,7 @@ def atualizar_status_documentos_proposta(proposta_id, nota_inclusa=False, databa
             )
 
         conn.commit()
-    except sqlite3.Error as e:
+    except db.Error as e:
         conn.rollback()
         raise e
     finally:
@@ -386,7 +386,7 @@ def get_from_siccada(numero_contrato, database_path=None):
     """Busca informações nas tabelas venda + responsavel"""
     try:
         conn = get_db_connection(database_path)
-        conn.row_factory = sqlite3.Row  # faz cada linha agir como um dict
+        conn.row_factory = db.Row  # faz cada linha agir como um dict
         cur = conn.cursor()
 
         # Busca proposta
@@ -1008,7 +1008,7 @@ def cadastrar_usuario(
         )
         conn.commit()
         return True
-    except sqlite3.Error as e:
+    except db.Error as e:
         conn.rollback()
         raise e
     finally:
@@ -1521,13 +1521,13 @@ def data_dashboard_vendas(data_ref, database_path=None):
 def atualiza_atrasos(database_path=None):
     from datetime import datetime
     from flask import current_app
-    import sqlite3
+    from app import db
 
     if database_path is None:
         database_path = current_app.config.get('DATABASE', 'MHV_DB.db')
 
-    conn = sqlite3.connect(database_path)
-    conn.row_factory = sqlite3.Row
+    conn = db.connect(database_path)
+    conn.row_factory = db.Row
     cur = conn.cursor()
 
     hoje = datetime.now().date()
@@ -1661,7 +1661,7 @@ def get_corretoras_cnt(nome_corretora, data_ref, data_entrada, database_path=Non
         # converter resultados para lista de dicts
         resultados_list = []
         if resultados:
-            # se cursor tiver descrição e rows forem tuplas, usar zip; sqlite3.Row -> dict(row) funciona
+            # se cursor tiver descrição e rows forem tuplas, usar zip; db.Row -> dict(row) funciona
             col_names = [d[0] for d in cur.description] if cur.description else []
             for row in resultados:
                 if hasattr(row, 'keys'):
@@ -1700,7 +1700,7 @@ def get_extend_corretoras_ext(corretora, database_path=None):
 
     # Se encontrou resultados, retorna o PRIMEIRO como dicionário
     if rows:
-        if hasattr(rows[0], 'keys'):  # Se já é sqlite3.Row (que se comporta como dict)
+        if hasattr(rows[0], 'keys'):  # Se já é db.Row (que se comporta como dict)
             return dict(rows[0])      # Converte para dict normal
         else:                         # Se é tupla
             col_names = [description[0] for description in cur.description]
@@ -1998,7 +1998,7 @@ def get_titular_dependente(cpf,database_path= None):
    
     conn = get_db_connection(database_path)
     # IMPORTANTE: Configurar para retornar dicionários
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = db.Row
     cur = conn.cursor()
     
     print("cpf recebido: ", cpf)
@@ -2036,7 +2036,7 @@ def get_titular_dependente(cpf,database_path= None):
 def criar_tabelas_patologias(database_path):
     """Cria as tabelas necessárias para o sistema de patologias"""
     
-    conn = sqlite3.connect(database_path)
+    conn = db.connect(database_path)
     cursor = conn.cursor()
     
     # Tabela de patologias MODIFICADA - apenas um registro por pessoa
@@ -2092,7 +2092,7 @@ def get_entrevista_info(id, tipo_pessoa, database_path=None):
             SELECT * FROM patologias WHERE dependente_id = ?
         """, (id,))
     
-    # Se você configurou row_factory como sqlite3.Row, pode usar:
+    # Se você configurou row_factory como db.Row, pode usar:
     dados = cur.fetchall()
     
     # Debug: mostrar o que retornou
@@ -2105,7 +2105,7 @@ def get_entrevista_info(id, tipo_pessoa, database_path=None):
     # Converter para lista de dicionários
     resultados = []
     for row in dados:
-        # Se row_factory é sqlite3.Row, converta para dict
+        # Se row_factory é db.Row, converta para dict
         if hasattr(row, 'keys'):
             resultados.append(dict(row))
         else:
@@ -2653,7 +2653,7 @@ def post_registrar_push(data, ip_origem, database_path=None):
 
         return {'success': True, 'id': registro_id, 'action': action}
 
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[post_registrar_push] ❌ Erro SQLite: {e}")
         return {'success': False, 'error': f'Erro no banco de dados: {str(e)}'}
     except Exception as e:
@@ -2957,7 +2957,7 @@ def get_autorizacoes_by_card(card_beneficiario, database_path=None):
         
         return autorizacoes
         
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[get_autorizacoes_by_card] ❌ Erro ao buscar autorizações: {e}")
         return []
     except Exception as e:
@@ -3042,7 +3042,7 @@ def post_registrar_cpx(data, ip_origem, database_path=None):
             'message': 'Autorização de exame registrada com sucesso'
         }
         
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[post_registrar_cpx] ❌ Erro ao registrar autorização: {e}")
         return {
             'success': False,
@@ -3133,7 +3133,7 @@ def get_autorizacoes_pendentes_cpx(status_filtro=None, user_id=None, tipo_usuari
         resultado = cur.fetchall()
         conn.close()
         
-        # Converter sqlite3.Row para dicionários
+        # Converter db.Row para dicionários
         autorizacoes = []
         for row in resultado:
             autorizacoes.append({
@@ -3155,7 +3155,7 @@ def get_autorizacoes_pendentes_cpx(status_filtro=None, user_id=None, tipo_usuari
         print(f"[get_autorizacoes_pendentes_cpx] Total de autorizações: {len(autorizacoes)}")
         return autorizacoes
         
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[get_autorizacoes_pendentes_cpx] ❌ Erro ao buscar autorizações: {e}")
         return []
     except Exception as e:
@@ -3224,7 +3224,7 @@ def get_autorizacao_cpx_by_id(autorizacao_id, database_path=None):
         
         return None
         
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[get_autorizacao_cpx_by_id] ❌ Erro ao buscar autorização: {e}")
         return None
     except Exception as e:
@@ -3281,7 +3281,7 @@ def atualizar_status_autorizacao_cpx(autorizacao_id, novo_status, observacao=Non
             'message': f'Autorização {novo_status} com sucesso'
         }
         
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[atualizar_status_autorizacao_cpx] ❌ Erro ao atualizar: {e}")
         return {
             'success': False,
@@ -3352,7 +3352,7 @@ def atribuir_auditor_responsavel(autorizacao_id, usuario_nome, database_path=Non
             'message': 'Você agora é responsável por esta autorização e ela está em análise'
         }
         
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[atribuir_auditor_responsavel] ❌ Erro ao atribuir auditor: {e}")
         return {
             'success': False,
@@ -3457,7 +3457,7 @@ def post_app_id(app_id, cpf, database_path=None):
         print(f"[post_app_id] ✅ app_id associado com sucesso ao beneficiário")
         return True
         
-    except sqlite3.Error as e:
+    except db.Error as e:
         print(f"[post_app_id] ❌ Erro ao associar app_id: {e}")
         return False
     except Exception as e:

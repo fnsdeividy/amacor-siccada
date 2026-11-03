@@ -1,5 +1,5 @@
 from flask import Flask, Blueprint, render_template, request, session, redirect, url_for, send_file, flash, jsonify, current_app
-import sqlite3
+from app import db
 import requests
 import json
 import os
@@ -323,8 +323,8 @@ def receber_entrevista():
         # ============================================
         
         # Conectar ao banco
-        conn = sqlite3.connect(current_app.config['DATABASE'])
-        conn.row_factory = sqlite3.Row
+        conn = db.connect(current_app.config['DATABASE'])
+        conn.row_factory = db.Row
         cursor = conn.cursor()
         
         # Verificar se tabela patologias existe

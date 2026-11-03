@@ -29,7 +29,7 @@ from ..models.database import (
     get_status,
     atualizar_status_documentos_proposta,
 )
-import sqlite3
+from app import db
 import re
 import glob
 from ..api_conex.conections import email_gmail, msg_email
@@ -69,7 +69,7 @@ def acompanhar_cnt():
 
     atualiza_atrasos()
     
-    conn= sqlite3.connect(current_app.config['DATABASE'])
+    conn= db.connect(current_app.config['DATABASE'])
     cur= conn.cursor()
     resp = request.args.get('resp')
     tipo_usuario = session.get('tipo_usuario')
@@ -178,7 +178,7 @@ def detalhes_cnt():
     tipo_usuario= session.get('tipo_usuario')
     print(tipo_usuario)
     
-    conn = sqlite3.connect(current_app.config['DATABASE'])
+    conn = db.connect(current_app.config['DATABASE'])
     cur = conn.cursor()
 
     # Buscar os detalhes da venda
@@ -290,7 +290,7 @@ def adicionar_cnt():
         email=get_email(proposta)
         print (email)
 
-        conn = sqlite3.connect(current_app.config['DATABASE'])
+        conn = db.connect(current_app.config['DATABASE'])
         cur = conn.cursor()
         cur.execute("UPDATE venda SET status = ? WHERE numero_proposta = ?", (contrato, proposta))
         cur.execute("UPDATE venda SET status = 'enviado para Declaração de Saúde WHERE numero_proposta = ?" ,(proposta))
@@ -528,7 +528,7 @@ def gravar_alteracao():
             if verifica_cnt == status:
                 print(f"Situação recebida: {status}")
 
-                conn = sqlite3.connect(current_app.config['DATABASE'])
+                conn = db.connect(current_app.config['DATABASE'])
                 cur = conn.cursor()
                 cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
                 print(proposta)
@@ -589,7 +589,7 @@ def gravar_alteracao():
         else:
             print(f"Situação recebida: {status}")
 
-            conn = sqlite3.connect(current_app.config['DATABASE'])
+            conn = db.connect(current_app.config['DATABASE'])
             cur = conn.cursor()
             cur.execute(f"UPDATE venda SET {info} = ? WHERE numero_proposta = ?", (status, proposta))
             cur.execute("UPDATE venda SET last_resp = ? WHERE numero_proposta = ?", (tipo_usuario, proposta))
@@ -669,7 +669,7 @@ def alterar_infos_proposta():
         try:
             dados = query_db("SELECT * FROM venda WHERE numero_proposta = ?", (proposta,), one=True)
             return render_template('cadastro/alterar_infos/vendas.html', dados=dados, proposta=proposta)
-        except sqlite3.Error as e:
+        except db.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
 
@@ -677,7 +677,7 @@ def alterar_infos_proposta():
         try:
             dados = query_db("SELECT * FROM responsavel WHERE proposta_id = ?", (proposta,), one=True)
             return render_template('cadastro/alterar_infos/responsavel.html', dados=dados, proposta=proposta)
-        except sqlite3.Error as e:
+        except db.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
 
@@ -685,7 +685,7 @@ def alterar_infos_proposta():
         try:
             dados = query_db("SELECT * FROM titulares WHERE proposta_id = ?", (proposta,), one=True)
             return render_template('cadastro/alterar_infos/titulares.html', dados=dados, proposta=proposta)
-        except sqlite3.Error as e:
+        except db.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
 
@@ -693,7 +693,7 @@ def alterar_infos_proposta():
         try:
             dados = query_db("SELECT * FROM dependentes WHERE proposta_id = ?", (proposta,), one=True)
             return render_template('cadastro/alterar_infos/dependentes.html', dados=dados, proposta=proposta)
-        except sqlite3.Error as e:
+        except db.Error as e:
             flash(f'Erro ao consultar a proposta: {e}', 'error')
             return redirect(url_for('cad.detalhes_cnt', proposta=proposta))
 

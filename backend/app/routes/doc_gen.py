@@ -1365,7 +1365,7 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
         def get_percentual(parcela, corretora_name):
             """
             Retorna o percentual (float) para a parcela da corretora.
-            Aceita retorno de query_db_doc como sqlite3.Row, dict, tuple, list ou scalar.
+            Aceita retorno de query_db_doc como db.Row, dict, tuple, list ou scalar.
             Normaliza ',' para '.' e divide por 100.
             """
             try:

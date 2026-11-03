@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template
-import sqlite3
+from app import db
 import re
 
 app = Flask(__name__)
@@ -9,8 +9,8 @@ DATABASE = 'MHV_DB.db'
 
 def query_db(query, args=(), one=False):
     """Executa uma consulta no banco de dados."""
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row  # Retorna resultados como dicionários
+    conn = db.connect(DATABASE)
+    conn.row_factory = db.Row  # Retorna resultados como dicionários
     cur = conn.cursor()
     cur.execute(query, args)
     rv = cur.fetchall()

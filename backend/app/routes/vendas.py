@@ -3,7 +3,7 @@ from ..models.database import query_db, salvar_venda, get_email, get_nome, get_s
 import re
 from app.utils import login_required, acesso, hierarquia
 from datetime import datetime
-import sqlite3
+from app import db
 from ..api_conex.conections import email_gmail, msg_email
 from flask import current_app
 
