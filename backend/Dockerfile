@@ -16,6 +16,12 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY . /app
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENV PORT=8001
 EXPOSE 8001
 
-CMD ["python", "run.py"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+# Produção: gunicorn (o run.py é só para desenvolvimento). Timeout alto
+# porque gerar kit/PDF com o LibreOffice pode demorar.
+CMD gunicorn run:app --bind 0.0.0.0:${PORT} --workers ${WEB_CONCURRENCY:-2} --threads 4 --timeout 300 --access-logfile -

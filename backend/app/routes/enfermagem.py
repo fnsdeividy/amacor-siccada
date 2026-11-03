@@ -79,8 +79,13 @@ def gerar_qrcode():
         # Criar diretório recursivamente
         os.makedirs(qr_code_dir, exist_ok=True)
         
-        # URL dinâmica para o QR Code apontar
-        url = f"http://{server_ip}:{server_port}/enfermagem/declaracao?cpf={cpf}"
+        # URL dinâmica para o QR Code apontar. Hospedado (ex.: Render), o IP
+        # da máquina é interno: usa o endereço público em PUBLIC_URL.
+        public_url = os.environ.get('PUBLIC_URL', '').rstrip('/')
+        if public_url:
+            url = f"{public_url}/enfermagem/declaracao?cpf={cpf}"
+        else:
+            url = f"http://{server_ip}:{server_port}/enfermagem/declaracao?cpf={cpf}"
         
         # Criar QR Code
         qr = qrcode.QRCode(

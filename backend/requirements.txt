@@ -73,3 +73,4 @@ psycopg[binary]==3.2.3
 cryptography==44.0.0
 qrcode==8.0
 redis==5.2.1
+gunicorn==23.0.0

@@ -21,6 +21,9 @@ services:
 
   backend:
     build: ./backend
+    # desenvolvimento: servidor do Flask, que recarrega a cada alteração
+    # (a imagem, como em produção, roda gunicorn)
+    command: python run.py
     env_file:
       - path: .env
         required: false

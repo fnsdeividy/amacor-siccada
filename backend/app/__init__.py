@@ -38,6 +38,8 @@ def create_app():
     app.secret_key = _secret_key()
     # cookie de sessão não vai em requisições de outros sites (proteção CSRF)
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    # em produção (HTTPS) o cookie de sessão só trafega criptografado
+    app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE') == '1'
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=50)
     app.config['UPLOAD_FOLDER'] = 'uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
@@ -60,6 +62,11 @@ def create_app():
     # as mesmas rotas em JSON sob /api, para o front React
     from . import api
     api.init_app(app)
+
+    # atrás do nginx do front: usa o protocolo/host/IP originais (X-Forwarded-*)
+    if os.environ.get('TRUST_PROXY') == '1':
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     # Verifique se a pasta de upload existe
     if not os.path.exists(app.config['UPLOAD_FOLDER']):

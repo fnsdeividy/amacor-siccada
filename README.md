@@ -38,6 +38,11 @@ use o comando `docker-compose`).
 | `DATABASE_URL` | Postgres (o compose já define) |
 | `SMTP_REMETENTE`, `SMTP_SENHA_APP` | e-mails de alerta e de "esqueci minha senha" |
 | `RAPIDOC_TOKEN`, `RAPIDOC_CLIENT_ID`, `KOMMO_CLIENT_ID`, `KOMMO_ACCESS_TOKEN` | integrações |
+| `PUBLIC_URL` | endereço público do sistema (link do QR code da entrevista) |
+| `DATA_DIR` | disco persistente para os arquivos gravados pelo sistema (produção) |
+| `TRUST_PROXY`, `SESSION_COOKIE_SECURE` | `1` em produção, atrás do nginx com HTTPS |
+
+Deploy no Render: [DEPLOY.md](DEPLOY.md).
 
 ## Banco de dados
 
