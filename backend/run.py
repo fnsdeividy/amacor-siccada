@@ -1,3 +1,5 @@
+import os
+
 from app import create_app
 
 from flask import redirect,url_for
@@ -10,4 +12,6 @@ def redirect_login():
     return redirect(url_for('auth.login'))
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8001, debug=True)
+    # debug só com FLASK_DEBUG=1 (o depurador do Werkzeug executa código
+    # enviado pelo navegador; nunca pode ficar ligado em produção)
+    app.run(host='0.0.0.0', port=8001, debug=os.environ.get('FLASK_DEBUG') == '1')

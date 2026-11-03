@@ -1,3 +1,11 @@
+"""
+Scripts antigos de criação e manutenção do banco SQLite.
+
+Só criar_tabela_beneficiarios é usada pelo sistema (upload do CSV em
+cad.atualizar_data) e grava no Postgres pela camada app/db.py. As demais
+funções são utilitários de uma vez só do SQLite; no Postgres o esquema vem
+de db/migrate_sqlite_to_pg.py.
+"""
 import pandas as pd
 import sqlite3
 import shutil
@@ -8,9 +16,10 @@ db_name = "MHV_DB.db"
 
 # Função para criar a tabela beneficiarios
 def criar_tabela_beneficiarios(csv_file):
+    from app import db  # usada pela tela de upload do CSV: grava no Postgres
+
     df = pd.read_csv(csv_file, delimiter=';', encoding='latin1')
-    db_name = "MHV_DB.db"
-    conn = sqlite3.connect(db_name)
+    conn = db.connect()
     cursor = conn.cursor()
 
     # Escolha a chave única que identifica o beneficiário

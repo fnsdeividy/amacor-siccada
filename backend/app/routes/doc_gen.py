@@ -1196,7 +1196,7 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
     import pandas as pd 
     from datetime import datetime, timedelta
     import json
-    from ..models.database import query_db_doc
+    from ..models.database import query_db_doc, query_db
 
 
     pasta_raiz = os.path.join(os.getcwd(), 'static','geren_docgen','relatorios', 'concessionarias')
@@ -1372,15 +1372,13 @@ def gerar_relatorio_concessionarias(dados, corretora, extend_corretoras):
                 if not corretora_name:
                     return 0.0
                 if parcela<=3:
-                    nome_escaped = corretora_name.replace("'", "''")
-                    query = f"SELECT parcela{parcela} FROM corretora_ext WHERE nome_corretora = '{nome_escaped}'"
+                    query = f"SELECT parcela{int(parcela)} FROM corretora_ext WHERE nome_corretora = ?"
                     print("SQL get_percentual:", query)
-                    percentual_raw = query_db_doc(query, one=True)
+                    percentual_raw = query_db(query, (corretora_name,), one=True)
                 if parcela>3:
-                    nome_escaped = corretora_name.replace("'", "''")
-                    query = f"SELECT vitalicia FROM corretora_ext WHERE nome_corretora = '{nome_escaped}'"
+                    query = "SELECT vitalicia FROM corretora_ext WHERE nome_corretora = ?"
                     print("SQL get_percentual:", query)
-                    percentual_raw = query_db_doc(query, one=True)
+                    percentual_raw = query_db(query, (corretora_name,), one=True)
 
                 if percentual_raw is None:
                     return 0.0

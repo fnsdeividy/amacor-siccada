@@ -343,6 +343,11 @@ def _adapt_param(value):
         return value.isoformat(' ')
     if isinstance(value, (datetime.date, datetime.time)):
         return value.isoformat()
+    if isinstance(value, float) and value != value:
+        return None  # o sqlite3 grava NaN como NULL
+    if isinstance(value, float) and value.is_integer() and abs(value) < 2 ** 63:
+        # o SQLite guarda 3.0 como 3 em coluna INTEGER; o Postgres recusaria '3.0'
+        return str(int(value))
     if isinstance(value, (int, float, decimal.Decimal)):
         return repr(value) if isinstance(value, float) else str(value)
     return str(value)

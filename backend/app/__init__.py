@@ -16,13 +16,28 @@ from .routes.amatiss import amatiss_bp
 from datetime import timedelta
 import os
 
+def _secret_key():
+    """Chave que assina o cookie de sessão. Quem a conhece consegue se passar
+    por qualquer usuário, então vem do ambiente e nunca do código."""
+    key = os.environ.get('SECRET_KEY')
+    if key:
+        return key
+    if os.environ.get('FLASK_DEBUG') == '1':
+        print('AVISO: SECRET_KEY não definida; usando chave aleatória de desenvolvimento '
+              '(as sessões caem a cada reinício).')
+        return os.urandom(32)
+    raise RuntimeError('Defina a variável de ambiente SECRET_KEY (veja .env.example).')
+
+
 def create_app():
     app = Flask(__name__)
     app.config['UPLOAD_FOLDER'] = 'uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
     app.config['MAX_CONTENT_LENGTH'] = 30 * 1024 * 1024
     app.config['DATABASE'] = 'MHV_DB.db'
-    app.secret_key = 'os.urandom(24)'
+    app.secret_key = _secret_key()
+    # cookie de sessão não vai em requisições de outros sites (proteção CSRF)
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=50)
     app.config['UPLOAD_FOLDER'] = 'uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'pdf'}
@@ -41,6 +56,10 @@ def create_app():
     app.register_blueprint(mantis_bp, url_prefix='/mantis')
     app.register_blueprint(enfermagem_bp, url_prefix= '/enfermagem')
     app.register_blueprint(amatiss_bp, url_prefix='/amatiss')
+
+    # as mesmas rotas em JSON sob /api, para o front React
+    from . import api
+    api.init_app(app)
 
     # Verifique se a pasta de upload existe
     if not os.path.exists(app.config['UPLOAD_FOLDER']):

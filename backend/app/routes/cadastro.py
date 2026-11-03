@@ -508,6 +508,13 @@ def gravar_alteracao():
     from ..utils import log_atualiza_status
     info = request.form.get('info') #nome da coluna a ser atualizada       
     print(info)
+    # info vai direto no SQL como nome de coluna: só aceita colunas reais de venda
+    conn_cols = db.connect(current_app.config['DATABASE'])
+    colunas_venda = {r[1] for r in conn_cols.execute("PRAGMA table_info(venda)").fetchall()}
+    conn_cols.close()
+    if request.method == 'POST' and info not in colunas_venda:
+        flash('Alteração não realizada: campo inválido.', 'error')
+        return redirect(url_for('cad.acompanhar_cnt'))
     hoje= datetime.now().date()
     tipo_usuario = session.get('tipo_usuario')
     proposta = request.args.get('proposta') or request.form.get('numero_proposta')

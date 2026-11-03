@@ -1645,17 +1645,17 @@ def get_corretoras_cnt(nome_corretora, data_ref, data_entrada, database_path=Non
                 resultados = cur.fetchall()
 
         elif vitalicia:
-            query = f"""
+            query = """
                     SELECT v.*
             FROM venda v
-            WHERE v.corretor_resp = '{nome_corretora}'
+            WHERE v.corretor_resp = ?
               AND EXISTS (
                   SELECT 1 
                   FROM beneficiarios o 
                   WHERE o.sNumeroCNT = v.numero_contrato 
                   AND o.sMotivoCancelamentoTIT IS NULL)
                 """
-            cur.execute(query)
+            cur.execute(query, (nome_corretora,))
             resultados = cur.fetchall()
 
         # converter resultados para lista de dicts
