@@ -1,0 +1,1370 @@
+{
+ "amatiss.analisar_autorizacao": [
+  {
+   "rule": "/amatiss/analisar_autorizacao/<int:autorizacao_id>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "autorizacao_id"
+   ]
+  }
+ ],
+ "amatiss.atribuir_responsavel": [
+  {
+   "rule": "/amatiss/atribuir_responsavel",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "amatiss.detalhes_autorizacao": [
+  {
+   "rule": "/amatiss/detalhes_autorizacao/<int:autorizacao_id>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "autorizacao_id"
+   ]
+  }
+ ],
+ "amatiss.home": [
+  {
+   "rule": "/amatiss/",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "amatiss.processar_autorizacao": [
+  {
+   "rule": "/amatiss/processar_autorizacao",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "amatiss.registrar_autorizacao_app": [
+  {
+   "rule": "/amatiss/registrar_autorizacao_app",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "amatiss.render_aut_cpx": [
+  {
+   "rule": "/amatiss/render_aut_cpx",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "amatiss.servir_documento": [
+  {
+   "rule": "/amatiss/documento/<path:filename>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "filename"
+   ]
+  }
+ ],
+ "auth.cadastrar": [
+  {
+   "rule": "/auth/cadastrar",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "auth.cadastrar_corretora": [
+  {
+   "rule": "/auth/cadastrar_corretora",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "auth.esqueci_senha": [
+  {
+   "rule": "/auth/esqueci_senha",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "auth.fechar": [
+  {
+   "rule": "/auth/fechar",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "auth.login": [
+  {
+   "rule": "/auth/login",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "auth.login_redir": [
+  {
+   "rule": "/auth/login_redir",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "auth.logoff": [
+  {
+   "rule": "/auth/logoff",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "auth.manutencao": [
+  {
+   "rule": "/auth/manutencao",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "auth.mudar_senha": [
+  {
+   "rule": "/auth/mudar_senha",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "auth.redir_atent": [
+  {
+   "rule": "/auth/auten_redir",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "auth.redirecionar_usuario": [
+  {
+   "rule": "/auth/redirect",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.acompanhar_cnt": [
+  {
+   "rule": "/cad/cnt-acompanhamento",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.adicionar_cnt": [
+  {
+   "rule": "/cad/adicionar_cnt",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.adicionar_credenciada": [
+  {
+   "rule": "/cad/adicionar_credenciada",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.adicionar_doc": [
+  {
+   "rule": "/cad/adicionar_doc",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.alterar_credenciada": [
+  {
+   "rule": "/cad/alterar_credenciada",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.alterar_infos": [
+  {
+   "rule": "/cad/alterar_infos",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.alterar_infos_proposta": [
+  {
+   "rule": "/cad/alterar_infos_prpopsta",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.alterar_proposta": [
+  {
+   "rule": "/cad/alterar_proposta",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.atualizar_beneficiario": [
+  {
+   "rule": "/cad/beneficiario/atualizar",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.atualizar_cnt": [
+  {
+   "rule": "/cad/alterar_registro",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.atualizar_data": [
+  {
+   "rule": "/cad/atualizar_data",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.baixar_documento_contrato": [
+  {
+   "rule": "/cad/documentos_contrato/<proposta>/arquivo/<path:nome_arquivo>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "nome_arquivo",
+    "proposta"
+   ]
+  }
+ ],
+ "cad.baixar_todos_documentos_contrato": [
+  {
+   "rule": "/cad/documentos_contrato/<proposta>/baixar_todos",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "proposta"
+   ]
+  }
+ ],
+ "cad.cancelar_beneficiario": [
+  {
+   "rule": "/cad/beneficiario/cancelar",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.d3_beneficiarios": [
+  {
+   "rule": "/cad/d3-beneficiarios",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.detalhes_beneficiario": [
+  {
+   "rule": "/cad/beneficiario",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.detalhes_cnt": [
+  {
+   "rule": "/cad/detalhes_cnt",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.doc_home": [
+  {
+   "rule": "/cad/doc",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.documento_contrato": [
+  {
+   "rule": "/cad/documentos_contrato/<proposta>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "proposta"
+   ]
+  }
+ ],
+ "cad.excluir_proposta": [
+  {
+   "rule": "/cad/excluir_proposta",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.exibir_credenciadas": [
+  {
+   "rule": "/cad/exibir_credenciadas",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.form_atualizar_data": [
+  {
+   "rule": "/cad/form_atualizar_data",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.gravar_alteracao": [
+  {
+   "rule": "/cad/gravar_alteracao",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.home": [
+  {
+   "rule": "/cad/",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.listar_documentos_contrato": [
+  {
+   "rule": "/cad/documentos_contrato/<proposta>/listar",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "proposta"
+   ]
+  }
+ ],
+ "cad.preview_documento_contrato": [
+  {
+   "rule": "/cad/documentos_contrato/<proposta>/preview/<path:nome_arquivo>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "nome_arquivo",
+    "proposta"
+   ]
+  }
+ ],
+ "cad.reativar_beneficiario": [
+  {
+   "rule": "/cad/beneficiario/reativar",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.render_menu_manutencao_beneficiarios": [
+  {
+   "rule": "/cad/manutencao_beneficiarios",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.render_page_doc": [
+  {
+   "rule": "/cad/render_doc_get",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "cad.respostas_entrevista": [
+  {
+   "rule": "/cad/respostas_entrevista",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "cad.suspender_beneficiario": [
+  {
+   "rule": "/cad/beneficiario/suspender",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.baixar_arquivos_divididos": [
+  {
+   "rule": "/docgen/baixar_arquivos_divididos",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.concluido_proposta": [
+  {
+   "rule": "/docgen/concluido_proposta",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.confirmar_envio": [
+  {
+   "rule": "/docgen/confirmar_envio",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.confirmar_processamento": [
+  {
+   "rule": "/docgen/confirmar_processamento",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.dividir_csv": [
+  {
+   "rule": "/docgen/dividir_csv",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.download_cpt": [
+  {
+   "rule": "/docgen/download_cpt",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.download_documento_final": [
+  {
+   "rule": "/docgen/download_documento_final",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.download_proposta": [
+  {
+   "rule": "/docgen/download_proposta/<filename>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "filename"
+   ]
+  }
+ ],
+ "doc_gen.download_relatorio": [
+  {
+   "rule": "/docgen/download_relatorio",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.exportar_dependente_to_sig": [
+  {
+   "rule": "/docgen/exportar_dependente",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.gerar_documentos": [
+  {
+   "rule": "/docgen/gerar_documentos",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.gerar_proposta": [
+  {
+   "rule": "/docgen/gerar_proposta",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.gerar_relatorio_concessionarias": [
+  {
+   "rule": "/docgen/gerar_relatorio_concessionarias",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.post_download": [
+  {
+   "rule": "/docgen/download_liberado",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.processar_csv": [
+  {
+   "rule": "/docgen/processar_csv",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.processar_csv_form": [
+  {
+   "rule": "/docgen/processar_csv_form",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.render_cpt": [
+  {
+   "rule": "/docgen/aditivo_CPT",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.render_gerar_kit": [
+  {
+   "rule": "/docgen/render_gerar_kit",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "doc_gen.upload_documento": [
+  {
+   "rule": "/docgen/upload_documento",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "enfermagem.declaracao": [
+  {
+   "rule": "/enfermagem/declaracao",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "enfermagem.entrevista_concluida": [
+  {
+   "rule": "/enfermagem/entrevista_concluida",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "enfermagem.gerar_qrcode": [
+  {
+   "rule": "/enfermagem/gerar_qrcode",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "enfermagem.receber_entrevista": [
+  {
+   "rule": "/enfermagem/enviar_entrevista",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "finan.alt_page": [
+  {
+   "rule": "/finan/alt_page/<int:pagamento_id>",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": [
+    "pagamento_id"
+   ]
+  }
+ ],
+ "finan.alter": [
+  {
+   "rule": "/finan/alter",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "finan.calculo_acordo": [
+  {
+   "rule": "/finan/calculo_acordo",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "finan.cancelamento_boletos": [
+  {
+   "rule": "/finan/cancelamentos_boletos",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "finan.cancelar_boleto": [
+  {
+   "rule": "/finan/alterar_stts_boleto",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "finan.comprovante": [
+  {
+   "rule": "/finan/documentos_contrato/<pagamento_id>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "pagamento_id"
+   ]
+  }
+ ],
+ "finan.definir": [
+  {
+   "rule": "/finan/definir_tabela",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "finan.download_csv": [
+  {
+   "rule": "/finan/download_csv",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "finan.exportar_csv": [
+  {
+   "rule": "/finan/csv",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "finan.pix": [
+  {
+   "rule": "/finan/pix",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "finan.receber_comprovante": [
+  {
+   "rule": "/finan/comprovante_upload",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "finan.render_cancelamento_boletos": [
+  {
+   "rule": "/finan/render_cancelamentos_boletos",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "finan.render_form": [
+  {
+   "rule": "/finan/render_comprovante/",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "finan.render_form_post": [
+  {
+   "rule": "/finan/render_comprovante_post/<int:pagamento_id>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "pagamento_id"
+   ]
+  }
+ ],
+ "finan.return_": [
+  {
+   "rule": "/finan/return",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "finan.tab": [
+  {
+   "rule": "/finan/tab_pix",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "generic.definir_perfil": [
+  {
+   "rule": "/generic/definir_perfil",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "generic.escolher_wllpp": [
+  {
+   "rule": "/generic/render_escolher_wllpp",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "generic.get_profile_photo": [
+  {
+   "rule": "/generic/api/user/profile-photo",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "generic.get_user_background": [
+  {
+   "rule": "/generic/api/user/background",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "generic.home": [
+  {
+   "rule": "/generic/",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "generic.home_corretor": [
+  {
+   "rule": "/generic/home_corretor",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "generic.profile": [
+  {
+   "rule": "/generic/profile",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "generic.render_definir_perfil": [
+  {
+   "rule": "/generic/upload_foto_perfil",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "generic.serve_profile_photo": [
+  {
+   "rule": "/generic/profile-photo/<int:user_id>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "user_id"
+   ]
+  }
+ ],
+ "generic.set_wallpaper": [
+  {
+   "rule": "/generic/api/set_wallpaper",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "generic.settings": [
+  {
+   "rule": "/generic/settings",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.confirmar_processamento": [
+  {
+   "rule": "/gerencial/confirmar_processamento_gerencial.html",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.contratos_corretora": [
+  {
+   "rule": "/gerencial/contratos_concessionarias",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.dashboard": [
+  {
+   "rule": "/gerencial/dashboard_vendas",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.dashboard_administrativo": [
+  {
+   "rule": "/gerencial/dashboard_administrativo",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.dashboard_cobranca": [
+  {
+   "rule": "/gerencial/dashboard_cobranca",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.dashboard_financeiro": [
+  {
+   "rule": "/gerencial/dashboard_financeiro",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.dashboard_financeiro_cnt": [
+  {
+   "rule": "/gerencial/dashboard_financad",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.download_relatorio": [
+  {
+   "rule": "/gerencial/download",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.processar_csv_form": [
+  {
+   "rule": "/gerencial/upload_form",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.relatorio": [
+  {
+   "rule": "/gerencial/gerar_relatorio",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.relatorio_vendas": [
+  {
+   "rule": "/gerencial/relatorio_vendas",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.render_relatorio_concessionarias": [
+  {
+   "rule": "/gerencial/render_relatorio_concessionarias",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.upload_csv": [
+  {
+   "rule": "/gerencial/upload_csv",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "home.index": [
+  {
+   "rule": "/home/",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.autorizar_tiss": [
+  {
+   "rule": "/mantis/autorizar_tiss",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.autorizar_token": [
+  {
+   "rule": "/mantis/autorizar_token",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.get_autorizacoes": [
+  {
+   "rule": "/mantis/get_autorizacoes",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.get_card": [
+  {
+   "rule": "/mantis/get_card",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.get_especialidades_app": [
+  {
+   "rule": "/mantis/get_especialidades_app",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.get_payment_app": [
+  {
+   "rule": "/mantis/get_payment_app",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.post_suspender_contrato": [
+  {
+   "rule": "/mantis/post_suspender_contrato",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.registrar_cpx": [
+  {
+   "rule": "/mantis/registrar_cpx",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "mantis.registrar_push": [
+  {
+   "rule": "/mantis/registrar_push",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "pdfgen.create_card": [
+  {
+   "rule": "/pdfgen/criar_card",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "pdfgen.download_pdf": [
+  {
+   "rule": "/pdfgen/download_pdf",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "pdfgen.upload_files": [
+  {
+   "rule": "/pdfgen/upload",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "static": [
+  {
+   "rule": "/static/<path:filename>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "filename"
+   ]
+  }
+ ],
+ "vendas.buscar_endereco_cep": [
+  {
+   "rule": "/vendas/buscar_endereco_cep",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.concluido": [
+  {
+   "rule": "/vendas/concluido",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.cpf": [
+  {
+   "rule": "/vendas/cpf",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.inclusao_form": [
+  {
+   "rule": "/vendas/inclusao_form",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.inclusao_render_form": [
+  {
+   "rule": "/vendas/inclusao_render",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.informar_cnt": [
+  {
+   "rule": "/vendas/informar_cnt",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.lista_retorno": [
+  {
+   "rule": "/vendas/lista_cpf",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.nova_venda": [
+  {
+   "rule": "/vendas/nova_venda",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.nova_venda_pj": [
+  {
+   "rule": "/vendas/nova_venda_pj",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.preco_idade": [
+  {
+   "rule": "/vendas/preco/idade/<int:idade>/<string:plano>",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": [
+    "idade",
+    "plano"
+   ]
+  }
+ ],
+ "vendas.proximo_numero_proposta": [
+  {
+   "rule": "/vendas/proximo_numero_proposta",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.render_tipo_venda": [
+  {
+   "rule": "/vendas/select_tp_venda",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.saldos": [
+  {
+   "rule": "/vendas/saldobenef",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.status_proposta": [
+  {
+   "rule": "/vendas/status_proposta/<string:plano_tipo>/<string:corretor_resp>",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": [
+    "corretor_resp",
+    "plano_tipo"
+   ]
+  }
+ ],
+ "vendas.venda_form": [
+  {
+   "rule": "/vendas/venda_form",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "vendas.venda_form_pj": [
+  {
+   "rule": "/vendas/venda_form_pj",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ]
+}

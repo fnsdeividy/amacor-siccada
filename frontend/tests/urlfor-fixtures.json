@@ -1,0 +1,1908 @@
+[
+ [
+  "auth.login",
+  {},
+  "/auth/login"
+ ],
+ [
+  "auth.login",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/login?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.cadastrar",
+  {},
+  "/auth/cadastrar"
+ ],
+ [
+  "auth.cadastrar",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/cadastrar?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.logoff",
+  {},
+  "/auth/logoff"
+ ],
+ [
+  "auth.logoff",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/logoff?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.redirecionar_usuario",
+  {},
+  "/auth/redirect"
+ ],
+ [
+  "auth.redirecionar_usuario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/redirect?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.esqueci_senha",
+  {},
+  "/auth/esqueci_senha"
+ ],
+ [
+  "auth.esqueci_senha",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/esqueci_senha?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.mudar_senha",
+  {},
+  "/auth/mudar_senha"
+ ],
+ [
+  "auth.mudar_senha",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/mudar_senha?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.redir_atent",
+  {},
+  "/auth/auten_redir"
+ ],
+ [
+  "auth.redir_atent",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/auten_redir?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.login_redir",
+  {},
+  "/auth/login_redir"
+ ],
+ [
+  "auth.login_redir",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/login_redir?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.fechar",
+  {},
+  "/auth/fechar"
+ ],
+ [
+  "auth.fechar",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/fechar?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.cadastrar_corretora",
+  {},
+  "/auth/cadastrar_corretora"
+ ],
+ [
+  "auth.cadastrar_corretora",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/cadastrar_corretora?filtro=sim&lista=todos"
+ ],
+ [
+  "auth.manutencao",
+  {},
+  "/auth/manutencao"
+ ],
+ [
+  "auth.manutencao",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/auth/manutencao?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.cpf",
+  {},
+  "/vendas/cpf"
+ ],
+ [
+  "vendas.cpf",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/cpf?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.lista_retorno",
+  {},
+  "/vendas/lista_cpf"
+ ],
+ [
+  "vendas.lista_retorno",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/lista_cpf?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.informar_cnt",
+  {},
+  "/vendas/informar_cnt"
+ ],
+ [
+  "vendas.informar_cnt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/informar_cnt?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.nova_venda_pj",
+  {},
+  "/vendas/nova_venda_pj"
+ ],
+ [
+  "vendas.nova_venda_pj",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/nova_venda_pj?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.nova_venda",
+  {},
+  "/vendas/nova_venda"
+ ],
+ [
+  "vendas.nova_venda",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/nova_venda?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.saldos",
+  {},
+  "/vendas/saldobenef"
+ ],
+ [
+  "vendas.saldos",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/saldobenef?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.render_tipo_venda",
+  {},
+  "/vendas/select_tp_venda"
+ ],
+ [
+  "vendas.render_tipo_venda",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/select_tp_venda?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.inclusao_render_form",
+  {},
+  "/vendas/inclusao_render"
+ ],
+ [
+  "vendas.inclusao_render_form",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/inclusao_render?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.inclusao_form",
+  {},
+  "/vendas/inclusao_form"
+ ],
+ [
+  "vendas.inclusao_form",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/inclusao_form?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.venda_form_pj",
+  {},
+  "/vendas/venda_form_pj"
+ ],
+ [
+  "vendas.venda_form_pj",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/venda_form_pj?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.venda_form",
+  {},
+  "/vendas/venda_form"
+ ],
+ [
+  "vendas.venda_form",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/venda_form?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.buscar_endereco_cep",
+  {},
+  "/vendas/buscar_endereco_cep"
+ ],
+ [
+  "vendas.buscar_endereco_cep",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/buscar_endereco_cep?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.concluido",
+  {},
+  "/vendas/concluido"
+ ],
+ [
+  "vendas.concluido",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/concluido?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.preco_idade",
+  {
+   "plano": "valor x/ç",
+   "idade": "42"
+  },
+  "/vendas/preco/idade/42/valor%20x/%C3%A7"
+ ],
+ [
+  "vendas.preco_idade",
+  {
+   "plano": "valor x/ç",
+   "idade": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/preco/idade/42/valor%20x/%C3%A7?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.status_proposta",
+  {
+   "plano_tipo": "valor x/ç",
+   "corretor_resp": "valor x/ç"
+  },
+  "/vendas/status_proposta/valor%20x/%C3%A7/valor%20x/%C3%A7"
+ ],
+ [
+  "vendas.status_proposta",
+  {
+   "plano_tipo": "valor x/ç",
+   "corretor_resp": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/status_proposta/valor%20x/%C3%A7/valor%20x/%C3%A7?filtro=sim&lista=todos"
+ ],
+ [
+  "vendas.proximo_numero_proposta",
+  {},
+  "/vendas/proximo_numero_proposta"
+ ],
+ [
+  "vendas.proximo_numero_proposta",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/vendas/proximo_numero_proposta?filtro=sim&lista=todos"
+ ],
+ [
+  "pdfgen.create_card",
+  {},
+  "/pdfgen/criar_card"
+ ],
+ [
+  "pdfgen.create_card",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/pdfgen/criar_card?filtro=sim&lista=todos"
+ ],
+ [
+  "pdfgen.upload_files",
+  {},
+  "/pdfgen/upload"
+ ],
+ [
+  "pdfgen.upload_files",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/pdfgen/upload?filtro=sim&lista=todos"
+ ],
+ [
+  "pdfgen.download_pdf",
+  {},
+  "/pdfgen/download_pdf"
+ ],
+ [
+  "pdfgen.download_pdf",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/pdfgen/download_pdf?filtro=sim&lista=todos"
+ ],
+ [
+  "home.index",
+  {},
+  "/home/"
+ ],
+ [
+  "home.index",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/home/?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.home",
+  {},
+  "/generic/"
+ ],
+ [
+  "generic.home",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.profile",
+  {},
+  "/generic/profile"
+ ],
+ [
+  "generic.profile",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/profile?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.settings",
+  {},
+  "/generic/settings"
+ ],
+ [
+  "generic.settings",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/settings?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.home_corretor",
+  {},
+  "/generic/home_corretor"
+ ],
+ [
+  "generic.home_corretor",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/home_corretor?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.render_definir_perfil",
+  {},
+  "/generic/upload_foto_perfil"
+ ],
+ [
+  "generic.render_definir_perfil",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/upload_foto_perfil?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.definir_perfil",
+  {},
+  "/generic/definir_perfil"
+ ],
+ [
+  "generic.definir_perfil",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/definir_perfil?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.serve_profile_photo",
+  {
+   "user_id": "42"
+  },
+  "/generic/profile-photo/42"
+ ],
+ [
+  "generic.serve_profile_photo",
+  {
+   "user_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/profile-photo/42?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.get_profile_photo",
+  {},
+  "/generic/api/user/profile-photo"
+ ],
+ [
+  "generic.get_profile_photo",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/api/user/profile-photo?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.escolher_wllpp",
+  {},
+  "/generic/render_escolher_wllpp"
+ ],
+ [
+  "generic.escolher_wllpp",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/render_escolher_wllpp?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.set_wallpaper",
+  {},
+  "/generic/api/set_wallpaper"
+ ],
+ [
+  "generic.set_wallpaper",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/api/set_wallpaper?filtro=sim&lista=todos"
+ ],
+ [
+  "generic.get_user_background",
+  {},
+  "/generic/api/user/background"
+ ],
+ [
+  "generic.get_user_background",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/generic/api/user/background?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.pix",
+  {},
+  "/finan/pix"
+ ],
+ [
+  "finan.pix",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/pix?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.tab",
+  {},
+  "/finan/tab_pix"
+ ],
+ [
+  "finan.tab",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/tab_pix?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.render_form",
+  {},
+  "/finan/render_comprovante/"
+ ],
+ [
+  "finan.render_form",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/render_comprovante/?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.render_form_post",
+  {
+   "pagamento_id": "42"
+  },
+  "/finan/render_comprovante_post/42"
+ ],
+ [
+  "finan.render_form_post",
+  {
+   "pagamento_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/render_comprovante_post/42?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.receber_comprovante",
+  {},
+  "/finan/comprovante_upload"
+ ],
+ [
+  "finan.receber_comprovante",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/comprovante_upload?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.definir",
+  {},
+  "/finan/definir_tabela"
+ ],
+ [
+  "finan.definir",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/definir_tabela?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.calculo_acordo",
+  {},
+  "/finan/calculo_acordo"
+ ],
+ [
+  "finan.calculo_acordo",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/calculo_acordo?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.alt_page",
+  {
+   "pagamento_id": "42"
+  },
+  "/finan/alt_page/42"
+ ],
+ [
+  "finan.alt_page",
+  {
+   "pagamento_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/alt_page/42?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.return_",
+  {},
+  "/finan/return"
+ ],
+ [
+  "finan.return_",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/return?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.exportar_csv",
+  {},
+  "/finan/csv"
+ ],
+ [
+  "finan.exportar_csv",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/csv?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.alter",
+  {},
+  "/finan/alter"
+ ],
+ [
+  "finan.alter",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/alter?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.download_csv",
+  {},
+  "/finan/download_csv"
+ ],
+ [
+  "finan.download_csv",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/download_csv?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.comprovante",
+  {
+   "pagamento_id": "42"
+  },
+  "/finan/documentos_contrato/42"
+ ],
+ [
+  "finan.comprovante",
+  {
+   "pagamento_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/documentos_contrato/42?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.render_cancelamento_boletos",
+  {},
+  "/finan/render_cancelamentos_boletos"
+ ],
+ [
+  "finan.render_cancelamento_boletos",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/render_cancelamentos_boletos?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.cancelamento_boletos",
+  {},
+  "/finan/cancelamentos_boletos"
+ ],
+ [
+  "finan.cancelamento_boletos",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/cancelamentos_boletos?filtro=sim&lista=todos"
+ ],
+ [
+  "finan.cancelar_boleto",
+  {},
+  "/finan/alterar_stts_boleto"
+ ],
+ [
+  "finan.cancelar_boleto",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/finan/alterar_stts_boleto?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.home",
+  {},
+  "/cad/"
+ ],
+ [
+  "cad.home",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.doc_home",
+  {},
+  "/cad/doc"
+ ],
+ [
+  "cad.doc_home",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/doc?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.exibir_credenciadas",
+  {},
+  "/cad/exibir_credenciadas"
+ ],
+ [
+  "cad.exibir_credenciadas",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/exibir_credenciadas?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.acompanhar_cnt",
+  {},
+  "/cad/cnt-acompanhamento"
+ ],
+ [
+  "cad.acompanhar_cnt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/cnt-acompanhamento?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.detalhes_cnt",
+  {},
+  "/cad/detalhes_cnt"
+ ],
+ [
+  "cad.detalhes_cnt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/detalhes_cnt?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.alterar_proposta",
+  {},
+  "/cad/alterar_proposta"
+ ],
+ [
+  "cad.alterar_proposta",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/alterar_proposta?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.atualizar_cnt",
+  {},
+  "/cad/alterar_registro"
+ ],
+ [
+  "cad.atualizar_cnt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/alterar_registro?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.adicionar_cnt",
+  {},
+  "/cad/adicionar_cnt"
+ ],
+ [
+  "cad.adicionar_cnt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/adicionar_cnt?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.render_page_doc",
+  {},
+  "/cad/render_doc_get"
+ ],
+ [
+  "cad.render_page_doc",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/render_doc_get?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.adicionar_doc",
+  {},
+  "/cad/adicionar_doc"
+ ],
+ [
+  "cad.adicionar_doc",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/adicionar_doc?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.listar_documentos_contrato",
+  {
+   "proposta": "valor x/ç"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/listar"
+ ],
+ [
+  "cad.listar_documentos_contrato",
+  {
+   "proposta": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/listar?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.baixar_documento_contrato",
+  {
+   "nome_arquivo": "valor x/ç",
+   "proposta": "valor x/ç"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/arquivo/valor%20x/%C3%A7"
+ ],
+ [
+  "cad.baixar_documento_contrato",
+  {
+   "nome_arquivo": "valor x/ç",
+   "proposta": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/arquivo/valor%20x/%C3%A7?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.preview_documento_contrato",
+  {
+   "nome_arquivo": "valor x/ç",
+   "proposta": "valor x/ç"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/preview/valor%20x/%C3%A7"
+ ],
+ [
+  "cad.preview_documento_contrato",
+  {
+   "nome_arquivo": "valor x/ç",
+   "proposta": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/preview/valor%20x/%C3%A7?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.baixar_todos_documentos_contrato",
+  {
+   "proposta": "valor x/ç"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/baixar_todos"
+ ],
+ [
+  "cad.baixar_todos_documentos_contrato",
+  {
+   "proposta": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7/baixar_todos?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.gravar_alteracao",
+  {},
+  "/cad/gravar_alteracao"
+ ],
+ [
+  "cad.gravar_alteracao",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/gravar_alteracao?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.alterar_infos_proposta",
+  {},
+  "/cad/alterar_infos_prpopsta"
+ ],
+ [
+  "cad.alterar_infos_proposta",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/alterar_infos_prpopsta?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.excluir_proposta",
+  {},
+  "/cad/excluir_proposta"
+ ],
+ [
+  "cad.excluir_proposta",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/excluir_proposta?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.alterar_infos",
+  {},
+  "/cad/alterar_infos"
+ ],
+ [
+  "cad.alterar_infos",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/alterar_infos?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.documento_contrato",
+  {
+   "proposta": "valor x/ç"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7"
+ ],
+ [
+  "cad.documento_contrato",
+  {
+   "proposta": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/documentos_contrato/valor%20x/%C3%A7?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.form_atualizar_data",
+  {},
+  "/cad/form_atualizar_data"
+ ],
+ [
+  "cad.form_atualizar_data",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/form_atualizar_data?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.atualizar_data",
+  {},
+  "/cad/atualizar_data"
+ ],
+ [
+  "cad.atualizar_data",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/atualizar_data?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.respostas_entrevista",
+  {},
+  "/cad/respostas_entrevista"
+ ],
+ [
+  "cad.respostas_entrevista",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/respostas_entrevista?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.alterar_credenciada",
+  {},
+  "/cad/alterar_credenciada"
+ ],
+ [
+  "cad.alterar_credenciada",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/alterar_credenciada?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.adicionar_credenciada",
+  {},
+  "/cad/adicionar_credenciada"
+ ],
+ [
+  "cad.adicionar_credenciada",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/adicionar_credenciada?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.render_menu_manutencao_beneficiarios",
+  {},
+  "/cad/manutencao_beneficiarios"
+ ],
+ [
+  "cad.render_menu_manutencao_beneficiarios",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/manutencao_beneficiarios?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.detalhes_beneficiario",
+  {},
+  "/cad/beneficiario"
+ ],
+ [
+  "cad.detalhes_beneficiario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/beneficiario?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.atualizar_beneficiario",
+  {},
+  "/cad/beneficiario/atualizar"
+ ],
+ [
+  "cad.atualizar_beneficiario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/beneficiario/atualizar?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.suspender_beneficiario",
+  {},
+  "/cad/beneficiario/suspender"
+ ],
+ [
+  "cad.suspender_beneficiario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/beneficiario/suspender?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.reativar_beneficiario",
+  {},
+  "/cad/beneficiario/reativar"
+ ],
+ [
+  "cad.reativar_beneficiario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/beneficiario/reativar?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.cancelar_beneficiario",
+  {},
+  "/cad/beneficiario/cancelar"
+ ],
+ [
+  "cad.cancelar_beneficiario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/beneficiario/cancelar?filtro=sim&lista=todos"
+ ],
+ [
+  "cad.d3_beneficiarios",
+  {},
+  "/cad/d3-beneficiarios"
+ ],
+ [
+  "cad.d3_beneficiarios",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/cad/d3-beneficiarios?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.render_gerar_kit",
+  {},
+  "/docgen/render_gerar_kit"
+ ],
+ [
+  "doc_gen.render_gerar_kit",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/render_gerar_kit?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.gerar_documentos",
+  {},
+  "/docgen/gerar_documentos"
+ ],
+ [
+  "doc_gen.gerar_documentos",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/gerar_documentos?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.upload_documento",
+  {},
+  "/docgen/upload_documento"
+ ],
+ [
+  "doc_gen.upload_documento",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/upload_documento?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.download_documento_final",
+  {},
+  "/docgen/download_documento_final"
+ ],
+ [
+  "doc_gen.download_documento_final",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/download_documento_final?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.processar_csv",
+  {},
+  "/docgen/processar_csv"
+ ],
+ [
+  "doc_gen.processar_csv",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/processar_csv?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.dividir_csv",
+  {},
+  "/docgen/dividir_csv"
+ ],
+ [
+  "doc_gen.dividir_csv",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/dividir_csv?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.confirmar_processamento",
+  {},
+  "/docgen/confirmar_processamento"
+ ],
+ [
+  "doc_gen.confirmar_processamento",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/confirmar_processamento?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.baixar_arquivos_divididos",
+  {},
+  "/docgen/baixar_arquivos_divididos"
+ ],
+ [
+  "doc_gen.baixar_arquivos_divididos",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/baixar_arquivos_divididos?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.processar_csv_form",
+  {},
+  "/docgen/processar_csv_form"
+ ],
+ [
+  "doc_gen.processar_csv_form",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/processar_csv_form?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.confirmar_envio",
+  {},
+  "/docgen/confirmar_envio"
+ ],
+ [
+  "doc_gen.confirmar_envio",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/confirmar_envio?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.gerar_proposta",
+  {},
+  "/docgen/gerar_proposta"
+ ],
+ [
+  "doc_gen.gerar_proposta",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/gerar_proposta?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.download_proposta",
+  {
+   "filename": "valor x/ç"
+  },
+  "/docgen/download_proposta/valor%20x/%C3%A7"
+ ],
+ [
+  "doc_gen.download_proposta",
+  {
+   "filename": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/download_proposta/valor%20x/%C3%A7?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.concluido_proposta",
+  {},
+  "/docgen/concluido_proposta"
+ ],
+ [
+  "doc_gen.concluido_proposta",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/concluido_proposta?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.render_cpt",
+  {},
+  "/docgen/aditivo_CPT"
+ ],
+ [
+  "doc_gen.render_cpt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/aditivo_CPT?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.post_download",
+  {},
+  "/docgen/download_liberado"
+ ],
+ [
+  "doc_gen.post_download",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/download_liberado?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.download_cpt",
+  {},
+  "/docgen/download_cpt"
+ ],
+ [
+  "doc_gen.download_cpt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/download_cpt?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.exportar_dependente_to_sig",
+  {},
+  "/docgen/exportar_dependente"
+ ],
+ [
+  "doc_gen.exportar_dependente_to_sig",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/exportar_dependente?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.gerar_relatorio_concessionarias",
+  {},
+  "/docgen/gerar_relatorio_concessionarias"
+ ],
+ [
+  "doc_gen.gerar_relatorio_concessionarias",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/gerar_relatorio_concessionarias?filtro=sim&lista=todos"
+ ],
+ [
+  "doc_gen.download_relatorio",
+  {},
+  "/docgen/download_relatorio"
+ ],
+ [
+  "doc_gen.download_relatorio",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/docgen/download_relatorio?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.dashboard_financeiro_cnt",
+  {},
+  "/gerencial/dashboard_financad"
+ ],
+ [
+  "gerencial.dashboard_financeiro_cnt",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/dashboard_financad?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.dashboard_financeiro",
+  {},
+  "/gerencial/dashboard_financeiro"
+ ],
+ [
+  "gerencial.dashboard_financeiro",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/dashboard_financeiro?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.dashboard_administrativo",
+  {},
+  "/gerencial/dashboard_administrativo"
+ ],
+ [
+  "gerencial.dashboard_administrativo",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/dashboard_administrativo?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.dashboard",
+  {},
+  "/gerencial/dashboard_vendas"
+ ],
+ [
+  "gerencial.dashboard",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/dashboard_vendas?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.dashboard_cobranca",
+  {},
+  "/gerencial/dashboard_cobranca"
+ ],
+ [
+  "gerencial.dashboard_cobranca",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/dashboard_cobranca?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.upload_csv",
+  {},
+  "/gerencial/upload_csv"
+ ],
+ [
+  "gerencial.upload_csv",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/upload_csv?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.processar_csv_form",
+  {},
+  "/gerencial/upload_form"
+ ],
+ [
+  "gerencial.processar_csv_form",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/upload_form?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.relatorio",
+  {},
+  "/gerencial/gerar_relatorio"
+ ],
+ [
+  "gerencial.relatorio",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/gerar_relatorio?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.confirmar_processamento",
+  {},
+  "/gerencial/confirmar_processamento_gerencial.html"
+ ],
+ [
+  "gerencial.confirmar_processamento",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/confirmar_processamento_gerencial.html?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.relatorio_vendas",
+  {},
+  "/gerencial/relatorio_vendas"
+ ],
+ [
+  "gerencial.relatorio_vendas",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/relatorio_vendas?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.download_relatorio",
+  {},
+  "/gerencial/download"
+ ],
+ [
+  "gerencial.download_relatorio",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/download?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.render_relatorio_concessionarias",
+  {},
+  "/gerencial/render_relatorio_concessionarias"
+ ],
+ [
+  "gerencial.render_relatorio_concessionarias",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/render_relatorio_concessionarias?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.contratos_corretora",
+  {},
+  "/gerencial/contratos_concessionarias"
+ ],
+ [
+  "gerencial.contratos_corretora",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/contratos_concessionarias?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.get_card",
+  {},
+  "/mantis/get_card"
+ ],
+ [
+  "mantis.get_card",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/get_card?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.get_payment_app",
+  {},
+  "/mantis/get_payment_app"
+ ],
+ [
+  "mantis.get_payment_app",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/get_payment_app?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.get_especialidades_app",
+  {},
+  "/mantis/get_especialidades_app"
+ ],
+ [
+  "mantis.get_especialidades_app",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/get_especialidades_app?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.post_suspender_contrato",
+  {},
+  "/mantis/post_suspender_contrato"
+ ],
+ [
+  "mantis.post_suspender_contrato",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/post_suspender_contrato?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.autorizar_token",
+  {},
+  "/mantis/autorizar_token"
+ ],
+ [
+  "mantis.autorizar_token",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/autorizar_token?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.autorizar_tiss",
+  {},
+  "/mantis/autorizar_tiss"
+ ],
+ [
+  "mantis.autorizar_tiss",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/autorizar_tiss?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.get_autorizacoes",
+  {},
+  "/mantis/get_autorizacoes"
+ ],
+ [
+  "mantis.get_autorizacoes",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/get_autorizacoes?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.registrar_cpx",
+  {},
+  "/mantis/registrar_cpx"
+ ],
+ [
+  "mantis.registrar_cpx",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/registrar_cpx?filtro=sim&lista=todos"
+ ],
+ [
+  "mantis.registrar_push",
+  {},
+  "/mantis/registrar_push"
+ ],
+ [
+  "mantis.registrar_push",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/mantis/registrar_push?filtro=sim&lista=todos"
+ ],
+ [
+  "enfermagem.declaracao",
+  {},
+  "/enfermagem/declaracao"
+ ],
+ [
+  "enfermagem.declaracao",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/enfermagem/declaracao?filtro=sim&lista=todos"
+ ],
+ [
+  "enfermagem.gerar_qrcode",
+  {},
+  "/enfermagem/gerar_qrcode"
+ ],
+ [
+  "enfermagem.gerar_qrcode",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/enfermagem/gerar_qrcode?filtro=sim&lista=todos"
+ ],
+ [
+  "enfermagem.receber_entrevista",
+  {},
+  "/enfermagem/enviar_entrevista"
+ ],
+ [
+  "enfermagem.receber_entrevista",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/enfermagem/enviar_entrevista?filtro=sim&lista=todos"
+ ],
+ [
+  "enfermagem.entrevista_concluida",
+  {},
+  "/enfermagem/entrevista_concluida"
+ ],
+ [
+  "enfermagem.entrevista_concluida",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/enfermagem/entrevista_concluida?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.home",
+  {},
+  "/amatiss/"
+ ],
+ [
+  "amatiss.home",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.registrar_autorizacao_app",
+  {},
+  "/amatiss/registrar_autorizacao_app"
+ ],
+ [
+  "amatiss.registrar_autorizacao_app",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/registrar_autorizacao_app?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.render_aut_cpx",
+  {},
+  "/amatiss/render_aut_cpx"
+ ],
+ [
+  "amatiss.render_aut_cpx",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/render_aut_cpx?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.detalhes_autorizacao",
+  {
+   "autorizacao_id": "42"
+  },
+  "/amatiss/detalhes_autorizacao/42"
+ ],
+ [
+  "amatiss.detalhes_autorizacao",
+  {
+   "autorizacao_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/detalhes_autorizacao/42?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.processar_autorizacao",
+  {},
+  "/amatiss/processar_autorizacao"
+ ],
+ [
+  "amatiss.processar_autorizacao",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/processar_autorizacao?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.atribuir_responsavel",
+  {},
+  "/amatiss/atribuir_responsavel"
+ ],
+ [
+  "amatiss.atribuir_responsavel",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/atribuir_responsavel?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.servir_documento",
+  {
+   "filename": "valor x/ç"
+  },
+  "/amatiss/documento/valor%20x/%C3%A7"
+ ],
+ [
+  "amatiss.servir_documento",
+  {
+   "filename": "valor x/ç",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/documento/valor%20x/%C3%A7?filtro=sim&lista=todos"
+ ],
+ [
+  "amatiss.analisar_autorizacao",
+  {
+   "autorizacao_id": "42"
+  },
+  "/amatiss/analisar_autorizacao/42"
+ ],
+ [
+  "amatiss.analisar_autorizacao",
+  {
+   "autorizacao_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/amatiss/analisar_autorizacao/42?filtro=sim&lista=todos"
+ ],
+ [
+  "static",
+  {
+   "filename": "css/estilos.css"
+  },
+  "/static/css/estilos.css"
+ ]
+]
