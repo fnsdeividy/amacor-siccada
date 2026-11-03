@@ -21,13 +21,26 @@ services:
 
   backend:
     build: ./backend
+    env_file:
+      - path: .env
+        required: false
     environment:
       DATABASE_URL: postgresql://amacor:amacor@postgres:5432/amacor
+      FLASK_DEBUG: ${FLASK_DEBUG:-1}
     ports:
       - "8001:8001"
     volumes:
-      - ./backend/static:/app/static
-      - ./backend/uploads:/app/uploads
+      # código montado: em desenvolvimento o Flask recarrega a cada alteração
+      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy
+
+  # front já compilado (como em produção). Em desenvolvimento use o Vite:
+  #   npm --prefix frontend run dev   ->  http://localhost:5173
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend

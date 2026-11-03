@@ -8,3 +8,9 @@ node_modules/
 
 # Dados locais do Postgres (docker-compose)
 .pgdata/
+
+# Snapshots e cópias com dados reais usados nos testes de equivalência
+.cmp/
+
+# Front
+frontend/dist/
