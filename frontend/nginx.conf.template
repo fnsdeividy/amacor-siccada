@@ -6,11 +6,8 @@
 # A imagem oficial do nginx troca ${PORT} e ${BACKEND_HOSTPORT} pelos valores
 # do ambiente ao subir (ex.: BACKEND_HOSTPORT=backend:8001 no docker-compose,
 # ou o host:porta interno do back no Render).
-# O endereço interno do back muda a cada deploy dele: o nginx precisa
-# consultar o DNS de novo (com proxy_pass fixo ele resolveria uma vez só, ao
-# subir, e ficaria tentando o endereço antigo -> 504). NGINX_LOCAL_RESOLVERS
-# vem do /etc/resolv.conf (NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 no Dockerfile).
-resolver ${NGINX_LOCAL_RESOLVERS} valid=10s ipv6=off;
+# O endereço do back (IP:porta) é descoberto ao subir e acompanhado a cada
+# 10s por backend-upstream.envsh, que recarrega o nginx se ele mudar.
 
 server {
     listen ${PORT};

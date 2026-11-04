@@ -1,28 +1,43 @@
 #!/bin/sh
 # Roda ao subir o nginx (imagem oficial: /docker-entrypoint.d/*.envsh).
 #
-# BACKEND_HOSTPORT vem como "host:porta". No Render o host é um nome curto
-# (ex.: siccada-backend-ab12) que o sistema completa com os domínios de busca
-# do /etc/resolv.conf. O resolver do nginx não faz isso, então aqui o nome é
-# completado com o domínio que resolver, e exportado como BACKEND_UPSTREAM
-# para o template.
+# BACKEND_HOSTPORT vem como "host:porta". No Render o host é um nome interno
+# curto (ex.: siccada-backend) que só o resolvedor do sistema encontra; o
+# resolver próprio do nginx não. Por isso:
+#   1. o IP do back é descoberto aqui pelo resolvedor do sistema (getent) e
+#      vai para o template como BACKEND_UPSTREAM;
+#   2. um laço em segundo plano repete a consulta a cada 10s e, se o back
+#      mudar de IP (cada deploy dele muda), atualiza a config e recarrega o
+#      nginx sem derrubar conexões.
 
-host="${BACKEND_HOSTPORT%:*}"
-port="${BACKEND_HOSTPORT##*:}"
-upstream_host="$host"
+backend_host="${BACKEND_HOSTPORT%:*}"
+backend_port="${BACKEND_HOSTPORT##*:}"
 
-case "$host" in
-    *.*) ;;  # já tem domínio
-    *)
-        for domain in $(awk '/^search/ { for (i = 2; i <= NF; i++) print $i }' /etc/resolv.conf); do
-            if nslookup "$host.$domain" >/dev/null 2>&1; then
-                upstream_host="$host.$domain"
-                break
-            fi
-        done
-        ;;
-esac
+resolve_backend() {
+    getent hosts "$backend_host" | awk '{ print $1; exit }'
+}
 
-export BACKEND_UPSTREAM="$upstream_host:$port"
+backend_ip="$(resolve_backend)"
+if [ -z "$backend_ip" ]; then
+    # ainda não resolve (back subindo): usa o nome; o laço troca pelo IP depois
+    backend_ip="$backend_host"
+    echo "siccada: AVISO $backend_host ainda não resolve; tentando de novo a cada 10s"
+fi
+
+export BACKEND_UPSTREAM="$backend_ip:$backend_port"
 echo "siccada: back em $BACKEND_UPSTREAM (de BACKEND_HOSTPORT=$BACKEND_HOSTPORT)"
-echo "siccada: /etc/resolv.conf -> $(grep -v '^#' /etc/resolv.conf | tr '\n' ' ')"
+
+(
+    current="$backend_ip"
+    while sleep 10; do
+        new="$(resolve_backend)"
+        if [ -n "$new" ] && [ "$new" != "$current" ]; then
+            conf=/etc/nginx/conf.d/default.conf
+            sed -i "s#set \$backend http://[^;]*;#set \$backend http://$new:$backend_port;#" "$conf"
+            if nginx -t -q 2>/dev/null && nginx -s reload; then
+                echo "siccada: back mudou de $current para $new; nginx recarregado"
+                current="$new"
+            fi
+        fi
+    done
+) &
