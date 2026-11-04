@@ -14,7 +14,7 @@ resolver ${NGINX_LOCAL_RESOLVERS} valid=10s ipv6=off;
 
 server {
     listen ${PORT};
-    set $backend http://${BACKEND_HOSTPORT};
+    set $backend http://${BACKEND_UPSTREAM};
     client_max_body_size 30m;   # mesmo limite de upload do back (MAX_CONTENT_LENGTH)
 
     root /usr/share/nginx/html;

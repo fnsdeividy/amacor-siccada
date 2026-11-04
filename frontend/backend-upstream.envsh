@@ -1,0 +1,28 @@
+#!/bin/sh
+# Roda ao subir o nginx (imagem oficial: /docker-entrypoint.d/*.envsh).
+#
+# BACKEND_HOSTPORT vem como "host:porta". No Render o host é um nome curto
+# (ex.: siccada-backend-ab12) que o sistema completa com os domínios de busca
+# do /etc/resolv.conf. O resolver do nginx não faz isso, então aqui o nome é
+# completado com o domínio que resolver, e exportado como BACKEND_UPSTREAM
+# para o template.
+
+host="${BACKEND_HOSTPORT%:*}"
+port="${BACKEND_HOSTPORT##*:}"
+upstream_host="$host"
+
+case "$host" in
+    *.*) ;;  # já tem domínio
+    *)
+        for domain in $(awk '/^search/ { for (i = 2; i <= NF; i++) print $i }' /etc/resolv.conf); do
+            if nslookup "$host.$domain" >/dev/null 2>&1; then
+                upstream_host="$host.$domain"
+                break
+            fi
+        done
+        ;;
+esac
+
+export BACKEND_UPSTREAM="$upstream_host:$port"
+echo "siccada: back em $BACKEND_UPSTREAM (de BACKEND_HOSTPORT=$BACKEND_HOSTPORT)"
+echo "siccada: /etc/resolv.conf -> $(grep -v '^#' /etc/resolv.conf | tr '\n' ' ')"
