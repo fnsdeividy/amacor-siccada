@@ -3,109 +3,36 @@ import { useNavigate } from 'react-router-dom'
 import Base1Layout from '../../layouts/Base1Layout.jsx'
 import { InlineStyle } from '../../lib/useStylesheet.jsx'
 
-// O bloco trazia um documento inteiro; o navegador mantinha o <title> e o
-// <style> dentro do conteúdo (o CSS vale para a página toda, inclusive o body).
+// O bloco trazia um documento inteiro (com <title> e <style> que valiam para a
+// página toda). No visual novo o CSS fica restrito à própria tela.
 const css = `
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            text-align: center;
-            color: #e0e0e0;
-        }
-        
-        .container12 {
-            max-width: 600px;
-            padding: 40px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            background: rgba(29, 29, 43, 0.493);
-            border-radius: 16px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #e0e0e0;
-            font-weight: 700;
-        }
-        
-        h3 {
-            font-size: 1.3rem;
-            margin-top: 25px;
-            color: #e0e0e0;
-            font-weight: 400;
-            line-height: 1.5;
-        }
-        
-        a {
-            color: #1565c0;
-            text-decoration: none;
-            transition: all 0.3s;
-            font-weight: 600;
-            padding: 2px 5px;
-            border-radius: 4px;
-        }
-        
-        a:hover {
-            color: #0d47a1;
-            background-color: rgba(21, 101, 192, 0.1);
-            text-decoration: none;
-        }
-        
-        .icon-container {
-            margin: 30px 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .blocked-cloud {
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-        }
-        
-        .message {
-            background-color: #f5f5f5;
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-top: 25px;
-            border-left: 4px solid #757575;
-            font-size: 1rem;
-            color: #455a64;
-        }
-        
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            h3 {
-                font-size: 1.1rem;
-            }
-            
-            .container {
-                padding: 25px;
-            }
-            
-            .blocked-cloud {
-                width: 140px;
-                height: 140px;
-            }
-        }
-    `
+.manutencao { max-width: 600px; margin: var(--space-8) auto; padding: var(--space-8) var(--space-6); text-align: center; }
+.manutencao h1 { font-size: var(--text-2xl); margin-bottom: 0; }
+.manutencao h3 { margin: var(--space-3) 0 0; font-size: var(--text-md); font-weight: 400; color: var(--text-soft); }
+.manutencao h3 a { font-weight: 600; }
+.manutencao .icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  margin: var(--space-6) auto;
+  border-radius: 50%;
+  font-size: 44px;
+  color: var(--gray-500);
+  background: var(--gray-100);
+}
+.manutencao .message {
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  background: var(--gray-50);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gray-400);
+  border-radius: var(--radius);
+}
+.manutencao .message p { margin: 0; color: var(--text-soft); }
+`
 
 export default function Manutencao() {
   const navigate = useNavigate()
@@ -125,20 +52,11 @@ export default function Manutencao() {
     <Base1Layout title="Siccada Routemanager">
       <title>Página em Manutenção - Siccada Routemanager</title>
       <InlineStyle css={css} />
-      <div className="container12">
+      <div className="card container12 manutencao">
         <h1>Siccada Routemanager</h1>
 
         <div className="icon-container">
-          {/* Símbolo de bloqueio preto com nuvem dentro */}
-          <svg className="blocked-cloud" width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
-            {/* Círculo de bloqueio preto */}
-            <circle cx="80" cy="80" r="70" fill="#000" />
-
-            {/* Barra horizontal do símbolo de proibição */}
-            <rect x="25" y="75" width="110" height="10" fill="#fff" transform="rotate(45 80 80)" />
-            <rect x="25" y="75" width="110" height="10" fill="#fff" transform="rotate(-45 80 80)" />
-            {/* Nuvem cinza dentro do círculo */}
-          </svg>
+          <i className="fa-solid fa-ban blocked-cloud" aria-hidden="true" />
         </div>
 
         <h3>Esta página está temporariamente offline.</h3>

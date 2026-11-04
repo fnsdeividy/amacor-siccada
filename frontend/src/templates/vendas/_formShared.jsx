@@ -1,35 +1,52 @@
 // Partes comuns de vendas/vendas_form.html, vendas/vendas_form_pj.html e
-// vendas/inclusao_form.html: o <style> inline, as funções dos <script>
+// vendas/inclusao_form.html: o CSS da tela (visual novo, ver DESIGN.md), as funções dos <script>
 // (idade, preço por idade, valor total, CEP, número da proposta, abas) e os
 // blocos de formulário iguais nos três templates. Não é um template.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
+import AppLink from '../../components/AppLink.jsx'
 import { apiFetch } from '../../lib/api.js'
-import { show } from '../../lib/jinja.js'
+import { show, truthy } from '../../lib/jinja.js'
 import { urlFor } from '../../lib/urlFor.js'
 
 export const FORM_CSS = `
-    h1 { color: #ddd; text-align: center; padding: 20px; }
-    .form-container { max-width: 800px; margin: 20px auto; backdrop-filter: blur(10px);   -webkit-backdrop-filter: blur(10px); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
-    .tabs { display: flex; justify-content: space-around; margin-bottom: 20px; }
-    .tab { padding: 10px 20px; background: #dbdbdb41;  backdrop-filter: blur(10px);   -webkit-backdrop-filter: blur(10px);border: 0px transparent #dddddd5e; border-radius: 5px; cursor: pointer; transition: background 0.3s;}
-    .tab.active { background: #007bff75; color: #fff; }
-    .form-section { display: none; padding: 20px; }
-    .form-section.active { display: block; }
-    .form-field { margin-bottom: 10px; }
-    .form-field label { display: block; margin-bottom: 5px; }
-    .form-field input, .form-field select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    .nav-buttons { display: right; justify-content: space-between; margin-top: 20px; }
-    .nav-buttons button { padding: 10px 20px; border: none; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
-    .nav-buttons button:hover { background: #0056b3; }
-    .dependente { margin-bottom: 20px; }
-    .dependente button { background: #dc3545; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
-    .dependente button:hover { background: #c82333; }
-    label {
-    color: #fff !important;
-    text-shadow: 1px 1px 2px #000;
-    }
-    p { color: #ddd; }
+.venda-form { max-width: 980px; margin: 0 auto; }
+.venda-form .venda-form-header { padding-bottom: 0; }
+.venda-form .venda-form-header .page-toolbar { padding-right: 0; margin-bottom: var(--space-3); }
+.venda-form .venda-form-header .tabs { margin-bottom: 0; border-bottom: 0; }
+.venda-form .tabs button i { color: var(--gray-400); }
+.venda-form .tabs button.active i { color: var(--brand-700); }
+.venda-form .form-section { display: none; }
+.venda-form .form-section.active { display: block; }
+.venda-form .section-title {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding-bottom: var(--space-3); margin-bottom: var(--space-4);
+  font-size: var(--text-md); border-bottom: 1px solid var(--border);
+}
+.venda-form .section-title i { color: var(--brand-700); }
+.venda-form .form-actions {
+  display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2);
+  padding-top: var(--space-4); margin-top: var(--space-2); border-top: 1px solid var(--border);
+}
+.venda-form .corretor-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-3); }
+.venda-form .corretor-row select { flex: 1 1 220px; margin: 0; }
+.venda-form .check-label {
+  display: inline-flex; align-items: center; gap: var(--space-2); margin: 0;
+  font-weight: 400; color: var(--text-soft); cursor: pointer;
+}
+.venda-form .check-field { margin: var(--space-2) 0; }
+.venda-form .input-group { display: flex; align-items: flex-start; gap: var(--space-2); }
+.venda-form .input-group input { flex: 1; min-width: 0; }
+.venda-form .input-group .btn { flex: 0 0 auto; }
+.venda-form .dependente {
+  padding: var(--space-4); margin-bottom: var(--space-4);
+  background: var(--gray-50); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.venda-form .dependente-actions { display: flex; justify-content: flex-end; }
+.venda-form .sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 `
 
 const $ = (id) => document.getElementById(id)
@@ -358,57 +375,148 @@ export function useTabs() {
 // Blocos de formulário
 // ---------------------------------------------------------------------------
 
+const TAB_ICONS = ['fa-file-signature', 'fa-user', 'fa-users', 'fa-cart-shopping']
+
+/**
+ * Cabeçalho do formulário: título, botão de fechar (o "X" do template fica
+ * para leitores de tela) e as abas (.tabs do base.css).
+ */
+export function FormHeader({ title, tabs, labels }) {
+  return (
+    <div className="card venda-form-header">
+      <div className="page-toolbar">
+        <h1>{title}</h1>
+        <AppLink className="close-btn" href={urlFor('auth.fechar')} title="Fechar">
+          <i className="fa-solid fa-xmark" aria-hidden="true" /><span className="sr-only">X</span>
+        </AppLink>
+      </div>
+      <div className="tabs" role="tablist">
+        {labels.map((label, i) => (
+          <button key={i} type="button" role="tab" className={tabs.tabClass(i)} onClick={() => tabs.showTab(i)}>
+            <i className={'fa-solid ' + TAB_ICONS[i]} aria-hidden="true" /> {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Título de uma seção (cartão) do formulário, com ícone. */
+export function SectionTitle({ icon, children }) {
+  return (
+    <h3 className="section-title"><i className={'fa-solid ' + icon} aria-hidden="true" /> {children}</h3>
+  )
+}
+
+/** Botões "voltar" / "Proxima Aba" no rodapé da seção. */
+export function NavButtons({ tabs, back, backLabel = 'Voltar', next }) {
+  return (
+    <div className="form-actions">
+      {back !== undefined && (
+        <button type="button" className="btn btn-secondary" onClick={() => tabs.showTab(back)}>
+          <i className="fa-solid fa-arrow-left" aria-hidden="true" /> {backLabel}
+        </button>
+      )}
+      {next !== undefined && (
+        <button type="button" className="btn" onClick={() => tabs.showTab(next)}>
+          Proxima Aba <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+        </button>
+      )}
+    </div>
+  )
+}
+
+/** Opções do estado civil (iguais nos três templates). */
+export function EstadoCivilOptions() {
+  return (
+    <>
+      <option value="" disabled>Selecione</option>
+      <option value="solteiro">Solteiro</option>
+      <option value="casado">Casado</option>
+      <option value="viuvo">Viúvo</option>
+      <option value="divorciado">Divorciado</option>
+    </>
+  )
+}
+
+/** Opções do sexo (iguais nos três templates). */
+export function SexoOptions() {
+  return (
+    <>
+      <option value="" disabled>Selecione</option>
+      <option value="masculino">Masculino</option>
+      <option value="feminino">Feminino</option>
+      <option value="outro">Outro</option>
+    </>
+  )
+}
+
+/** Opções do grau de parentesco. */
+export function ParentescoOptions() {
+  return (
+    <>
+      <option value="" disabled>Selecione</option>
+      <option value="filho(a)">Filho</option>
+      <option value="conjuge">Cônjuge</option>
+      <option value="pai">Pai</option>
+      <option value="mae">Mãe</option>
+      <option value="outro">Outro</option>
+    </>
+  )
+}
+
 /** O bloco que addDependente() inseria em #dependentes-container. */
 function Dependente({ onRemove, calcIdade }) {
   return (
     <div className="dependente">
-      <div className="form-field">
-        <label>Nome do Dependente:</label>
-        <input type="text" name="nome_dependente[]" required />
+      <div className="form-row">
+        <div className="form-group">
+          <label>Nome do Dependente:</label>
+          <input type="text" name="nome_dependente[]" required />
+        </div>
+        <div className="form-group">
+          <label>CPF do Dependente:</label>
+          <input type="text" name="cpf_dependente[]" required />
+        </div>
       </div>
-      <div className="form-field">
-        <label>CPF do Dependente:</label>
-        <input type="text" name="cpf_dependente[]" required />
+      <div className="form-row">
+        <div className="form-group">
+          <label>Data de Nascimento:</label>
+          <input type="date" name="dt_nascimento_dependente[]" className="data-nascimento-dependente" required
+            onChange={(e) => calcularIdadeEBuscarPrecoDependente(e.currentTarget, calcIdade)} />
+        </div>
+        <div className="form-group">
+          <label>Idade:</label>
+          <input type="number" name="idade_dependente[]" className="idade-dependente" readOnly />
+        </div>
+        <div className="form-group">
+          <label>Valor do Dependente:</label>
+          <input type="text" name="valor_dependente[]" className="valor-dependente" />
+        </div>
       </div>
-      <div className="form-field">
-        <label>Data de Nascimento:</label>
-        <input type="date" name="dt_nascimento_dependente[]" className="data-nascimento-dependente" required
-          onChange={(e) => calcularIdadeEBuscarPrecoDependente(e.currentTarget, calcIdade)} />
+      <div className="form-row">
+        <div className="form-group">
+          <label>Grau de Parentesco:</label>
+          <select name="grau_parentesco_dependente[]" required defaultValue="">
+            <ParentescoOptions />
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Nome da mãe do Dependente:</label>
+          <input type="text" name="mae_dependente[]" required />
+        </div>
+        <div className="form-group">
+          <label htmlFor="dependente_sexo[]">Sexo:</label>
+          <select id="dependente_sexo[]" name="dependente_sexo[]" required defaultValue="">
+            <SexoOptions />
+          </select>
+        </div>
       </div>
-      <div className="form-field">
-        <label>Idade:</label>
-        <input type="number" name="idade_dependente[]" className="idade-dependente" readOnly />
+      <div className="dependente-actions">
+        <button type="button" className="btn btn-danger btn-sm" onClick={onRemove}>
+          <i className="fa-solid fa-trash-can" aria-hidden="true" /> Remover Dependente
+        </button>
       </div>
-      <div className="form-field">
-        <label>Valor do Dependente:</label>
-        <input type="text" name="valor_dependente[]" className="valor-dependente" />
-      </div>
-      <div className="form-field">
-        <label>Grau de Parentesco:</label>
-        <select name="grau_parentesco_dependente[]" required defaultValue="">
-          <option value="" disabled>Selecione</option>
-          <option value="filho(a)">Filho</option>
-          <option value="conjuge">Cônjuge</option>
-          <option value="pai">Pai</option>
-          <option value="mae">Mãe</option>
-          <option value="outro">Outro</option>
-        </select>
-      </div>
-      <div className="form-field">
-        <label>Nome da mãe do Dependente:</label>
-        <input type="text" name="mae_dependente[]" required />
-      </div>
-      <div className="form-field">
-        <label htmlFor="dependente_sexo[]">Sexo:</label>
-        <select id="dependente_sexo[]" name="dependente_sexo[]" required defaultValue="">
-          <option value="" disabled>Selecione</option>
-          <option value="masculino">Masculino</option>
-          <option value="feminino">Feminino</option>
-          <option value="outro">Outro</option>
-        </select>
-      </div>
-      <button type="button" onClick={onRemove}>Remover Dependente</button>
-      <hr />
     </div>
   )
 }
@@ -425,17 +533,16 @@ export function DependentesSection({ tabs, calcIdade = calcularIdade }) {
   return (
     <div className={tabs.sectionClass(2)} id="section-dependentes">
       <div className="card">
-        <h3>Informações dos Dependentes</h3>
+        <SectionTitle icon="fa-users">Informações dos Dependentes</SectionTitle>
         <div id="dependentes-container">
           {dependentes.map((id) => (
             <Dependente key={id} calcIdade={calcIdade} onRemove={() => removeDependente(id)} />
           ))}
         </div>
-        <button type="button" onClick={addDependente}>Adicionar Dependente</button>
-      </div>
-      <div className="nav-buttons">
-        <button type="button" onClick={() => tabs.showTab(1)}>Voltar</button>
-        <button type="button" onClick={() => tabs.showTab(3)}>Proxima Aba</button>
+        <button type="button" className="btn btn-secondary" onClick={addDependente}>
+          <i className="fa-solid fa-user-plus" aria-hidden="true" /> Adicionar Dependente
+        </button>
+        <NavButtons tabs={tabs} back={1} next={3} />
       </div>
     </div>
   )
@@ -445,36 +552,42 @@ export function DependentesSection({ tabs, calcIdade = calcularIdade }) {
 export function VendaSection({ tabs }) {
   return (
     <div className={tabs.sectionClass(3)} id="section-venda">
-      <div className="form-field">
-        <br /><br />
-        <label htmlFor="valor_venda">Valor da venda:</label>
-        <input type="text" id="valor_venda" name="valor_venda" />
-      </div>
+      <div className="card">
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="valor_venda">Valor da venda:</label>
+            <input type="text" id="valor_venda" name="valor_venda" />
+          </div>
 
-      <div className="form-field">
-        <label htmlFor="forma_pagamento">Forma de pagamento da venda:</label>
-        <select id="forma_pagamento" name="forma_pagamento" required defaultValue="">
-          <option value="" disabled>Selecione</option>
-          <option value="PIX">PIX</option>
-          <option value="especie">Espécie</option>
-          <option value="credito">Crédito</option>
-          <option value="debito">Débito</option>
-        </select>
-      </div>
+          <div className="form-group">
+            <label htmlFor="forma_pagamento">Forma de pagamento da venda:</label>
+            <select id="forma_pagamento" name="forma_pagamento" required defaultValue="">
+              <option value="" disabled>Selecione</option>
+              <option value="PIX">PIX</option>
+              <option value="especie">Espécie</option>
+              <option value="credito">Crédito</option>
+              <option value="debito">Débito</option>
+            </select>
+          </div>
 
-      <div className="form-field">
-        <br /><br />
-        <label htmlFor="taxa_adesao">Com taxa de adesao?</label>
-        <select id="taxa_adesao" name="taxa_adesao" required defaultValue="">
-          <option value="" disabled>Selecione</option>
-          <option value="sim">Sim</option>
-          <option value="nao">Nao</option>
-        </select>
-      </div>
+          <div className="form-group">
+            <label htmlFor="taxa_adesao">Com taxa de adesao?</label>
+            <select id="taxa_adesao" name="taxa_adesao" required defaultValue="">
+              <option value="" disabled>Selecione</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Nao</option>
+            </select>
+          </div>
+        </div>
 
-      <div className="nav-buttons">
-        <button type="button" onClick={() => tabs.showTab(2)}>Voltar</button>
-        <button type="submit" onClick={tabs.mostrarTodasAbas}>Salvar Contrato</button>
+        <div className="form-actions">
+          <button type="button" className="btn btn-secondary" onClick={() => tabs.showTab(2)}>
+            <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Voltar
+          </button>
+          <button type="submit" className="btn" onClick={tabs.mostrarTodasAbas}>
+            <i className="fa-solid fa-floppy-disk" aria-hidden="true" /> Salvar Contrato
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -499,81 +612,103 @@ export function CorretorOptions({ vendedor, corretora, usuarioSessao, marcarSess
   )
 }
 
+/**
+ * Campo "Corretor Responsável" com a opção "Usar meu nome" (vendas_form e
+ * vendas_form_pj).
+ */
+export function CorretorField({ vendedor, corretora, usuarioSessao }) {
+  return (
+    <div className="form-group">
+      <label htmlFor="corretor_resp">Corretor Responsável:</label>
+      <div className="corretor-row">
+        <select id="corretor_resp" name="corretor_resp" required defaultValue="" onChange={onCorretorChange}>
+          <CorretorOptions vendedor={vendedor} corretora={corretora} usuarioSessao={usuarioSessao} marcarSessao />
+        </select>
+        {truthy(usuarioSessao) && (
+          <label className="check-label">
+            <input type="checkbox" id="usar_sessao_corretor" onChange={toggleUsarSessaoCorretor} />
+            Usar meu nome ({show(usuarioSessao)})
+          </label>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /** Seção do titular de vendas_form / vendas_form_pj (idênticas). */
 export function TitularSection({ tabs }) {
   return (
     <div className={tabs.sectionClass(1)} id="section-titular">
       <div className="card">
-        <h3>Informações do Titular</h3>
-        <div className="form-field">
+        <SectionTitle icon="fa-user">Informações do Titular</SectionTitle>
+        <div className="form-group">
           <label htmlFor="nome_beneficiario">Nome do Titular:</label>
           <input type="text" id="nome_beneficiario" name="nome_beneficiario" required />
         </div>
-        <div className="form-field">
-          <label htmlFor="cpf_beneficiario">CPF do Titular:</label>
-          <input type="text" id="cpf_beneficiario" name="cpf_beneficiario" required />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="cpf_beneficiario">CPF do Titular:</label>
+            <input type="text" id="cpf_beneficiario" name="cpf_beneficiario" required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="rg_titular">RG do Titular:</label>
+            <input type="text" id="rg_titular" name="rg_titular" required />
+          </div>
         </div>
-        <div className="form-field">
-          <label htmlFor="rg_titular">RG do Titular:</label>
-          <input type="text" id="rg_titular" name="rg_titular" required />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="dt_nascimento_beneficiario">Data de Nascimento:</label>
+            <input type="date" id="dt_nascimento_beneficiario" name="dt_nascimento_beneficiario" required
+              onChange={() => calcularIdadeEBuscarPrecoTitular(calcularIdade)} />
+          </div>
+          <div className="form-group">
+            <label htmlFor="idade_beneficiario">Idade:</label>
+            <input type="number" id="idade_beneficiario" name="idade_beneficiario" readOnly />
+          </div>
+          <div className="form-group">
+            <label htmlFor="valor_titular">Valor do plano:</label>
+            <input type="text" id="valor_titular" name="valor_titular" required />
+          </div>
         </div>
-        <div className="form-field">
-          <label htmlFor="dt_nascimento_beneficiario">Data de Nascimento:</label>
-          <input type="date" id="dt_nascimento_beneficiario" name="dt_nascimento_beneficiario" required
-            onChange={() => calcularIdadeEBuscarPrecoTitular(calcularIdade)} />
-        </div>
-        <div className="form-field">
-          <label htmlFor="idade_beneficiario">Idade:</label>
-          <input type="number" id="idade_beneficiario" name="idade_beneficiario" readOnly />
-        </div>
-
-        <div className="form-field">
-          <label htmlFor="valor_titular">Valor do plano:</label>
-          <input type="text" id="valor_titular" name="valor_titular" required />
-        </div>
-        <div className="form-field">
+        <div className="form-group">
           <label htmlFor="endereco_beneficiario">Endereço:</label>
           <input type="text" id="endereco_beneficiario" name="endereco_beneficiario" required />
         </div>
-        <div className="form-field">
-          <label htmlFor="celular_titular">Celular:</label>
-          <input type="text" id="celular_titular" name="celular_titular" required />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="celular_titular">Celular:</label>
+            <input type="text" id="celular_titular" name="celular_titular" required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email_titular">Email:</label>
+            <input type="email" id="email_titular" name="email_titular" required />
+          </div>
         </div>
-        <div className="form-field">
-          <label htmlFor="email_titular">Email:</label>
-          <input type="email" id="email_titular" name="email_titular" required />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="estado_cv_beneficiario">Estado Civil:</label>
+            <select id="estado_cv_beneficiario" name="estado_cv_beneficiario" required defaultValue="">
+              <EstadoCivilOptions />
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="sexo_beneficiario">Sexo:</label>
+            <select id="sexo_beneficiario" name="sexo_beneficiario" required defaultValue="">
+              <SexoOptions />
+            </select>
+          </div>
         </div>
-        <div className="form-field">
-          <label htmlFor="estado_cv_beneficiario">Estado Civil:</label>
-          <select id="estado_cv_beneficiario" name="estado_cv_beneficiario" required defaultValue="">
-            <option value="" disabled>Selecione</option>
-            <option value="solteiro">Solteiro</option>
-            <option value="casado">Casado</option>
-            <option value="viuvo">Viúvo</option>
-            <option value="divorciado">Divorciado</option>
-          </select>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="nome_mae_beneficiario">Nome da Mãe:</label>
+            <input type="text" id="nome_mae_beneficiario" name="nome_mae_beneficiario" required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="nome_pai_beneficiario">Nome do Pai:</label>
+            <input type="text" id="nome_pai_beneficiario" name="nome_pai_beneficiario" />
+          </div>
         </div>
-        <div className="form-field">
-          <label htmlFor="nome_mae_beneficiario">Nome da Mãe:</label>
-          <input type="text" id="nome_mae_beneficiario" name="nome_mae_beneficiario" required />
-        </div>
-        <div className="form-field">
-          <label htmlFor="nome_pai_beneficiario">Nome do Pai:</label>
-          <input type="text" id="nome_pai_beneficiario" name="nome_pai_beneficiario" />
-        </div>
-        <div className="form-field">
-          <label htmlFor="sexo_beneficiario">Sexo:</label>
-          <select id="sexo_beneficiario" name="sexo_beneficiario" required defaultValue="">
-            <option value="" disabled>Selecione</option>
-            <option value="masculino">Masculino</option>
-            <option value="feminino">Feminino</option>
-            <option value="outro">Outro</option>
-          </select>
-        </div>
-      </div>
-      <div className="nav-buttons">
-        <button type="button" onClick={() => tabs.showTab(0)}>voltar</button>
-        <button type="button" onClick={() => tabs.showTab(2)}>Proxima Aba</button>
+        <NavButtons tabs={tabs} back={0} backLabel="voltar" next={2} />
       </div>
     </div>
   )
@@ -582,15 +717,15 @@ export function TitularSection({ tabs }) {
 /** Campo "Numero do CEP" / "CEP da empresa" com o botão de busca. */
 export function CepField({ label }) {
   return (
-    <div className="form-field" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <label htmlFor="cep_responsavel" style={{ flex: '0 0 120px' }}>{label}</label>
-      <input type="text" id="cep_responsavel" name="cep_responsavel" required style={{ flex: 1 }}
-        onBlur={buscarCepResponsavel} />
-      <button type="button" id="btn-buscar-cep" title="Buscar endereço pelo CEP"
-        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0 6px' }}
-        onClick={buscarCepResponsavel}>
-        <span style={{ fontSize: '1.2em' }}>🔍</span>
-      </button>
+    <div className="form-group">
+      <label htmlFor="cep_responsavel">{label}</label>
+      <div className="input-group">
+        <input type="text" id="cep_responsavel" name="cep_responsavel" required onBlur={buscarCepResponsavel} />
+        <button type="button" id="btn-buscar-cep" className="btn btn-secondary" title="Buscar endereço pelo CEP"
+          aria-label="Buscar endereço pelo CEP" onClick={buscarCepResponsavel}>
+          <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+        </button>
+      </div>
     </div>
   )
 }

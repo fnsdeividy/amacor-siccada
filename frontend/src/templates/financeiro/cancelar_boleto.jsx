@@ -31,35 +31,37 @@ export default function CancelarBoleto() {
   const { dados } = ctx
   return (
     <WindowLayout>
-      <h1 className="titulo-pagamento">Mudar status de boleto emitido</h1>
-
-      <ApiForm method="POST" className="form-pagamento" action={urlFor('finan.cancelar_boleto')}>
-        <div className="info-pagamento">
-          <p><strong>Número de Contrato:</strong> {item(dados, 0)}</p>
-          <p><strong>Responsável:</strong> {item(dados, 2)}</p>
-
-          <p><strong>Data de Cancelamento:</strong> {item(dados, 7)}</p>
-
-          <p><strong>Motivo:</strong> {item(dados, 8)}</p>
-        </div>
-
-        <div className="campo-status">
-          <label htmlFor="status"><strong>Status:</strong></label>
-          <select id="status" name="status" required defaultValue="">
-            <option value="" disabled>Selecione</option>
-            <option value="1">Cancelado</option>
-          </select>
-        </div>
-        {/* no template os value= não tinham aspas: só a primeira palavra vale */}
-        <input type="hidden" name="numero_contrato" defaultValue={item(dados, 0).split(/\s/)[0]} />
-        <input type="hidden" name="data_inicial" defaultValue={show(ctx.data_inicial).split(/\s/)[0]} />
-        <input type="hidden" name="data_final" defaultValue={show(ctx.data_final).split(/\s/)[0]} />
-        <div className="acoes-form">
-          <button className="btn" type="submit">Salvar</button>
-
-        </div>
-      </ApiForm>
       <InlineStyle css={pagamentoCss} />
+      <div className="pagamento-edit">
+        <h1 className="titulo-pagamento"><i className="fa-solid fa-ban" aria-hidden="true" />Mudar status de boleto emitido</h1>
+
+        <ApiForm method="POST" className="form-pagamento" action={urlFor('finan.cancelar_boleto')}>
+          <div className="info-pagamento">
+            <p><strong>Número de Contrato:</strong> {item(dados, 0)}</p>
+            <p><strong>Responsável:</strong> {item(dados, 2)}</p>
+
+            <p><strong>Data de Cancelamento:</strong> {item(dados, 7)}</p>
+
+            <p><strong>Motivo:</strong> {item(dados, 8)}</p>
+          </div>
+
+          <div className="form-group campo-status">
+            <label htmlFor="status"><strong>Status:</strong></label>
+            <select id="status" name="status" required defaultValue="">
+              <option value="" disabled>Selecione</option>
+              <option value="1">Cancelado</option>
+            </select>
+          </div>
+          {/* no template os value= não tinham aspas: só a primeira palavra vale */}
+          <input type="hidden" name="numero_contrato" defaultValue={item(dados, 0).split(/\s/)[0]} />
+          <input type="hidden" name="data_inicial" defaultValue={show(ctx.data_inicial).split(/\s/)[0]} />
+          <input type="hidden" name="data_final" defaultValue={show(ctx.data_final).split(/\s/)[0]} />
+          <div className="acoes-form">
+            <button className="btn" type="submit"><i className="fa-solid fa-floppy-disk" aria-hidden="true" /> Salvar</button>
+
+          </div>
+        </ApiForm>
+      </div>
     </WindowLayout>
   )
 }

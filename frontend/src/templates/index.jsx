@@ -9,14 +9,23 @@ export default function Index() {
   const ctx = useTemplateContext()
   return (
     <Base1Layout title="Bem-vindo">
-      <div className="Bem-vindo">
+      <div className="card Bem-vindo">
         <h1>Bem-vindo, {show(ctx.usuario_nome)}!</h1>
-        <p>Selecione uma das opções abaixo para navegar.</p>
+        <p className="mb-0">Selecione uma das opções abaixo para navegar.</p>
       </div>
-      <div className="container-cards">
-        <AppLink className="btn" href={urlFor('vendas.home')}>Vendas</AppLink> <br />
-        <AppLink className="btn" href={urlFor('cad.home')}>Cadastro/Adm</AppLink>
-        <AppLink className="btn" href={urlFor('finan.home')}>Cobrança/Financeiro</AppLink>
+      <div className="quick-actions-grid container-cards">
+        <AppLink className="quick-action-card" href={urlFor('vendas.home')}>
+          <i className="fa-solid fa-handshake fa-lg text-primary" aria-hidden="true" />
+          <strong>Vendas</strong>
+        </AppLink>
+        <AppLink className="quick-action-card" href={urlFor('cad.home')}>
+          <i className="fa-solid fa-address-card fa-lg text-primary" aria-hidden="true" />
+          <strong>Cadastro/Adm</strong>
+        </AppLink>
+        <AppLink className="quick-action-card" href={urlFor('finan.home')}>
+          <i className="fa-solid fa-sack-dollar fa-lg text-primary" aria-hidden="true" />
+          <strong>Cobrança/Financeiro</strong>
+        </AppLink>
       </div>
     </Base1Layout>
   )

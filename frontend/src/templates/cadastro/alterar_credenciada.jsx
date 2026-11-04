@@ -6,232 +6,66 @@ import { show, truthy } from '../../lib/jinja.js'
 import { useTemplateContext } from '../../lib/page.jsx'
 import { urlFor } from '../../lib/urlFor.js'
 import { InlineStyle } from '../../lib/useStylesheet.jsx'
+import { Oculto } from './_ui.js'
 
 const css = `
-   
-
-    .form-container {
-        background: white;
-
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .header {
-        background: #0a30688e;
-        color: white;
-        padding: 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .header h1 {
-        margin: 0;
-        font-size: 24px;
-    }
-
-    .btn-voltar {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 5px;
-        text-decoration: none;
-        transition: background 0.3s;
-    }
-
-    .btn-voltar:hover {
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    .card {
-        padding: 25px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .card:last-child {
-        border-bottom: none;
-    }
-
-    .card h2 {
-        color: #d0d5dc;
-        margin-top: 0;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #0a2f68;
-        padding-bottom: 10px;
-    }
-
-    .card h3 {
-        color: #c0c0c0;
-        margin-top: 20px;
-        margin-bottom: 15px;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: #d0d0d0;
-        font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
-        font-family: inherit;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-        outline: none;
-        border-color: #0a2f68;
-        box-shadow: 0 0 5px rgba(10, 47, 104, 0.2);
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-    }
-
-    .form-actions {
-        margin-top: 20px;
-        display: flex;
-        gap: 10px;
-    }
-
-    .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s;
-    }
-
-    .btn-primary {
-        background: #0a2f68;
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background: #082249;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(10, 47, 104, 0.3);
-    }
-
-    .btn-success {
-        background: #4caf50;
-        color: white;
-    }
-
-    .btn-success:hover {
-        background: #45a049;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
-    }
-
-    .especialidades-section {
-        margin-bottom: 25px;
-    }
-
-    .especialidades-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 10px;
-    }
-
-    .especialidades-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 10px;
-    }
-
-    .especialidade-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        background: #1e293b98;
-        backdrop-filter: blur(5px);
-        border-radius: 6px;
-        border-left: 4px solid #38bdf8;
-        font-weight: 500;
-        color: #e2e8f0;
-    }
-
-    .especialidade-checkbox input {
-        width: auto;
-        margin: 0;
-    }
-
-    .especialidade-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        background: #1e293b98;
-        backdrop-filter: blur(5px);
-        border-radius: 6px;
-        border-left: 4px solid #38bdf8;
-        font-weight: 500;
-        color: #e2e8f0;
-    }
-
-    .especialidade-item span {
-        font-weight: 500;
-        color: #e2e8f0;
-    }
-
-    .btn-remove {
-        background: #f44336;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        cursor: pointer;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.3s;
-        padding: 0;
-    }
-
-    .btn-remove:hover {
-        background: #da190b;
-    }
-
-    .text-muted {
-        color: #999;
-        font-style: italic;
-    }
-
-    @media (max-width: 600px) {
-        .header {
-            flex-direction: column;
-            gap: 15px;
-            text-align: center;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .especialidades-list {
-            grid-template-columns: 1fr;
-        }
-    }
+.cad-cred .page-toolbar { padding-right: 0; }
+.cad-cred .card h2 {
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+.cad-cred .card h3 {
+  margin: var(--space-2) 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.cad-cred .form-actions { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+.cad-cred .especialidades-section { margin-bottom: var(--space-6); }
+.cad-cred .especialidades-section:last-child { margin-bottom: 0; }
+.cad-cred .especialidades-grid,
+.cad-cred .especialidades-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2);
+}
+.cad-cred .especialidade-checkbox,
+.cad-cred .especialidade-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 42px;
+  padding: var(--space-2) var(--space-3);
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--text);
+}
+.cad-cred .especialidade-checkbox {
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.cad-cred .especialidade-checkbox:hover,
+.cad-cred .especialidade-checkbox:has(input:checked) { border-color: var(--brand-600); background: var(--brand-50); }
+.cad-cred .especialidade-checkbox input { margin: 0; flex: none; }
+.cad-cred .especialidade-item { justify-content: space-between; background: var(--gray-50); }
+.cad-cred .especialidade-item form { margin: 0; }
+.cad-cred .btn-remove {
+  width: 28px;
+  height: 28px;
+  min-height: 0;
+  padding: 0;
+  color: var(--gray-500);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.cad-cred .btn-remove:hover { color: var(--danger-700); background: var(--danger-50); }
+.cad-cred .text-muted { color: var(--text-muted); font-style: italic; }
 `
 
 /** {{ x or '' }} */
@@ -247,10 +81,15 @@ export default function AlterarCredenciada() {
 
   return (
     <Base1Layout>
-      <div className="container-tab-pix">
-        <div className="header">
+      <InlineStyle css={css} />
+      <div className="cad-cred">
+        <div className="page-toolbar header">
           <h1>Alterar Clínica: {show(clinica.nome)}</h1>
-          <AppLink href={urlFor('cad.exibir_credenciadas')} className="btn-voltar">← Voltar</AppLink>
+          <div className="page-toolbar-actions">
+            <AppLink href={urlFor('cad.exibir_credenciadas')} className="btn btn-secondary btn-voltar">
+              <i className="fa-solid fa-arrow-left" aria-hidden="true" /><Oculto>←</Oculto> Voltar
+            </AppLink>
+          </div>
         </div>
 
         {/* Formulário de Informações Gerais */}
@@ -310,7 +149,9 @@ export default function AlterarCredenciada() {
             </div>
 
             <div className="form-actions">
-              <button type="submit" className="btn btn-primary">Salvar Informações</button>
+              <button type="submit" className="btn btn-primary">
+                <i className="fa-solid fa-floppy-disk" aria-hidden="true" /> Salvar Informações
+              </button>
             </div>
           </ApiForm>
         </div>
@@ -331,7 +172,9 @@ export default function AlterarCredenciada() {
                       <input type="hidden" name="clinica_id" value={show(clinica.id)} />
                       <input type="hidden" name="acao" value="remover_especialidade" />
                       <input type="hidden" name="especialidade_id" value={show(esp.id)} />
-                      <button type="submit" className="btn-remove" title="Remover">✕</button>
+                      <button type="submit" className="btn-remove" title="Remover" aria-label="Remover">
+                        <i className="fa-solid fa-xmark" aria-hidden="true" /><Oculto>✕</Oculto>
+                      </button>
                     </ApiForm>
                   </div>
                 ))}
@@ -368,14 +211,14 @@ export default function AlterarCredenciada() {
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="btn btn-success">Adicionar Especialidade</button>
+                <button type="submit" className="btn btn-success">
+                  <i className="fa-solid fa-plus" aria-hidden="true" /> Adicionar Especialidade
+                </button>
               </div>
             </ApiForm>
           </div>
         </div>
       </div>
-
-      <InlineStyle css={css} />
     </Base1Layout>
   )
 }

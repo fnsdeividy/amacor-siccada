@@ -8,137 +8,92 @@ import { formatDateBr } from '../../lib/format.js'
 import { show, showFloat, truthy } from '../../lib/jinja.js'
 import { useTemplateContext } from '../../lib/page.jsx'
 import { urlFor } from '../../lib/urlFor.js'
-import { InlineStyle, useStylesheet } from '../../lib/useStylesheet.jsx'
+import { InlineStyle } from '../../lib/useStylesheet.jsx'
 import { pos } from './_colunas.js'
 
+// Cartões de contrato no visual novo. As classes de fase (status-laranja,
+// status-verde...) continuam as mesmas do template; aqui viram uma faixa
+// colorida à esquerda do cabeçalho, com as cores de estado do tokens.css.
 const css = `
-        .btn-home {
-    position: center;
-    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-    transition: all 0.3s ease;
+.cad-acomp .search-bar-wrapper {
+  justify-content: space-between;
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
 }
+.cad-acomp .cad-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.cad-acomp .search-bar-wrapper form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0; }
+.cad-acomp .search-bar-wrapper select { width: auto; min-width: 220px; margin: 0; }
+.cad-acomp .search-bar-wrapper input { min-width: 220px; }
 
-.btn-home:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+.cad-acomp .cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-items: start;
+  gap: var(--space-4);
 }
-        /* Seus estilos permanecem os mesmos */
-        p {
-            position: center;
-            font-family: Arial, sans-serif;
-            color: #ebebeb;
-        }
-        .cards-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-        align-items: flex-start; /* Garante que cada cartão mantenha sua própria altura */
-        gap: 20px;
-        padding: 20px;
-        margin-top: 30px;
-    }
+.cad-acomp .cnt-card {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cad-acomp .cnt-card:hover { border-color: var(--brand-600); box-shadow: var(--shadow-lg); }
+.cad-acomp .card-atrasado { border-color: var(--danger-600); box-shadow: 0 0 0 1px var(--danger-600); }
+.cad-acomp .card-atrasado:hover { border-color: var(--danger-700); }
 
-    .card {
-        width: 280px;
-        border: 1px solid #f8f8f8bd;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background: rgba(255, 238, 201, 0.493);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        overflow: hidden;
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
-    }
+.cad-acomp .cnt-card .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--text);
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid var(--gray-300);
+  cursor: pointer;
+  user-select: none;
+}
+.cad-acomp .cnt-card .card-header i { color: var(--text-muted); font-size: var(--text-sm); }
 
-    .card-atrasado {
-        width: 280px;
-        border: 1px solid rgba(255, 126, 126, 0.493);
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background: rgba(255, 126, 126, 0.493);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        overflow: hidden;
+.cad-acomp .card-header.status-laranja       { border-left-color: var(--warning-700); background: var(--warning-50); }
+.cad-acomp .card-header.status-amarelo       { border-left-color: var(--warning-700); }
+.cad-acomp .card-header.status-verde         { border-left-color: var(--success-700); background: var(--success-50); }
+.cad-acomp .card-header.status-verde-escuro  { border-left-color: var(--success-700); }
+.cad-acomp .card-header.status-verde-medio   { border-left-color: var(--success-700); background: var(--success-50); }
+.cad-acomp .card-header.status-azulclaro     { border-left-color: var(--info-700); background: var(--info-50); }
+.cad-acomp .card-header.status-azulescuro    { border-left-color: var(--brand-900); background: var(--brand-50); }
+.cad-acomp .card-header.status-vermelho      { border-left-color: var(--danger-700); background: var(--danger-50); }
+.cad-acomp .card-header.status-rosa          { border-left-color: var(--danger-600); }
+.cad-acomp .card-header.status-marrom        { border-left-color: var(--gray-500); background: var(--gray-100); }
+.cad-acomp .card-header.status-pendente      { border-left-color: var(--danger-600); background: var(--warning-50); }
 
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
-    }
-    .card-atrasado:hover {
-        transform: scale(1.02);
-    }
-
-    .card:hover {
-        transform: scale(1.02);
-    }
-
-    .card-header {
-        background-color: #c596bf;
-        color: #4f4159;
-        padding: 12px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .card-body {
-        padding: 12px;
-        cursor: pointer;
-    }
-
-    .card-body p {
-        margin: 6px 0;
-        font-size: 13px;
-        color: #242424;
-    }
-
-    .card-details {
-        display: none;
-        padding: 12px;
-        border-top: 1px solid #ddd;
-
-        overflow: hidden;
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
-    }
-
-    .card-details-atrasado {
-        display: none;
-        padding: 12px;
-        border-top: 1px solid #ddd;
-        background-color: #f9f9f9;
-    }
-    .card-details p {
-        margin: 6px 0;
-        font-size: 13px;
-        color: #333;
-    }
-
-        .no-results {
-            text-align: center;
-            margin-top: 50px;
-            color: #ffffff;
-            font-size: 18px;
-        }
-        .status-laranja         { background-color: #ffe5b4; color: #b36b00; }  /* Laranja pastel */
-        .status-amarelo         { background-color: #fff9b0; color: #b3a100; }  /* Amarelo pastel */
-        .status-verde           { background-color: #c6f5e0; color: #259661; }  /* Verde pastel */
-        .status-verde-escuro    { background-color: #a3e4c1; color: #1b5e20; }  /* Verde mais escuro */
-        .status-verde-medio     { background-color: #b2f2d7; color: #218c5a; }  /* Verde médio */
-        .status-azulclaro       { background-color: #cbe7ff; color: #2176ae; }  /* Azul claro pastel */
-        .status-azulescuro      { background-color: #b0c4ff; color: #1a237e; }  /* Azul escuro pastel */
-        .status-vermelho        { background-color: #ffadad; color: #b71c1c; }  /* Vermelho claro pastel */
-        .status-rosa            { background-color: #ffe0f0; color: #ad1457; }  /* Rosa pastel */
-        .status-marrom { background-color: #9b7b66ef; color:rgb(61, 50, 50)}
-        .status-pendente { background-color: #eea77e; color: #993e2e; }
-
+.cad-acomp .cnt-card .card-body { padding: var(--space-2) var(--space-4); cursor: pointer; }
+.cad-acomp .cnt-card .cnt-resp { padding: var(--space-2) 0; font-weight: 600; color: var(--text); }
+.cad-acomp .cnt-card .cnt-resp .info-label { display: block; font-weight: 400; }
+.cad-acomp .cnt-card .info-item { padding: 6px 0; font-size: var(--text-sm); }
+.cad-acomp .cnt-card .card-details {
+  display: none;
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  background: var(--gray-50);
+  border-top: 1px solid var(--border);
+}
+.cad-acomp .cnt-card .card-details .btn { width: 100%; margin-top: var(--space-3); }
+.cad-acomp .no-results {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+}
 `
 
 /** {{ x|string }} */
@@ -212,8 +167,16 @@ function OpcoesFiltro({ ctx }) {
   return <option value="status indefinido">Status indefinido</option>
 }
 
+function Info({ rotulo, children }) {
+  return (
+    <div className="info-item">
+      <span className="info-label">{rotulo}</span>
+      <span className="info-value">{children}</span>
+    </div>
+  )
+}
+
 export default function AcompanharCnt() {
-  useStylesheet('/static/css/estilos.css')
   const ctx = useTemplateContext()
   const [searchParams] = useSearchParams()
   const location = useLocation()
@@ -235,70 +198,74 @@ export default function AcompanharCnt() {
 
   return (
     <Base1Layout title="acompanhamento de contratos">
-      <br />
-      <br />
-      <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '10px 20px' }}>
-        <AppLink href={urlFor('auth.fechar')} className="btn-home">🏠 </AppLink>
-      </div>
-      <div key={location.search} className="search-bar-wrapper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '30px 0' }}>
-        {/* Filtro à esquerda */}
-        <ApiForm ref={filtroRef} method="get" action={urlFor('cad.acompanhar_cnt')} id="autoSubmitForm" style={{ display: 'flex', gap: '8px', background: '#23272f00', padding: '12px 24px', borderRadius: '8px' }}>
-          <select id="filtrar" name="filtrar" required defaultValue=""
-            onChange={() => filtroRef.current?.requestSubmit()}
-            style={{ height: '40px', padding: '0 12px', borderRadius: '6px' }}>
-            <option value="" disabled>Filtrar fase:</option>
-            <OpcoesFiltro ctx={ctx} />
-          </select>
-        </ApiForm>
-
-        {/* Busca à direita */}
-        <ApiForm method="get" action={urlFor('cad.acompanhar_cnt')} style={{ display: 'flex', gap: '8px', background: '#23272f00', padding: '12px 24px', borderRadius: '8px' }}>
-          <input type="text" name="buscar" placeholder="Buscar por proposta" defaultValue={searchParams.get('buscar') ?? ''} style={{ padding: '8px 12px', border: '1px solid #bbb', borderRadius: '4px', minWidth: '220px', fontSize: '15px', background: '#fff', color: '#222' }} />
-          <button className="btn" type="submit">Buscar</button>
-        </ApiForm>
-      </div>
       <InlineStyle css={css} />
-      {truthy(ctx.result) ? (
-        <div className="cards-container">
-          {rows.map((row, i) => {
-            const statusDoc = str(pos(row, 'venda', 19))
-            const status = str(pos(row, 'venda', 6)).toLowerCase()
-            const atraso = str(pos(row, 'venda', 23))
-            const cardClass = atraso === '1' ? 'card-atrasado' : 'card'
-            const contrato = pos(row, 'venda', 13)
-            const display = detalhes[i]
-            return (
-              <div className={cardClass} key={i}>
-                <div className={'card-header ' + statusClass(status, statusDoc)} onClick={() => toggleDetails(i)}>
-                  Proposta #{show(pos(row, 'venda', 1))}
-                </div>
-                <div className="card-body" onClick={() => toggleDetails(i)}>
-                  <h3 style={{ color: '#333' }}><strong>Responsavel:</strong> {show(pos(row, 'venda', 18))}</h3>
-                  <p><strong>Data:</strong> {formatDateBr(pos(row, 'venda', 2))}</p>
-                  <p><strong>Status:</strong> {show(pos(row, 'venda', 6))}</p>
-                  {pos(row, 'venda', 6) === 'entrevista agendada' && (
-                    <p><strong>Agendada para: {show(pos(row, 'venda', 20))}</strong></p>
-                  )}
-                  <p><strong>Contrato:</strong> {contrato === null || contrato === undefined ? 'N/A' : show(contrato)}</p>
-                  <p><strong>Vidas:</strong> {show(pos(row, 'venda', 15))}</p>
-                </div>
-                <div className="card-details" style={display ? { display } : undefined}>
-                  <p><strong>Tipo de Contrato:</strong> {show(pos(row, 'venda', 3))}</p>
-                  <p><strong>Produto:</strong> {show(pos(row, 'venda', 4))}</p>
-                  <p><strong>Valor Tabela:</strong> R$ {showFloat(pos(row, 'venda', 12))}</p>
-                  <p><strong>Taxa de Inscrição:</strong> R$ {showFloat(pos(row, 'venda', 10))}</p>
-                  <p><strong>ISS:</strong> R$ {showFloat(row.iss)}</p>
-                  <p><strong>Valor Total:</strong> R$ {showFloat(pos(row, 'venda', 8))}</p>
-                  <br /><br />
-                  <AppLink className="btn" href={urlFor('cad.detalhes_cnt', { proposta: pos(row, 'venda', 1), contrato })}>detalhes da venda</AppLink>
-                </div>
-              </div>
-            )
-          })}
+      <div className="cad-acomp">
+        <div key={location.search} className="search-bar-wrapper">
+          <div className="cad-filtros">
+            <AppLink href={urlFor('auth.fechar')} className="btn btn-secondary" title="Início" aria-label="Início">
+              <i className="fa-solid fa-house" aria-hidden="true" />
+            </AppLink>
+            {/* Filtro */}
+            <ApiForm ref={filtroRef} method="get" action={urlFor('cad.acompanhar_cnt')} id="autoSubmitForm">
+              <select id="filtrar" name="filtrar" required defaultValue=""
+                onChange={() => filtroRef.current?.requestSubmit()}>
+                <option value="" disabled>Filtrar fase:</option>
+                <OpcoesFiltro ctx={ctx} />
+              </select>
+            </ApiForm>
+          </div>
+
+          {/* Busca */}
+          <ApiForm method="get" action={urlFor('cad.acompanhar_cnt')}>
+            <input type="text" name="buscar" placeholder="Buscar por proposta" defaultValue={searchParams.get('buscar') ?? ''} />
+            <button className="btn" type="submit"><i className="fa-solid fa-magnifying-glass" aria-hidden="true" /> Buscar</button>
+          </ApiForm>
         </div>
-      ) : (
-        <p className="no-results">Sem vendas nesse estágio.</p>
-      )}
+
+        {truthy(ctx.result) ? (
+          <div className="cards-container">
+            {rows.map((row, i) => {
+              const statusDoc = str(pos(row, 'venda', 19))
+              const status = str(pos(row, 'venda', 6)).toLowerCase()
+              const atraso = str(pos(row, 'venda', 23))
+              const cardClass = 'card cnt-card' + (atraso === '1' ? ' card-atrasado' : '')
+              const contrato = pos(row, 'venda', 13)
+              const display = detalhes[i]
+              return (
+                <div className={cardClass} key={i}>
+                  <div className={'card-header ' + statusClass(status, statusDoc)} onClick={() => toggleDetails(i)}>
+                    <span>Proposta #{show(pos(row, 'venda', 1))}</span>
+                    <i className={'fa-solid ' + (display === 'block' ? 'fa-chevron-up' : 'fa-chevron-down')} aria-hidden="true" />
+                  </div>
+                  <div className="card-body" onClick={() => toggleDetails(i)}>
+                    <div className="cnt-resp">
+                      <span className="info-label">Responsavel:</span> {show(pos(row, 'venda', 18))}
+                    </div>
+                    <Info rotulo="Data:">{formatDateBr(pos(row, 'venda', 2))}</Info>
+                    <Info rotulo="Status:">{show(pos(row, 'venda', 6))}</Info>
+                    {pos(row, 'venda', 6) === 'entrevista agendada' && (
+                      <Info rotulo="Agendada para:">{show(pos(row, 'venda', 20))}</Info>
+                    )}
+                    <Info rotulo="Contrato:">{contrato === null || contrato === undefined ? 'N/A' : show(contrato)}</Info>
+                    <Info rotulo="Vidas:">{show(pos(row, 'venda', 15))}</Info>
+                  </div>
+                  <div className="card-details" style={display ? { display } : undefined}>
+                    <Info rotulo="Tipo de Contrato:">{show(pos(row, 'venda', 3))}</Info>
+                    <Info rotulo="Produto:">{show(pos(row, 'venda', 4))}</Info>
+                    <Info rotulo="Valor Tabela:">R$ {showFloat(pos(row, 'venda', 12))}</Info>
+                    <Info rotulo="Taxa de Inscrição:">R$ {showFloat(pos(row, 'venda', 10))}</Info>
+                    <Info rotulo="ISS:">R$ {showFloat(row.iss)}</Info>
+                    <Info rotulo="Valor Total:">R$ {showFloat(pos(row, 'venda', 8))}</Info>
+                    <AppLink className="btn" href={urlFor('cad.detalhes_cnt', { proposta: pos(row, 'venda', 1), contrato })}>detalhes da venda</AppLink>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="no-results">Sem vendas nesse estágio.</p>
+        )}
+      </div>
     </Base1Layout>
   )
 }

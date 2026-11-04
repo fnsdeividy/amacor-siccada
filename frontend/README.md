@@ -6,7 +6,8 @@ e desenhada pelo componente React do template que o back renderizaria.
 Redirects, permissões e mensagens continuam sendo decididos pelo back.
 
 Detalhes do modo JSON: `backend/app/api.py`. Como portar/alterar uma tela:
-[PORTING.md](PORTING.md).
+[PORTING.md](PORTING.md). Visual (cores, componentes, padrões de tela):
+[DESIGN.md](DESIGN.md).
 
 ## Rodando
 
@@ -27,7 +28,8 @@ servindo o build e repassando só `/api` e `/static` ao back — veja `nginx.con
 
 - `src/templates/<nome do template>.jsx` — uma tela por template do back
   (`cadastro/home.html` → `src/templates/cadastro/home.jsx`)
-- `src/layouts/` — `base1.html`, `window.html`, `base.html`, `base_amatiss.html`
+- `src/styles/` — tema corporativo: tokens, componentes e a moldura (menu lateral, cabeçalho)
+- `src/layouts/` — `base1.html`, `window.html`, `base.html`, `base_amatiss.html`, todos sobre a moldura `AppShell`
 - `src/lib/` — `urlFor` (igual ao `url_for` do Flask), filtros de moeda/data,
   semântica do Jinja (`truthy`, `show`...), chamadas ao back
 - `src/components/` — `ApiForm` (formulário que envia para o back),
@@ -43,8 +45,9 @@ npm test
   filtros Jinja (`filters-fixtures.json`);
 - `tests/urlFor.test.js` — `urlFor` contra o `url_for` do Flask em todos os
   endpoints (`urlfor-fixtures.json`);
-- `tests/equivalence.test.jsx` — cada tela contra o HTML que o Flask gera para
-  a mesma rota e usuário (texto visível e campos de formulário). Usa snapshots
+- `tests/equivalence.test.jsx` — o conteúdo de cada tela contra o HTML que o
+  Flask gera para a mesma rota e usuário (texto visível e campos de formulário;
+  a moldura e os emojis, que foram redesenhados, ficam de fora). Usa snapshots
   com dados reais, que **não vão para o git**; sem eles, o teste é pulado.
 
 ### Gerando os snapshots de equivalência

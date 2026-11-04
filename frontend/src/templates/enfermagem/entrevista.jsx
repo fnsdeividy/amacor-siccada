@@ -7,7 +7,7 @@ import { useTemplateContext } from '../../lib/page.jsx'
 import { urlFor } from '../../lib/urlFor.js'
 import { InlineStyle, useStylesheet } from '../../lib/useStylesheet.jsx'
 import { CATEGORIAS } from './categorias.js'
-import { cssEntrevista } from './estilos.js'
+import { cssEntrevista, cssPublica } from './estilos.js'
 import { campo, useDocumentTitle } from './util.js'
 
 // --- textos como o DOM original os via (textContent), usados pelo script ---
@@ -72,13 +72,14 @@ function calcularProgresso(cats, checks, textos) {
     return reais.length > 0
   }).length
   const progresso = total > 0 ? (preenchidas / total) * 100 : 0
-  let background
-  if (progresso < 30) background = 'linear-gradient(90deg, #ff6b6b 0%, #ff8e8e 100%)'
-  else if (progresso < 70) background = 'linear-gradient(90deg, #ffa726 0%, #ffb74d 100%)'
-  else background = 'linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%)'
+  // mesmas faixas do script original; a cor de cada faixa fica no CSS (tokens)
+  let nivel
+  if (progresso < 30) nivel = 'baixo'
+  else if (progresso < 70) nivel = 'medio'
+  else nivel = 'alto'
   return {
     width: `${progresso}%`,
-    background,
+    nivel,
     texto: `${Math.round(progresso)}% completado • ${preenchidas}/${total} categorias`,
   }
 }
@@ -150,15 +151,15 @@ function filtrar(termo) {
   return { cards, itens, encontrou }
 }
 
-const CORES_ALERTA = { success: '#4CAF50', warning: '#ff9800', error: '#f44336' }
+// tipos de alerta com cor própria no CSS; os demais usam a cor de informação
+const TIPOS_ALERTA = new Set(['success', 'warning', 'error'])
 
 export default function Entrevista() {
   const ctx = useTemplateContext()
   const navigate = useNavigate()
   useDocumentTitle('Questionário de Saúde - Patologias')
-  useStylesheet('/static/css/estilos.css')
+  // Bootstrap mantido só para a grade/form-check; cores e tipografia vêm dos tokens
   useStylesheet('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
-  useStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
 
   const dados = ctx.dados
   const cpf = show(campo(dados, 'cpf'))
@@ -182,7 +183,7 @@ export default function Entrevista() {
   }, [])
 
   function mostrarAlerta(mensagem, tipo = 'success') {
-    setAlerta({ mensagem, background: CORES_ALERTA[tipo] ?? '#667eea', display: 'block' })
+    setAlerta({ mensagem, tipo: TIPOS_ALERTA.has(tipo) ? tipo : 'info', display: 'block' })
     setTimeout(() => setAlerta((a) => a && { ...a, display: 'none' }), 5000)
   }
 
@@ -339,27 +340,31 @@ export default function Entrevista() {
   const displayItem = (id) => (vis ? { display: vis.itens[id] } : undefined)
 
   return (
-    <>
+    <div className="enf-publica enf-entrevista">
+      <InlineStyle css={cssPublica} />
       <InlineStyle css={cssEntrevista} />
       <div className="container1">
         {/* Cabeçalho com informações do beneficiário */}
-        <div className="header-info text-center">
-          <h1><i className="fas fa-clipboard-check me-2"></i>Questionário de Saúde • {show(campo(dados, 'tipo_pessoa'))}</h1>
+        <header className="header-info enf-cartao text-center">
+          <h1><i className="fa-solid fa-clipboard-check me-2" aria-hidden="true"></i>Questionário de Saúde • {show(campo(dados, 'tipo_pessoa'))}</h1>
           <h2> Proposta: {show(campo(dados, 'proposta_id'))}</h2>
           <h2>{show(campo(dados, 'nome'))} <br />CPF: {show(campo(dados, 'cpf'))}</h2>
-          <span className="badge"><i className="fas fa-info-circle me-2"></i>Marque as patologias que possui ou já teve</span>
-        </div>
+          <span className="badge"><i className="fa-solid fa-circle-info me-2" aria-hidden="true"></i>Marque as patologias que possui ou já teve</span>
+        </header>
 
-        {/* Barra de progresso */}
-        <div className="progress-container">
-          <div className="progress-bar" id="progressBar"
-            style={progresso ? { width: progresso.width, background: progresso.background } : undefined}></div>
-        </div>
-        <div className="progress-text" id="progressText">{progresso ? progresso.texto : '0% completado'}</div>
+        <div className="enf-progresso enf-cartao">
+          {/* Barra de progresso */}
+          <div className="progress-container">
+            <div className={'progress-bar' + (progresso ? ` nivel-${progresso.nivel}` : '')} id="progressBar"
+              style={progresso ? { width: progresso.width } : undefined}></div>
+          </div>
+          <div className="progress-text" id="progressText">{progresso ? progresso.texto : '0% completado'}</div>
 
-        {/* Campo de busca */}
-        <div className="search-container">
-          <input type="text" className="search-input" id="searchInput" placeholder="🔍 Buscar doença ou categoria..." onInput={buscar} />
+          {/* Campo de busca */}
+          <div className="search-container">
+            <i className="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input type="text" className="search-input" id="searchInput" placeholder="Buscar doença ou categoria..." onInput={buscar} />
+          </div>
         </div>
 
         <form id="health-form" onSubmit={(e) => e.preventDefault()}>
@@ -368,10 +373,10 @@ export default function Entrevista() {
           <input type="hidden" id="tipo_pessoa" name="tipo_pessoa" defaultValue={tipoPessoa} />
 
           {CATEGORIAS.map((c) => (
-            <div className="category-card" key={c.key} style={displayCard(c)}>
+            <div className="category-card enf-cartao" key={c.key} style={displayCard(c)}>
               <h3 className="category-title">
                 <span className="category-counter">{c.counter}</span>
-                <i className={c.icon}></i> {c.title}
+                <i className={c.icon} aria-hidden="true"></i> {c.title}
               </h3>
               <div className={'category-toggle' + (cats[c.key] ? ' active' : '')} id={`toggle_${c.key}`}
                 onClick={(e) => clicarToggle(c, e)}>
@@ -382,7 +387,7 @@ export default function Entrevista() {
                     <strong>{c.pergunta}</strong>
                   </label>
                 </div>
-                <i className="fas fa-chevron-down ms-auto"></i>
+                <i className="fa-solid fa-chevron-down ms-auto" aria-hidden="true"></i>
               </div>
               <div className={'sub-question' + (cats[c.key] ? ' show' : '')} id={`sub_${c.key}`}
                 style={overflow[c.key] ? { overflow: overflow[c.key] } : undefined}>
@@ -394,7 +399,7 @@ export default function Entrevista() {
                         checked={Boolean(checks[it.id])} onChange={(e) => mudarItem(it, e.target.checked)} />
                       {it.plus !== undefined ? (
                         <label className="form-check-label" htmlFor={it.id}>
-                          <i className="fas fa-plus-circle me-2" style={{ color: '#667eea' }}></i>{it.plus}
+                          <i className="fa-solid fa-circle-plus me-2 icone-outras" aria-hidden="true"></i>{it.plus}
                         </label>
                       ) : (
                         <label className="form-check-label" htmlFor={it.id}>
@@ -415,21 +420,21 @@ export default function Entrevista() {
           ))}
 
           {/* Botão de Envio */}
-          <div className="text-center">
+          <div className="enf-envio">
             <button type="button" className="btn-submit" onClick={enviarFormulario} disabled={enviando}>
               {enviando
-                ? <><i className="fas fa-spinner fa-spin"></i> Enviando...</>
-                : <><i className="fas fa-paper-plane"></i> Enviar Questionário</>}
+                ? <><i className="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Enviando...</>
+                : <><i className="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar Questionário</>}
             </button>
           </div>
         </form>
       </div>
 
       {/* Alert flutuante */}
-      <div className="floating-alert" id="floatingAlert"
-        style={alerta ? { background: alerta.background, display: alerta.display } : undefined}>
+      <div className={'floating-alert' + (alerta ? ` alerta-${alerta.tipo}` : '')} id="floatingAlert" role="alert"
+        style={alerta ? { display: alerta.display } : undefined}>
         {alerta?.mensagem}
       </div>
-    </>
+    </div>
   )
 }

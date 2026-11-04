@@ -25,22 +25,25 @@ export function lower(value) {
   return String(value).toLowerCase()
 }
 
-/** Cor do badge de status usada nos scripts das telas de autorização. */
+/**
+ * Cor do badge de status usada nos scripts das telas de autorização
+ * (cores de estado de tokens.css).
+ */
 export function statusColors(status) {
-  let statusColor = '#fff9b0'
-  let statusTextColor = '#b3a100'
+  let statusColor = 'var(--warning-50)'
+  let statusTextColor = 'var(--warning-700)'
   if (status === 'aprovado') {
-    statusColor = '#c6f5e0'
-    statusTextColor = '#259661'
+    statusColor = 'var(--success-50)'
+    statusTextColor = 'var(--success-700)'
   } else if (status === 'rejeitado') {
-    statusColor = '#ffadad'
-    statusTextColor = '#b71c1c'
+    statusColor = 'var(--danger-50)'
+    statusTextColor = 'var(--danger-700)'
   } else if (status === 'em analise' || status === 'em análise') {
-    statusColor = '#cbe7ff'
-    statusTextColor = '#2176ae'
+    statusColor = 'var(--info-50)'
+    statusTextColor = 'var(--info-700)'
   } else if (status === 'cancelado') {
-    statusColor = '#9b7b66ef'
-    statusTextColor = 'rgb(61, 50, 50)'
+    statusColor = 'var(--gray-100)'
+    statusTextColor = 'var(--gray-700)'
   }
   return { statusColor, statusTextColor }
 }

@@ -11,26 +11,33 @@ export default function Definir() {
       </h1>
 
       <ApiForm method="GET" action={urlFor('gerencial.relatorio_vendas')} className="filter-form">
-        <label htmlFor="status">Status da proposta:</label>
-        <select name="status" id="status" defaultValue="">
-          <option value="" disabled>Selecione</option>
-          <option value="Enviado ao cadastro">enviado ao cadastro</option>
-          <option value="entrevista online enviada">entrevista online enviada</option>
-          <option value="enviado para financeiro">Enviar para financeiro</option>
-          <option value="nota emitida">nota emitida</option>
-          <option value="analise de declaração">Enviar para analise</option>
-          <option value="entrevista agendada">entrevista Agendada</option>
-          <option value="geração de kit">gerar kit</option>
-          <option value="contrato finalizado">contrato finalizado</option>
-        </select>
+        <div className="form-group">
+          <label htmlFor="status">Status da proposta:</label>
+          <select name="status" id="status" defaultValue="">
+            <option value="" disabled>Selecione</option>
+            <option value="Enviado ao cadastro">enviado ao cadastro</option>
+            <option value="entrevista online enviada">entrevista online enviada</option>
+            <option value="enviado para financeiro">Enviar para financeiro</option>
+            <option value="nota emitida">nota emitida</option>
+            <option value="analise de declaração">Enviar para analise</option>
+            <option value="entrevista agendada">entrevista Agendada</option>
+            <option value="geração de kit">gerar kit</option>
+            <option value="contrato finalizado">contrato finalizado</option>
+          </select>
+        </div>
 
-        <label htmlFor="data_inicio" className="input-label">Data de Início:</label>
-        <input type="date" id="data_inicio" name="venda_inicial" className="date-input" />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="data_inicio" className="input-label">Data de Início:</label>
+            <input type="date" id="data_inicio" name="venda_inicial" className="date-input" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="data_fim" className="input-label">Data de Fim:</label>
+            <input type="date" id="data_fim" name="venda_final" className="date-input" />
+          </div>
+        </div>
 
-        <label htmlFor="data_fim" className="input-label">Data de Fim:</label>
-        <input type="date" id="data_fim" name="venda_final" className="date-input" />
-
-        <button type="submit" className="btn btn-primary">Redirecionar</button>
+        <button type="submit" className="btn btn-primary"><i className="fa-solid fa-filter" aria-hidden="true" /> Redirecionar</button>
       </ApiForm>
     </WindowLayout>
   )

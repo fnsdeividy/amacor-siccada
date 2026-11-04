@@ -5,51 +5,102 @@ import AppLink from '../../components/AppLink.jsx'
 import Base1Layout from '../../layouts/Base1Layout.jsx'
 import { useBodyClass } from '../../lib/useBodyClass.js'
 import { urlFor } from '../../lib/urlFor.js'
-import { useStylesheet } from '../../lib/useStylesheet.jsx'
+import { InlineStyle } from '../../lib/useStylesheet.jsx'
+
+const css = `
+.cadastro-corretora { max-width: 640px; }
+.cadastro-corretora .corretora-secao {
+  display: block;
+  margin: var(--space-3) 0 var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.cadastro-corretora .corretora-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.cadastro-corretora .corretora-check label { margin: 0; }
+.cadastro-corretora .corretora-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+`
 
 export default function CadastrarCorretoras() {
-  // o bloco trazia um documento inteiro: o <link> valia e o <body class="body">
-  // passava a classe para o <body> da página
-  useStylesheet('/static/css/estilos_login.css')
+  // o bloco trazia um documento inteiro; o <body class="body"> passava a
+  // classe para o <body> da página
   useBodyClass('body')
   const [vitalicia, setVitalicia] = useState(false)
 
   return (
     <Base1Layout title="Bem-vindo">
       <title>cadastro</title>
-      <div className="divisoria5">
+      <InlineStyle css={css} />
+      <div className="divisoria5 cadastro-corretora">
         <div className="close-btn-container">
-          <AppLink href={urlFor('auth.fechar')} className="close-btn">✖</AppLink>
+          <AppLink href={urlFor('auth.fechar')} className="close-btn" title="Fechar" aria-label="Fechar">
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </AppLink>
         </div>
 
-        <h1>Cadastro de Corretora</h1><br /><br />
+        <div className="page-toolbar">
+          <h1><i className="fa-solid fa-building text-primary me-2" aria-hidden="true" />Cadastro de Corretora</h1>
+        </div>
         <ApiForm action={urlFor('auth.cadastrar_corretora')} method="POST">
 
-          <label htmlFor="nome">Nome da Corretora:</label>
-          <input type="text" id="nome" name="nome" required /><br /><br />
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="nome">Nome da Corretora:</label>
+              <input type="text" id="nome" name="nome" required />
+            </div>
 
-          <label htmlFor="cnpj">CNPJ:</label>
-          <input type="text" id="cnpj" name="cnpj" required /><br /><br />
-          {/* o <div> abaixo não era fechado no original; o navegador o fechava no </form> */}
+            <div className="form-group">
+              <label htmlFor="cnpj">CNPJ:</label>
+              <input type="text" id="cnpj" name="cnpj" required />
+            </div>
+          </div>
+
           <div>
-            <label htmlFor="taxa_corretora">Taxas da corretora:</label>
-            <label htmlFor="taxa1">Primeira taxa:</label>
-            <input type="number" id="taxa1" name="taxa1" required /><br /><br />
-            <label htmlFor="taxa2">Segunda taxa:</label>
-            <input type="number" id="taxa2" name="taxa2" required /><br /><br />
-            <label htmlFor="taxa3">Terceira taxa:</label>
-            <input type="number" id="taxa3" name="taxa3" required /><br /><br />
-            <label htmlFor="vitalicia">Mensalidade vitalícia?</label>
-            <input type="checkbox" id="vitalicia" name="vitalicia" onChange={(e) => setVitalicia(e.target.checked)} />
+            <label className="corretora-secao" htmlFor="taxa_corretora">Taxas da corretora:</label>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="taxa1">Primeira taxa:</label>
+                <input type="number" id="taxa1" name="taxa1" required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="taxa2">Segunda taxa:</label>
+                <input type="number" id="taxa2" name="taxa2" required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="taxa3">Terceira taxa:</label>
+                <input type="number" id="taxa3" name="taxa3" required />
+              </div>
+            </div>
+
+            <div className="corretora-check">
+              <input type="checkbox" id="vitalicia" name="vitalicia" onChange={(e) => setVitalicia(e.target.checked)} />
+              <label htmlFor="vitalicia">Mensalidade vitalícia?</label>
+            </div>
 
             {/* Campos adicionais ocultos */}
-            <div id="taxas-adicionais" style={{ display: vitalicia ? 'block' : 'none' }}>
+            <div id="taxas-adicionais" className="form-group" style={{ display: vitalicia ? 'flex' : 'none' }}>
               <label htmlFor="taxa4">Taxa vitalicia:</label>
-              <input type="number" id="taxa4" name="taxa4" /><br />
+              <input type="number" id="taxa4" name="taxa4" />
             </div>
-            <br />
 
-            <input className="envia" type="submit" defaultValue="Cadastrar" />
+            <div className="corretora-acoes">
+              <input className="btn envia" type="submit" value="Cadastrar" />
+            </div>
           </div>
         </ApiForm>
       </div>

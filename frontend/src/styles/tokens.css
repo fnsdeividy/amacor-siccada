@@ -1,0 +1,82 @@
+/*
+ * Design tokens do Siccada.
+ * Cores a partir do azul-marinho do logo (#0a2f68); fundo claro e neutro.
+ * Use sempre as variáveis — nunca cores soltas nas telas.
+ */
+:root {
+  /* marca */
+  --brand-950: #061b3d;
+  --brand-900: #0a2f68;
+  --brand-800: #0f3d82;
+  --brand-700: #164c9c;
+  --brand-600: #1f5fbf;
+  --brand-100: #dce7f7;
+  --brand-50: #eef3fb;
+
+  /* neutros */
+  --gray-950: #0b1220;
+  --gray-900: #111827;
+  --gray-800: #1f2937;
+  --gray-700: #374151;
+  --gray-600: #4b5563;
+  --gray-500: #6b7280;
+  --gray-400: #9ca3af;
+  --gray-300: #d1d5db;
+  --gray-200: #e5e7eb;
+  --gray-100: #f1f3f6;
+  --gray-50: #f7f8fa;
+  --white: #ffffff;
+
+  /* estados */
+  --success-700: #15803d;
+  --success-50: #ecfdf3;
+  --warning-700: #b45309;
+  --warning-50: #fffbeb;
+  --danger-700: #b91c1c;
+  --danger-600: #dc2626;
+  --danger-50: #fef2f2;
+  --info-700: #1d4ed8;
+  --info-50: #eff6ff;
+
+  /* superfícies e texto */
+  --bg: var(--gray-50);
+  --surface: var(--white);
+  --surface-muted: var(--gray-100);
+  --border: var(--gray-200);
+  --border-strong: var(--gray-300);
+  --text: var(--gray-900);
+  --text-muted: var(--gray-500);
+  --text-soft: var(--gray-600);
+  --link: var(--brand-600);
+  --focus: rgba(31, 95, 191, 0.35);
+
+  /* tipografia */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+
+  /* forma */
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.14);
+
+  /* layout */
+  --sidebar-w: 256px;
+  --header-h: 60px;
+  --content-max: 1280px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+}

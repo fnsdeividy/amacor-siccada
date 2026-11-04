@@ -11,219 +11,101 @@ import { InlineStyle } from '../../lib/useStylesheet.jsx'
 import { documentoUrl, lower } from './helpers.js'
 
 const css = `
-    .analise-container {
-        max-width: 1200px;
-        margin: 30px auto;
-        padding: 20px;
-    }
+.analise-aut { max-width: 1200px; margin: 0 auto; }
+.analise-aut .analise-voltar { margin-bottom: var(--space-4); }
+.analise-aut .autorizacao-info,
+.analise-aut .acoes-container { padding: var(--space-6); }
+.analise-aut .info-header,
+.analise-aut .acoes-header {
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.analise-aut .info-header h2,
+.analise-aut .acoes-header h3 { margin: 0; display: flex; align-items: center; gap: var(--space-2); }
+.analise-aut .info-header i,
+.analise-aut .acoes-header i { color: var(--brand-700); }
+.analise-aut .info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.analise-aut .info-item {
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  background: var(--gray-50);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.analise-aut .info-item:last-child { border-bottom: 1px solid var(--border); }
+.analise-aut .info-label {
+  margin-bottom: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.analise-aut .info-value {
+  font-size: var(--text-md);
+  font-weight: 500;
+  text-align: left;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.analise-aut .responsavel { color: var(--brand-700); }
+.analise-aut .sem-responsavel { color: var(--text-muted); font-weight: 400; }
+.analise-aut .status-badge { text-transform: capitalize; font-size: var(--text-sm); padding: 2px 10px; }
+.analise-aut .status-pendente { color: var(--warning-700); background: var(--warning-50); }
+.analise-aut .status-em-analise { color: var(--info-700); background: var(--info-50); }
+.analise-aut .status-aprovado { color: var(--success-700); background: var(--success-50); }
+.analise-aut .status-rejeitado { color: var(--danger-700); background: var(--danger-50); }
+.analise-aut .alert-info { margin-bottom: var(--space-4); }
+.analise-aut .alert-info i { margin-right: var(--space-1); }
 
-    .btn-voltar {
-        background: linear-gradient(145deg, #1a2a6c, #36a2eb);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 500;
-        display: inline-block;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-        transition: all 0.3s ease;
-    }
+.analise-aut .documento-preview { margin-top: var(--space-5); }
+.analise-aut .documento-preview h3 { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+.analise-aut .documento-preview h3 i { color: var(--brand-700); }
+.analise-aut .documento-caminho {
+  margin-bottom: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
+  overflow-wrap: anywhere;
+}
+.analise-aut .documento-caminho strong { color: var(--text-soft); }
+.analise-aut .documento-imagem { margin-bottom: var(--space-4); text-align: center; }
+.analise-aut .documento-imagem img {
+  max-width: 100%;
+  max-height: 600px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.analise-aut .documento-pdf {
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.analise-aut .documento-download { text-align: center; margin-top: var(--space-4); }
+.analise-aut .documento-download p { color: var(--text-soft); }
+.analise-aut .documento-download p i { color: var(--warning-700); }
 
-    .btn-voltar:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-    }
-
-    .autorizacao-info {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 12px;
-        padding: 30px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        margin-bottom: 30px;
-    }
-
-    .info-header {
-        border-bottom: 3px solid #c596bf;
-        padding-bottom: 15px;
-        margin-bottom: 25px;
-    }
-
-    .info-header h2 {
-        color: #4f4159;
-        margin: 0;
-        font-size: 26px;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 25px;
-    }
-
-    .info-item {
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border-left: 4px solid #c596bf;
-    }
-
-    .info-label {
-        font-weight: bold;
-        color: #4f4159;
-        font-size: 14px;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .info-value {
-        color: #333;
-        font-size: 16px;
-        word-wrap: break-word;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        text-transform: capitalize;
-        font-size: 14px;
-    }
-
-    .status-pendente {
-        background-color: #fff9b0;
-        color: #b3a100;
-    }
-
-    .status-em-analise {
-        background-color: #cbe7ff;
-        color: #2176ae;
-    }
-
-    .status-aprovado {
-        background-color: #c6f5e0;
-        color: #259661;
-    }
-
-    .status-rejeitado {
-        background-color: #ffadad;
-        color: #b71c1c;
-    }
-
-    .documento-preview {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    .documento-preview img {
-        max-width: 100%;
-        max-height: 600px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        cursor: pointer;
-        transition: transform 0.3s ease;
-    }
-
-    .documento-preview img:hover {
-        transform: scale(1.02);
-    }
-
-    .acoes-container {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 12px;
-        padding: 30px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-
-    .acoes-header {
-        border-bottom: 3px solid #c596bf;
-        padding-bottom: 15px;
-        margin-bottom: 25px;
-    }
-
-    .acoes-header h3 {
-        color: #4f4159;
-        margin: 0;
-        font-size: 22px;
-    }
-
-    .btn-acao {
-        padding: 12px 30px;
-        margin: 10px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: inline-block;
-        text-decoration: none;
-    }
-
-    .btn-aprovar {
-        background-color: #c6f5e0;
-        color: #259661;
-        border: 2px solid #259661;
-    }
-
-    .btn-aprovar:hover {
-        background-color: #a3e4c1;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(37, 150, 97, 0.3);
-    }
-
-    .btn-rejeitar {
-        background-color: #ffadad;
-        color: #b71c1c;
-        border: 2px solid #b71c1c;
-    }
-
-    .btn-rejeitar:hover {
-        background-color: #ff8787;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(183, 28, 28, 0.3);
-    }
-
-    .observacoes-box {
-        margin-top: 20px;
-    }
-
-    .observacoes-box label {
-        display: block;
-        font-weight: bold;
-        color: #4f4159;
-        margin-bottom: 8px;
-        font-size: 16px;
-    }
-
-    .observacoes-box textarea {
-        width: 100%;
-        min-height: 120px;
-        padding: 12px;
-        border: 2px solid #ddd;
-        border-radius: 8px;
-        font-size: 15px;
-        font-family: Arial, sans-serif;
-        resize: vertical;
-        transition: border-color 0.3s ease;
-    }
-
-    .observacoes-box textarea:focus {
-        outline: none;
-        border-color: #c596bf;
-    }
-
-    .alert-info {
-        background-color: #cbe7ff;
-        color: #2176ae;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        border-left: 4px solid #2176ae;
-    }
+.analise-aut .observacoes-box label { margin-bottom: var(--space-2); }
+.analise-aut .observacoes-box textarea { min-height: 120px; }
+.analise-aut .decisao-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+.analise-aut .btn-success:hover { background: var(--success-700); border-color: var(--success-700); filter: brightness(0.92); }
+.analise-aut .btn-danger:hover { background: var(--danger-700); border-color: var(--danger-700); }
 `
 
 function statusBadgeClass(statusRaw) {
@@ -241,37 +123,34 @@ function DocumentoPreview({ path }) {
   const url = documentoUrl(path)
   return (
     <div className="documento-preview">
-      <h3 style={{ color: '#4f4159', marginBottom: '15px' }}>📄 Documento Anexado</h3>
+      <h3><i className="fa-solid fa-file-lines" aria-hidden="true" /> Documento Anexado</h3>
 
-      <div style={{ background: '#f0f0f0', padding: '10px', borderRadius: '4px', marginBottom: '15px', fontSize: '12px', color: '#666' }}>
+      <div className="documento-caminho">
         <strong>Caminho do arquivo:</strong> {show(path)}<br />
         <strong>URL completa:</strong> {url}
       </div>
 
-      <div id="imagemContainer" style={{ marginBottom: '15px', display: etapa === 'imagem' ? undefined : 'none' }}>
+      <div id="imagemContainer" className="documento-imagem" style={{ display: etapa === 'imagem' ? undefined : 'none' }}>
         <img id="documentoImagem"
           src={apiUrl(url)}
           alt="Documento da Autorização"
-          style={{ maxWidth: '100%', maxHeight: '600px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
           onError={() => { console.log('Imagem falhou, tentando PDF...'); setEtapa('pdf') }} />
       </div>
 
       <div id="alternativaContainer" style={{ display: etapa === 'pdf' ? 'block' : 'none' }}>
         {etapa !== 'imagem' && (
-          <iframe id="documentoPdf"
+          <iframe id="documentoPdf" className="documento-pdf"
             src={apiUrl(url)}
-            style={{ width: '100%', height: '600px', border: '2px solid #ddd', borderRadius: '8px' }}
             onError={() => { console.log('PDF falhou, mostrando botão de download...'); setEtapa('download') }} />
         )}
       </div>
 
-      <div id="downloadContainer" style={{ display: etapa === 'download' ? 'block' : 'none', textAlign: 'center', marginTop: '15px' }}>
-        <p style={{ color: '#666', marginBottom: '15px' }}>⚠️ Não foi possível visualizar o documento no navegador.</p>
+      <div id="downloadContainer" className="documento-download" style={{ display: etapa === 'download' ? 'block' : 'none' }}>
+        <p><i className="fa-solid fa-triangle-exclamation" aria-hidden="true" /> Não foi possível visualizar o documento no navegador.</p>
         <AppLink download href={url}
           target="_blank"
-          className="btn-acao"
-          style={{ backgroundColor: '#007bff', color: 'white', border: '2px solid #0056b3' }}>
-          📥 Abrir/Baixar Documento
+          className="btn">
+          <i className="fa-solid fa-download" aria-hidden="true" /> Abrir/Baixar Documento
         </AppLink>
       </div>
     </div>
@@ -319,12 +198,16 @@ export default function AnalisarAutorizacao() {
     <AmatissLayout title={`Analisar Autorização #${show(autorizacao.id)}`}>
       <InlineStyle css={css} />
 
-      <div className="analise-container">
-        <AppLink href={urlFor('amatiss.render_aut_cpx')} className="btn-voltar">⬅ Voltar para Lista</AppLink>
+      <div className="analise-aut">
+        <div className="analise-voltar">
+          <AppLink href={urlFor('amatiss.render_aut_cpx')} className="btn btn-secondary">
+            <i className="fa-solid fa-arrow-left" aria-hidden="true" /> Voltar para Lista
+          </AppLink>
+        </div>
 
-        <div className="autorizacao-info">
+        <div className="card autorizacao-info">
           <div className="info-header">
-            <h2>📋 Autorização #{show(autorizacao.id)}</h2>
+            <h2><i className="fa-solid fa-clipboard-list" aria-hidden="true" /> Autorização #{show(autorizacao.id)}</h2>
           </div>
 
           <div className="info-grid">
@@ -368,8 +251,8 @@ export default function AnalisarAutorizacao() {
               <div className="info-label">Responsável pela Análise</div>
               <div className="info-value">
                 {truthy(autorizacao.audit_resp)
-                  ? <strong style={{ color: '#007bff' }}>{show(autorizacao.audit_resp)}</strong>
-                  : <span style={{ color: '#999' }}>Não atribuído</span>}
+                  ? <strong className="responsavel">{show(autorizacao.audit_resp)}</strong>
+                  : <span className="sem-responsavel">Não atribuído</span>}
               </div>
             </div>
 
@@ -381,7 +264,7 @@ export default function AnalisarAutorizacao() {
 
           {truthy(autorizacao.motivo_rejeicao) && (
             <div className="alert-info">
-              <strong>⚠️ Motivo de Rejeição:</strong> {show(autorizacao.motivo_rejeicao)}
+              <strong><i className="fa-solid fa-triangle-exclamation" aria-hidden="true" /> Motivo de Rejeição:</strong> {show(autorizacao.motivo_rejeicao)}
             </div>
           )}
 
@@ -389,35 +272,35 @@ export default function AnalisarAutorizacao() {
             <DocumentoPreview key={autorizacao.documento_path} path={autorizacao.documento_path} />
           ) : (
             <div className="alert-info">
-              ⚠️ Nenhum documento foi anexado a esta autorização.
+              <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" /> Nenhum documento foi anexado a esta autorização.
             </div>
           )}
         </div>
 
         {autorizacao.status === 'em analise' || autorizacao.status === 'pendente' ? (
-          <div className="acoes-container">
+          <div className="card acoes-container">
             <div className="acoes-header">
-              <h3>🔍 Decisão sobre a Autorização</h3>
+              <h3><i className="fa-solid fa-scale-balanced" aria-hidden="true" /> Decisão sobre a Autorização</h3>
             </div>
 
-            <div className="observacoes-box">
+            <div className="form-group observacoes-box">
               <label htmlFor="observacao">Observações da Análise:</label>
               <textarea id="observacao" placeholder="Digite suas observações sobre a análise (opcional para aprovar, obrigatório para rejeitar)..."
                 value={observacao} onChange={(e) => setObservacao(e.target.value)} />
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: '25px' }}>
-              <button className="btn-acao btn-aprovar" onClick={() => processarDecisao('aprovado')}>
+            <div className="decisao-acoes">
+              <button className="btn btn-lg btn-success btn-aprovar" onClick={() => processarDecisao('aprovado')}>
                 ✓ Aprovar Autorização
               </button>
-              <button className="btn-acao btn-rejeitar" onClick={() => processarDecisao('rejeitado')}>
+              <button className="btn btn-lg btn-danger btn-rejeitar" onClick={() => processarDecisao('rejeitado')}>
                 ✗ Rejeitar Autorização
               </button>
             </div>
           </div>
         ) : (
-          <div className="acoes-container">
-            <div className="alert-info">
+          <div className="card acoes-container">
+            <div className="alert-info mb-0">
               Esta autorização já foi processada e está com status: <strong>{show(autorizacao.status)}</strong>
             </div>
           </div>

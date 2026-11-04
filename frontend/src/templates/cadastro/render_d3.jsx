@@ -29,42 +29,42 @@ export default function RenderD3() {
   return (
     <Base1Layout title="Relatório D3">
       {loading && <Loader />}
-      <div className="container">
-        <div className="divisoria2">
-          <div className="close-btn-container">
-            <AppLink href={urlFor('auth.fechar')} className="close-btn">✖</AppLink>
+      <div className="card" style={{ maxWidth: '760px' }}>
+        <div className="close-btn-container">
+          <AppLink href={urlFor('auth.fechar')} className="close-btn" title="Fechar" aria-label="Fechar">
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </AppLink>
+        </div>
+
+        <h2>Relatório D3</h2>
+        <p className="text-muted">Informe o período e os valores para calcular o D3.</p>
+
+        <ApiForm id="form-gerar-kit" action={urlFor('cad.d3_beneficiarios')} method="POST" style={{ marginTop: '16px' }}
+          onSubmit={() => setLoading(true)} onResult={() => setLoading(false)}>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="valor_gasto">Valor gasto no período</label>
+              <input type="text" inputMode="decimal" id="valor_gasto" name="valor_gasto" className="money" placeholder="0,00" required onInput={onMoneyInput} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="valor_pago">Valor pago no período</label>
+              <input type="text" inputMode="decimal" id="valor_pago" name="valor_pago" className="money" placeholder="0,00" required onInput={onMoneyInput} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="data_inicio">Data de início</label>
+              <input type="date" id="data_inicio" name="data_inicio" required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="data_final">Data final</label>
+              <input type="date" id="data_final" name="data_final" required />
+            </div>
           </div>
 
-          <h2>Relatório D3</h2>
-          <p style={{ marginTop: '6px', color: '#bec6d5' }}>Informe o período e os valores para calcular o D3.</p>
-
-          <ApiForm id="form-gerar-kit" action={urlFor('cad.d3_beneficiarios')} method="POST" style={{ marginTop: '16px' }}
-            onSubmit={() => setLoading(true)} onResult={() => setLoading(false)}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-              <div>
-                <label htmlFor="valor_gasto">Valor gasto no período</label>
-                <input type="text" inputMode="decimal" id="valor_gasto" name="valor_gasto" className="money" placeholder="0,00" required onInput={onMoneyInput} />
-              </div>
-              <div>
-                <label htmlFor="valor_pago">Valor pago no período</label>
-                <input type="text" inputMode="decimal" id="valor_pago" name="valor_pago" className="money" placeholder="0,00" required onInput={onMoneyInput} />
-              </div>
-              <div>
-                <label htmlFor="data_inicio">Data de início</label>
-                <input type="date" id="data_inicio" name="data_inicio" required />
-              </div>
-              <div>
-                <label htmlFor="data_final">Data final</label>
-                <input type="date" id="data_final" name="data_final" required />
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '20px' }}>
-              <button className="btn" type="submit">Calcular D3</button>
-              <span style={{ fontSize: '12px', color: '#6b7280' }}>Use vírgula para centavos.</span>
-            </div>
-          </ApiForm>
-        </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', marginTop: '8px' }}>
+            <button className="btn" type="submit"><i className="fa-solid fa-calculator" aria-hidden="true" /> Calcular D3</button>
+            <small>Use vírgula para centavos.</small>
+          </div>
+        </ApiForm>
       </div>
     </Base1Layout>
   )

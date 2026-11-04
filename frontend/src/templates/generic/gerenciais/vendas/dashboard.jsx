@@ -8,7 +8,28 @@ import { formatCurrencyBr, formatDateBr } from '../../../../lib/format.js'
 import { show, showFloat, truthy } from '../../../../lib/jinja.js'
 import { useTemplateContext } from '../../../../lib/page.jsx'
 import { urlFor } from '../../../../lib/urlFor.js'
-import { useStylesheet } from '../../../../lib/useStylesheet.jsx'
+import { InlineStyle } from '../../../../lib/useStylesheet.jsx'
+import { dashboardCss } from '../../_dashboard.js'
+
+// CSS só desta tela (o resto vem de _dashboard.js)
+const css = `
+.dash-vendas .vendas-card-title { margin-bottom: var(--space-3); font-weight: 600; color: var(--text); }
+.dash-vendas .thermometer-body { display: flex; align-items: center; gap: var(--space-4); }
+.dash-vendas .thermo-stop-top { stop-color: var(--brand-600); }
+.dash-vendas .thermo-stop-bottom { stop-color: var(--brand-900); }
+.dash-vendas .thermo-track { fill: var(--brand-50); }
+.dash-vendas .thermo-bulb { fill: var(--brand-900); }
+.dash-vendas .stat-card strong { color: var(--text); font-weight: 600; }
+.dash-vendas .vendas-graficos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.dash-vendas .chart-card { margin-bottom: 0; background: var(--white); }
+.dash-vendas .chart-card .card-title { margin-bottom: var(--space-3); font-weight: 600; color: var(--text); }
+.dash-vendas .chart-box { position: relative; height: 260px; }
+`
 
 // o mesmo <script src> do template, carregado uma vez
 const CHART_JS = 'https://cdn.jsdelivr.net/npm/chart.js'
@@ -27,15 +48,42 @@ function loadChartJs() {
   return chartJsPromise
 }
 
+/** cores da marca (tokens.css) para os gráficos: o canvas não lê var(--...) */
+function tokens() {
+  const css = getComputedStyle(document.documentElement)
+  const t = (name) => css.getPropertyValue(name).trim()
+  return {
+    brand900: t('--brand-900'), brand700: t('--brand-700'), brand600: t('--brand-600'),
+    brand100: t('--brand-100'), gray400: t('--gray-400'), gray500: t('--gray-500'),
+    gray200: t('--gray-200'), text: t('--text-soft'), font: t('--font'), white: t('--white'),
+  }
+}
+
+/** opções visuais comuns (fundo branco, grade discreta, fonte do app) */
+function chartOptions(c, { axes = true } = {}) {
+  const scale = {
+    grid: { color: c.gray200 },
+    border: { color: c.gray200 },
+    ticks: { color: c.gray500, font: { family: c.font, size: 12 } },
+  }
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: c.text, font: { family: c.font, size: 12 }, boxWidth: 12 } },
+      tooltip: { backgroundColor: c.brand900, titleFont: { family: c.font }, bodyFont: { family: c.font } },
+    },
+    ...(axes ? { scales: { x: { ...scale, grid: { display: false } }, y: { ...scale, beginAtZero: true } } } : {}),
+  }
+}
+
 /** lista|map(attribute=...)|list, ou [] quando a lista não existe/está vazia */
 function mapAttr(list, attr) {
   return truthy(list) ? list.map((item) => item?.[attr]) : []
 }
 
 export default function DashboardVendas() {
-  // <link> de estilos.css e dashboard.css dentro do bloco
-  useStylesheet('/static/css/estilos.css')
-  useStylesheet('/static/css/dashboard.css')
+  // (o <link> de estilos.css e dashboard.css deu lugar ao CSS do visual novo)
   const ctx = useTemplateContext()
   const [params] = useSearchParams()
   const dados = ctx.dados ?? {}
@@ -61,6 +109,7 @@ export default function DashboardVendas() {
     const charts = []
     loadChartJs().then((Chart) => {
       if (cancelled) return
+      const c = tokens()
       // o template procurava #graficoTipoPlano, que não existe nesta tela
       const elTipoPlano = document.getElementById('graficoTipoPlano')
       if (elTipoPlano) {
@@ -70,9 +119,11 @@ export default function DashboardVendas() {
             labels: labelsTipoPlano,
             datasets: [{
               data: valoresTipoPlano,
-              backgroundColor: ['#36a2eb', '#ff6384', '#ffcd56'],
+              backgroundColor: [c.brand900, c.brand600, c.gray400],
+              borderColor: c.white,
             }],
           },
+          options: chartOptions(c, { axes: false }),
         }))
       }
 
@@ -85,9 +136,13 @@ export default function DashboardVendas() {
             datasets: [{
               label: 'Vendas',
               data: valoresCorretor,
-              backgroundColor: '#36a2eb',
+              backgroundColor: c.brand700,
+              hoverBackgroundColor: c.brand900,
+              borderRadius: 4,
+              maxBarThickness: 40,
             }],
           },
+          options: chartOptions(c),
         }))
       }
 
@@ -100,10 +155,15 @@ export default function DashboardVendas() {
             datasets: [{
               label: 'Evolução de vendas',
               data: valoresEvolucao,
-              borderColor: '#ff6384',
+              borderColor: c.brand900,
+              backgroundColor: c.brand900,
+              pointBackgroundColor: c.white,
+              pointBorderColor: c.brand900,
+              tension: 0.3,
               fill: false,
             }],
           },
+          options: chartOptions(c),
         }))
       }
     }).catch((e) => console.error(e))
@@ -115,29 +175,30 @@ export default function DashboardVendas() {
 
   return (
     <Base1Layout title="Dashboard Gerencial">
-      {/* o <header> do original nunca era fechado: envolve todo o conteúdo */}
-      <header>
+      <InlineStyle css={dashboardCss + css} />
+      {/* o <header> do original nunca era fechado: envolvia todo o conteúdo */}
+      <div className="dash dash-vendas">
         <div className="quick-actions">
           <h3>Ações Rápidas</h3>
           <div className="quick-actions-grid">
             <AppLink href={urlFor('vendas.render_tipo_venda')} className="quick-action-card">
-              <span>➕</span>
+              <span className="quick-action-icon"><i className="fa-solid fa-plus" aria-hidden="true" /></span>
               <p>Nova Venda</p>
             </AppLink>
             <AppLink href={urlFor('cad.acompanhar_cnt', { lista: 'todos', filtro: 'sim' })} className="quick-action-card">
-              <span>📊</span>
+              <span className="quick-action-icon"><i className="fa-solid fa-chart-column" aria-hidden="true" /></span>
               <p>Relatorio de vendas</p>
             </AppLink>
 
             <AppLink href={urlFor('auth.redir_atent')} className="quick-action-card">
-              <span>🧾</span>
+              <span className="quick-action-icon"><i className="fa-solid fa-file-contract" aria-hidden="true" /></span>
               <p>Acompanhar contratos</p>
             </AppLink>
           </div>
         </div>
 
         <div className="welcome-card">
-          <h2>👋 Olá <span>{show(ctx.nome_user)}</span></h2>
+          <h2><i className="fa-regular fa-hand" aria-hidden="true" /> Olá <span>{show(ctx.nome_user)}</span></h2>
           <p>Essa é a métrica do Comercial no período: <strong>{formatDateBr(periodo.inicio)}</strong> até <strong>{formatDateBr(periodo.fim)}</strong></p>
         </div>
         <div className="dashboard-container">
@@ -158,80 +219,92 @@ export default function DashboardVendas() {
               <label>Data inicial:</label>
               <input type="date" name="data_inicial" defaultValue={show(params.get('data_inicial'))} />
 
-              <button type="submit">Filtrar</button>
+              <button className="btn" type="submit"><i className="fa-solid fa-filter" aria-hidden="true" /> Filtrar</button>
             </ApiForm>
           </div>
-          <div className="card-container" style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center', marginBottom: '40px' }}>
-            {/* Card de Valor Total */}
 
-            <div className="card thermometer-card" style={{ minWidth: '260px', maxWidth: '320px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontSize: '1.3rem', color: '#36a2eb', fontWeight: 600, marginBottom: '8px' }}>Termômetro de Vidas</div>
-              <svg width="60" height="120" viewBox="0 0 60 120" style={{ marginBottom: '8px' }}>
-                <defs>
-                  <linearGradient id="thermoGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#36a2eb" />
-                    <stop offset="100%" stopColor="#ff6384" />
-                  </linearGradient>
-                </defs>
-                <rect x="25" y="20" width="10" height="70" rx="5" fill="url(#thermoGrad)" />
-                <circle cx="30" cy="100" r="18" fill="#ff6384" stroke="#36a2eb" strokeWidth="3" />
-              </svg>
-              <div style={{ fontSize: '2.2rem', fontWeight: 'bold', color: '#fff' }}>
-                {resumo.total_vendas !== undefined ? show(resumo.total_vendas) : '0'}
+          <div className="card-container vendas-indicadores">
+            {/* Termômetro de vidas */}
+            <div className="card stat-card thermometer-card">
+              <div className="stat-label vendas-card-title">Termômetro de Vidas</div>
+              <div className="thermometer-body">
+                <svg width="36" height="72" viewBox="0 0 60 120" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="thermoGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" className="thermo-stop-top" />
+                      <stop offset="100%" className="thermo-stop-bottom" />
+                    </linearGradient>
+                  </defs>
+                  <rect className="thermo-track" x="25" y="12" width="10" height="78" rx="5" />
+                  <rect x="25" y="20" width="10" height="70" rx="5" fill="url(#thermoGrad)" />
+                  <circle className="thermo-bulb" cx="30" cy="100" r="16" />
+                </svg>
+                <div>
+                  <div className="stat-value">
+                    {resumo.total_vendas !== undefined ? show(resumo.total_vendas) : '0'}
+                  </div>
+                  <div className="stat-label">Vidas vendidas no período</div>
+                </div>
               </div>
-              <div style={{ fontSize: '1rem', color: '#ddd' }}>Vidas vendidas no período</div>
             </div>
             {/* Card de Valor Total */}
             <div className="card stat-card">
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '140px' }}>
-                <div className="stat-value" style={{ fontSize: '2.3rem', fontWeight: 700, color: '#43e97b', marginBottom: '8px', textShadow: '0 2px 12px rgba(67,233,123,0.18)' }}>
-                  R$ {formatCurrencyBr(resumo.valor_total)}
-                </div>
-                <div className="stat-label" style={{ fontSize: '1.1rem', color: '#36a2eb', fontWeight: 500, marginBottom: '4px', letterSpacing: '0.5px' }}>
-                  Valor Total
-                </div>
-                <div className="stat-label" style={{ fontSize: '1rem', color: '#ececec', fontWeight: 500, marginBottom: '2px' }}>
-                  Ticket Médio: <span style={{ color: '#fff', fontWeight: 600 }}>R$ {formatCurrencyBr(resumo.ticket_medio_geral)}</span>
-                </div>
+              <div className="stat-value">
+                R$ {formatCurrencyBr(resumo.valor_total)}
+              </div>
+              <div className="stat-label">
+                Valor Total
+              </div>
+              <div className="stat-label">
+                Ticket Médio: <strong>R$ {formatCurrencyBr(resumo.ticket_medio_geral)}</strong>
               </div>
             </div>
-            <div className="card">
-              <canvas id="graficoCorretor" ref={corretorRef} width="250" height="200"></canvas>
+          </div>
+
+          <div className="vendas-graficos">
+            <div className="card chart-card">
               <div className="card-title">Vendas por corretor</div>
+              <div className="chart-box">
+                <canvas id="graficoCorretor" ref={corretorRef} width="250" height="200"></canvas>
+              </div>
             </div>
-            <div className="card">
-              <canvas id="graficoEvolucao" ref={evolucaoRef} width="250" height="200"></canvas>
+            <div className="card chart-card">
               <div className="card-title">Evolução de vendas</div>
+              <div className="chart-box">
+                <canvas id="graficoEvolucao" ref={evolucaoRef} width="250" height="200"></canvas>
+              </div>
             </div>
           </div>
 
           <div className="sales-table">
             <h3>Últimas vendas e contratos</h3>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Proposta</th>
-                  <th>Data</th>
-                  <th>Corretor</th>
-                  <th>Produto</th>
-                  <th>Valor</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(dados.vendas_detalhadas ?? []).map((venda, i) => (
-                  <tr key={i}>
-                    <td>{show(venda.numero_proposta)}</td>
-                    <td>{show(venda.data_venda)}</td>
-                    <td>{show(venda.corretor_resp)}</td>
-                    <td>{show(venda.tipo_produto)}</td>
-                    <td>R$ {showFloat(venda.valor_venda)}</td>
+            <div className="table-scroll">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Proposta</th>
+                    <th>Data</th>
+                    <th>Corretor</th>
+                    <th>Produto</th>
+                    <th>Valor</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(dados.vendas_detalhadas ?? []).map((venda, i) => (
+                    <tr key={i}>
+                      <td>{show(venda.numero_proposta)}</td>
+                      <td>{show(venda.data_venda)}</td>
+                      <td>{show(venda.corretor_resp)}</td>
+                      <td>{show(venda.tipo_produto)}</td>
+                      <td>R$ {showFloat(venda.valor_venda)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </header>
+      </div>
     </Base1Layout>
   )
 }

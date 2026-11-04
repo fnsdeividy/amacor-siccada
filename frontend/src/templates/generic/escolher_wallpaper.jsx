@@ -9,149 +9,88 @@ import { urlFor } from '../../lib/urlFor.js'
 import { InlineStyle } from '../../lib/useStylesheet.jsx'
 
 const css = `
-
-.btn-home {
-    position: center;
-    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-    transition: all 0.3s ease;
+.wallpaper-chooser-container .header { margin-bottom: var(--space-5); }
+.wallpaper-chooser-container .header p { margin: var(--space-1) 0 0; color: var(--text-muted); }
+.wallpaper-chooser-container .wallpapers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
 }
-.btn-home:hover {
-    transform: translateY(-2px);
-    background: linear-gradient(145deg, #1a2a6c, #36a2eb);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+.wallpaper-chooser-container .wallpaper-item {
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-
-.wallpaper-chooser-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+.wallpaper-chooser-container .wallpaper-item:hover { border-color: var(--brand-600); box-shadow: var(--shadow-lg); }
+.wallpaper-chooser-container .wallpaper-item.selected { border-color: var(--brand-700); box-shadow: 0 0 0 2px var(--brand-700); }
+.wallpaper-chooser-container .wallpaper-preview {
+  position: relative;
+  height: 180px;
+  background-color: var(--gray-100);
+  background-size: cover;
+  background-position: center;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  cursor: zoom-in;
 }
-
-.header {
-    text-align: left;
-    margin-bottom: 30px;
+.wallpaper-chooser-container .wallpaper-selected-badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  color: var(--white);
+  background: var(--brand-700);
 }
-
-.wallpapers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+.wallpaper-chooser-container .wallpaper-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
 }
-
-.wallpaper-item {
-    background: rgba(0, 0, 0, 0.18);;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.wallpaper-chooser-container .wallpaper-info h4 { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wallpaper-chooser-container .no-wallpapers {
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  background: var(--gray-50);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
 }
-
-.wallpaper-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+.wallpaper-chooser-container .no-wallpapers p { margin: 0 0 var(--space-1); }
+.wallpaper-chooser-container .no-wallpapers i { font-size: 32px; color: var(--gray-400); margin-bottom: var(--space-3); }
+.wallpaper-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--gray-950) 88%, transparent);
+  cursor: zoom-out;
 }
-
-.wallpaper-preview {
-    height: 200px;
-    background-size: cover;
-    background-position: center;
-    cursor: pointer;
-    position: relative;
-}
-
-.wallpaper-preview::after {
-    content: '👁️ Visualizar';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.wallpaper-preview:hover::after {
-    opacity: 1;
-}
-
-.wallpaper-info {
-    padding: 15px;
-    text-align: center;
-}
-
-.wallpaper-info h4 {
-    margin: 0 0 10px 0;
-    color: white;
-    font-family: 'Poppins', sans-serif;
-}
-
-.btn-select {
-    background: linear-gradient(135deg, #0a2f68 0%, #1e4a8e 100%);
-    color: white;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-select:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(10, 47, 104, 0.3);
-}
-
-.no-wallpapers {
-    text-align: center;
-    padding: 40px;
-    background: rgba(90, 86, 86, 0.616);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.wallpaper-item.selected {
-    border: 3px solid #0a2f68;
-}
-
-.wallpaper-item.selected .wallpaper-preview::before {
-    content: '✅ Selecionado';
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #0a2f68;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+.wallpaper-lightbox-img {
+  width: 90%;
+  height: 90%;
+  max-width: 1200px;
+  max-height: 800px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 `
 
-// Função para aplicar background
+// Função para aplicar background. O visual novo não mostra papel de parede na
+// moldura: a escolha continua salva (no back e no localStorage), mas não é
+// mais pintada no <body>.
 function applyBackground(fullImageUrl) {
-  const img = new Image()
-  img.src = fullImageUrl
-  img.onload = function () {
-    document.body.style.backgroundImage = `url('${fullImageUrl}')`
-    // Salva no localStorage para persistência
-    try { localStorage.setItem('userBackground', fullImageUrl) } catch { /* sem localStorage */ }
-    console.log('✅ Background aplicado:', fullImageUrl)
-  }
+  // Salva no localStorage para persistência
+  try { localStorage.setItem('userBackground', fullImageUrl) } catch { /* sem localStorage */ }
+  console.log('Background aplicado:', fullImageUrl)
 }
 
-function setWallpaper(filename) {
+function setWallpaper(filename, onSaved) {
   apiFetch(urlFor('generic.set_wallpaper'), {
     method: 'POST',
     headers: {
@@ -164,10 +103,11 @@ function setWallpaper(filename) {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        // 🔥 USA A URL COMPLETA RETORNADA PELA API
+        // USA A URL COMPLETA RETORNADA PELA API
         if (data.background_url) {
           applyBackground(data.background_url)
         }
+        onSaved()
       } else {
         alert('Erro: ' + data.message)
       }
@@ -182,31 +122,44 @@ export default function EscolherWallpaper() {
   const ctx = useTemplateContext()
   // Preview em tela cheia (o overlay que o script criava no <body>)
   const [preview, setPreview] = useState(null)
+  // sem papel de parede na moldura, a escolha salva é marcada no próprio cartão
+  const [salvo, setSalvo] = useState(null)
 
   return (
     <Base1Layout title="Escolher Papel de Parede">
-      <br /><br />
-      <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '10px 20px' }}>
-        <AppLink href={urlFor('auth.fechar')} className="btn-home">🏠 </AppLink>
-      </div>
-      <div className="wallpaper-chooser-container">
-        <div className="header">
-          <br /><br />
-          <h1>Definir papel de parede</h1>
-          <p>Selecione um dos papéis de parede disponíveis no sistema</p>
+      <InlineStyle css={css} />
+      <div className="card wallpaper-chooser-container">
+        <div className="page-toolbar header">
+          <div>
+            <h1>Definir papel de parede</h1>
+            <p>Selecione um dos papéis de parede disponíveis no sistema</p>
+          </div>
+          <div className="page-toolbar-actions">
+            <AppLink href={urlFor('auth.fechar')} className="btn btn-secondary btn-home" title="Início" aria-label="Início">
+              <i className="fa-solid fa-house" aria-hidden="true" />
+            </AppLink>
+          </div>
         </div>
 
         {truthy(ctx.wallpapers) ? (
           <div className="wallpapers-grid">
             {ctx.wallpapers.map((wallpaper, i) => (
-              <div key={i} className="wallpaper-item" data-filename={show(wallpaper.filename)}>
-                <div className="wallpaper-preview"
+              <div key={i} className={'wallpaper-item' + (salvo === show(wallpaper.filename) ? ' selected' : '')}
+                data-filename={show(wallpaper.filename)}>
+                <div className="wallpaper-preview" role="button" tabIndex={0} title="Visualizar"
                   style={{ backgroundImage: `url('${show(wallpaper.url)}')` }}
-                  onClick={() => setPreview(show(wallpaper.url))}>
+                  onClick={() => setPreview(show(wallpaper.url))}
+                  onKeyDown={(e) => { if (e.key === 'Enter') setPreview(show(wallpaper.url)) }}>
+                  {salvo === show(wallpaper.filename) && (
+                    <span className="badge wallpaper-selected-badge">
+                      <i className="fa-solid fa-check me-1" aria-hidden="true" />Selecionado
+                    </span>
+                  )}
                 </div>
                 <div className="wallpaper-info">
                   <h4>{show(wallpaper.name)}</h4>
-                  <button className="btn-select" onClick={() => setWallpaper(show(wallpaper.filename))}>
+                  <button className="btn btn-sm btn-select"
+                    onClick={() => setWallpaper(show(wallpaper.filename), () => setSalvo(show(wallpaper.filename)))}>
                     Selecionar
                   </button>
                 </div>
@@ -215,25 +168,16 @@ export default function EscolherWallpaper() {
           </div>
         ) : (
           <div className="no-wallpapers">
+            <i className="fa-regular fa-image" aria-hidden="true" />
             <p>Nenhum papel de parede disponível no sistema.</p>
             <p><small>Adicione imagens na pasta <code>static/image/system_wallapaper/</code></small></p>
           </div>
         )}
       </div>
 
-      <InlineStyle css={css} />
-
       {preview !== null && (
-        <div onClick={() => setPreview(null)} style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', zIndex: 10000, cursor: 'pointer',
-        }}>
-          <div style={{
-            backgroundImage: `url('${preview}')`, backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat', backgroundPosition: 'center',
-            width: '90%', height: '90%', maxWidth: '1200px', maxHeight: '800px',
-          }} />
+        <div className="wallpaper-lightbox" onClick={() => setPreview(null)}>
+          <div className="wallpaper-lightbox-img" style={{ backgroundImage: `url('${preview}')` }} />
         </div>
       )}
     </Base1Layout>

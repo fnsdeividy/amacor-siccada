@@ -22,27 +22,26 @@ export default function AdicionarCnt() {
     <Base1Layout title="Alterar Cadastro">
       {loading && <Loader />}
       <title>Document</title>
-      <div className="container">
-        {/* Botão de fechar */}
-        <div className="divisoria2">
-          <div className="close-btn-container">
-            <a className="close-btn" href="#" onClick={goBack}>{'<<'}</a>
-          </div>
-          <h1>Proposta {show(ctx.proposta)}</h1>
-          <h3 hidden>id: {id}</h3>
+      <div className="divisoria">
+        <div className="close-btn-container">
+          <a className="close-btn" href="#" onClick={goBack} title="Voltar" aria-label="Voltar">
+            <i className="fa-solid fa-arrow-left" aria-hidden="true" />
+          </a>
+        </div>
+        <h1>Proposta {show(ctx.proposta)}</h1>
+        <h3 hidden>id: {id}</h3>
 
-          <div>
-            <h2>Adicionar numero de contrato à proposta</h2>
-          </div>
+        <h2 className="text-muted" style={{ fontWeight: 500 }}>Adicionar numero de contrato à proposta</h2>
 
-          <ApiForm id="adicionar_cnt" method="POST" action={urlFor('cad.gravar_alteracao', { proposta: ctx.proposta })}
-            onSubmit={() => setLoading(true)} onResult={() => setLoading(false)}>
+        <ApiForm id="adicionar_cnt" method="POST" action={urlFor('cad.gravar_alteracao', { proposta: ctx.proposta })}
+          onSubmit={() => setLoading(true)} onResult={() => setLoading(false)}>
+          <div className="form-group">
             <label htmlFor="status">atribuir contrato:</label>
             <input type="text" id="status" name="status" placeholder="digite o número do contrato" required />
-            <input type="hidden" name="info" value="numero_contrato" />
-            <button className="btn" type="submit">alterar</button>
-          </ApiForm>
-        </div>
+          </div>
+          <input type="hidden" name="info" value="numero_contrato" />
+          <button className="btn" type="submit"><i className="fa-solid fa-check" aria-hidden="true" /> alterar</button>
+        </ApiForm>
       </div>
     </Base1Layout>
   )

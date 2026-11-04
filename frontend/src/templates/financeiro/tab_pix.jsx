@@ -8,7 +8,6 @@ import Base1Layout from '../../layouts/Base1Layout.jsx'
 import { col, show, showFloat } from '../../lib/jinja.js'
 import { useTemplateContext } from '../../lib/page.jsx'
 import { urlFor } from '../../lib/urlFor.js'
-import { useStylesheet } from '../../lib/useStylesheet.jsx'
 
 function statusClass(status) {
   if (status === 'baixado') return 'status-green'
@@ -17,7 +16,6 @@ function statusClass(status) {
 }
 
 export default function TabPix() {
-  useStylesheet('/static/css/tabpix.css')
   const ctx = useTemplateContext()
   const [searchParams] = useSearchParams()
   // o script atualizava o href do botão com o status da URL
@@ -26,24 +24,29 @@ export default function TabPix() {
   return (
     <Base1Layout title="Tabela de Pagamentos">
       <div className="container-tab-pix">
-        {/* Botão de fechar */}
         <div className="filter-tab-pix2">
-          <AppLink className="close-btn" href={urlFor('auth.login_redir')}>✖</AppLink>
+          <AppLink className="close-btn" href={urlFor('auth.login_redir')} title="Fechar" aria-label="Fechar"><i className="fa-solid fa-xmark" aria-hidden="true" /></AppLink>
         </div>
 
-        {/* Título da tabela */}
-        <h1 className="table-title-tab-pix">Tabela de Pagamentos</h1>
+        <div className="page-toolbar">
+          <h1 className="table-title-tab-pix">Tabela de Pagamentos</h1>
+          <div className="page-toolbar-actions">
+            <ApiForm className="filter-tab-pix" method="POST">
+              <AppLink className="btn-tab-pix btn-secondary" href={urlFor('finan.definir')}>
+                <i className="fa-solid fa-filter" aria-hidden="true" /> Filtrar tabela
+              </AppLink>
+            </ApiForm>
+            <AppLink id="export_csv" className="btn-tab-pix" href={urlFor('finan.exportar_csv', { status: filtroStatus })}>
+              <i className="fa-solid fa-file-arrow-down" aria-hidden="true" /> Exportar CSV
+            </AppLink>
+          </div>
+        </div>
 
-        <ApiForm className="filter-tab-pix" method="POST">
-          <AppLink className="btn-tab-pix" href={urlFor('finan.definir')}>Filtrar tabela</AppLink>
-        </ApiForm>
-        <ApiForm method="get" action={urlFor('finan.tab')} style={{ display: 'flex', gap: '8px', background: '#23272f00', padding: '12px 24px', borderRadius: '8px' }}>
-          <input type="text" name="buscar" placeholder="Buscar por Contrato" defaultValue={searchParams.get('buscar') ?? ''}
-            style={{ padding: '8px 12px', border: '1px solid #bbb', borderRadius: '4px', minWidth: '220px', fontSize: '15px', background: '#fff', color: '#222' }} />
-          <button className="btn" type="submit">Buscar</button>
+        <ApiForm method="get" action={urlFor('finan.tab')} className="search-bar-wrapper">
+          <input type="text" name="buscar" placeholder="Buscar por Contrato" defaultValue={searchParams.get('buscar') ?? ''} />
+          <button className="btn" type="submit"><i className="fa-solid fa-magnifying-glass" aria-hidden="true" /> Buscar</button>
         </ApiForm>
 
-        {/* Tabela de pagamentos */}
         <div className="table-container-tab-pix">
           <table className="table-tab-pix">
             <thead>
@@ -59,7 +62,6 @@ export default function TabPix() {
                 <th>Descrição</th>
                 <th>Tipo de Lançamento</th>
                 <th>Atendente</th>
-
               </tr>
             </thead>
             <tbody>
@@ -93,11 +95,6 @@ export default function TabPix() {
         </div>
       </div>
 
-      {/* Botões de ação */}
-      <div className="action-buttons-tab-pix">
-        <AppLink id="export_csv" className="btn-tab-pix" href={urlFor('finan.exportar_csv', { status: filtroStatus })}>Exportar CSV</AppLink>
-
-      </div>
     </Base1Layout>
   )
 }

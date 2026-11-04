@@ -3,7 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import ApiForm from '../../../components/ApiForm.jsx'
 import Base1Layout from '../../../layouts/Base1Layout.jsx'
 import { useTemplateContext } from '../../../lib/page.jsx'
+import { InlineStyle } from '../../../lib/useStylesheet.jsx'
 import { urlFor } from '../../../lib/urlFor.js'
+
+const css = `
+.comprovante-anexar { max-width: 560px; margin: 0 auto; }
+.comprovante-anexar .page-toolbar h1 { font-size: var(--text-lg); }
+`
 
 export default function Comprovante() {
   const ctx = useTemplateContext()
@@ -22,16 +28,24 @@ export default function Comprovante() {
 
   return (
     <Base1Layout title="Anexar Comprovante">
+      <InlineStyle css={css} />
       <div className="container">
-        <div className="divisoria2">
+        <div className="card divisoria2 comprovante-anexar">
           <div className="close-btn-container">
-            <a className="close-btn" href="javascript:void(0);" onClick={(e) => { e.preventDefault(); goBack() }}>{'<'}</a>
+            <a className="close-btn" href="javascript:void(0);" title="Voltar" aria-label="Voltar"
+              onClick={(e) => { e.preventDefault(); goBack() }}>
+              <i className="fa-solid fa-arrow-left" aria-hidden="true" />
+            </a>
           </div>
-          <h1>Anexar Comrpovante de pagamento</h1>
+          <div className="page-toolbar">
+            <h1>Anexar Comrpovante de pagamento</h1>
+          </div>
           <ApiForm action={urlFor('finan.receber_comprovante', { pagamento_id: ctx.pagamento_id })} method="POST" encType="multipart/form-data">
-            <label htmlFor="arquivos">Selecione os documentos para upload:</label>
-            <input type="file" name="comprovante" id="comprovante" multiple required />
-            <button type="submit">Enviar</button>
+            <div className="form-group">
+              <label htmlFor="arquivos">Selecione os documentos para upload:</label>
+              <input type="file" name="comprovante" id="comprovante" multiple required />
+            </div>
+            <button type="submit"><i className="fa-solid fa-upload" aria-hidden="true" /> Enviar</button>
           </ApiForm>
         </div>
       </div>

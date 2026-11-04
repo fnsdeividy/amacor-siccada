@@ -5,10 +5,8 @@ import Base1Layout from '../../layouts/Base1Layout.jsx'
 import { show, showFloat, truthy } from '../../lib/jinja.js'
 import { useTemplateContext } from '../../lib/page.jsx'
 import { urlFor } from '../../lib/urlFor.js'
-import { useStylesheet } from '../../lib/useStylesheet.jsx'
 
 export default function Relatorio() {
-  useStylesheet('/static/css/tabpix.css')
   const ctx = useTemplateContext()
   const dados = ctx.dados ?? []
   return (
@@ -16,14 +14,19 @@ export default function Relatorio() {
       <div className="container-tab-pix">
 
         <div className="filter-tab-pix2">
-          <AppLink className="close-btn" href={urlFor('auth.fechar')}>✖</AppLink>
+          <AppLink className="close-btn" href={urlFor('auth.fechar')} title="Fechar" aria-label="Fechar"><i className="fa-solid fa-xmark" aria-hidden="true" /></AppLink>
         </div>
 
-        <h1 className="table-title-tab-pix">Tabela de Pagamentos</h1>
-
-        <ApiForm className="filter-tab-pix" method="POST">
-          <AppLink download href={urlFor('gerencial.download_relatorio')} className="btn-tab-pix">Exportar CSV</AppLink>
-        </ApiForm>
+        <div className="page-toolbar">
+          <h1 className="table-title-tab-pix">Tabela de Pagamentos</h1>
+          <div className="page-toolbar-actions">
+            <ApiForm className="filter-tab-pix" method="POST">
+              <AppLink download href={urlFor('gerencial.download_relatorio')} className="btn-tab-pix">
+                <i className="fa-solid fa-file-arrow-down" aria-hidden="true" /> Exportar CSV
+              </AppLink>
+            </ApiForm>
+          </div>
+        </div>
 
         <div className="table-container-tab-pix">
           <table>
@@ -71,10 +74,12 @@ export default function Relatorio() {
             </tbody>
           </table>
         </div>
-      </div>
 
-      <div className="action-buttons-tab-pix">
-        <AppLink download href={urlFor('gerencial.download_relatorio')} className="btn-tab-pix">Exportar CSV</AppLink>
+        <div className="action-buttons-tab-pix">
+          <AppLink download href={urlFor('gerencial.download_relatorio')} className="btn-tab-pix btn-secondary">
+            <i className="fa-solid fa-file-arrow-down" aria-hidden="true" /> Exportar CSV
+          </AppLink>
+        </div>
       </div>
     </Base1Layout>
   )

@@ -1,6 +1,5 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import Loader from './components/Loader.jsx'
 import { apiRequest, toAppPath } from './lib/api.js'
 import { PageContext } from './lib/page.jsx'
 import { componentFor } from './templates/registry.js'
@@ -55,11 +54,11 @@ export default function PageView() {
     show,
   }), [result, show])
 
-  if (!result) return <Loader />
+  if (!result) return <div className="page-loading" role="progressbar" aria-label="Carregando" />
 
   return (
     <PageContext.Provider value={value}>
-      {loading && <Loader overlay />}
+      {loading && <div className="page-loading" role="progressbar" aria-label="Carregando" />}
       <PageBody result={result} />
     </PageContext.Provider>
   )
@@ -72,7 +71,7 @@ function PageBody({ result }) {
       return <ErrorBox title="Tela ainda não portada" detail={`Template ${result.template}`} />
     }
     return (
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={<div className="page-loading" role="progressbar" aria-label="Carregando" />}>
         <Component />
       </Suspense>
     )

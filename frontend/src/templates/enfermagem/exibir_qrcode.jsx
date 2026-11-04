@@ -5,7 +5,7 @@ import { show } from '../../lib/jinja.js'
 import { useTemplateContext } from '../../lib/page.jsx'
 import { urlFor } from '../../lib/urlFor.js'
 import { InlineStyle, useStylesheet } from '../../lib/useStylesheet.jsx'
-import { cssExibirQrcode } from './estilos.js'
+import { cssExibirQrcode, cssPublica } from './estilos.js'
 import { useDocumentTitle } from './util.js'
 
 // Detectar dispositivo móvel
@@ -16,8 +16,8 @@ function isMobileDevice() {
 export default function ExibirQrcode() {
   const ctx = useTemplateContext()
   useDocumentTitle('QR Code para Declaração')
+  // Bootstrap mantido (grade e modal); cores e tipografia vêm dos tokens
   useStylesheet('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
-  useStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css')
 
   const cpf = show(ctx.cpf)
   const url = show(ctx.url)
@@ -39,7 +39,7 @@ export default function ExibirQrcode() {
         restante--
         timer = setTimeout(updateCountdown, 1000)
       } else {
-        setCountdown({ texto: 'QR Code expirado', color: '#dc3545' })
+        setCountdown({ texto: 'QR Code expirado', expirado: true })
       }
     }
     updateCountdown()
@@ -108,20 +108,21 @@ export default function ExibirQrcode() {
   }
 
   return (
-    <>
+    <div className="enf-publica enf-qrcode">
+      <InlineStyle css={cssPublica} />
       <InlineStyle css={cssExibirQrcode} />
       <div className="container">
-        <div className="qr-container">
+        <div className="qr-container enf-cartao">
           {/* Cabeçalho */}
           <div className="header">
-            <h1><i className="fas fa-qrcode me-2"></i>QR Code para Acesso</h1>
-            <span className="badge"><i className="fas fa-user me-1"></i> CPF: {cpf}</span>
+            <h1><i className="fa-solid fa-qrcode me-2" aria-hidden="true"></i>QR Code para Acesso</h1>
+            <span className="badge"><i className="fa-solid fa-user me-1" aria-hidden="true"></i> CPF: {cpf}</span>
             <p className="text-muted mt-2">Escaneie com a câmera do seu celular</p>
           </div>
 
           {/* Informações do Paciente */}
           <div className="info-card">
-            <h5><i className="fas fa-info-circle"></i> Informações</h5>
+            <h5><i className="fa-solid fa-circle-info" aria-hidden="true"></i> Informações</h5>
             <ul>
               <li><strong>CPF do Paciente:</strong> {cpf}</li>
               <li><strong>Data de Geração:</strong> {show(ctx.timestamp)}</li>
@@ -130,14 +131,13 @@ export default function ExibirQrcode() {
           </div>
 
           {/* QR Code Display */}
-          <div className="qrcode-display qr-animation">
+          <div className="qrcode-display">
             <img src={`data:image/png;base64,${show(ctx.qrcode_base64)}`}
               alt="QR Code para declaração do paciente"
               id="qrcodeImage" ref={imgRef} />
-            <div className="countdown" id="countdown"
-              style={countdown?.color ? { color: countdown.color } : undefined}>{countdown?.texto}</div>
+            <div className={'countdown' + (countdown?.expirado ? ' expirado' : '')} id="countdown">{countdown?.texto}</div>
             <p className="mt-3 text-muted">
-              <i className="fas fa-mobile-alt me-2"></i>
+              <i className="fa-solid fa-mobile-screen me-2" aria-hidden="true"></i>
               Aponte a câmera do celular para o código acima
             </p>
           </div>
@@ -146,11 +146,11 @@ export default function ExibirQrcode() {
           <div className="url-display">
             <div className="d-flex justify-content-between align-items-center">
               <div>
-                <i className="fas fa-link me-2 text-primary"></i>
+                <i className="fa-solid fa-link me-2 text-primary" aria-hidden="true"></i>
                 <strong>URL para acesso manual:</strong>
               </div>
               <button className="btn btn-sm btn-outline-primary" onClick={copiarURL}>
-                <i className="fas fa-copy"></i> Copiar
+                <i className="fa-solid fa-copy" aria-hidden="true"></i> Copiar
               </button>
             </div>
             <div className="mt-2" id="urlText" ref={urlRef}>{url}</div>
@@ -159,8 +159,8 @@ export default function ExibirQrcode() {
           {/* Instruções */}
           <div className="instruction-box">
             {mobile
-              ? <h4><i className="fas fa-mobile-alt me-2"></i> Como escanear no seu celular</h4>
-              : <h4><i className="fas fa-graduation-cap me-2"></i> Como escanear o QR Code</h4>}
+              ? <h4><i className="fa-solid fa-mobile-screen me-2" aria-hidden="true"></i> Como escanear no seu celular</h4>
+              : <h4><i className="fa-solid fa-graduation-cap me-2" aria-hidden="true"></i> Como escanear o QR Code</h4>}
 
             <div className="step">
               <div className="step-number">1</div>
@@ -196,29 +196,29 @@ export default function ExibirQrcode() {
           </div>
 
           {/* Botões de ação */}
-          <div className="text-center mt-4">
+          <div className="enf-acoes">
             <button className="btn-action" onClick={abrirNoCelular}>
-              <i className="fas fa-mobile-alt"></i> Abrir no Celular
+              <i className="fa-solid fa-mobile-screen" aria-hidden="true"></i> Abrir no Celular
             </button>
 
             <button className="btn-action" onClick={imprimirQRCode}>
-              <i className="fas fa-print"></i> Imprimir
+              <i className="fa-solid fa-print" aria-hidden="true"></i> Imprimir
             </button>
 
             <button className="btn-action" onClick={compartilharQRCode}>
-              <i className="fas fa-share-alt"></i> Compartilhar
+              <i className="fa-solid fa-share-nodes" aria-hidden="true"></i> Compartilhar
             </button>
 
-            <AppLink href={urlFor('enfermagem.declaracao', { cpf })} target="_blank" className="btn-action">
-              <i className="fas fa-external-link-alt"></i> Acessar Agora
+            <AppLink href={urlFor('enfermagem.declaracao', { cpf })} target="_blank" className="btn-action btn-action-principal">
+              <i className="fa-solid fa-up-right-from-square" aria-hidden="true"></i> Acessar Agora
             </AppLink>
           </div>
 
           {/* Alternativas */}
-          <div className="mt-4 text-center">
+          <div className="enf-alternativas">
             <p className="text-muted">
               <small>
-                <i className="fas fa-exclamation-circle me-1"></i>
+                <i className="fa-solid fa-circle-exclamation me-1" aria-hidden="true"></i>
                 Problemas com o QR Code?{' '}
                 <a href="#" onClick={mostrarAlternativas}>Clique aqui para alternativas</a>
               </small>
@@ -226,7 +226,7 @@ export default function ExibirQrcode() {
 
             <div id="alternativas" style={{ display: alternativas ? 'block' : 'none' }}>
               <div className="alert alert-info mt-2">
-                <h6><i className="fas fa-sync-alt me-2"></i> Alternativas de acesso:</h6>
+                <h6><i className="fa-solid fa-rotate me-2" aria-hidden="true"></i> Alternativas de acesso:</h6>
                 <ol className="mb-0">
                   <li>Copie e cole a URL acima no navegador</li>
                   <li>Use um aplicativo leitor de QR Code</li>
@@ -239,28 +239,28 @@ export default function ExibirQrcode() {
       </div>
 
       {/* Modal para download (nenhum controle da página o abre) */}
-      <div className="modal fade" id="downloadModal" tabIndex="-1">
+      <div className="modal fade enf-qrcode-modal" id="downloadModal" tabIndex="-1">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title"><i className="fas fa-download me-2"></i>Download do QR Code</h5>
+              <h5 className="modal-title"><i className="fa-solid fa-download me-2" aria-hidden="true"></i>Download do QR Code</h5>
               <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div className="modal-body text-center">
               <p>Escolha o formato para download:</p>
               <button className="btn btn-primary m-2" onClick={() => downloadQRCode('png')}>
-                <i className="fas fa-image"></i> PNG
+                <i className="fa-solid fa-image" aria-hidden="true"></i> PNG
               </button>
               <button className="btn btn-success m-2" onClick={() => downloadQRCode('svg')}>
-                <i className="fas fa-vector-square"></i> SVG
+                <i className="fa-solid fa-vector-square" aria-hidden="true"></i> SVG
               </button>
               <button className="btn btn-info m-2" onClick={() => downloadQRCode('pdf')}>
-                <i className="fas fa-file-pdf"></i> PDF
+                <i className="fa-solid fa-file-pdf" aria-hidden="true"></i> PDF
               </button>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

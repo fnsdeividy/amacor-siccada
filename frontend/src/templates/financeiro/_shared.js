@@ -1,57 +1,44 @@
-// CSS inline comum a alt_page.html e cancelar_boleto.html (copiado sem alterar).
+// CSS comum a alt_page.html e cancelar_boleto.html (visual novo).
+// Prefixado por .pagamento-edit (classe das duas telas) para não vazar
+// para o resto do app — o original estilizava `select` e `.btn` globais.
 export const pagamentoCss = `
-.titulo-pagamento {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.6em;
-    letter-spacing: 0.5px;
+.pagamento-edit { max-width: 600px; margin: 0 auto; }
+.pagamento-edit .titulo-pagamento {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  font-size: var(--text-xl);
 }
-
-.form-pagamento {
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
+.pagamento-edit .titulo-pagamento i { color: var(--brand-700); }
+.pagamento-edit .form-pagamento {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
 }
-
-.info-pagamento p {
-    margin: 4px 0;
-    font-size: 1em;
-    line-height: 1.4;
+.pagamento-edit .info-pagamento {
+  padding: var(--space-2) var(--space-4);
+  background: var(--gray-50);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
-
-.campo-status {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.pagamento-edit .info-pagamento p {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-2) 0;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
 }
-
-select {
-    padding: 8px 10px;
-    border-radius: 8px;
-    border: none;
-    font-size: 1em;
-}
-
-.acoes-form {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.btn,
-.btn-cancela {
-    padding: 10px 20px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.2s ease;
-}
-
-.btn:hover,
-.btn-cancela:hover {
-    transform: scale(1.05);
+.pagamento-edit .info-pagamento p:last-child { border-bottom: 0; }
+.pagamento-edit .info-pagamento strong { color: var(--text-muted); font-weight: 500; }
+.pagamento-edit .campo-status select { margin-bottom: 0; }
+.pagamento-edit .acoes-form {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
 }
 `

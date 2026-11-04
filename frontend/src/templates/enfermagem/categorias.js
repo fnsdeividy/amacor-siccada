@@ -43,7 +43,7 @@ export const CATEGORIAS = [
   },
   {
     counter: 3,
-    icon: "fas fa-stomach",
+    icon: "fas fa-bowl-food",
     title: "Doenças do Aparelho Digestivo",
     key: "digestivo",
     pergunta: "Sofre de alguma doença do aparelho digestivo?",

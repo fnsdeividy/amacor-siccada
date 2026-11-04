@@ -8,40 +8,34 @@ import { urlFor } from '../../lib/urlFor.js'
 import { InlineStyle } from '../../lib/useStylesheet.jsx'
 
 const css = `
-/* Tabs header styling: aparência de cabeçalho no topo */
-.tabs{
-    display:flex;
-    gap:150px;
-    margin:0 0 12px 0;
-    width:100%;
-    justify-content:center;
-    padding:10px 12px;
-   
-    position:sticky;
-    top:0;
-    z-index:20;
-    box-shadow:0 2px 6px rgba(0,0,0,0.06);
-    border-bottom:1px solid #e6e6e6;
-    align-items:center;
+.filtro-pagamentos { max-width: 720px; }
+.filtro-pagamentos .tab-panel { display: none; }
+.filtro-pagamentos .tab-panel.active { display: block; }
+.filtro-pagamentos .filter-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
 }
-.tabb-btn{
-    padding:10px 18px;
-    border:1px solid transparent;
-    background:#f3f3f379;
-    cursor:pointer;
-    border-radius:6px;
-    font-weight:600;
-    color:#333;
+.filtro-pagamentos .filter-header .close-btn-container { position: static; }
+.filtro-pagamentos .filter-title { display: flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-1); }
+.filtro-pagamentos .filter-title i { color: var(--brand-700); }
+.filtro-pagamentos .filter-subtitle { color: var(--text-muted); margin: 0; }
+.filtro-pagamentos .filtro-secao {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
-.tabb-btn.active{
-    background:#599ee9b2;
-    color:#fff;
-    
-    box-shadow:0 1px 0 rgba(0,0,0,0.04);
+.filtro-pagamentos .filtro-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
 }
-.tab-panel{display:none}
-.tab-panel.active{display:block}
-.filter-container .date-input{display:block;margin-bottom:8px}
 `
 
 export default function Definir() {
@@ -52,7 +46,8 @@ export default function Definir() {
 
   return (
     <WindowLayout title=" Filtragem de Pagamentos ">
-      <div className="filter-tabs">
+      <InlineStyle css={css} />
+      <div className="filter-tabs filtro-pagamentos">
         {ctx.tipo_usuario === 'supervisor' && (
           <div className="tabs">
             <button type="button" className={btn('geral')} data-tab="geral" onClick={() => setTab('geral')}>Geral</button>
@@ -65,51 +60,67 @@ export default function Definir() {
 
           <div className="filter-header">
             <div className="close-btn-container">
-              <AppLink href={urlFor('finan.tab')} className="close-btn">
-                <i className="fas fa-times"></i>
+              <AppLink href={urlFor('finan.tab')} className="close-btn" title="Voltar" aria-label="Voltar">
+                <i className="fa-solid fa-arrow-left" aria-hidden="true"></i>
               </AppLink>
             </div>
-            <h1 className="filter-title">
-              <i className="fas fa-filter"></i>
-              Filtragem de Pagamentos
-            </h1>
-            <p className="filter-subtitle">Selecione os critérios para filtrar os pagamentos</p>
+            <div>
+              <h1 className="filter-title">
+                <i className="fa-solid fa-filter" aria-hidden="true"></i>
+                Filtragem de Pagamentos
+              </h1>
+              <p className="filter-subtitle">Selecione os critérios para filtrar os pagamentos</p>
+            </div>
           </div>
 
           <div className="tab-content">
             <div id="geral" className={panel('geral')}>
               <ApiForm method="GET" action={urlFor('finan.tab')}>
-                <label htmlFor="data_inicio">Data de Início:</label>
-                <input type="date" id="data_inicio" name="data_inicio" className="date-input" />
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="data_inicio">Data de Início:</label>
+                    <input type="date" id="data_inicio" name="data_inicio" className="date-input" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="data_fim">Data de Fim:</label>
+                    <input type="date" id="data_fim" name="data_fim" className="date-input" />
+                  </div>
+                </div>
 
-                <label htmlFor="data_fim">Data de Fim:</label>
-                <input type="date" id="data_fim" name="data_fim" className="date-input" />
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="metodo_pagamento">Método de Pagamento:</label>
+                    <select id="metodo_pagamento" name="metodo_pagamento">
+                      <option value="">Todos</option>
+                      <option value="cartao">Cartão</option>
+                      <option value="boleto">Boleto</option>
+                      <option value="PIX">Pix</option>
+                    </select>
+                  </div>
 
-                <label htmlFor="metodo_pagamento">Método de Pagamento:</label>
-                <select id="metodo_pagamento" name="metodo_pagamento">
-                  <option value="">Todos</option>
-                  <option value="cartao">Cartão</option>
-                  <option value="boleto">Boleto</option>
-                  <option value="PIX">Pix</option>
-                </select>
+                  <div className="form-group">
+                    <label htmlFor="tipo_lancamento">Tipo de lançamento</label>
+                    <select name="tipo_lancamento" id="tipo_lancamento">
+                      <option value="">Todos</option>
+                      <option value="adesao">Adesão</option>
+                      <option value="mensalidade">Mensalidade</option>
+                    </select>
+                  </div>
 
-                <label htmlFor="tipo_lancamento">Tipo de lançamento</label>
-                <select name="tipo_lancamento" id="tipo_lancamento">
-                  <option value="">Todos</option>
-                  <option value="adesao">Adesão</option>
-                  <option value="mensalidade">Mensalidade</option>
-                </select>
+                  <div className="form-group">
+                    <label htmlFor="status">Status:</label>
+                    <select id="status" name="status">
+                      <option value="">Todos</option>
+                      <option value="efetuado">Efetuado</option>
+                      <option value="baixado">Baixado</option>
+                      <option value="cancelado">Cancelado</option>
+                    </select>
+                  </div>
+                </div>
 
-                <label htmlFor="status">Status:</label>
-                <select id="status" name="status">
-                  <option value="">Todos</option>
-                  <option value="efetuado">Efetuado</option>
-                  <option value="baixado">Baixado</option>
-                  <option value="cancelado">Cancelado</option>
-                </select>
-
-                <br /><br />
-                <button className="btn" type="submit">Filtrar</button>
+                <div className="filtro-acoes">
+                  <button className="btn" type="submit"><i className="fa-solid fa-filter" aria-hidden="true" /> Filtrar</button>
+                </div>
               </ApiForm>
             </div>
 
@@ -117,22 +128,26 @@ export default function Definir() {
               <ApiForm method="GET" action={urlFor('finan.tab')}>
                 {/* Campos específicos; por padrão duplicam os campos principais. Ajuste conforme necessário. */}
 
-                <h3 htmlFor="data_quitacao">Data de quitação:</h3>
-                <label htmlFor="dt_qtc">inicial</label>
-                <input type="date" id="data_quitacao_inicial" name="data_quitacao_inicial" className="date-input" />
-                <label htmlFor="dt_qtc">final</label>
+                <h3 className="filtro-secao" htmlFor="data_quitacao">Data de quitação:</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="dt_qtc">inicial</label>
+                    <input type="date" id="data_quitacao_inicial" name="data_quitacao_inicial" className="date-input" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="dt_qtc">final</label>
+                    <input type="date" id="data_quitacao_final" name="data_quitacao_final" className="date-input" />
+                  </div>
+                </div>
 
-                <input type="date" id="data_quitacao_final" name="data_quitacao_final" className="date-input" />
-
-                <br /><br />
-                <button className="btn" type="submit">Filtrar Específico</button>
+                <div className="filtro-acoes">
+                  <button className="btn" type="submit"><i className="fa-solid fa-filter" aria-hidden="true" /> Filtrar Específico</button>
+                </div>
               </ApiForm>
             </div>
           </div>
         </div>
       </div>
-
-      <InlineStyle css={css} />
     </WindowLayout>
   )
 }

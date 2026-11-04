@@ -3,7 +3,8 @@
  *
  * Para cada snapshot capturado do back (HTML que o Flask gerou + JSON do
  * modo API para a mesma rota e usuário), renderiza o componente React do
- * template com os mesmos dados e compara:
+ * template com os mesmos dados e compara o conteúdo da tela (a moldura —
+ * menu, cabeçalho, perfil — foi redesenhada e fica de fora):
  *   - o texto visível (palavras e símbolos, ignorando espaços);
  *   - os campos de formulário (name, tipo, valor, marcado).
  *
@@ -39,13 +40,22 @@ function loadSnapshots() {
     .filter((s) => !ONLY || s.api.template.trim().replace(/\.html$/i, '') === ONLY)
 }
 
-function parse(html) {
+// Moldura do sistema (menu, cabeçalho, perfil, loader, botão de fechar a
+// janela). Ela foi redesenhada no front, então fica fora da comparação; o
+// que se compara é o conteúdo de cada tela.
+const FLASK_CHROME = 'nav.navbar, .sidebar, #profileModal, #loader, .close-btn-container'
+const REACT_CHROME = '[data-chrome], .close-btn-container'
+
+function parse(html, chrome) {
   const doc = new DOMParser().parseFromString(html, 'text/html')
   doc.querySelectorAll('script, style, noscript, template').forEach((el) => el.remove())
+  if (chrome) doc.querySelectorAll(chrome).forEach((el) => el.remove())
   return doc
 }
 
 const TOKEN = /[\p{L}\p{N}]+|[^\s\p{L}\p{N}]/gu
+// emojis são decoração (no visual novo viram ícones): ficam fora da comparação
+const EMOJI = /[\p{Extended_Pictographic}\u{FE0F}\u{200D}\u{1F3FB}-\u{1F3FF}]/gu
 
 export function textTokens(doc) {
   // texto de cada nó separado: no JSX não há as quebras de linha do HTML
@@ -54,7 +64,7 @@ export function textTokens(doc) {
   const walker = doc.createTreeWalker(doc.body, 4 /* NodeFilter.SHOW_TEXT */)
   const parts = []
   for (let node = walker.nextNode(); node; node = walker.nextNode()) parts.push(node.nodeValue)
-  return parts.join(' ').match(TOKEN) ?? []
+  return parts.join(' ').replace(EMOJI, ' ').match(TOKEN) ?? []
 }
 
 export function formFields(doc) {
@@ -115,8 +125,8 @@ describe.skipIf(snapshots.length === 0)('equivalência com o HTML do Flask', () 
     it(label, () => {
       const html = renderTemplate(snap)
       expect(html, `componente src/templates/${snap.api.template.trim().replace(/\.html$/, '.jsx')} não existe`).not.toBeNull()
-      const flask = parse(snap.html)
-      const react = parse(html)
+      const flask = parse(snap.html, FLASK_CHROME)
+      const react = parse(html, REACT_CHROME)
       // o alerta de flash: no Flask o texto é posto por script depois de
       // carregar (por isso não está no HTML); no React já vem renderizado.
       // Compara à parte: deve mostrar a primeira mensagem, como o script.

@@ -97,37 +97,35 @@ export default function AlterarCnt() {
     <Base1Layout title="Alterar Situação de contrato">
       {loading && <Loader />}
       <title>Document</title>
-      <div className="container">
-        {/* Botão de fechar */}
-        <div className="divisoria2">
-          <div className="close-btn-container">
-            <a className="close-btn" href="#" onClick={goBack}>{'<'}</a>
-          </div>
-          <h1>Proposta: {show(ctx.proposta)}</h1>
-          <h3>contrato: {show(ctx.contrato)}</h3>
-          <h3 hidden>id: {show(ctx.id)}</h3>
-          <p>Área: {show(area)}</p>
-          <p hidden>ultimo responsavel:{show(lastResp)}</p>
+      <div className="divisoria">
+        <div className="close-btn-container">
+          <a className="close-btn" href="#" onClick={goBack} title="Voltar" aria-label="Voltar">
+            <i className="fa-solid fa-arrow-left" aria-hidden="true" />
+          </a>
+        </div>
+        <h1>Proposta: {show(ctx.proposta)}</h1>
+        <h3 className="text-muted" style={{ fontWeight: 500 }}>contrato: {show(ctx.contrato)}</h3>
+        <h3 hidden>id: {show(ctx.id)}</h3>
+        <p><span className="badge">Área: {show(area)}</span></p>
+        <p hidden>ultimo responsavel:{show(lastResp)}</p>
 
-          <br />
-          <div>
-            <h2>mudar situação do contrato para:</h2>
-          </div>
+        <hr />
+        <h2>mudar situação do contrato para:</h2>
 
-          <div className="form-field">
-            <ApiForm id="form-alterar-cnt" method="POST" action={urlFor('cad.gravar_alteracao', { proposta: ctx.proposta })}
-              onSubmit={() => setLoading(true)} onResult={() => setLoading(false)}>
-              <label htmlFor="status"></label>
-              <select id="status" name="status" required defaultValue="">
-                <option value="" disabled>selecione</option>
-                {opcoes}
-              </select>
-              {complemento && <Complemento />}
-              <input type="hidden" name="info" value="status" />
-              <br /><br />
-              <button className="btn" id="botao" type="submit">alterar</button>
-            </ApiForm>
-          </div>
+        <div className="form-field">
+          <ApiForm id="form-alterar-cnt" method="POST" action={urlFor('cad.gravar_alteracao', { proposta: ctx.proposta })}
+            onSubmit={() => setLoading(true)} onResult={() => setLoading(false)}>
+            <label htmlFor="status"></label>
+            <select id="status" name="status" required defaultValue="">
+              <option value="" disabled>selecione</option>
+              {opcoes}
+            </select>
+            {complemento && <Complemento />}
+            <input type="hidden" name="info" value="status" />
+            <button className="btn" id="botao" type="submit" style={{ marginTop: '8px' }}>
+              <i className="fa-solid fa-check" aria-hidden="true" /> alterar
+            </button>
+          </ApiForm>
         </div>
       </div>
     </Base1Layout>

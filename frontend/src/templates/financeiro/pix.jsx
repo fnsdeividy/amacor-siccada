@@ -4,17 +4,33 @@ import ApiForm from '../../components/ApiForm.jsx'
 import AppLink from '../../components/AppLink.jsx'
 import Base1Layout from '../../layouts/Base1Layout.jsx'
 import { urlFor } from '../../lib/urlFor.js'
+import { InlineStyle } from '../../lib/useStylesheet.jsx'
+
+const css = `
+.pix-lancamento { max-width: 720px; margin: 0 auto; }
+.pix-lancamento .payment-form > .form-row { margin-bottom: 0; }
+.pix-lancamento .pix-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+`
 
 export default function Pix() {
   return (
     <Base1Layout title="Lançamento de Pagamento">
+      <InlineStyle css={css} />
       <div className="container">
-        <div className="divisoria2">
+        <div className="card divisoria2 pix-lancamento">
 
           <div className="close-btn-container">
-            <AppLink href={urlFor('auth.fechar')} className="close-btn">✖</AppLink>
+            <AppLink href={urlFor('auth.fechar')} className="close-btn" title="Fechar" aria-label="Fechar"><i className="fa-solid fa-xmark" aria-hidden="true" /></AppLink>
           </div>
-          <h1>Lançamento de Pagamento</h1>
+          <div className="page-toolbar">
+            <h1>Lançamento de Pagamento</h1>
+          </div>
           <ApiForm method="POST" action={urlFor('finan.pix')} className="payment-form">
             <div className="form-group">
               <label htmlFor="ncontrato">Contrato:</label>
@@ -71,7 +87,9 @@ export default function Pix() {
                 </select>
               </div>
 
-              <button className="btn" type="submit">Cadastrar</button>
+              <div className="pix-acoes">
+                <button className="btn" type="submit"><i className="fa-solid fa-check" aria-hidden="true" /> Cadastrar</button>
+              </div>
             </div>
           </ApiForm>
         </div>

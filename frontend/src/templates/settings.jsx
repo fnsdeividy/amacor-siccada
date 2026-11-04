@@ -4,8 +4,10 @@ import BaseLayout from '../layouts/BaseLayout.jsx'
 export default function Settings() {
   return (
     <BaseLayout title="Configurações">
-      <h1>Configurações</h1>
-      <p>Aqui você pode ajustar as configurações da sua conta.</p>
+      <div className="card">
+        <h1>Configurações</h1>
+        <p className="mb-0">Aqui você pode ajustar as configurações da sua conta.</p>
+      </div>
     </BaseLayout>
   )
 }

@@ -6,21 +6,21 @@ import Base1Layout from '../../layouts/Base1Layout.jsx'
 import { col, show } from '../../lib/jinja.js'
 import { useTemplateContext } from '../../lib/page.jsx'
 import { urlFor } from '../../lib/urlFor.js'
-import { useStylesheet } from '../../lib/useStylesheet.jsx'
 
 export default function RelatorioBoletosCancelados() {
-  useStylesheet('/static/css/tabpix.css')
   const ctx = useTemplateContext()
   return (
     <Base1Layout title="Tabela de dados">
       <div className="container-tab-pix">
         {/* Botão de fechar */}
         <div className="filter-tab-pix2">
-          <AppLink className="close-btn" href={urlFor('auth.login_redir')}>✖</AppLink>
+          <AppLink className="close-btn" href={urlFor('auth.login_redir')} title="Fechar" aria-label="Fechar"><i className="fa-solid fa-xmark" aria-hidden="true" /></AppLink>
         </div>
 
         {/* Título da tabela */}
-        <h1 className="table-title-tab-pix">Boletos para cancelamento</h1>
+        <div className="page-toolbar">
+          <h1 className="table-title-tab-pix">Boletos para cancelamento</h1>
+        </div>
 
         {/* Tabela de pagamentos */}
         <div className="table-container-tab-pix">
