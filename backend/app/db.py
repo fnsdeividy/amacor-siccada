@@ -65,6 +65,9 @@ def _original_colnames(conn):
                     mapping = dict(cur.fetchall())
         except psycopg.Error:
             pass
+        # banco ainda vazio (antes da migração): não guarda, tenta de novo depois
+        if not mapping:
+            return mapping
         _colnames_cache = mapping
     return _colnames_cache
 
@@ -389,6 +392,8 @@ def _rowid_columns(conn):
                     cache = dict(cur.fetchall())
         except psycopg.Error:
             pass
+        if not cache:
+            return cache  # banco ainda vazio: tenta de novo depois
         _rowid_cache = cache
     return _rowid_cache
 
