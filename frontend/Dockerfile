@@ -10,5 +10,7 @@ FROM nginx:1.27-alpine
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 ENV PORT=80
+# exporta NGINX_LOCAL_RESOLVERS (DNS do container) para o template
+ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1
 ENV BACKEND_HOSTPORT=backend:8001
 EXPOSE 80

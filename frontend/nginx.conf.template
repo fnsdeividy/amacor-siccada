@@ -6,14 +6,21 @@
 # A imagem oficial do nginx troca ${PORT} e ${BACKEND_HOSTPORT} pelos valores
 # do ambiente ao subir (ex.: BACKEND_HOSTPORT=backend:8001 no docker-compose,
 # ou o host:porta interno do back no Render).
+# O endereço interno do back muda a cada deploy dele: o nginx precisa
+# consultar o DNS de novo (com proxy_pass fixo ele resolveria uma vez só, ao
+# subir, e ficaria tentando o endereço antigo -> 504). NGINX_LOCAL_RESOLVERS
+# vem do /etc/resolv.conf (NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 no Dockerfile).
+resolver ${NGINX_LOCAL_RESOLVERS} valid=10s ipv6=off;
+
 server {
     listen ${PORT};
+    set $backend http://${BACKEND_HOSTPORT};
     client_max_body_size 30m;   # mesmo limite de upload do back (MAX_CONTENT_LENGTH)
 
     root /usr/share/nginx/html;
 
     location /api/ {
-        proxy_pass http://${BACKEND_HOSTPORT};
+        proxy_pass $backend;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
@@ -22,7 +29,7 @@ server {
     }
 
     location /static/ {
-        proxy_pass http://${BACKEND_HOSTPORT};
+        proxy_pass $backend;
         proxy_set_header Host $host;
     }
 
