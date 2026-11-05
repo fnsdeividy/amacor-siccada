@@ -64,7 +64,7 @@ export default function Base1() {
           <p>Escolha uma área para começar.</p>
         </div>
         <div className="home-grid">
-          {menuPrincipal().map((area) => (
+          {menuPrincipal(session).map((area) => (
             <section key={area.id} className="card home-area">
               <div className="home-area-head">
                 <span className="home-area-icon"><i className={'fa-solid ' + area.icon} aria-hidden="true" /></span>

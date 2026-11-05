@@ -195,8 +195,15 @@
         <div class="submenu" id="enfermagem-submenu">
             
             <a href="{{ url_for('enfermagem.declaracao') }}">lançar entrevista</a>
-            
+
         </div>
+
+        {% if session.get('classe_usuario') == 'dev' %}
+        <a href="#" onclick="toggleSubmenu('suporte-submenu')">Suporte 🛠️</a>
+        <div class="submenu" id="suporte-submenu">
+            <a href="{{ url_for('suporte.usuarios') }}">Usuários do sistema</a>
+        </div>
+        {% endif %}
 
     </div>
 

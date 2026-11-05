@@ -1,0 +1,110 @@
+{% extends "window.html" %}
+
+{% block title %}Usuários do sistema{% endblock %}
+
+{% block window_content %}
+<style>
+    .suporte-usuarios .resumo { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0 16px; }
+    .suporte-usuarios .filtros { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+    .suporte-usuarios .filtros label { display: block; font-size: 12px; }
+    .suporte-usuarios table { width: 100%; border-collapse: collapse; }
+    .suporte-usuarios th, .suporte-usuarios td { padding: 6px 8px; border-bottom: 1px solid #ddd; text-align: left; }
+    .suporte-usuarios .inativo td { color: #888; }
+    .suporte-usuarios form.inline { display: inline; }
+</style>
+
+<div class="suporte-usuarios">
+    <h1>Usuários do sistema</h1>
+
+    <div class="resumo">
+        <span>Total: <strong>{{ totais.total }}</strong></span>
+        <span>Ativos: <strong>{{ totais.ativos }}</strong></span>
+        <span>Inativos: <strong>{{ totais.inativos }}</strong></span>
+    </div>
+
+    <form method="GET" action="{{ url_for('suporte.usuarios') }}" class="filtros">
+        <div>
+            <label for="busca">Buscar</label>
+            <input type="text" id="busca" name="busca" value="{{ filtros.busca }}" placeholder="Nome, e-mail/login ou CPF">
+        </div>
+        <div>
+            <label for="area">Área</label>
+            <select id="area" name="area">
+                <option value="">Todas</option>
+                {% for area in areas %}
+                <option value="{{ area }}" {% if filtros.area == area %}selected{% endif %}>{{ area }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="classe">Classe</label>
+            <select id="classe" name="classe">
+                <option value="">Todas</option>
+                {% for classe in classes %}
+                <option value="{{ classe }}" {% if filtros.classe == classe %}selected{% endif %}>{{ classe }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="status">Situação</label>
+            <select id="status" name="status">
+                <option value="">Todos</option>
+                <option value="ativos" {% if filtros.status == 'ativos' %}selected{% endif %}>Ativos</option>
+                <option value="inativos" {% if filtros.status == 'inativos' %}selected{% endif %}>Inativos</option>
+            </select>
+        </div>
+        <button class="btn" type="submit">Filtrar</button>
+        <a class="btn" href="{{ url_for('suporte.usuarios') }}">Limpar</a>
+    </form>
+
+    <p>{{ usuarios|length }} usuário(s) encontrado(s).</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>E-mail / login</th>
+                <th>Área</th>
+                <th>Classe</th>
+                <th>Situação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr class="{{ 'ativo' if u.ativo == 1 else 'inativo' }}">
+                <td><a href="{{ url_for('suporte.usuario_detalhe', usuario_id=u.id) }}">{{ u.nome }}</a></td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.tipo_usuario or '' }}</td>
+                <td>{{ u.classe_usuario or '' }}</td>
+                <td>{{ 'Ativo' if u.ativo == 1 else 'Inativo' }}</td>
+                <td>
+                    <a href="{{ url_for('suporte.usuario_detalhe', usuario_id=u.id) }}">Detalhes</a>
+                    {% if u.ativo == 1 %}
+                        {% if u.id != usuario_logado_id %}
+                        <form class="inline" method="POST" action="{{ url_for('suporte.alterar_ativo', usuario_id=u.id) }}"
+                              data-nome="{{ u.nome }}"
+                  onsubmit="return confirm('Desativar ' + this.dataset.nome + '? Ele não vai conseguir entrar no sistema e a sessão aberta será encerrada.');">
+                            <input type="hidden" name="ativo" value="0">
+                            <input type="hidden" name="voltar" value="{{ request.full_path }}">
+                            <button class="btn" type="submit">Desativar</button>
+                        </form>
+                        {% endif %}
+                    {% else %}
+                        <form class="inline" method="POST" action="{{ url_for('suporte.alterar_ativo', usuario_id=u.id) }}"
+                              data-nome="{{ u.nome }}"
+                  onsubmit="return confirm('Ativar ' + this.dataset.nome + '? Ele volta a conseguir entrar no sistema.');">
+                            <input type="hidden" name="ativo" value="1">
+                            <input type="hidden" name="voltar" value="{{ request.full_path }}">
+                            <button class="btn" type="submit">Ativar</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">Nenhum usuário encontrado com esses filtros.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
