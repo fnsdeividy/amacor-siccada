@@ -23,6 +23,8 @@ os.chdir(ROOT)
 from app import create_app, db  # noqa: E402
 
 PULAR = {'auth.logoff'}
+# telas criadas direto no front React (sem tela equivalente no sistema antigo)
+PULAR_PREFIXOS = ('sac.',)
 
 
 def main():
@@ -56,7 +58,8 @@ def main():
                 return c
 
             for rule in sorted(app.url_map.iter_rules(), key=lambda r: r.rule):
-                if 'GET' not in rule.methods or rule.arguments or rule.endpoint == 'static' or rule.endpoint in PULAR:
+                if 'GET' not in rule.methods or rule.arguments or rule.endpoint == 'static' or rule.endpoint in PULAR \
+                        or rule.endpoint.startswith(PULAR_PREFIXOS):
                     continue
                 html = client().get(rule.rule)
                 api = client().get('/api' + rule.rule)

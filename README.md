@@ -39,10 +39,27 @@ use o comando `docker-compose`).
 | `SMTP_REMETENTE`, `SMTP_SENHA_APP` | e-mails de alerta e de "esqueci minha senha" |
 | `RAPIDOC_TOKEN`, `RAPIDOC_CLIENT_ID`, `KOMMO_CLIENT_ID`, `KOMMO_ACCESS_TOKEN` | integrações |
 | `PUBLIC_URL` | endereço público do sistema (link do QR code da entrevista) |
+| `SAC_REGISTRO_ANS`, `SAC_SEQUENCIAL_INICIAL` | protocolo do SAC: registro da operadora na ANS (padrão `412015`) e primeiro sequencial |
 | `DATA_DIR` | disco persistente para os arquivos gravados pelo sistema (produção) |
 | `TRUST_PROXY`, `SESSION_COOKIE_SECURE` | `1` em produção, atrás do nginx com HTTPS |
 
 Deploy no Render: [DEPLOY.md](DEPLOY.md).
+
+## SAC
+
+Atendimentos com protocolo e o andamento lançado pelos setores (`/sac`),
+no lugar da planilha "Controle de Resolutividade – Canais de Atendimento".
+Regras em `backend/app/models/sac.py`; telas em `frontend/src/templates/sac/`.
+
+- Protocolo no formato da RN 623: registro ANS + data + sequencial de 6 dígitos.
+- Cada setor (o `tipo_usuario` do login) abre na própria fila; o andamento
+  registra quem fez, o setor, mudanças de status e encaminhamentos.
+- Prazo de resposta em dias úteis por tipo de demanda, descontando os feriados
+  cadastrados; recontato em até 30 dias é marcado sozinho na demanda anterior.
+- Indicadores do mês por canal, tipo e setor, e exportação do registro em CSV.
+- Tipos de demanda, prazos e feriados: `/sac/configuracoes` (supervisores).
+- As tabelas `sac_*` são criadas no primeiro acesso, com os tipos e prazos da
+  aba Listas da planilha e os feriados nacionais de 2026–2027.
 
 ## Banco de dados
 

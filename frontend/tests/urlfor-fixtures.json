@@ -332,16 +332,16 @@
  [
   "vendas.status_proposta",
   {
-   "plano_tipo": "valor x/ç",
-   "corretor_resp": "valor x/ç"
+   "corretor_resp": "valor x/ç",
+   "plano_tipo": "valor x/ç"
   },
   "/vendas/status_proposta/valor%20x/%C3%A7/valor%20x/%C3%A7"
  ],
  [
   "vendas.status_proposta",
   {
-   "plano_tipo": "valor x/ç",
    "corretor_resp": "valor x/ç",
+   "plano_tipo": "valor x/ç",
    "filtro": "sim",
    "lista": "todos"
   },
@@ -1897,6 +1897,116 @@
    "lista": "todos"
   },
   "/amatiss/analisar_autorizacao/42?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.home",
+  {},
+  "/sac/"
+ ],
+ [
+  "sac.home",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.novo",
+  {},
+  "/sac/novo"
+ ],
+ [
+  "sac.novo",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/novo?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.beneficiario",
+  {},
+  "/sac/beneficiario"
+ ],
+ [
+  "sac.beneficiario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/beneficiario?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.atendimento",
+  {
+   "atendimento_id": "42"
+  },
+  "/sac/atendimento/42"
+ ],
+ [
+  "sac.atendimento",
+  {
+   "atendimento_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/atendimento/42?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.andamento",
+  {
+   "atendimento_id": "42"
+  },
+  "/sac/atendimento/42/andamento"
+ ],
+ [
+  "sac.andamento",
+  {
+   "atendimento_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/atendimento/42/andamento?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.indicadores",
+  {},
+  "/sac/indicadores"
+ ],
+ [
+  "sac.indicadores",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/indicadores?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.exportar",
+  {},
+  "/sac/exportar"
+ ],
+ [
+  "sac.exportar",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/exportar?filtro=sim&lista=todos"
+ ],
+ [
+  "sac.configuracoes",
+  {},
+  "/sac/configuracoes"
+ ],
+ [
+  "sac.configuracoes",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/sac/configuracoes?filtro=sim&lista=todos"
  ],
  [
   "static",

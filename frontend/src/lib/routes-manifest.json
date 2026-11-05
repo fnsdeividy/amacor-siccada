@@ -1198,6 +1198,84 @@
    "args": []
   }
  ],
+ "sac.andamento": [
+  {
+   "rule": "/sac/atendimento/<int:atendimento_id>/andamento",
+   "methods": [
+    "POST"
+   ],
+   "args": [
+    "atendimento_id"
+   ]
+  }
+ ],
+ "sac.atendimento": [
+  {
+   "rule": "/sac/atendimento/<int:atendimento_id>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "atendimento_id"
+   ]
+  }
+ ],
+ "sac.beneficiario": [
+  {
+   "rule": "/sac/beneficiario",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "sac.configuracoes": [
+  {
+   "rule": "/sac/configuracoes",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "sac.exportar": [
+  {
+   "rule": "/sac/exportar",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "sac.home": [
+  {
+   "rule": "/sac/",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "sac.indicadores": [
+  {
+   "rule": "/sac/indicadores",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
+ "sac.novo": [
+  {
+   "rule": "/sac/novo",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
  "static": [
   {
    "rule": "/static/<path:filename>",

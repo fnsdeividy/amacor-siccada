@@ -6,6 +6,14 @@ import { urlFor } from '../lib/urlFor.js'
 const RECEITA_CPF = 'https://servicos.receita.fazenda.gov.br/servicos/cpf/consultasituacao/consultapublica.asp'
 const RECEITA_CNPJ = 'https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp'
 
+function grupoSac() {
+  return { id: 'sac', label: 'SAC', icon: 'fa-headset', links: [
+    { href: urlFor('sac.home'), label: 'Atendimentos' },
+    { href: urlFor('sac.novo'), label: 'Novo atendimento' },
+    { href: urlFor('sac.indicadores'), label: 'Indicadores' },
+  ] }
+}
+
 /** base1.html / window.html: o menu de setores, usado na maioria das telas. */
 export function menuPrincipal() {
   return [
@@ -44,6 +52,7 @@ export function menuPrincipal() {
     { id: 'enfermagem', label: 'Enfermagem', icon: 'fa-user-nurse', links: [
       { href: urlFor('enfermagem.declaracao'), label: 'Lançar entrevista' },
     ] },
+    grupoSac(),
   ]
 }
 
@@ -85,5 +94,6 @@ export function menuAutorizacao() {
       { href: urlFor('cad.form_atualizar_data'), label: 'Atualizar tabela' },
       { href: urlFor('cad.exibir_credenciadas'), label: 'Credenciadas' },
     ] },
+    grupoSac(),
   ]
 }

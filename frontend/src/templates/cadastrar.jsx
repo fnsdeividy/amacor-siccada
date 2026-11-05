@@ -98,6 +98,7 @@ export default function Cadastrar() {
                   <option value="vendas">Vendedor/vendas</option>
                   <option value="enfermagem">Enfermagem</option>
                   <option value="cobranca">Cobranca</option>
+                  <option value="sac">SAC / Atendimento</option>
                 </select>
               </div>
 

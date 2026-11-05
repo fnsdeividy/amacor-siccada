@@ -12,6 +12,7 @@ from .routes.everflow_mantis import mantis_bp
 from datetime import datetime
 from .routes.enfermagem import enfermagem_bp
 from .routes.amatiss import amatiss_bp
+from .routes.sac import sac_bp
 
 from datetime import timedelta
 import os
@@ -58,6 +59,7 @@ def create_app():
     app.register_blueprint(mantis_bp, url_prefix='/mantis')
     app.register_blueprint(enfermagem_bp, url_prefix= '/enfermagem')
     app.register_blueprint(amatiss_bp, url_prefix='/amatiss')
+    app.register_blueprint(sac_bp, url_prefix='/sac')
 
     # as mesmas rotas em JSON sob /api, para o front React
     from . import api
