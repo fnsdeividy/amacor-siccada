@@ -444,3 +444,183 @@ def contratos_corretora():
 
     pass
 
+
+
+# ------------------------------------------------------------------ comissões
+# Cálculo em app/comissao.py. Acesso: supervisores e o financeiro.
+
+def acesso_comissoes(func):
+    from functools import wraps
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Sua sessão expirou.')
+            return redirect(url_for('auth.login'))
+        classe = session.get('classe_usuario')
+        tipo = session.get('tipo_usuario')
+        if classe in ('supervisor', 'dev') or tipo in ('financeiro', 'dev'):
+            return func(*args, **kwargs)
+        return redirect(url_for('auth.redirecionar_usuario', classe_usuario=classe))
+    return wrapper
+
+
+def _float_br(valor):
+    """'1.234,56' / '1234,56' / '1234.56' -> float (ou None)."""
+    texto = str(valor or '').strip().replace('R$', '').replace(' ', '')
+    if not texto:
+        return None
+    if ',' in texto:
+        texto = texto.replace('.', '').replace(',', '.')
+    try:
+        return float(texto)
+    except ValueError:
+        return None
+
+
+def _voltar_comissoes(corretor=None):
+    args = {}
+    for chave in ('inicio', 'fim', 'mes'):
+        if request.form.get(chave):
+            args[chave] = request.form.get(chave)
+    if corretor and request.form.get('voltar') != 'resumo':
+        args['corretor'] = corretor
+    return redirect(url_for('gerencial.comissoes', **args))
+
+
+@gerencial_bp.route('/comissoes')
+@acesso_comissoes
+def comissoes():
+    from .. import comissao as cm
+
+    mes_atual = cm.mes_de(datetime.now())
+    corretores = cm.lista_corretores()
+    corretor = (request.args.get('corretor') or '').strip()
+    if corretor and corretor not in corretores:
+        flash('Vendedor não encontrado.')
+        corretor = ''
+
+    contexto = {
+        'mes_atual': mes_atual,
+        'corretores': corretores,
+        'corretor': corretor,
+        'max_parcelas': cm.MAX_PARCELAS,
+        'hoje': datetime.now().strftime('%Y-%m-%d'),
+    }
+
+    if not corretor:
+        mes = cm.parse_mes(request.args.get('mes')) or mes_atual
+        linhas, total = cm.resumo_do_mes(mes, mes_atual)
+        contexto.update({
+            'modo': 'resumo',
+            'mes': mes,
+            'mes_rotulo': cm.rotulo_mes(mes),
+            'resumo': linhas,
+            'total': total,
+        })
+        return render_template('gerencial/comissoes.html', **contexto)
+
+    fim = cm.parse_mes(request.args.get('fim')) or mes_atual
+    inicio = cm.parse_mes(request.args.get('inicio')) or cm.somar_meses(fim, -11)
+    if inicio > fim:
+        inicio, fim = fim, inicio
+    extrato = cm.extrato_do_corretor(corretor, inicio, fim, mes_atual)
+
+    # formulário da regra: começa com a versão mais recente (ou 100/30/3 do contrato)
+    if extrato['regras']:
+        base = extrato['regras'][-1]
+        regra_form = {'vigencia': mes_atual, 'parcelas': base['parcelas'],
+                      'valor_fixo': base['valor_fixo'], 'observacao': base.get('observacao') or ''}
+    else:
+        regra_form = {'vigencia': '2025-01', 'valor_fixo': 0, 'observacao': '',
+                      'parcelas': [{'percentual': 100, 'base': cm.BASE_VENDA},
+                                   {'percentual': 30, 'base': cm.BASE_ANTERIOR},
+                                   {'percentual': 3, 'base': cm.BASE_ANTERIOR}]}
+    regra_form['parcelas'] = (list(regra_form['parcelas'])
+                              + [{'percentual': '', 'base': cm.BASE_VENDA}] * cm.MAX_PARCELAS)[:cm.MAX_PARCELAS]
+
+    contexto.update({
+        'modo': 'corretor',
+        'inicio': inicio,
+        'fim': fim,
+        'extrato': extrato,
+        'regra_form': regra_form,
+        'total_a_pagar': round(sum(l['valor_a_pagar'] for l in extrato['linhas']), 2),
+        'total_pago': round(sum(l['valor_pago'] or 0 for l in extrato['linhas']), 2),
+    })
+    return render_template('gerencial/comissoes.html', **contexto)
+
+
+@gerencial_bp.route('/comissoes/regra', methods=['POST'])
+@acesso_comissoes
+def salvar_regra_comissao():
+    from .. import comissao as cm
+
+    corretor = (request.form.get('corretor') or '').strip()
+    if corretor not in cm.lista_corretores():
+        flash('Vendedor não encontrado.')
+        return redirect(url_for('gerencial.comissoes'))
+
+    vigencia = cm.parse_mes(request.form.get('vigencia'))
+    if not vigencia:
+        flash('Informe o mês a partir do qual a regra vale.')
+        return _voltar_comissoes(corretor)
+
+    if request.form.get('acao') == 'excluir':
+        cm.excluir_regra(corretor, vigencia)
+        flash(f'Regra a partir de {cm.rotulo_mes(vigencia)} excluída.')
+        return _voltar_comissoes(corretor)
+
+    parcelas = []
+    for i in range(1, cm.MAX_PARCELAS + 1):
+        texto = (request.form.get(f'percentual_{i}') or '').strip()
+        if not texto:
+            break  # as parcelas são em sequência: para na primeira vazia
+        pct = _float_br(texto)
+        if pct is None or not 0 <= pct <= 1000:
+            flash(f'Percentual inválido na {i}ª parcela.')
+            return _voltar_comissoes(corretor)
+        parcelas.append({'percentual': pct, 'base': request.form.get(f'base_{i}') or cm.BASE_VENDA})
+
+    valor_fixo = _float_br(request.form.get('valor_fixo')) or 0.0
+    if valor_fixo < 0:
+        flash('Valor fixo inválido.')
+        return _voltar_comissoes(corretor)
+    if not parcelas and not valor_fixo:
+        flash('Informe ao menos uma parcela ou um valor fixo.')
+        return _voltar_comissoes(corretor)
+
+    observacao = (request.form.get('observacao') or '').strip()[:500]
+    cm.salvar_regra(corretor, vigencia, parcelas, valor_fixo, observacao, session.get('user_nome'))
+    flash(f'Regra de {corretor} salva (vendas a partir de {cm.rotulo_mes(vigencia)}).')
+    return _voltar_comissoes(corretor)
+
+
+@gerencial_bp.route('/comissoes/pagamento', methods=['POST'])
+@acesso_comissoes
+def registrar_pagamento_comissao():
+    from .. import comissao as cm
+
+    corretor = (request.form.get('corretor') or '').strip()
+    if corretor not in cm.lista_corretores():
+        flash('Vendedor não encontrado.')
+        return redirect(url_for('gerencial.comissoes'))
+    mes_ref = cm.parse_mes(request.form.get('mes_ref'))
+    if not mes_ref:
+        flash('Mês de pagamento inválido.')
+        return _voltar_comissoes(corretor)
+
+    if request.form.get('acao') == 'desfazer':
+        cm.excluir_pagamento(corretor, mes_ref)
+        flash(f'Pagamento de {cm.rotulo_mes(mes_ref)} desfeito.')
+        return _voltar_comissoes(corretor)
+
+    valor = _float_br(request.form.get('valor_pago'))
+    data = cm.parse_data(request.form.get('data_pagamento'))
+    if valor is None or valor < 0 or data is None:
+        flash('Informe o valor pago e a data do pagamento.')
+        return _voltar_comissoes(corretor)
+
+    cm.registrar_pagamento(corretor, mes_ref, valor, data.isoformat(), session.get('user_nome'))
+    flash(f'Pagamento de {cm.rotulo_mes(mes_ref)} registrado para {corretor}.')
+    return _voltar_comissoes(corretor)
