@@ -1,0 +1,284 @@
+{
+  "BLOCO1": {
+    "bloco_id": "BLOCO1",
+    "nome_clinica": "CLÍNICA AMACOR",
+    "endereco": "Rua Augusto de Vasconcelos, 535 - Campo Grande",
+    "telefone": "Tel.: (21) 3405-9494",
+    "coordenadas": null
+  },
+  "BLOCO2": {
+    "bloco_id": "BLOCO2",
+    "nome_clinica": "CLÍNICAS REUNIDAS SÃO VICTOR",
+    "endereco": "Rua Carvalho Alvim, 261 - Tijuca",
+    "telefone": "Tel.: (21) 2142-7150 ou 2142-7171",
+    "coordenadas": {
+      "endereco_original": "Rua Carvalho Alvim, 261 - Tijuca",
+      "endereco_formatado": "Rua Carvalho Alvim, Muda, Tijuca, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 20510-260, Brasil",
+      "latitude": -22.9267953,
+      "longitude": -43.2432814,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO3": {
+    "bloco_id": "BLOCO3",
+    "nome_clinica": "CLÍNICA  DE DIAGNÓSTICO KHAYAT",
+    "endereco": "Rua Francisco Real, 747",
+    "telefone": "Tel.: (21) 3159-8717 / 2401-9095                   CEP: 21810.009",
+    "coordenadas": {
+      "endereco_original": "Rua Francisco Real, 747",
+      "endereco_formatado": "Rua Francisco Real, Padre Miguel, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, Brasil",
+      "latitude": -22.8831664,
+      "longitude": -43.4516104,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO4": {
+    "bloco_id": "BLOCO4",
+    "nome_clinica": "Em frente ao Centro Comercial, próximo ao calçadão de Bangu.",
+    "endereco": "Av. Conego Vasconcelos, nº 423 – Sala 204 - Bangu - Rio de Janeiro - RJ",
+    "telefone": "Agendamento por Whatsapp 2199333-2990",
+    "coordenadas": null
+  },
+  "BLOCO5": {
+    "bloco_id": "BLOCO5",
+    "nome_clinica": "COR  - CENTRO OFTALMOLÓGICO  DE  REALENGO LTDA",
+    "endereco": "Estrada da Agua Branca, 2369 - Realengo",
+    "telefone": "",
+    "coordenadas": {
+      "endereco_original": "Estrada da Agua Branca, 2369 - Realengo",
+      "endereco_formatado": "Estrada da Água Branca, Realengo, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 21270-040, Brasil",
+      "latitude": -22.8688117,
+      "longitude": -43.4415605,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO6": {
+    "bloco_id": "BLOCO6",
+    "nome_clinica": "(Próximo ao Centro Comercial Popular de Bangu, ao lado do Posto de Gasolina",
+    "endereco": "Rua Silva Cardoso, nº 515 - Bangu",
+    "telefone": "96449-8583 WhatsApp",
+    "coordenadas": {
+      "endereco_original": "Rua Silva Cardoso, nº 515 - Bangu",
+      "endereco_formatado": "Rua Silva Cardoso, Bangu, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 21810-051, Brasil",
+      "latitude": -22.8763089,
+      "longitude": -43.4637017,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO7": {
+    "bloco_id": "BLOCO7",
+    "nome_clinica": "(Subsolo Shopping Real Bangu - Em frente ao Centro Comercial Popular de Bangu)",
+    "endereco": "Rua Francisco Real, 1950 -Sala 126 -  Bangu",
+    "telefone": "WhatsApp (21) 97150-5451",
+    "coordenadas": null
+  },
+  "BLOCO8": {
+    "bloco_id": "BLOCO8",
+    "nome_clinica": "CENTRO MÉDICO ITANHANGÁ",
+    "endereco": "Estrada do Itanhangá, 1.103 - Itanhangá",
+    "telefone": "Tel.: (021) 3154-3051",
+    "coordenadas": {
+      "endereco_original": "Estrada do Itanhangá, 1.103 - Itanhangá",
+      "endereco_formatado": "Estrada do Itanhangá, Muzema, Itanhangá, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 22750-005, Brasil",
+      "latitude": -22.9901191,
+      "longitude": -43.3195511,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO9": {
+    "bloco_id": "BLOCO9",
+    "nome_clinica": "CLÍNICA REABILITAR ME",
+    "endereco": "Rua Ivo do Prado, nº 79- Sala 410  –  Campo Grande _RJ",
+    "telefone": "Tel.: 21-3649-4204 / 96437-0154  3649-4209",
+    "coordenadas": null
+  },
+  "BLOCO10": {
+    "bloco_id": "BLOCO10",
+    "nome_clinica": "CEMOL - CENTRO DE ESP MED E LAB",
+    "endereco": "Rua Luiz Beltrão, 424 - Vila Valqueire",
+    "telefone": "Tel.: 2453-2932/2454-9119",
+    "coordenadas": {
+      "endereco_original": "Rua Luiz Beltrão, 424 - Vila Valqueire",
+      "endereco_formatado": "Rua Luiz Beltrão, 1127, Vila Valqueire, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, Brasil",
+      "latitude": -22.8894802,
+      "longitude": -43.3585881,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO11": {
+    "bloco_id": "BLOCO11",
+    "nome_clinica": "",
+    "endereco": "Avenida Cônego de Vasconcelos - 423 - sala 301 a 311 - Bangu",
+    "telefone": "tel.: 2401-3889 / 2402-5162 / 2401-2014",
+    "coordenadas": null
+  },
+  "BLOCO12": {
+    "bloco_id": "BLOCO12",
+    "nome_clinica": "CLÍNICA POLISAUDE",
+    "endereco": "Avenida Cesário de Melo, 2855 -  Sala 501 -Campo Grande",
+    "telefone": "Tel.: (21) 3394-1963 _Somente WhatsApp",
+    "coordenadas": null
+  },
+  "BLOCO13": {
+    "bloco_id": "BLOCO13",
+    "nome_clinica": "CENTRO MÉDICO GUARATIBA - CEMEG",
+    "endereco": "Rua Águas Formosas, 398 - Guaratiba",
+    "telefone": "WhatsApp: 2196747-3702",
+    "coordenadas": {
+      "endereco_original": "Rua Águas Formosas, 398 - Guaratiba",
+      "endereco_formatado": "Rua Águas Formosas, Jardim Maravilha, Guaratiba, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 23587-020, Brasil",
+      "latitude": -22.9650713,
+      "longitude": -43.6111769,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO14": {
+    "bloco_id": "BLOCO14",
+    "nome_clinica": "CLÍNICA DO SONO -  UNIDADE BANGU",
+    "endereco": "Rua Silva Cardoso, 125 - Salas 218 e 318 (Calçadão de Bangu)",
+    "telefone": "Tel.:  3338-7350 / 3332-5838 / 98921-3522 / 4063-9311",
+    "coordenadas": null
+  },
+  "BLOCO15": {
+    "bloco_id": "BLOCO15",
+    "nome_clinica": "",
+    "endereco": "Avenida Nossa Senhora de Copacabana, 895 sala 1.201",
+    "telefone": "Tel: 2523-4708 / 2267-2576",
+    "coordenadas": null
+  },
+  "BLOCO16": {
+    "bloco_id": "BLOCO16",
+    "nome_clinica": "FISIOMED CLÍNICA DE ASSISTÊNCIA MÉDICA LTDA",
+    "endereco": "Rua Severiano das Chagas, 154 - Santa Cruz",
+    "telefone": "Tel.:(21) 3305-2392 / 2051-7825 / 2051-7876",
+    "coordenadas": {
+      "endereco_original": "Rua Severiano das Chagas, 154 - Santa Cruz",
+      "endereco_formatado": "Rua Severiano das Chagas, Santa Cruz, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 23510-006, Brasil",
+      "latitude": -22.9146386,
+      "longitude": -43.6800577,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO17": {
+    "bloco_id": "BLOCO17",
+    "nome_clinica": "BBL SERVIÇOS EM REABILITAÇÃO LTDA",
+    "endereco": "Avenida Ministro Ary Franco, 401 - Grupo 2 - Bangu - RJ -  (Calçadão de Bangu)",
+    "telefone": "Tel.: 3518-8384",
+    "coordenadas": null
+  },
+  "BLOCO18": {
+    "bloco_id": "BLOCO18",
+    "nome_clinica": "(Hospital do Olho de Campo Grande)",
+    "endereco": "Rua Barcelos Domingos, 118 -",
+    "telefone": "Tel.: 2415-9820 / 2415-5374",
+    "coordenadas": {
+      "endereco_original": "Rua Barcelos Domingos, 118 -",
+      "endereco_formatado": "Rua Barcelos Domingos, Campo Grande, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 23080-160, Brasil",
+      "latitude": -22.8996347,
+      "longitude": -43.5589676,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO19": {
+    "bloco_id": "BLOCO19",
+    "nome_clinica": "RADIO VITAE SERVIÇOS MÉDICOS S/C LTDA",
+    "endereco": "Rua Hildegarda Ribeiro, 53 - Parte -",
+    "telefone": "Tel.: (21) 2416.2392 / 2412.1125",
+    "coordenadas": null
+  },
+  "BLOCO20": {
+    "bloco_id": "BLOCO20",
+    "nome_clinica": "ONCO VITAE SERVIÇOS MÉDICOS S/C LTDA",
+    "endereco": "Rua Voluntários da Patria, 126 - Grupo 401",
+    "telefone": "Tel.: (21) 2537.5454",
+    "coordenadas": null
+  },
+  "BLOCO21": {
+    "bloco_id": "BLOCO21",
+    "nome_clinica": "",
+    "endereco": "Rua Real Grandeza, 108 - Sala 114",
+    "telefone": "Rua Bernardino de Mello, 1399 - Sala 103 - Tel.: 2669-4644",
+    "coordenadas": null
+  },
+  "BLOCO22": {
+    "bloco_id": "BLOCO22",
+    "nome_clinica": "CENTRO RADIOLÓGICO SÃO JUDAS TADEU RADIOLOGIA EM GERAL LTDA",
+    "endereco": "Rua Augusto de Vasconcelos, 754",
+    "telefone": "Tel.:  21- 3269-3735",
+    "coordenadas": {
+      "endereco_original": "Rua Augusto de Vasconcelos, 754",
+      "endereco_formatado": "Rua Augusto de Vasconcelos, Jardim da Radial, Jardim da Amoreira, Ramada e Caneças, Odivelas, Lisboa, 2620-189, Portugal",
+      "latitude": 38.807366,
+      "longitude": -9.1852987,
+      "confianca": "media"
+    }
+  },
+  "BLOCO23": {
+    "bloco_id": "BLOCO23",
+    "nome_clinica": "Centro - Nova Iguaçu",
+    "endereco": "Rua Getulio Vargas, nº 87, 1º andar",
+    "telefone": "Tel: (21) 2668-4881",
+    "coordenadas": null
+  },
+  "BLOCO24": {
+    "bloco_id": "BLOCO24",
+    "nome_clinica": "CENTRO MÉDICO DARKE",
+    "endereco": "Avenida Treze de Maio, 23 - Grupo 925/928 - Centro - RJ",
+    "telefone": "Tel.: 2220-3150 / 2220-1300",
+    "coordenadas": null
+  },
+  "BLOCO26": {
+    "bloco_id": "BLOCO26",
+    "nome_clinica": "CENTRO CLINICO CAMPO GRANDE",
+    "endereco": "Rua Coronel Agostinho,76 - P Sala 11",
+    "telefone": "Tel.: (21) 2413-1784 (21) 3394-0108",
+    "coordenadas": null
+  },
+  "BLOCO27": {
+    "bloco_id": "BLOCO27",
+    "nome_clinica": "CEPOR - CENTRO DE PESQUISA DE OSTEOPOROSE",
+    "endereco": "Rua Conde de Bonfim, 369 Salas 806/807 - Tijuca - RJ",
+    "telefone": "Tel.:( 21) 2571-6582 / 2208-3147",
+    "coordenadas": null
+  },
+  "BLOCO28": {
+    "bloco_id": "BLOCO28",
+    "nome_clinica": "CENTRO DE DIAGNÓSTICO E TRATAMENTO LTDA",
+    "endereco": "Rua Uruguaiana, 10 - Sala 2107 _ Centro  - RJ",
+    "telefone": "Tel.:  21-3852-5435",
+    "coordenadas": null
+  },
+  "BLOCO29": {
+    "bloco_id": "BLOCO29",
+    "nome_clinica": "CLÍNICA DE MEDICINA NUCLEAR",
+    "endereco": "Rua Jaguaruna, nº 44 - Campo Grande",
+    "telefone": "Tel.: (21) 3511-8181 / 2529-2269",
+    "coordenadas": {
+      "endereco_original": "Rua Jaguaruna, nº 44 - Campo Grande",
+      "endereco_formatado": "Rua Jaguaruna, Magali, Campo Grande, Rio de Janeiro, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 23080-160, Brasil",
+      "latitude": -22.8968192,
+      "longitude": -43.5616562,
+      "confianca": "alta"
+    }
+  },
+  "BLOCO30": {
+    "bloco_id": "BLOCO30",
+    "nome_clinica": "",
+    "endereco": "Av. das Américas, nº 12.900 -  Bloco 3 - Sala 220, Ala Canadá - Setor B",
+    "telefone": "Telefone: 3556-0101",
+    "coordenadas": null
+  },
+  "BLOCO31": {
+    "bloco_id": "BLOCO31",
+    "nome_clinica": "ÁPICE HOSPITAL DIA LTDA",
+    "endereco": "Av. Automóvel Clube, 63 – Centro - São João de Meriti – RJ.",
+    "telefone": "(Agendamento apenas pelo WhatsApp)",
+    "coordenadas": {
+      "endereco_original": "Av. Automóvel Clube, 63 – Centro - São João de Meriti – RJ.",
+      "endereco_formatado": "Avenida Automóvel Clube, Centro, São João de Meriti, Região Geográfica Imediata do Rio de Janeiro, Região Metropolitana do Rio de Janeiro, Região Geográfica Intermediária do Rio de Janeiro, Rio de Janeiro, Região Sudeste, 25525-030, Brasil",
+      "latitude": -22.7983656,
+      "longitude": -43.3663905,
+      "confianca": "alta"
+    }
+  }
+}
