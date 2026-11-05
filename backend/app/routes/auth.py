@@ -262,6 +262,8 @@ def login_redir():
         return redirect(url_for('generic.home'))
     elif tipo_usuario == 'autorizacao':
         return redirect(url_for('amatiss.home'))
+    elif tipo_usuario == 'sac':
+        return redirect(url_for('sac.home'))
     else:
         flash(f'Local de utilização {tipo_usuario}.')
         return redirect(url_for('generic.home'))

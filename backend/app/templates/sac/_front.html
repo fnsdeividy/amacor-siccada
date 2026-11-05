@@ -1,0 +1,13 @@
+{#
+  As telas do SAC foram criadas direto no front React (frontend/src/templates/sac/).
+  O back só precisa do template para o modo /api devolver o contexto; abrir
+  a URL do back sem o front mostra este aviso.
+#}
+{% extends "base1.html" %}
+{% block title %}SAC{% endblock %}
+{% block content %}
+<div class="card">
+    <h1>SAC</h1>
+    <p>Esta tela está disponível no sistema novo. Abra o Siccada pelo endereço do front.</p>
+</div>
+{% endblock %}

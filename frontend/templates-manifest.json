@@ -483,6 +483,36 @@
    "generic.py"
   ]
  },
+ "sac/atendimento.html": {
+  "arquivo": "app/templates/sac/atendimento.html",
+  "rotas": [
+   "sac.py"
+  ]
+ },
+ "sac/configuracoes.html": {
+  "arquivo": "app/templates/sac/configuracoes.html",
+  "rotas": [
+   "sac.py"
+  ]
+ },
+ "sac/index.html": {
+  "arquivo": "app/templates/sac/index.html",
+  "rotas": [
+   "sac.py"
+  ]
+ },
+ "sac/indicadores.html": {
+  "arquivo": "app/templates/sac/indicadores.html",
+  "rotas": [
+   "sac.py"
+  ]
+ },
+ "sac/novo.html": {
+  "arquivo": "app/templates/sac/novo.html",
+  "rotas": [
+   "sac.py"
+  ]
+ },
  "settings.html": {
   "arquivo": "app/templates/generic/settings.html",
   "rotas": [

@@ -41,7 +41,9 @@ export default function PageView() {
       setLoading(false)
     })
     return () => { cancelled = true }
-  }, [path, navigate])
+    // location.key: um redirect/link para a mesma URL (ex.: salvar e voltar à
+    // própria tela) também recarrega, como o navegador faria
+  }, [path, location.key, navigate])
 
   // POST que devolve página: mostra no lugar, sem mudar a URL
   const show = useCallback((res) => setResult(res), [])

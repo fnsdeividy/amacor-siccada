@@ -6,6 +6,14 @@ import { urlFor } from '../lib/urlFor.js'
 const RECEITA_CPF = 'https://servicos.receita.fazenda.gov.br/servicos/cpf/consultasituacao/consultapublica.asp'
 const RECEITA_CNPJ = 'https://solucoes.receita.fazenda.gov.br/servicos/cnpjreva/cnpjreva_solicitacao.asp'
 
+function grupoSac() {
+  return { id: 'sac', label: 'SAC', icon: 'fa-headset', links: [
+    { href: urlFor('sac.home'), label: 'Atendimentos' },
+    { href: urlFor('sac.novo'), label: 'Novo atendimento' },
+    { href: urlFor('sac.indicadores'), label: 'Indicadores' },
+  ] }
+}
+
 /** Só o suporte do sistema (classe 'dev') vê a área de suporte. */
 export function podeVerSuporte(session) {
   return session?.classe_usuario === 'dev'
@@ -50,6 +58,7 @@ export function menuPrincipal(session) {
     { id: 'enfermagem', label: 'Enfermagem', icon: 'fa-user-nurse', links: [
       { href: urlFor('enfermagem.declaracao'), label: 'Lançar entrevista' },
     ] },
+    grupoSac(),
   ]
   if (podeVerSuporte(session)) {
     menu.push({ id: 'suporte', label: 'Suporte', icon: 'fa-screwdriver-wrench', links: [
@@ -97,5 +106,6 @@ export function menuAutorizacao() {
       { href: urlFor('cad.form_atualizar_data'), label: 'Atualizar tabela' },
       { href: urlFor('cad.exibir_credenciadas'), label: 'Credenciadas' },
     ] },
+    grupoSac(),
   ]
 }
