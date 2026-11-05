@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { apiRequest, toAppPath } from './api.js'
 
 /**
@@ -29,16 +29,22 @@ export function useTemplateContext() {
 export function useSubmit() {
   const page = usePage()
   const navigate = useNavigate()
+  const location = useLocation()
+  const current = location.pathname + location.search
   return useCallback(async (path, options = {}) => {
     const result = await apiRequest(path, options)
     if (result.type === 'redirect') {
       const target = toAppPath(result.location)
       if (target === null) window.location.href = result.location
-      else navigate(target)
+      else if (target === current) {
+        // redirect para a própria tela (ex.: login recusado): o navegador
+        // carregaria a página de novo, com as mensagens; navigate() não recarrega
+        page?.show(await apiRequest(target))
+      } else navigate(target)
     } else if (result.type === 'page' || result.type === 'html' || result.type === 'error') {
       // POST que devolve uma página: mostra sem mudar a URL, como o navegador
       page?.show(result)
     }
     return result
-  }, [navigate, page])
+  }, [navigate, page, current])
 }

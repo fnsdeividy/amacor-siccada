@@ -332,16 +332,16 @@
  [
   "vendas.status_proposta",
   {
-   "plano_tipo": "valor x/ç",
-   "corretor_resp": "valor x/ç"
+   "corretor_resp": "valor x/ç",
+   "plano_tipo": "valor x/ç"
   },
   "/vendas/status_proposta/valor%20x/%C3%A7/valor%20x/%C3%A7"
  ],
  [
   "vendas.status_proposta",
   {
-   "plano_tipo": "valor x/ç",
    "corretor_resp": "valor x/ç",
+   "plano_tipo": "valor x/ç",
    "filtro": "sim",
    "lista": "todos"
   },
@@ -924,16 +924,16 @@
  [
   "cad.baixar_documento_contrato",
   {
-   "nome_arquivo": "valor x/ç",
-   "proposta": "valor x/ç"
+   "proposta": "valor x/ç",
+   "nome_arquivo": "valor x/ç"
   },
   "/cad/documentos_contrato/valor%20x/%C3%A7/arquivo/valor%20x/%C3%A7"
  ],
  [
   "cad.baixar_documento_contrato",
   {
-   "nome_arquivo": "valor x/ç",
    "proposta": "valor x/ç",
+   "nome_arquivo": "valor x/ç",
    "filtro": "sim",
    "lista": "todos"
   },
@@ -942,16 +942,16 @@
  [
   "cad.preview_documento_contrato",
   {
-   "nome_arquivo": "valor x/ç",
-   "proposta": "valor x/ç"
+   "proposta": "valor x/ç",
+   "nome_arquivo": "valor x/ç"
   },
   "/cad/documentos_contrato/valor%20x/%C3%A7/preview/valor%20x/%C3%A7"
  ],
  [
   "cad.preview_documento_contrato",
   {
-   "nome_arquivo": "valor x/ç",
    "proposta": "valor x/ç",
+   "nome_arquivo": "valor x/ç",
    "filtro": "sim",
    "lista": "todos"
   },
@@ -1897,6 +1897,51 @@
    "lista": "todos"
   },
   "/amatiss/analisar_autorizacao/42?filtro=sim&lista=todos"
+ ],
+ [
+  "suporte.usuarios",
+  {},
+  "/suporte/usuarios"
+ ],
+ [
+  "suporte.usuarios",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/suporte/usuarios?filtro=sim&lista=todos"
+ ],
+ [
+  "suporte.usuario_detalhe",
+  {
+   "usuario_id": "42"
+  },
+  "/suporte/usuarios/42"
+ ],
+ [
+  "suporte.usuario_detalhe",
+  {
+   "usuario_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/suporte/usuarios/42?filtro=sim&lista=todos"
+ ],
+ [
+  "suporte.alterar_ativo",
+  {
+   "usuario_id": "42"
+  },
+  "/suporte/usuarios/42/ativo"
+ ],
+ [
+  "suporte.alterar_ativo",
+  {
+   "usuario_id": "42",
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/suporte/usuarios/42/ativo?filtro=sim&lista=todos"
  ],
  [
   "static",

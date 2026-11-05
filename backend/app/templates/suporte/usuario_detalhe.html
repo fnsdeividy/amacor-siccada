@@ -1,0 +1,55 @@
+{% extends "window.html" %}
+
+{% block title %}Usuário {{ usuario.nome }}{% endblock %}
+
+{% block window_content %}
+<style>
+    .suporte-usuario dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+    .suporte-usuario dt { font-weight: bold; }
+    .suporte-usuario dd { margin: 0; word-break: break-word; }
+    .suporte-usuario .acoes { display: flex; gap: 12px; margin-top: 16px; }
+</style>
+
+<div class="suporte-usuario">
+    <h1>{{ usuario.nome }}</h1>
+    <p>{{ 'Ativo' if usuario.ativo == 1 else 'Inativo' }}</p>
+
+    <dl>
+        {% for campo in campos %}
+        <dt>{{ campo.rotulo }}</dt>
+        <dd>
+            {% if campo.coluna == 'ativo' %}
+                {{ 'Ativo' if campo.valor == 1 else 'Inativo' }}
+            {% elif campo.valor is none or campo.valor == '' %}
+                —
+            {% else %}
+                {{ campo.valor }}
+            {% endif %}
+        </dd>
+        {% endfor %}
+    </dl>
+
+    <div class="acoes">
+        <a class="btn" href="{{ url_for('suporte.usuarios') }}">Voltar para a lista</a>
+        {% if usuario.ativo == 1 %}
+            {% if usuario.id != usuario_logado_id %}
+            <form method="POST" action="{{ url_for('suporte.alterar_ativo', usuario_id=usuario.id) }}"
+                  data-nome="{{ usuario.nome }}"
+                  onsubmit="return confirm('Desativar ' + this.dataset.nome + '? Ele não vai conseguir entrar no sistema e a sessão aberta será encerrada.');">
+                <input type="hidden" name="ativo" value="0">
+                <input type="hidden" name="voltar" value="{{ url_for('suporte.usuario_detalhe', usuario_id=usuario.id) }}">
+                <button class="btn" type="submit">Desativar usuário</button>
+            </form>
+            {% endif %}
+        {% else %}
+            <form method="POST" action="{{ url_for('suporte.alterar_ativo', usuario_id=usuario.id) }}"
+                  data-nome="{{ usuario.nome }}"
+                  onsubmit="return confirm('Ativar ' + this.dataset.nome + '? Ele volta a conseguir entrar no sistema.');">
+                <input type="hidden" name="ativo" value="1">
+                <input type="hidden" name="voltar" value="{{ url_for('suporte.usuario_detalhe', usuario_id=usuario.id) }}">
+                <button class="btn" type="submit">Ativar usuário</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

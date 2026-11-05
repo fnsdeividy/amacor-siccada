@@ -1209,6 +1209,37 @@
    ]
   }
  ],
+ "suporte.alterar_ativo": [
+  {
+   "rule": "/suporte/usuarios/<int:usuario_id>/ativo",
+   "methods": [
+    "POST"
+   ],
+   "args": [
+    "usuario_id"
+   ]
+  }
+ ],
+ "suporte.usuario_detalhe": [
+  {
+   "rule": "/suporte/usuarios/<int:usuario_id>",
+   "methods": [
+    "GET"
+   ],
+   "args": [
+    "usuario_id"
+   ]
+  }
+ ],
+ "suporte.usuarios": [
+  {
+   "rule": "/suporte/usuarios",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
  "vendas.buscar_endereco_cep": [
   {
    "rule": "/vendas/buscar_endereco_cep",

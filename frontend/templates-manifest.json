@@ -483,6 +483,18 @@
    "generic.py"
   ]
  },
+ "suporte/usuario_detalhe.html": {
+  "arquivo": "app/templates/suporte/usuario_detalhe.html",
+  "rotas": [
+   "suporte.py"
+  ]
+ },
+ "suporte/usuarios.html": {
+  "arquivo": "app/templates/suporte/usuarios.html",
+  "rotas": [
+   "suporte.py"
+  ]
+ },
  "vendas/adicionar_contrato.html": {
   "arquivo": "app/templates/vendas/adicionar_contrato.html",
   "rotas": [

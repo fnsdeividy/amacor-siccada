@@ -921,6 +921,7 @@ def get_usuario_por_email_senha(email, senha, database_path=None):
         return None
 
     conn = get_db_connection(database_path)
+    garantir_coluna_ativo(conn)  # o login confere usuarios.ativo
     cur = conn.cursor()
     cur.execute(
         "SELECT * FROM usuarios WHERE email = ? AND senha = ?",
@@ -3497,3 +3498,181 @@ def get_proposta_corretor(corretor_resp, tipo_contrato, database_path=None):
         }
     finally:
         conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Usuários: ativo/inativo e tela de administração do suporte (/suporte)
+# ---------------------------------------------------------------------------
+# A coluna usuarios.ativo (1 = pode entrar, 0 = desativado) é criada na
+# primeira vez que é usada, como as outras colunas novas da tabela
+# (veja cadastrar_usuario). Todo usuário já existente fica ativo.
+# Usuário desativado não entra no sistema e, se estiver logado, perde a
+# sessão na requisição seguinte; ele continua aparecendo nas listas e
+# relatórios para não perder o histórico.
+
+_coluna_ativo_ok = False
+
+
+def _colunas_usuarios(cur):
+    cur.execute("PRAGMA table_info(usuarios)")
+    return {row['name'] if hasattr(row, 'keys') else row[1] for row in cur.fetchall()}
+
+
+def garantir_coluna_ativo(conn):
+    """Cria usuarios.ativo (padrão 1) se o banco ainda não tiver a coluna."""
+    global _coluna_ativo_ok
+    if _coluna_ativo_ok:
+        return
+    cur = conn.cursor()
+    if 'ativo' not in _colunas_usuarios(cur):
+        try:
+            cur.execute("ALTER TABLE usuarios ADD COLUMN ativo INTEGER NOT NULL DEFAULT 1")
+            conn.commit()
+            print("[usuarios] coluna 'ativo' criada; todos os usuários existentes ficam ativos")
+        except db.Error:
+            # outro processo pode ter criado a coluna ao mesmo tempo
+            conn.rollback()
+            if 'ativo' not in _colunas_usuarios(cur):
+                raise
+    else:
+        conn.commit()  # encerra a transação aberta pela consulta das colunas
+    _coluna_ativo_ok = True
+
+
+def usuario_esta_ativo(usuario):
+    """True quando a linha de usuarios não está desativada."""
+    if usuario is None:
+        return False
+    try:
+        valor = usuario['ativo']
+    except (KeyError, IndexError):
+        return True  # banco sem a coluna: ninguém foi desativado ainda
+    return valor is None or int(valor) == 1
+
+
+# ids desativados, relidos do banco a cada poucos segundos em cada processo,
+# para derrubar a sessão de quem foi desativado sem consultar o banco a cada
+# requisição
+INATIVOS_TTL_SEGUNDOS = 5
+_inativos_cache = {'ids': frozenset(), 'lido_em': None}
+
+
+def ids_usuarios_inativos(database_path=None):
+    import time
+    agora = time.monotonic()
+    lido_em = _inativos_cache['lido_em']
+    if lido_em is not None and agora - lido_em < INATIVOS_TTL_SEGUNDOS:
+        return _inativos_cache['ids']
+    conn = get_db_connection(database_path)
+    try:
+        garantir_coluna_ativo(conn)
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM usuarios WHERE ativo = 0")
+        ids = frozenset(row['id'] for row in cur.fetchall())
+    finally:
+        conn.close()
+    _inativos_cache['ids'] = ids
+    _inativos_cache['lido_em'] = agora
+    return ids
+
+
+def _sem_senha(usuario):
+    dados = {k: usuario[k] for k in usuario.keys()}
+    dados.pop('senha', None)
+    return dados
+
+
+def listar_usuarios_admin(busca=None, area=None, classe=None, status=None, database_path=None):
+    """
+    Usuários para a tela do suporte, sem a senha.
+      busca  - parte do nome, e-mail/login ou CPF
+      area   - tipo_usuario exato
+      classe - classe_usuario exata
+      status - 'ativos', 'inativos' ou vazio (todos)
+    """
+    where, args = [], []
+    if busca:
+        termo = f"%{busca}%"
+        where.append("(nome LIKE ? OR email LIKE ? OR cpf LIKE ?)")
+        args += [termo, termo, termo]
+    if area:
+        where.append("tipo_usuario = ?")
+        args.append(area)
+    if classe:
+        where.append("classe_usuario = ?")
+        args.append(classe)
+    if status == 'ativos':
+        where.append("ativo = 1")
+    elif status == 'inativos':
+        where.append("ativo = 0")
+
+    sql = ("SELECT id, nome, email, cpf, tipo_usuario, classe_usuario, ativo FROM usuarios"
+           + (" WHERE " + " AND ".join(where) if where else "")
+           + " ORDER BY ativo DESC, nome")
+    conn = get_db_connection(database_path)
+    try:
+        garantir_coluna_ativo(conn)
+        cur = conn.cursor()
+        cur.execute(sql, tuple(args))
+        return [_sem_senha(row) for row in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def resumo_usuarios_admin(database_path=None):
+    """Totais e valores existentes de área e classe (para os filtros)."""
+    conn = get_db_connection(database_path)
+    try:
+        garantir_coluna_ativo(conn)
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT COUNT(*) AS total,
+                   SUM(CASE WHEN ativo = 1 THEN 1 ELSE 0 END) AS ativos,
+                   SUM(CASE WHEN ativo = 0 THEN 1 ELSE 0 END) AS inativos
+              FROM usuarios
+        """)
+        row = cur.fetchone()
+        totais = {
+            'total': int(row['total'] or 0),
+            'ativos': int(row['ativos'] or 0),
+            'inativos': int(row['inativos'] or 0),
+        }
+        cur.execute("SELECT DISTINCT tipo_usuario FROM usuarios WHERE tipo_usuario IS NOT NULL ORDER BY tipo_usuario")
+        areas = [r['tipo_usuario'] for r in cur.fetchall()]
+        cur.execute("SELECT DISTINCT classe_usuario FROM usuarios WHERE classe_usuario IS NOT NULL ORDER BY classe_usuario")
+        classes = [r['classe_usuario'] for r in cur.fetchall()]
+        return totais, areas, classes
+    finally:
+        conn.close()
+
+
+def get_usuario_admin(usuario_id, database_path=None):
+    """Todos os dados de um usuário, menos a senha; None se não existir."""
+    conn = get_db_connection(database_path)
+    try:
+        garantir_coluna_ativo(conn)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM usuarios WHERE id = ?", (usuario_id,))
+        row = cur.fetchone()
+        return _sem_senha(row) if row else None
+    finally:
+        conn.close()
+
+
+def definir_usuario_ativo(usuario_id, ativo, database_path=None):
+    """Ativa (True) ou desativa (False) um usuário. True se o usuário existe."""
+    conn = get_db_connection(database_path)
+    try:
+        garantir_coluna_ativo(conn)
+        cur = conn.cursor()
+        cur.execute("UPDATE usuarios SET ativo = ? WHERE id = ?", (1 if ativo else 0, usuario_id))
+        alterados = cur.rowcount
+        conn.commit()
+    except db.Error:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+    # este processo passa a ver a mudança na hora; os outros, em poucos segundos
+    _inativos_cache['lido_em'] = None
+    return alterados > 0
