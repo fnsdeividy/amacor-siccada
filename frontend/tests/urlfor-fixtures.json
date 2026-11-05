@@ -1617,6 +1617,45 @@
   "/gerencial/contratos_concessionarias?filtro=sim&lista=todos"
  ],
  [
+  "gerencial.comissoes",
+  {},
+  "/gerencial/comissoes"
+ ],
+ [
+  "gerencial.comissoes",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/comissoes?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.salvar_regra_comissao",
+  {},
+  "/gerencial/comissoes/regra"
+ ],
+ [
+  "gerencial.salvar_regra_comissao",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/comissoes/regra?filtro=sim&lista=todos"
+ ],
+ [
+  "gerencial.registrar_pagamento_comissao",
+  {},
+  "/gerencial/comissoes/pagamento"
+ ],
+ [
+  "gerencial.registrar_pagamento_comissao",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/gerencial/comissoes/pagamento?filtro=sim&lista=todos"
+ ],
+ [
   "mantis.get_card",
   {},
   "/mantis/get_card"

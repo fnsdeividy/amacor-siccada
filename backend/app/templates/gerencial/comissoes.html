@@ -1,0 +1,231 @@
+{% extends "base1.html" %}
+{% block title %}Comissões{% endblock %}
+{% block content %}
+{# Mesma tela do front React (frontend/src/templates/gerencial/comissoes.jsx). #}
+{% set cls = {'pago': 'status-green', 'a pagar': 'status-yellow', 'previsto': 'badge', 'sem regra': 'status-red'} %}
+<div class="comissoes">
+  <div class="card">
+    <div class="page-toolbar">
+      <h1>Comissões de vendedores</h1>
+      {% if modo == 'corretor' %}
+      <div class="page-toolbar-actions">
+        <a class="btn btn-secondary" href="{{ url_for('gerencial.comissoes') }}">Resumo do mês</a>
+      </div>
+      {% endif %}
+    </div>
+    <form method="GET" action="{{ url_for('gerencial.comissoes') }}" class="filtros">
+      <div class="form-group">
+        <label for="corretor">Vendedor</label>
+        <select id="corretor" name="corretor">
+          <option value="">Todos (resumo do mês)</option>
+          {% for c in corretores %}<option value="{{ c }}" {% if c == corretor %}selected{% endif %}>{{ c }}</option>{% endfor %}
+        </select>
+      </div>
+      {% if modo == 'resumo' %}
+      <div class="form-group">
+        <label for="mes">Mês de pagamento</label>
+        <input type="month" id="mes" name="mes" value="{{ mes }}">
+      </div>
+      {% else %}
+      <div class="form-group">
+        <label for="inicio">Vendas de</label>
+        <input type="month" id="inicio" name="inicio" value="{{ inicio }}">
+      </div>
+      <div class="form-group">
+        <label for="fim">até</label>
+        <input type="month" id="fim" name="fim" value="{{ fim }}">
+      </div>
+      {% endif %}
+      <button type="submit" class="btn">Ver</button>
+    </form>
+  </div>
+
+  {% if modo == 'resumo' %}
+  <div class="card-container">
+    <div class="stat-card">
+      <span class="stat-label">A pagar em {{ mes_rotulo }}</span>
+      <span class="stat-value">R$ {{ total|format_currency_br }}</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Comissões de {{ mes_rotulo }}</div>
+    {% if not resumo %}
+    <p class="muted">Nenhuma regra cadastrada e nenhuma venda nos meses que geram pagamento em {{ mes_rotulo }}.</p>
+    {% else %}
+    <div class="table-container">
+      <table>
+        <thead><tr>
+          <th>Vendedor</th><th>Regra atual</th><th class="num">Valor a pagar</th><th class="num">Valor pago</th>
+          <th>Data de pagamento</th><th>Situação</th><th></th>
+        </tr></thead>
+        <tbody>
+        {% for l in resumo %}
+          <tr>
+            <td>{{ l.corretor }}</td>
+            <td>{{ l.regra }}</td>
+            <td class="num">R$ {{ l.valor_a_pagar|format_currency_br }}</td>
+            <td class="num">{% if l.valor_pago is none %}—{% else %}R$ {{ l.valor_pago|format_currency_br }}{% endif %}</td>
+            <td>{% if l.data_pagamento %}{{ l.data_pagamento|format_date_br }}{% else %}—{% endif %}</td>
+            <td><span class="{{ cls.get(l.situacao, 'badge') }}">{{ l.situacao }}</span></td>
+            <td><a class="btn btn-secondary btn-sm" href="{{ url_for('gerencial.comissoes', corretor=l.corretor) }}">{% if l.tem_regra %}Abrir{% else %}Cadastrar regra{% endif %}</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    <p class="muted">Vendedores sem regra cadastrada aparecem com valor zero. Abra o vendedor para cadastrar a regra.</p>
+  </div>
+
+  {% else %}
+  {% set ex = extrato %}
+  {% set atual = ex.regras[-1] if ex.regras else none %}
+  <div class="card-container">
+    <div class="stat-card"><span class="stat-label">A pagar no período</span><span class="stat-value">R$ {{ total_a_pagar|format_currency_br }}</span></div>
+    <div class="stat-card"><span class="stat-label">Pago no período</span><span class="stat-value">R$ {{ total_pago|format_currency_br }}</span></div>
+    <div class="stat-card"><span class="stat-label">Regra mais recente</span><span class="stat-value">{% if atual %}{{ atual.descricao }}{% else %}Sem regra cadastrada{% endif %}</span></div>
+  </div>
+  {% if not ex.regras %}
+  <p class="alert-info">{{ corretor }} ainda não tem regra de comissão. Cadastre abaixo para o Siccada calcular os valores.</p>
+  {% endif %}
+  {% if ex.invalidas %}
+  <p class="alert-info">Vendas com data inválida (fora do cálculo — corrija a data da venda):
+    {% for v in ex.invalidas %}{{ v.numero_proposta }} ({{ v.data_venda }}){% if not loop.last %}, {% endif %}{% endfor %}</p>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-header">{{ corretor }}</div>
+    <div class="table-container">
+      <table>
+        <thead><tr>
+          <th>Mês da venda</th><th class="num">Valor da venda</th>
+          {% for k in range(ex.n_parcelas) %}<th class="num">{{ k + 1 }}ª parcela</th>{% endfor %}
+          {% if ex.tem_fixo %}<th class="num">Fixo</th>{% endif %}
+          <th class="col-pagamento">Mês de pagamento</th><th class="num">Valor a pagar</th><th class="num">Valor pago</th>
+          <th>Data de pag.</th><th>Situação</th><th></th>
+        </tr></thead>
+        <tbody>
+        {% for l in ex.linhas %}
+          <tr>
+            <td class="mes">{{ l.mes_venda_rotulo }}</td>
+            <td class="num">R$ {{ l.valor_vendas|format_currency_br }}</td>
+            {% for k in range(ex.n_parcelas) %}<td class="num">R$ {{ l.parcelas[k]|format_currency_br }}</td>{% endfor %}
+            {% if ex.tem_fixo %}<td class="num">R$ {{ l.fixo|format_currency_br }}</td>{% endif %}
+            <td class="mes col-pagamento">{{ l.mes_pagamento_rotulo }}</td>
+            <td class="num">R$ {{ l.valor_a_pagar|format_currency_br }}</td>
+            <td class="num">{% if l.valor_pago is none %}—{% else %}R$ {{ l.valor_pago|format_currency_br }}{% endif %}</td>
+            <td>{% if l.data_pagamento %}{{ l.data_pagamento|format_date_br }}{% else %}—{% endif %}</td>
+            <td><span class="{{ cls.get(l.situacao, 'badge') }}">{{ l.situacao }}</span></td>
+            <td>
+              {% if l.situacao in ('pago', 'a pagar') %}
+              <form method="POST" action="{{ url_for('gerencial.registrar_pagamento_comissao') }}" class="form-pagamento">
+                <input type="hidden" name="corretor" value="{{ corretor }}">
+                <input type="hidden" name="mes_ref" value="{{ l.mes_pagamento }}">
+                <input type="hidden" name="inicio" value="{{ inicio }}">
+                <input type="hidden" name="fim" value="{{ fim }}">
+                {% if l.situacao == 'pago' %}
+                <button type="submit" name="acao" value="desfazer" class="btn btn-secondary btn-sm">Desfazer</button>
+                {% else %}
+                <input type="text" name="valor_pago" aria-label="Valor pago" value="{{ l.valor_a_pagar|format_currency_br }}">
+                <input type="date" name="data_pagamento" aria-label="Data do pagamento" value="{{ hoje }}">
+                <button type="submit" name="acao" value="registrar" class="btn btn-sm">Registrar</button>
+                {% endif %}
+              </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">Cada linha mostra as vendas do mês e, ao lado, o pagamento do mês seguinte (1ª parcela deste mês + 2ª do mês anterior + 3ª de dois meses antes...).
+      Parcelas de vendas canceladas ou de contratos excluídos antes do mês do pagamento não entram.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Regra de comissão</div>
+    {% if ex.regras %}
+    <ul class="versoes">
+      {% for r in ex.regras %}
+      <li>
+        <div>
+          <strong>Vendas a partir de {{ r.vigencia_rotulo }}:</strong> {{ r.descricao }}
+          {% if r.observacao %}<div class="muted">{{ r.observacao }}</div>{% endif %}
+          <div class="muted">Atualizada por {{ r.atualizado_por or '—' }} em {{ (r.atualizado_em or '')[:10]|format_date_br }}</div>
+        </div>
+        <form method="POST" action="{{ url_for('gerencial.salvar_regra_comissao') }}">
+          <input type="hidden" name="corretor" value="{{ corretor }}">
+          <input type="hidden" name="vigencia" value="{{ r.vigencia }}">
+          <input type="hidden" name="inicio" value="{{ inicio }}">
+          <input type="hidden" name="fim" value="{{ fim }}">
+          <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm">Excluir</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <form method="POST" action="{{ url_for('gerencial.salvar_regra_comissao') }}">
+      <input type="hidden" name="corretor" value="{{ corretor }}">
+      <input type="hidden" name="inicio" value="{{ inicio }}">
+      <input type="hidden" name="fim" value="{{ fim }}">
+      <p class="muted">A 1ª parcela é paga no mês seguinte à venda, a 2ª dois meses depois, e assim por diante.
+        Deixe em branco as parcelas que não existem. Se já houver regra no mesmo mês de início, ela é substituída;
+        vendas de meses anteriores continuam com a regra antiga.</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="vigencia">Vale para vendas a partir de</label>
+          <input type="month" id="vigencia" name="vigencia" value="{{ regra_form.vigencia }}" required>
+        </div>
+        <div class="form-group">
+          <label for="valor_fixo">Valor fixo por mês (R$)</label>
+          <input type="text" id="valor_fixo" name="valor_fixo" value="{% if regra_form.valor_fixo %}{{ regra_form.valor_fixo|format_currency_br }}{% endif %}" placeholder="0,00">
+        </div>
+      </div>
+      {% for p in regra_form.parcelas %}
+      <div class="regra-linha">
+        <label for="percentual_{{ loop.index }}">{{ loop.index }}ª parcela</label>
+        <input type="text" id="percentual_{{ loop.index }}" name="percentual_{{ loop.index }}" placeholder="%"
+               value="{{ p.percentual|string|replace('.', ',') if p.percentual != '' else '' }}">
+        <select name="base_{{ loop.index }}" aria-label="Base da {{ loop.index }}ª parcela">
+          <option value="venda">% sobre o valor da venda</option>
+          {% if not loop.first %}<option value="anterior" {% if p.base == 'anterior' %}selected{% endif %}>% sobre a {{ loop.index0 }}ª parcela</option>{% endif %}
+        </select>
+      </div>
+      {% endfor %}
+      <div class="form-group">
+        <label for="observacao">Observação</label>
+        <input type="text" id="observacao" name="observacao" value="{{ regra_form.observacao }}" placeholder="Ex.: contrato assinado em 03/2026">
+      </div>
+      <button type="submit" name="acao" value="salvar" class="btn">Salvar regra</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Vendas consideradas ({{ ex.vendas|length }})</div>
+    {% if not ex.vendas %}<p class="muted">Nenhuma venda no período.</p>{% else %}
+    <div class="table-container">
+      <table>
+        <thead><tr><th>Proposta</th><th>Responsável</th><th>Data da venda</th><th class="num">Valor</th><th>Status</th><th>Encerrada em</th><th>Parcelas</th></tr></thead>
+        <tbody>
+        {% for v in ex.vendas %}
+          <tr>
+            <td>{{ v.numero_proposta }}</td>
+            <td>{{ v.nome_responsavel or '—' }}</td>
+            <td>{{ v.data_venda|format_date_br }}</td>
+            <td class="num">R$ {{ v.valor_venda|format_currency_br }}</td>
+            <td>{{ v.status or '—' }}</td>
+            <td>{% if v.fim %}{{ v.fim|format_date_br }}{% else %}—{% endif %}</td>
+            <td class="parcelas-venda">
+              {% if not v.parcelas %}<span class="muted">sem regra</span>{% endif %}
+              {% for p in v.parcelas %}<span class="{{ '' if p.devida else 'riscado' }}">{{ p.mes_pagamento_rotulo }}: R$ {{ p.valor|format_currency_br }}</span> {% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

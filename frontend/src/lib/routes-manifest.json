@@ -960,6 +960,15 @@
    "args": []
   }
  ],
+ "gerencial.comissoes": [
+  {
+   "rule": "/gerencial/comissoes",
+   "methods": [
+    "GET"
+   ],
+   "args": []
+  }
+ ],
  "gerencial.confirmar_processamento": [
   {
    "rule": "/gerencial/confirmar_processamento_gerencial.html",
@@ -1041,6 +1050,15 @@
    "args": []
   }
  ],
+ "gerencial.registrar_pagamento_comissao": [
+  {
+   "rule": "/gerencial/comissoes/pagamento",
+   "methods": [
+    "POST"
+   ],
+   "args": []
+  }
+ ],
  "gerencial.relatorio": [
   {
    "rule": "/gerencial/gerar_relatorio",
@@ -1065,6 +1083,15 @@
    "rule": "/gerencial/render_relatorio_concessionarias",
    "methods": [
     "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
+ "gerencial.salvar_regra_comissao": [
+  {
+   "rule": "/gerencial/comissoes/regra",
+   "methods": [
     "POST"
    ],
    "args": []

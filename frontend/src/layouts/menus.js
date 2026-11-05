@@ -35,6 +35,7 @@ export function menuPrincipal(session) {
       { href: urlFor('gerencial.processar_csv_form'), label: 'Gerar relatório' },
       { href: urlFor('cad.form_atualizar_data'), label: 'Atualizar banco' },
       { href: urlFor('gerencial.render_relatorio_concessionarias'), label: 'Vendas de concessionárias' },
+      { href: urlFor('gerencial.comissoes'), label: 'Comissões de vendedores' },
     ] },
     { id: 'autorizacao', label: 'Autorização', icon: 'fa-file-circle-check', links: [
       { href: urlFor('amatiss.home'), label: 'Autorizador Amatiss' },

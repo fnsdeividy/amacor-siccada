@@ -435,6 +435,12 @@
    "gerencial.py"
   ]
  },
+ "gerencial/comissoes.html": {
+  "arquivo": "app/templates/gerencial/comissoes.html",
+  "rotas": [
+   "gerencial.py"
+  ]
+ },
  "gerencial/download_relatorio.html": {
   "arquivo": "app/templates/gerencial/download_relatorio.html",
   "rotas": [
