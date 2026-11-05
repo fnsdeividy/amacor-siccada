@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, flash, url_for, session
 from app.models.database import (
     get_usuario_por_email_senha,
+    usuario_esta_ativo,
     usuario_existe_por_email,
     cadastrar_usuario,
     corretora_existe_por_cnpj,
@@ -33,6 +34,10 @@ def login():
         usuario = get_usuario_por_email_senha(email, senha)
         
 
+
+        if usuario and not usuario_esta_ativo(usuario):
+            flash('Seu usuário está desativado. Procure o suporte do sistema.')
+            return redirect(url_for('auth.login'))
 
         if usuario:
             # Salva informações do usuário na sessão

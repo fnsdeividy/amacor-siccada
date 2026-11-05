@@ -435,6 +435,12 @@
    "gerencial.py"
   ]
  },
+ "gerencial/comissoes.html": {
+  "arquivo": "app/templates/gerencial/comissoes.html",
+  "rotas": [
+   "gerencial.py"
+  ]
+ },
  "gerencial/download_relatorio.html": {
   "arquivo": "app/templates/gerencial/download_relatorio.html",
   "rotas": [
@@ -511,6 +517,18 @@
   "arquivo": "app/templates/generic/settings.html",
   "rotas": [
    "generic.py"
+  ]
+ },
+ "suporte/usuario_detalhe.html": {
+  "arquivo": "app/templates/suporte/usuario_detalhe.html",
+  "rotas": [
+   "suporte.py"
+  ]
+ },
+ "suporte/usuarios.html": {
+  "arquivo": "app/templates/suporte/usuarios.html",
+  "rotas": [
+   "suporte.py"
   ]
  },
  "vendas/adicionar_contrato.html": {

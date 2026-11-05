@@ -15,6 +15,7 @@ export default function Definir() {
           <label htmlFor="status">Status da proposta:</label>
           <select name="status" id="status" defaultValue="">
             <option value="" disabled>Selecione</option>
+            <option value="Aguardando entrevista">Aguardando entrevista</option>
             <option value="Enviado ao cadastro">enviado ao cadastro</option>
             <option value="entrevista online enviada">entrevista online enviada</option>
             <option value="enviado para financeiro">Enviar para financeiro</option>
@@ -22,7 +23,10 @@ export default function Definir() {
             <option value="analise de declaração">Enviar para analise</option>
             <option value="entrevista agendada">entrevista Agendada</option>
             <option value="geração de kit">gerar kit</option>
+            <option value="kit enviado">kit enviado</option>
             <option value="contrato finalizado">contrato finalizado</option>
+            <option value="em pendencia">em pendencia</option>
+            <option value="venda cancelada">venda cancelada</option>
           </select>
         </div>
 

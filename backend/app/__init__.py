@@ -13,6 +13,7 @@ from datetime import datetime
 from .routes.enfermagem import enfermagem_bp
 from .routes.amatiss import amatiss_bp
 from .routes.sac import sac_bp
+from .routes.suporte import suporte_bp
 
 from datetime import timedelta
 import os
@@ -60,6 +61,7 @@ def create_app():
     app.register_blueprint(enfermagem_bp, url_prefix= '/enfermagem')
     app.register_blueprint(amatiss_bp, url_prefix='/amatiss')
     app.register_blueprint(sac_bp, url_prefix='/sac')
+    app.register_blueprint(suporte_bp, url_prefix='/suporte')
 
     # as mesmas rotas em JSON sob /api, para o front React
     from . import api
@@ -87,6 +89,19 @@ def create_app():
         if 'user_id' not in session and request.endpoint not in rotas_publicas:
             flash('Sua sessão expirou. Faça login novamente.')
             return redirect(url_for('auth.login'))
+
+        # usuário desativado pelo suporte perde a sessão que estiver aberta
+        if 'user_id' in session and request.endpoint != 'static':
+            from .models.database import ids_usuarios_inativos
+            try:
+                inativos = ids_usuarios_inativos()
+            except Exception as e:  # noqa: BLE001 - banco fora do ar não derruba todo mundo
+                print(f"[usuarios] não foi possível conferir usuários inativos: {e}")
+                inativos = frozenset()
+            if session.get('user_id') in inativos:
+                session.clear()
+                flash('Seu usuário foi desativado. Procure o suporte do sistema.')
+                return redirect(url_for('auth.login'))
     
     @app.template_filter('format_currency_br')
     def format_currency_br(value):

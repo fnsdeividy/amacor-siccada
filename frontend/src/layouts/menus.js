@@ -14,9 +14,14 @@ function grupoSac() {
   ] }
 }
 
+/** Só o suporte do sistema (classe 'dev') vê a área de suporte. */
+export function podeVerSuporte(session) {
+  return session?.classe_usuario === 'dev'
+}
+
 /** base1.html / window.html: o menu de setores, usado na maioria das telas. */
-export function menuPrincipal() {
-  return [
+export function menuPrincipal(session) {
+  const menu = [
     { id: 'comercial', label: 'Comercial', icon: 'fa-briefcase', links: [
       { href: urlFor('vendas.render_tipo_venda'), label: 'Nova venda' },
       { href: urlFor('vendas.informar_cnt'), label: 'Inclusão de beneficiário' },
@@ -38,6 +43,7 @@ export function menuPrincipal() {
       { href: urlFor('gerencial.processar_csv_form'), label: 'Gerar relatório' },
       { href: urlFor('cad.form_atualizar_data'), label: 'Atualizar banco' },
       { href: urlFor('gerencial.render_relatorio_concessionarias'), label: 'Vendas de concessionárias' },
+      { href: urlFor('gerencial.comissoes'), label: 'Comissões de vendedores' },
     ] },
     { id: 'autorizacao', label: 'Autorização', icon: 'fa-file-circle-check', links: [
       { href: urlFor('amatiss.home'), label: 'Autorizador Amatiss' },
@@ -54,6 +60,12 @@ export function menuPrincipal() {
     ] },
     grupoSac(),
   ]
+  if (podeVerSuporte(session)) {
+    menu.push({ id: 'suporte', label: 'Suporte', icon: 'fa-screwdriver-wrench', links: [
+      { href: urlFor('suporte.usuarios'), label: 'Usuários do sistema' },
+    ] })
+  }
+  return menu
 }
 
 /** base.html (layout mais antigo). */

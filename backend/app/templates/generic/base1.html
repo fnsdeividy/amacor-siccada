@@ -171,6 +171,7 @@
             <a href="{{(url_for('gerencial.processar_csv_form')) }}">gerar relatorio</a>
             <a href="{{ url_for('cad.form_atualizar_data') }}">atualizar banco </a>
             <a href="{{ url_for('gerencial.render_relatorio_concessionarias') }}">Vendas de Concessionarias</a>
+            <a href="{{ url_for('gerencial.comissoes') }}">Comissões de vendedores</a>
             
         </div>
 
@@ -195,8 +196,15 @@
         <div class="submenu" id="enfermagem-submenu">
             
             <a href="{{ url_for('enfermagem.declaracao') }}">lançar entrevista</a>
-            
+
         </div>
+
+        {% if session.get('classe_usuario') == 'dev' %}
+        <a href="#" onclick="toggleSubmenu('suporte-submenu')">Suporte 🛠️</a>
+        <div class="submenu" id="suporte-submenu">
+            <a href="{{ url_for('suporte.usuarios') }}">Usuários do sistema</a>
+        </div>
+        {% endif %}
 
     </div>
 
