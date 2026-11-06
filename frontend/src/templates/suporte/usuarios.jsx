@@ -60,6 +60,11 @@ export default function Usuarios() {
         <div className="card">
           <div className="page-toolbar">
             <h1>Usuários do sistema</h1>
+            <div className="page-toolbar-actions">
+              <AppLink className="btn" href={urlFor('suporte.novo_usuario')}>
+                <i className="fa-solid fa-user-plus" aria-hidden="true" /> Novo usuário
+              </AppLink>
+            </div>
           </div>
 
           <ApiForm key={JSON.stringify(filtros)} method="GET" action={urlFor('suporte.usuarios')}

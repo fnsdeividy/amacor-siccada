@@ -1325,6 +1325,16 @@
    ]
   }
  ],
+ "suporte.novo_usuario": [
+  {
+   "rule": "/suporte/usuarios/novo",
+   "methods": [
+    "GET",
+    "POST"
+   ],
+   "args": []
+  }
+ ],
  "suporte.usuario_detalhe": [
   {
    "rule": "/suporte/usuarios/<int:usuario_id>",

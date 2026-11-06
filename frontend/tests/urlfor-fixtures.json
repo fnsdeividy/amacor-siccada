@@ -314,16 +314,16 @@
  [
   "vendas.preco_idade",
   {
-   "plano": "valor x/ç",
-   "idade": "42"
+   "idade": "42",
+   "plano": "valor x/ç"
   },
   "/vendas/preco/idade/42/valor%20x/%C3%A7"
  ],
  [
   "vendas.preco_idade",
   {
-   "plano": "valor x/ç",
    "idade": "42",
+   "plano": "valor x/ç",
    "filtro": "sim",
    "lista": "todos"
   },
@@ -332,16 +332,16 @@
  [
   "vendas.status_proposta",
   {
-   "plano_tipo": "valor x/ç",
-   "corretor_resp": "valor x/ç"
+   "corretor_resp": "valor x/ç",
+   "plano_tipo": "valor x/ç"
   },
   "/vendas/status_proposta/valor%20x/%C3%A7/valor%20x/%C3%A7"
  ],
  [
   "vendas.status_proposta",
   {
-   "plano_tipo": "valor x/ç",
    "corretor_resp": "valor x/ç",
+   "plano_tipo": "valor x/ç",
    "filtro": "sim",
    "lista": "todos"
   },
@@ -2059,6 +2059,19 @@
    "lista": "todos"
   },
   "/suporte/usuarios?filtro=sim&lista=todos"
+ ],
+ [
+  "suporte.novo_usuario",
+  {},
+  "/suporte/usuarios/novo"
+ ],
+ [
+  "suporte.novo_usuario",
+  {
+   "filtro": "sim",
+   "lista": "todos"
+  },
+  "/suporte/usuarios/novo?filtro=sim&lista=todos"
  ],
  [
   "suporte.usuario_detalhe",
