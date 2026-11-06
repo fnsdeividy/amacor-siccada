@@ -1,0 +1,82 @@
+{% extends "window.html" %}
+
+{% block title %}Novo usuário{% endblock %}
+
+{% block window_content %}
+<style>
+    .suporte-novo { max-width: 640px; }
+    .suporte-novo .campo { margin-bottom: 12px; }
+    .suporte-novo label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .suporte-novo input, .suporte-novo select { width: 100%; }
+    .suporte-novo .erro { color: #b00020; font-size: 13px; }
+    .suporte-novo .acoes { display: flex; gap: 12px; margin-top: 16px; }
+</style>
+
+{% macro erro(campo) %}{% if erros.get(campo) %}<div class="erro">{{ erros[campo] }}</div>{% endif %}{% endmacro %}
+
+<div class="suporte-novo">
+    <h1>Novo usuário</h1>
+    {{ erro('geral') }}
+
+    <form method="POST" action="{{ url_for('suporte.novo_usuario') }}">
+        <div class="campo">
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" name="nome" value="{{ dados.nome }}" required>
+            {{ erro('nome') }}
+        </div>
+        <div class="campo">
+            <label for="cpf">CPF</label>
+            <input type="text" id="cpf" name="cpf" value="{{ dados.cpf }}" inputmode="numeric" required>
+            {{ erro('cpf') }}
+        </div>
+        <div class="campo">
+            <label for="email">E-mail (login)</label>
+            <input type="email" id="email" name="email" value="{{ dados.email }}" required>
+            {{ erro('email') }}
+        </div>
+        <div class="campo">
+            <label for="tipo_usuario">Área</label>
+            <select id="tipo_usuario" name="tipo_usuario" required>
+                <option value="">Escolha…</option>
+                {% for o in areas %}
+                <option value="{{ o.valor }}" {% if dados.tipo_usuario == o.valor %}selected{% endif %}>{{ o.rotulo }}</option>
+                {% endfor %}
+            </select>
+            {{ erro('tipo_usuario') }}
+        </div>
+        <div class="campo">
+            <label for="classe_usuario">Classe</label>
+            <select id="classe_usuario" name="classe_usuario" required>
+                {% for o in classes %}
+                <option value="{{ o.valor }}" {% if dados.classe_usuario == o.valor %}selected{% endif %}>{{ o.rotulo }}</option>
+                {% endfor %}
+            </select>
+            {{ erro('classe_usuario') }}
+        </div>
+        <div class="campo">
+            <label for="identificador_proposta_pf">Identificador de proposta PF (só vendedor)</label>
+            <input type="text" id="identificador_proposta_pf" name="identificador_proposta_pf" value="{{ dados.identificador_proposta_pf }}">
+            {{ erro('identificador_proposta_pf') }}
+        </div>
+        <div class="campo">
+            <label for="identificador_proposta_pj">Identificador de proposta PJ (só vendedor)</label>
+            <input type="text" id="identificador_proposta_pj" name="identificador_proposta_pj" value="{{ dados.identificador_proposta_pj }}">
+            {{ erro('identificador_proposta_pj') }}
+        </div>
+        <div class="campo">
+            <label for="senha">Senha inicial (mínimo {{ senha_minimo }} caracteres)</label>
+            <input type="password" id="senha" name="senha" autocomplete="new-password" minlength="{{ senha_minimo }}" required>
+            {{ erro('senha') }}
+        </div>
+        <div class="campo">
+            <label for="senha_confirmacao">Confirme a senha</label>
+            <input type="password" id="senha_confirmacao" name="senha_confirmacao" autocomplete="new-password" required>
+            {{ erro('senha_confirmacao') }}
+        </div>
+        <div class="acoes">
+            <button class="btn" type="submit">Cadastrar usuário</button>
+            <a class="btn" href="{{ url_for('suporte.usuarios') }}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

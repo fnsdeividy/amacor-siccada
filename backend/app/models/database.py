@@ -3676,3 +3676,64 @@ def definir_usuario_ativo(usuario_id, ativo, database_path=None):
     # este processo passa a ver a mudança na hora; os outros, em poucos segundos
     _inativos_cache['lido_em'] = None
     return alterados > 0
+
+
+def _so_digitos(valor):
+    return ''.join(ch for ch in str(valor or '') if ch.isdigit())
+
+
+def conflitos_novo_usuario(email, cpf, database_path=None):
+    """
+    Campos ('email', 'cpf') que já pertencem a outro usuário.
+    E-mail sem diferença de maiúsculas/espaços; CPF só pelos dígitos, porque
+    o banco tem CPFs gravados com e sem pontuação.
+    """
+    email_norm = (email or '').strip().lower()
+    cpf_norm = _so_digitos(cpf)
+    conn = get_db_connection(database_path)
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT email, cpf FROM usuarios")
+        conflitos = set()
+        for row in cur.fetchall():
+            if email_norm and (row['email'] or '').strip().lower() == email_norm:
+                conflitos.add('email')
+            if cpf_norm and _so_digitos(row['cpf']) == cpf_norm:
+                conflitos.add('cpf')
+        return conflitos
+    finally:
+        conn.close()
+
+
+def criar_usuario_admin(nome, cpf, email, senha_hash, tipo_usuario, classe_usuario,
+                        identificador_proposta_pf=None, identificador_proposta_pj=None,
+                        database_path=None):
+    """
+    Cadastra um usuário pela tela do suporte (já ativo) e devolve o id dele.
+    A senha chega já com hash (o mesmo do login, cripto.hash_senha).
+    """
+    conn = get_db_connection(database_path)
+    try:
+        garantir_coluna_ativo(conn)
+        cur = conn.cursor()
+        cur.execute(
+            """
+            INSERT INTO usuarios (
+                nome, cpf, email, senha, tipo_usuario, classe_usuario,
+                identificador_proposta_pf, identificador_proposta_pj, ativo
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+            """,
+            (nome, cpf, email, senha_hash, tipo_usuario, classe_usuario,
+             identificador_proposta_pf, identificador_proposta_pj),
+        )
+        conn.commit()
+        cur.execute("SELECT id FROM usuarios WHERE email = ? AND cpf = ? ORDER BY id DESC LIMIT 1",
+                    (email, cpf))
+        row = cur.fetchone()
+        return row['id'] if row else None
+    except db.Error:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()

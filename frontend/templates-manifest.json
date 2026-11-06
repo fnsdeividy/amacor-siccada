@@ -525,6 +525,12 @@
    "suporte.py"
   ]
  },
+ "suporte/usuario_novo.html": {
+  "arquivo": "app/templates/suporte/usuario_novo.html",
+  "rotas": [
+   "suporte.py"
+  ]
+ },
  "suporte/usuarios.html": {
   "arquivo": "app/templates/suporte/usuarios.html",
   "rotas": [
