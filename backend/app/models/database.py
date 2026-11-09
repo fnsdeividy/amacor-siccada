@@ -95,6 +95,47 @@ def mudar_senha(email, novasenha, database_path=None):
     conn.close()
     return True
 
+def _idade_dependente(idade, data_nascimento):
+    """Idade como número, ou calculada pela data de nascimento; None se não der."""
+    texto = str(idade).strip() if idade is not None else ''
+    if texto:
+        try:
+            return float(texto.replace(',', '.'))
+        except ValueError:
+            pass
+    for fmt in ('%d/%m/%Y', '%Y-%m-%d'):
+        try:
+            nasc = datetime.strptime(str(data_nascimento).strip(), fmt).date()
+        except (TypeError, ValueError):
+            continue
+        hoje = datetime.now().date()
+        return hoje.year - nasc.year - ((hoje.month, hoje.day) < (nasc.month, nasc.day))
+    return None
+
+
+def motivo_erro_venda(erro):
+    """Traduz o erro de salvar_venda numa mensagem para o usuário (SQLite e Postgres)."""
+    texto = str(erro)
+    baixo = texto.lower()
+    if isinstance(erro, ValueError) and texto.startswith('Data invalida'):
+        return texto
+    if 'numero_proposta' in baixo and ('unique' in baixo or 'duplicate' in baixo):
+        return "Proposta já cadastrada. Verifique o número da proposta."
+    if 'titulares' in baixo and ('unique' in baixo or 'duplicate' in baixo):
+        return "Dados de titular já cadastrado, verifique as informações da venda"
+    if 'responsavel' in baixo and ('unique' in baixo or 'duplicate' in baixo):
+        return "Dados de responsavel já cadastrado, verifique as informações da venda"
+    if 'not null' in baixo or 'not-null' in baixo:
+        coluna = getattr(getattr(erro, 'diag', None), 'column_name', None)
+        sufixo = f" (campo: {coluna})" if coluna else ""
+        return f"Algum campo obrigatório não foi preenchido{sufixo}."
+    if 'foreign key' in baixo:
+        return "Dados relacionados não encontrados. Verifique dependentes/titular."
+    if 'invalid input syntax' in baixo:
+        return f"Algum campo numérico foi preenchido com valor inválido ({texto.splitlines()[0]})."
+    return f"Erro inesperado ao salvar a venda ({type(erro).__name__}: {texto.splitlines()[0][:200] if texto else ''})."
+
+
 def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
     from ..api_conex.conections import email_gmail, msg_email
     from ..verifix import validar_data_introduzida
@@ -102,6 +143,7 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
     Salva os dados da venda, responsável, titular e dependentes no banco de dados.
     Agora usa apenas proposta_id (TEXT) como referência, sem venda_id.
     """
+    conn = None
     try:
         def _validar_data_campo(valor_data, nome_campo, ano_minimo=1900, permitir_hoje=True):
             resultado = validar_data_introduzida(
@@ -124,6 +166,14 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
                     f'dependente[{i}].data_nascimento',
                     ano_minimo=1900,
                     permitir_hoje=True,
+                )
+
+        # Idade do dependente vai para uma coluna numérica no Postgres: vazio
+        # quebra o INSERT. Se o navegador não calculou, calcula aqui pela data.
+        if dependentes:
+            for dependente in dependentes:
+                dependente['idade_dependente'] = _idade_dependente(
+                    dependente.get('idade_dependente'), dependente.get('data_nascimento')
                 )
 
         conn = get_db_connection(database_path)
@@ -174,9 +224,11 @@ def salvar_venda(venda, responsavel, titular, dependentes, database_path=None):
 
     except Exception as e:
         print("erro em:", e)
-        conn.rollback()
-        conn.close()
-        raise e
+        # a validação de datas falha antes de abrir a conexão
+        if conn is not None:
+            conn.rollback()
+            conn.close()
+        raise
     
 def get_email(proposta_id, database_path=None):
     print(f"Proposta ID para email recebido: {proposta_id}")
