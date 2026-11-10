@@ -30,7 +30,8 @@ caminho_pdf= os.path.join(os.getcwd(), 'static', 'docx_edit', 'saida_pdf', 'docu
 os.makedirs(pasta_saida, exist_ok=True)
 
 def limpar_pasta_saida(pasta_saida):
-    """Remove todos os arquivos da pasta de saída."""
+    """Remove todos os arquivos da pasta de saída (criando a pasta se não existir)."""
+    os.makedirs(pasta_saida, exist_ok=True)
     for arquivo in os.listdir(pasta_saida):
         caminho_arquivo = os.path.join(pasta_saida, arquivo)
         try:
@@ -42,6 +43,36 @@ def limpar_pasta_saida(pasta_saida):
         except Exception as e:
             print(f"Erro ao remover {caminho_arquivo}: {e}")
 
+
+
+def _normalizar_nome(nome):
+    """Minúsculas e sem acentos, para comparar nomes de arquivo."""
+    import unicodedata
+    nome = unicodedata.normalize('NFKD', nome)
+    return ''.join(c for c in nome if not unicodedata.combining(c)).casefold().strip()
+
+
+def achar_arquivo(pasta, nome):
+    """Caminho do arquivo `nome` em `pasta`, ignorando maiúsculas e acentos
+    (no Windows o sistema de arquivos já ignorava; no Linux do servidor, não)."""
+    caminho = os.path.join(pasta, nome)
+    if os.path.exists(caminho) or not os.path.isdir(pasta):
+        return caminho
+    alvo = _normalizar_nome(nome)
+    for arquivo in sorted(os.listdir(pasta)):
+        if _normalizar_nome(arquivo) == alvo:
+            return os.path.join(pasta, arquivo)
+    return caminho
+
+
+def path_soffice():
+    """Executável do LibreOffice: app/paths.py (máquina local, fora do git) ou o do PATH."""
+    try:
+        from ..paths import path_soffice as caminho_local
+        return caminho_local()
+    except ImportError:
+        pass
+    return shutil.which('soffice') or shutil.which('libreoffice') or 'soffice'
 
 
 def encerrar_processos_word():
@@ -121,7 +152,7 @@ def processar_documentos(lista_documentos,plano_nome):
             caminhos_grupo2.append(caminho_saida_pdf)
 
     # Adicionar o guia de leitura com base no plano
-    guia_leitura = os.path.join(pasta_raiz, f'guia_leitura_{plano_nome}.pdf')
+    guia_leitura = achar_arquivo(pasta_raiz, f'guia_leitura_{plano_nome}.pdf')
     print (plano_nome)
     if os.path.exists(guia_leitura):
         caminhos_grupo2.append(guia_leitura)
@@ -138,7 +169,6 @@ import os
 import subprocess
 
 def docx_para_pdf(caminho_docx, caminho_pdf):
-    from ..paths import path_soffice
     try:
         soffice_path = path_soffice()
         print ("localização do soffice",soffice_path)
@@ -237,7 +267,7 @@ def gerar_documentos():
         # Lista de documentos a serem processados
         lista_documentos = [
             {
-                'caminho': os.path.join(pasta_raiz, f'{plano_nome}.docx'),
+                'caminho': achar_arquivo(pasta_raiz, f'{plano_nome}.docx'),
                 'saida': 'contrato.docx',
                 'placeholders': {
                     '{{nome_responsavel}}': nome_responsavel,
@@ -331,7 +361,6 @@ def upload_documento():
     return render_template('geradores/upload_documento.html')
 
 def converter_doc_para_docx(caminho_doc, pasta_saida):
-    from ..paths import path_soffice
     soffice_path = path_soffice()
     
     subprocess.run([
