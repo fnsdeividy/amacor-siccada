@@ -46,7 +46,7 @@ def combine_pdfs(front_pdf, back_pdf, output_pdf):
 pdf_bp = Blueprint('pdfgen', __name__)
 
 @pdf_bp.route('/criar_card', methods=['GET', 'POST'])
-@acesso('cadastro', 'cobranca','administrativo')
+@acesso('cadastro', 'cobranca', 'administrativo', 'financeiro')
 
 def create_card():
         return render_template("geradores/create_card.html")
