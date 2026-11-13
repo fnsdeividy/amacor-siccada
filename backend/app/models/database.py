@@ -998,6 +998,26 @@ def usuario_existe_por_email(email, database_path=None):
     return existe
 
 
+def usuario_existe_por_cpf(cpf, database_path=None):
+    """Retorna True quando já existe usuário com o CPF informado.
+
+    Compara só os dígitos, porque há CPFs gravados com e sem máscara.
+    """
+    digitos = ''.join(ch for ch in str(cpf or '') if ch.isdigit())
+    if not digitos:
+        return False
+
+    conn = get_db_connection(database_path)
+    cur = conn.cursor()
+    cur.execute("SELECT cpf FROM usuarios")
+    existe = any(
+        ''.join(ch for ch in str(row[0] or '') if ch.isdigit()) == digitos
+        for row in cur.fetchall()
+    )
+    conn.close()
+    return existe
+
+
 def cadastrar_usuario(
     nome,
     cpf,
@@ -1061,6 +1081,11 @@ def cadastrar_usuario(
         )
         conn.commit()
         return True
+    except db.IntegrityError:
+        # CPF/email repetido (ou outra restrição do banco): avisa na tela
+        # em vez de estourar erro 500.
+        conn.rollback()
+        return False
     except db.Error as e:
         conn.rollback()
         raise e
