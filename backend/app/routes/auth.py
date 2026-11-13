@@ -3,6 +3,7 @@ from app.models.database import (
     get_usuario_por_email_senha,
     usuario_esta_ativo,
     usuario_existe_por_email,
+    usuario_existe_por_cpf,
     cadastrar_usuario,
     corretora_existe_por_cnpj,
 )
@@ -103,6 +104,9 @@ def cadastrar():
 
         if exist:
             flash("Este email já possui cadastro")
+
+        elif usuario_existe_por_cpf(cpf):
+            flash("Este CPF já possui cadastro")
 
         else:
 
