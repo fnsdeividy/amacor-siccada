@@ -878,15 +878,21 @@ def excluir_proposta(proposta_id, motivo,database_path=None):
     """
     Exclui uma proposta e todos os seus dados associados do banco de dados.
     """
+    conn = None
     try:
         dados= get_info_cancelamento(proposta_id)
         print(dados)
         print("iniciando exclusao proposta: ", proposta_id)
-        
+
         conn = get_db_connection(database_path)
-        conn.execute("PRAGMA foreign_keys = ON;")  # Ativa cascade
         cur = conn.cursor()
 
+        # No Postgres as chaves estrangeiras não foram recriadas na migração,
+        # então não há ON DELETE CASCADE: apaga os filhos explicitamente.
+        # Sem isso o titular fica órfão e, como o CPF é UNIQUE, a próxima
+        # proposta com o mesmo titular falha com "Dados de titular já cadastrado".
+        for tabela in ('dependentes', 'titulares', 'responsavel'):
+            cur.execute(f"DELETE FROM {tabela} WHERE proposta_id = ?", (proposta_id,))
         cur.execute("DELETE FROM venda WHERE numero_proposta = ?", (proposta_id,))
         conn.commit()
         valor_mensalidade= dados['valor_venda']
@@ -895,10 +901,12 @@ def excluir_proposta(proposta_id, motivo,database_path=None):
 
         log_exclusao_proposta(proposta_id, motivo, valor_mensalidade, vidas, corretor_resp)
     except Exception as e:
-        conn.rollback()
+        if conn is not None:
+            conn.rollback()
         raise e
     finally:
-        conn.close()
+        if conn is not None:
+            conn.close()
 
 def get_dados_proposta(proposta_id, database_path=None):
     """
